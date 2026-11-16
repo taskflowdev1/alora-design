@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/*.ts": { "includeFiles": "src/{styles,components/ui,lib}/**" }
+  },
+  "rewrites": [
+    { "source": "/r/:name.json", "destination": "/api/r?name=:name" },
+    { "source": "/tokens.css", "destination": "/api/tokens?format=css" },
+    { "source": "/tokens.json", "destination": "/api/tokens?format=json" },
+    { "source": "/tailwind.css", "destination": "/api/tokens?format=tailwind" },
+    { "source": "/((?!api/|assets/|favicon\\.svg).*)", "destination": "/index.html" }
+  ]
+}
