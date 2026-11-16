@@ -1,0 +1,84 @@
+/* Alora Design base rules. Corner shape, one scrollbar style, no focus rings. */
+*, ::before, ::after {
+  corner-shape: var(--ad-corner);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ad-scroll) transparent;
+}
+.rounded-full, [data-shape="round"] {
+  corner-shape: round;
+}
+html {
+  font-family: var(--ad-font);
+  font-size: var(--ad-text-body);
+  line-height: 1.45;
+  color: var(--ad-ink);
+  background: var(--ad-page);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+:focus, :focus-visible {
+  outline: none;
+}
+::selection {
+  background: var(--ad-brand-soft);
+  color: var(--ad-ink);
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ad-scroll);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.ad-on-dark {
+  --ad-surface: var(--ad-side-raised);
+  --ad-raised: var(--ad-side-raised);
+  --ad-fill: var(--ad-side-fill);
+  --ad-fill-hover: var(--ad-side-fill-hover);
+  --ad-fill-strong: var(--ad-side-fill-hover);
+  --ad-ink: var(--ad-side-ink);
+  --ad-ink-muted: var(--ad-side-muted);
+  --ad-ink-faint: var(--ad-side-muted);
+  --ad-scroll: rgba(255, 255, 255, 0.16);
+  color: var(--ad-ink);
+}
+@keyframes ad-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+@keyframes ad-in {
+  from { opacity: 0; transform: translateY(-3px) scale(0.98); }
+}
+@keyframes ad-out {
+  to { opacity: 0; transform: scale(0.98); }
+}
+@keyframes ad-fade-in {
+  from { opacity: 0; }
+}
+@keyframes ad-fade-out {
+  to { opacity: 0; }
+}
+@keyframes ad-sheet-in {
+  from { transform: translateX(calc(100% + 24px)); }
+}
+@keyframes ad-sheet-out {
+  to { transform: translateX(calc(100% + 24px)); }
+}
+@keyframes ad-up {
+  from { opacity: 0; transform: translateY(12px); }
+}
+svg[stroke="currentColor"][stroke-linecap="round"] {
+  stroke-width: var(--ad-icon-stroke, 1.75);
+}
