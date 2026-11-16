@@ -219,7 +219,7 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
       {showSafeArea && viz
         ? createPortal(
             <svg className="pointer-events-none fixed inset-0 z-[60] size-full" aria-hidden>
-              <polygon points={viz.map((p) => `${p.x},${p.y}`).join(" ")} fill="var(--ad-brand)" fillOpacity={0.14} />
+              <polygon points={viz.map((p) => `${p.x},${p.y}`).join(" ")} style={{ fill: "var(--ad-brand)", fillOpacity: 0.16 }} />
             </svg>,
             document.body,
           )

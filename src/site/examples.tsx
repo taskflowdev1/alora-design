@@ -29,7 +29,7 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { Dialog, DialogClose } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
-import { Loading, LoadingText, Skeleton } from "@/components/ui/skeleton";
+import { Loading, LoadingText } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
 import { SLink } from "./config";
@@ -183,29 +183,20 @@ function Dashboard() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader title={range === "day" ? "Sales by hour" : "Sales, last 30 days"} />
-          {loading ? (
-            <Skeleton className="mt-4 h-[178px]" />
-          ) : range === "day" ? (
-            <BarChart data={HOURLY} current={6} labelEvery={1} height={150} className="mt-4" aria-label="Sales by hour" />
+          {range === "day" ? (
+            <BarChart data={HOURLY} current={6} labelEvery={1} height={150} loading={loading} className="mt-4" aria-label="Sales by hour" />
           ) : (
-            <BarChart data={DAILY} current={29} labelEvery={5} height={150} className="mt-4" aria-label="Sales, last 30 days" />
+            <BarChart data={DAILY} current={29} labelEvery={5} height={150} loading={loading} className="mt-4" aria-label="Sales, last 30 days" />
           )}
         </Card>
         <Card inset="nest">
           <CardHeader title="By shop" className="px-2 pt-2" action={shop ? <Button variant="ghost" size="sm" onClick={() => setShop(null)}>All shops</Button> : undefined} />
-          {loading ? (
-            <div className="grid gap-px">
-              {SHOPS.map((s) => (
-                <Skeleton key={s} className="h-row" />
-              ))}
-            </div>
-          ) : (
-            <BarList
-              selected={shop}
-              onSelect={setShop}
-              data={SHOPS.map((s, i) => ({ key: s, label: s, value: [12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i], display: `Rp ${[12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i].toLocaleString("id-ID")} jt` }))}
-            />
-          )}
+          <BarList
+            loading={loading}
+            selected={shop}
+            onSelect={setShop}
+            data={SHOPS.map((s, i) => ({ key: s, label: s, value: [12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i], display: `Rp ${[12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i].toLocaleString("id-ID")} jt` }))}
+          />
         </Card>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">

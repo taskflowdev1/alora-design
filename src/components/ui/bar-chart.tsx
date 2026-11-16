@@ -10,12 +10,16 @@ export interface BarChartProps {
   current?: number;
   /** Label every nth bar along the bottom. */
   labelEvery?: number;
+  /** Same boxes as the loaded chart, pulsing. */
+  loading?: boolean;
   className?: string;
   "aria-label"?: string;
 }
 
+const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-ink/8";
+
 /** Slim bars in shades of the one accent, one shared bar radius. No gridlines, no axes. */
-export function BarChart({ data, height = 140, current, labelEvery = 1, className, ...aria }: BarChartProps) {
+export function BarChart({ data, height = 140, current, labelEvery = 1, loading, className, ...aria }: BarChartProps) {
   const [hover, setHover] = React.useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.value));
   const shown = hover;
@@ -28,21 +32,21 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, classNam
             <div
               className={cn(
                 "w-full max-w-2.5 rounded-small transition-[background-color,height] duration-[220ms] ease-ad",
-                i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
+                loading ? pulse : i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
               )}
-              style={{ height: `${Math.max(2, (d.value / max) * 100)}%` }}
+              style={{ height: loading ? "40%" : `${Math.max(2, (d.value / max) * 100)}%` }}
             />
           </div>
         ))}
       </div>
       <div className="mt-2 flex justify-between gap-[3px] text-small text-ink-muted">
         {data.map((d, i) => (
-          <span key={i} className="flex-1 truncate text-center">
-            {i % labelEvery === 0 ? d.label : ""}
+          <span key={i} className="flex min-w-0 flex-1 justify-center whitespace-nowrap">
+            {i % labelEvery === 0 ? <span className={cn(loading && cn(pulse, "rounded-small text-transparent"))}>{d.label}</span> : ""}
           </span>
         ))}
       </div>
-      {shown != null && data[shown] ? (
+      {!loading && shown != null && data[shown] ? (
         <figcaption
           className="pointer-events-none absolute top-0 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-item bg-on px-2 py-1 text-small tabular-nums text-on-ink shadow-raised"
           style={{ left: `${((shown + 0.5) / data.length) * 100}%` }}
@@ -59,11 +63,12 @@ export interface BarListProps {
   /** Rows are filters for the list below them. */
   selected?: string | null;
   onSelect?: (key: string | null) => void;
+  loading?: boolean;
   className?: string;
 }
 
 /** Horizontal slim bars with labels; clicking a row filters. */
-export function BarList({ data, selected, onSelect, className }: BarListProps) {
+export function BarList({ data, selected, onSelect, loading, className }: BarListProps) {
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
     <ul className={cn("grid gap-px", className)}>
@@ -80,11 +85,13 @@ export function BarList({ data, selected, onSelect, className }: BarListProps) {
                 on ? "bg-fill-hover" : "hover:bg-fill focus-visible:bg-fill",
               )}
             >
-              <span className="truncate text-ink">{d.label}</span>
-              <span className="h-2 rounded-small bg-fill">
-                <span className="block h-full rounded-small bg-chart-2" style={{ width: `${(d.value / max) * 100}%` }} />
+              <span className="truncate text-ink">
+                <span className={cn(loading && cn(pulse, "rounded-small text-transparent"))}>{d.label}</span>
               </span>
-              <span className="tabular-nums text-ink">{d.display ?? d.value.toLocaleString("id-ID")}</span>
+              <span className={cn("h-2 rounded-small", loading ? pulse : "bg-fill")}>
+                {loading ? null : <span className="block h-full rounded-small bg-chart-2" style={{ width: `${(d.value / max) * 100}%` }} />}
+              </span>
+              <span className={cn("tabular-nums text-ink", loading && cn(pulse, "rounded-small text-transparent"))}>{d.display ?? d.value.toLocaleString("id-ID")}</span>
             </button>
           </li>
         );

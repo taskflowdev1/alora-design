@@ -78,6 +78,7 @@ async function shiftCheck(page, label) {
   const handles = await page.$$("button:not([disabled]), [role=option], [role=menuitem], input, [role=tab], [role=radio], label");
   for (const h of handles.slice(0, 14)) {
     try {
+      await h.scrollIntoViewIfNeeded({ timeout: 500 });
       const before = await h.boundingBox();
       if (!before || before.width < 4) continue;
       await h.hover({ timeout: 500 });

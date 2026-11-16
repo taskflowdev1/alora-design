@@ -202,6 +202,8 @@ function ToolbarTile() {
   const [q, setQ] = React.useState("");
   const [shop, setShop] = React.useState("all");
   const [status, setStatus] = React.useState<string[]>(["Paid"]);
+  const [week, setWeek] = React.useState(NOW);
+  const [view, setView] = React.useState("list");
   return (
     <Tile >
       <Toolbar>
@@ -214,7 +216,18 @@ function ToolbarTile() {
           options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]}
         />
         <MultiSelect aria-label="Status" value={status} onValueChange={setStatus} placeholder="Status" options={["Paid", "Packed", "Shipped", "Unpaid"].map((s) => ({ value: s, label: s }))} />
-        <Button variant="primary" className="sm:ml-auto">
+        <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
+        <Segmented
+          aria-label="View"
+          value={view}
+          onValueChange={setView}
+          className="sm:ml-auto"
+          options={[
+            { value: "list", label: "List" },
+            { value: "board", label: "Board" },
+          ]}
+        />
+        <Button variant="primary">
           <Plus />
           Add order
         </Button>
