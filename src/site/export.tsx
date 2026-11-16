@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
-import { Status } from "@/components/ui/status";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/ui/toolbar";
 import themeCss from "@/styles/theme.css?raw";
@@ -115,7 +115,7 @@ export function ExportPage() {
             </div>
           </Card>
           <Card className="grid gap-3">
-            <CardHeader title="Install with shadcn" action={<Status>{REGISTRY_ITEMS.length} components</Status>} />
+            <CardHeader title="Install with shadcn" action={<Badge>{REGISTRY_ITEMS.length}</Badge>} />
             <Combobox
               aria-label="Component"
               value={component}

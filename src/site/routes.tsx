@@ -19,6 +19,7 @@ function NotFound() {
 export const router = createBrowserRouter([
   {
     element: <SiteLayout />,
+    errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" />,
     children: [
       { path: "/", element: <Landing /> },
       { path: "/gallery", element: <GalleryIndex /> },

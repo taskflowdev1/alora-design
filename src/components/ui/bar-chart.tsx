@@ -18,7 +18,8 @@ export interface BarChartProps {
 export function BarChart({ data, height = 140, current, labelEvery = 1, className, ...aria }: BarChartProps) {
   const [hover, setHover] = React.useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.value));
-  const shown = hover ?? current ?? null;
+  const shown = hover;
+  const strong = hover ?? current ?? null;
   return (
     <figure aria-label={aria["aria-label"]} className={cn("relative select-none", className)}>
       <div className="flex items-end justify-between gap-[3px]" style={{ height }} onPointerLeave={() => setHover(null)}>
@@ -27,7 +28,7 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, classNam
             <div
               className={cn(
                 "w-full max-w-2.5 rounded-small transition-[background-color,height] duration-[220ms] ease-ad",
-                i === shown ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
+                i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
               )}
               style={{ height: `${Math.max(2, (d.value / max) * 100)}%` }}
             />

@@ -29,7 +29,7 @@ import { Toolbar } from "@/components/ui/toolbar";
 import { SLink, shapedSupported, useConfig } from "./config";
 import { CornerControl, RadiusControl, SmoothingControl } from "./config-panel";
 import { Wordmark } from "./layout";
-import { HOURLY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime } from "./data";
+import { HOURLY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM } from "./data";
 
 /* The signature visual: card > panel > pill > button, every corner concentric. */
 function ConcentricStack() {
@@ -106,7 +106,7 @@ function Tile({ className, children, ...props }: React.ComponentProps<typeof Car
 
 function MetricsTile() {
   return (
-    <div className="col-span-full flex flex-wrap gap-4 lg:col-span-7">
+    <div className="flex flex-wrap gap-4 ">
       <MetricCard primary label="Sales today" value={formatRp(48240000)} delta={{ value: "9,7%", direction: "up" }} />
       <MetricCard label="Orders" value="312" />
       <MetricCard label="Basket" value={formatRp(154600)} />
@@ -118,7 +118,7 @@ function MetricsTile() {
 function ChartTile() {
   const [range, setRange] = React.useState("day");
   return (
-    <Tile className="col-span-full md:col-span-3 lg:col-span-5 lg:row-span-2">
+    <Tile >
       <CardHeader
         title="Sales"
         action={
@@ -142,7 +142,7 @@ function ChartTile() {
 function StockTile() {
   const low = PRODUCTS.filter((p) => p.stock < 5).slice(0, 4);
   return (
-    <Tile inset="nest" className="col-span-full md:col-span-3 lg:col-span-4">
+    <Tile inset="nest" >
       <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2" />
       <AttentionList className="mt-1">
         {low.map((p) => (
@@ -155,7 +155,7 @@ function StockTile() {
 
 function MenuTile() {
   return (
-    <Tile className="col-span-full flex flex-col gap-3 md:col-span-3 lg:col-span-3">
+    <Tile className="flex flex-col gap-3 ">
       <CardHeader
         title="Order RMB-24817"
         action={
@@ -203,7 +203,7 @@ function ToolbarTile() {
   const [shop, setShop] = React.useState("all");
   const [status, setStatus] = React.useState<string[]>(["Paid"]);
   return (
-    <Tile className="col-span-full lg:col-span-7">
+    <Tile >
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Order or product" wrapperClassName="w-full sm:w-56" />
         <Select
@@ -226,12 +226,11 @@ function ToolbarTile() {
 function TableTile() {
   const [sel, setSel] = React.useState(1);
   return (
-    <Tile inset="nest" className="col-span-full lg:col-span-7">
+    <Tile inset="nest" >
       <Table>
         <THead>
           <tr>
             <TH>Order</TH>
-            <TH>Time</TH>
             <TH>Shop</TH>
             <TH>Status</TH>
             <TH align="right">Total</TH>
@@ -241,7 +240,6 @@ function TableTile() {
           {ORDERS.slice(0, 5).map((o, i) => (
             <TRow key={o.id} selected={sel === i} onActivate={() => setSel(i)}>
               <TD>{o.id}</TD>
-              <TD className="text-ink-muted">{smartTime(o.at)}</TD>
               <TD>{o.shop}</TD>
               <TD>
                 <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{o.status}</Status>
@@ -265,7 +263,7 @@ function SettingsTile() {
     ["Ask why a sale is cancelled", c, setC],
   ];
   return (
-    <Tile inset="nest" className="col-span-full md:col-span-3 lg:col-span-5">
+    <Tile inset="nest" >
       <CardHeader title="Checkout" className="px-2" />
       <div className="grid gap-px">
         {rows.map(([label, v, set]) => (
@@ -283,7 +281,7 @@ function ChipsTile() {
   const [on, setOn] = React.useState("all");
   const [tags, setTags] = React.useState(["Kemang", "This week"]);
   return (
-    <Tile className="col-span-full flex flex-col gap-3 md:col-span-3 lg:col-span-4">
+    <Tile className="flex flex-col gap-3 ">
       <div className="flex flex-wrap gap-1">
         {["all", "unpaid", "to pack", "shipped"].map((k) => (
           <Chip key={k} selected={on === k} onClick={() => setOn(k)}>
@@ -316,7 +314,7 @@ function DateTile() {
   const [d, setD] = React.useState<Date | null>(NOW);
   const [w, setW] = React.useState(NOW);
   return (
-    <Tile className="col-span-full flex flex-col gap-3 md:col-span-3 lg:col-span-4">
+    <Tile className="flex flex-col gap-3 ">
       <DatePicker value={d} onValueChange={setD} today={NOW} className="w-full" />
       <PeriodStepper value={w} period="week" onValueChange={setW} max={NOW} />
     </Tile>
@@ -326,10 +324,10 @@ function DateTile() {
 function PeopleTile() {
   const [lang, setLang] = React.useState("en");
   return (
-    <Tile className="col-span-full flex items-center justify-between gap-3 md:col-span-3 lg:col-span-4">
-      <div className="flex -space-x-1.5">
+    <Tile className="flex items-center justify-between gap-3 ">
+      <div className="flex gap-1.5">
         {TEAM.map((t) => (
-          <Avatar key={t.name} name={t.name} className="ring-2 ring-surface" />
+          <Avatar key={t.name} name={t.name} />
         ))}
       </div>
       <LanguagePicker value={lang} onValueChange={setLang} />
@@ -339,7 +337,7 @@ function PeopleTile() {
 
 function AlertTile() {
   return (
-    <div className="col-span-full grid gap-4 md:col-span-3 lg:col-span-5">
+    <div className="grid gap-4 ">
       <Alert tone="attention" title="2 shops haven't synced since 09:40" action={<Button size="sm">Sync</Button>} />
       <Alert tone="danger" title="Payout failed">
         The bank rejected the account number. Check it in Settings.
@@ -350,7 +348,7 @@ function AlertTile() {
 
 function EmptyTile() {
   return (
-    <Tile className="col-span-full grid place-items-center md:col-span-3 lg:col-span-3">
+    <Tile className="grid place-items-center ">
       <EmptyState icon={Inbox} title="No returns yet" className="py-6" />
     </Tile>
   );
@@ -359,7 +357,7 @@ function EmptyTile() {
 function TabsTile() {
   const [checked, setChecked] = React.useState([true, false, true]);
   return (
-    <Tile className="col-span-full flex flex-col gap-3 md:col-span-3 lg:col-span-4">
+    <Tile className="flex flex-col gap-3 ">
       <Tabs defaultValue="pack">
         <TabsList>
           <TabsTrigger value="pack">
@@ -390,7 +388,7 @@ function TabsTile() {
 
 function SaveTile() {
   return (
-    <div className="col-span-full flex items-center justify-center md:col-span-6 lg:col-span-5">
+    <div className="flex items-center justify-center ">
       <div className="ad-on-dark flex items-center gap-3 rounded-card bg-side p-nest pl-4 text-side-ink shadow-dialog">
         <span className="whitespace-nowrap text-body">Unsaved changes</span>
         <Button variant="ghost">Discard</Button>
@@ -404,22 +402,28 @@ function SaveTile() {
 
 function Wall() {
   return (
-    <section aria-label="Components" className="mx-auto w-full max-w-[1280px] px-4 sm:px-6">
-      <div className="grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-6 lg:grid-cols-12">
-        <MetricsTile />
-        <ChartTile />
-        <ToolbarTile />
-        <StockTile />
-        <MenuTile />
-        <SettingsTile />
-        <TableTile />
-        <ChipsTile />
-        <DateTile />
-        <TabsTile />
-        <PeopleTile />
-        <AlertTile />
-        <EmptyTile />
-        <SaveTile />
+    <section aria-label="Components" className="mx-auto grid w-full max-w-[1280px] gap-4 px-4 sm:px-6">
+      <ToolbarTile />
+      <div className="grid items-start gap-4 lg:grid-cols-3">
+        <div className="grid gap-4">
+          <MetricsTile />
+          <StockTile />
+          <DateTile />
+          <AlertTile />
+        </div>
+        <div className="grid gap-4">
+          <ChartTile />
+          <TableTile />
+          <TabsTile />
+          <EmptyTile />
+        </div>
+        <div className="grid gap-4">
+          <MenuTile />
+          <SettingsTile />
+          <ChipsTile />
+          <PeopleTile />
+          <SaveTile />
+        </div>
       </div>
     </section>
   );

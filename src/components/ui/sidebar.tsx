@@ -53,13 +53,7 @@ export function SidebarItem({ icon: Icon, children, active, count, asChild, onCl
         active ? "bg-side-fill-hover text-side-ink" : "text-side-muted hover:bg-side-fill hover:text-side-ink focus-visible:bg-side-fill",
       )}
     >
-      {asChild ? (
-        React.Children.map(children, (child) =>
-          React.isValidElement<{ children?: React.ReactNode }>(child) ? React.cloneElement(child, undefined, inner) : child,
-        )
-      ) : (
-        inner
-      )}
+      {asChild ? React.cloneElement(React.Children.only(children) as React.ReactElement<{ children?: React.ReactNode }>, undefined, inner) : inner}
     </Comp>
   );
 }

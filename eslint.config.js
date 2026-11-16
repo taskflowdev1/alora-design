@@ -17,5 +17,5 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
   },
-  { files: ["scripts/**/*.mjs"], languageOptions: { globals: globals.node } },
+  { files: ["scripts/**/*.mjs"], languageOptions: { globals: { ...globals.node, ...globals.browser } }, rules: { "no-empty": ["error", { allowEmptyCatch: true }] } },
 );

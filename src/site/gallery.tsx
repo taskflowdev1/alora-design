@@ -103,8 +103,10 @@ export function GalleryIndex() {
           return (
             <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
               <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
-                <div className="pointer-events-none relative flex h-44 items-center justify-center overflow-hidden px-4 [&>*]:scale-[0.82]" inert>
-                  {demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}
+                <div className="pointer-events-none relative h-44 overflow-hidden" inert>
+                  <div className="absolute left-0 top-0 flex h-[166.6%] w-[166.6%] origin-top-left scale-[0.6] items-center justify-center p-6">
+                    {demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}
+                  </div>
                 </div>
                 <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
               </Card>
