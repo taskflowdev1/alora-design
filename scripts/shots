@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Build, then capture review screenshots + automatic checks into output/review/. Run through the job queue.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+[ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null
+npx vite build --logLevel warn
+node scripts/shots.mjs
