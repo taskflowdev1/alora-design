@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "./styles/theme.css";
+@import "./styles/base.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  min-height: 100dvh;
+  background: var(--ad-page);
+}
