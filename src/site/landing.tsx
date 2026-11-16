@@ -143,7 +143,7 @@ function StockTile() {
   const low = PRODUCTS.filter((p) => p.stock < 5).slice(0, 4);
   return (
     <Tile inset="nest" >
-      <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2" />
+      <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
       <AttentionList className="mt-1">
         {low.map((p) => (
           <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
@@ -264,7 +264,7 @@ function SettingsTile() {
   ];
   return (
     <Tile inset="nest" >
-      <CardHeader title="Checkout" className="px-2" />
+      <CardHeader title="Checkout" className="px-2 pt-2" />
       <div className="grid gap-px">
         {rows.map(([label, v, set]) => (
           <label key={label} className="flex h-row cursor-pointer items-center justify-between gap-3 rounded-item px-2 text-body hover:bg-fill">

@@ -152,9 +152,9 @@ async function run() {
 
   // States
   const states = [
-    ["S1", "select-open", "/gallery/select", async (p) => p.click("main [aria-haspopup=listbox]")],
-    ["S2", "combobox-open", "/gallery/combobox", async (p) => { await p.click("main [aria-haspopup=listbox]"); await p.keyboard.type("rot"); }],
-    ["S3", "multi-select-open", "/gallery/multi-select", async (p) => p.click("main [aria-haspopup=listbox]")],
+    ["S1", "select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
+    ["S2", "combobox-open", "/gallery/combobox", async (p) => { await p.click("[data-stage] [aria-haspopup=listbox]"); await p.keyboard.type("rot"); }],
+    ["S3", "multi-select-open", "/gallery/multi-select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
     ["S4", "date-picker-open", "/gallery/date-picker", async (p) => p.click("main button:has-text('7 Nov 2026')")],
     ["S5", "language-picker-open", "/gallery/language-picker", async (p) => p.click("main [aria-label=Language]")],
     ["S6", "submenu-safe-triangle", "/gallery/menu", async (p) => {
@@ -168,6 +168,14 @@ async function run() {
       // move diagonally toward the lower part of the submenu, crossing "Share"
       await p.mouse.move(b.x + b.width + 2, b.y + b.height - 2, { steps: 3 });
       await p.mouse.move(b.x + b.width + (panel.x - b.x - b.width) * 0.4, b.y + b.height + 10, { steps: 3 });
+      // Keep creeping toward the panel so the debounced triangle stays alive for the screenshot.
+      await p.evaluate(({ x, y }) => {
+        let i = 0;
+        window.setInterval(() => {
+          i++;
+          document.dispatchEvent(new PointerEvent("pointermove", { clientX: x + i * 0.25, clientY: y + i * 0.1, pointerType: "mouse", bubbles: true }));
+        }, 40);
+      }, { x: b.x + b.width + (panel.x - b.x - b.width) * 0.4, y: b.y + b.height + 10 });
     }],
     ["S7", "submenu-keyboard", "/gallery/menu", async (p) => {
       await p.focus("main button:has-text('Actions')");
@@ -217,7 +225,7 @@ async function run() {
   // Phone states
   for (const [letter, name, path, act] of [
     ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("tbody tr >> nth=1")],
-    ["S22", "phone-select-open", "/gallery/select", async (p) => p.click("main [aria-haspopup=listbox] >> nth=-1")],
+    ["S22", "phone-select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
   ]) {
     const page = await visit("phone", path, "light");
     try {
@@ -235,7 +243,7 @@ async function run() {
     const boxes = async (q) => {
       const page = await visit("desktop", `${path}${q}`, "light");
       const r = await page.evaluate(() =>
-        [...document.querySelectorAll("main .rounded-card, main li, main tr, main [data-orders] tr")].map((e) => {
+        [...document.querySelectorAll("[data-app] .rounded-card, [data-app] li, [data-app] tr")].map((e) => {
           const b = e.getBoundingClientRect();
           return [Math.round(b.x), Math.round(b.y), Math.round(b.width), Math.round(b.height)].join(",");
         }),

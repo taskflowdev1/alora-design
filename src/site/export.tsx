@@ -77,7 +77,7 @@ export function ExportPage() {
       <PageHeader title="Export" />
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card inset="nest" className="self-start">
-          <CardHeader title="Settings" className="px-2" />
+          <CardHeader title="Settings" className="px-2 pt-2" />
           <div className="grid gap-px">
             {settings.map(([k, v]) => (
               <div key={k} className="flex h-row items-center justify-between gap-3 rounded-item px-2 text-body">

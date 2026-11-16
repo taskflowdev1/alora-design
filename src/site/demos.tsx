@@ -109,13 +109,13 @@ function ShapesCompare({ config }: { config: Config }) {
 function Concentric({ config }: { config: Config }) {
   const r = radii(config, shapedSupported());
   return (
-    <div className="grid gap-3">
-      <div className="rounded-card bg-surface p-nest shadow-raised">
-        <div className="flex gap-1">
-          <Button variant="primary">Inner {r.control} px</Button>
-          <Button>Outer {r.card} px</Button>
-        </div>
+    <div className="grid justify-items-center gap-3">
+      <div className="rounded-card bg-fill p-nest">
+        <Button variant="primary">Save changes</Button>
       </div>
+      <span className="text-body tabular-nums text-ink-muted">
+        {r.control} + {r.gap} = {r.card} px
+      </span>
     </div>
   );
 }
@@ -578,7 +578,7 @@ export const DEMOS: Record<string, Demo> = {
     stage: "page",
     render: () => (
       <Card inset="nest" className="w-full max-w-sm">
-        <CardHeader title="Low stock" action={<Badge>4</Badge>} className="px-2" />
+        <CardHeader title="Low stock" action={<Badge>4</Badge>} className="px-2 pt-2" />
         <AttentionList className="mt-1">
           {PRODUCTS.filter((p) => p.stock < 5)
             .slice(0, 4)

@@ -50,10 +50,10 @@ export function useHref(to: string) {
 }
 
 /** Scoped tokens for a preview: only this subtree takes the overrides. */
-export function TokenScope({ config, className, children }: { config: Config; className?: string; children: React.ReactNode }) {
+export function TokenScope({ config, className, children, ...rest }: { config: Config; className?: string; children: React.ReactNode; "data-stage"?: boolean }) {
   const style = React.useMemo(() => inlineTokens(config, shapedSupported()) as React.CSSProperties, [config]);
   return (
-    <div style={style} className={className}>
+    <div style={style} className={className} {...rest}>
       {children}
     </div>
   );

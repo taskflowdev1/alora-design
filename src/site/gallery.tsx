@@ -201,10 +201,11 @@ export function GalleryItem() {
       </div>
       <div className="grid gap-4 xl:grid-cols-[1fr_288px]">
         <TokenScope
+          data-stage
           config={merged}
           className={cn(
             "flex min-h-[380px] items-center justify-center overflow-auto rounded-sheet p-6 sm:p-10",
-            stage === "page" ? "bg-fill" : "bg-surface shadow-card",
+            stage === "page" ? "bg-page shadow-card" : "bg-surface shadow-card",
           )}
         >
           <DemoRender key={name} demo={demo} p={props} config={merged} />

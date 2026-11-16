@@ -81,7 +81,7 @@ export function BarList({ data, selected, onSelect, className }: BarListProps) {
               )}
             >
               <span className="truncate text-ink">{d.label}</span>
-              <span className="h-1.5 rounded-small bg-fill">
+              <span className="h-2 rounded-small bg-fill">
                 <span className="block h-full rounded-small bg-chart-2" style={{ width: `${(d.value / max) * 100}%` }} />
               </span>
               <span className="tabular-nums text-ink">{d.display ?? d.value.toLocaleString("id-ID")}</span>

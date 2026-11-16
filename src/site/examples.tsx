@@ -136,7 +136,7 @@ export function Examples() {
   return (
     <div className="flex h-[calc(100dvh-64px)] gap-3 px-3 pb-3 max-sm:h-auto max-sm:min-h-[calc(100dvh-104px)]">
       <AppSidebar page={p} />
-      <div className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
+      <div data-app className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
         <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-2 py-2 sm:px-5 sm:py-3">
           {p === "dashboard" ? <Dashboard /> : p === "orders" ? <Orders /> : <Settings />}
         </div>
@@ -174,7 +174,7 @@ function Dashboard() {
         </Button>
       </PageHeader>
       <div className="flex flex-wrap gap-4">
-        <MetricCard primary label="Sales today" value={<L>{formatRp(48240000)}</L>} delta={loading ? undefined : { value: "9,7%", direction: "up" }} />
+        <MetricCard primary label="Sales today" value={<L>{formatRp(48240000)}</L>} delta={{ value: <L>9,7%</L>, direction: "up" }} />
         <MetricCard label="Orders" value={<L>312</L>} />
         <MetricCard label="Basket" value={<L>{formatRp(154600)}</L>} />
         <MetricCard label="To ship" value={<L>18</L>} className="min-w-0" />
@@ -192,7 +192,7 @@ function Dashboard() {
           )}
         </Card>
         <Card inset="nest">
-          <CardHeader title="By shop" className="px-2" action={shop ? <Button variant="ghost" size="sm" onClick={() => setShop(null)}>All shops</Button> : undefined} />
+          <CardHeader title="By shop" className="px-2 pt-2" action={shop ? <Button variant="ghost" size="sm" onClick={() => setShop(null)}>All shops</Button> : undefined} />
           {loading ? (
             <div className="grid gap-px">
               {SHOPS.map((s) => (
@@ -210,7 +210,7 @@ function Dashboard() {
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         <Card inset="nest">
-          <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2" />
+          <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
           <AttentionList className="mt-1">
             {low.map((p) => (
               <AttentionItem
@@ -229,7 +229,7 @@ function Dashboard() {
           </AttentionList>
         </Card>
         <Card inset="nest">
-          <CardHeader title="Unpaid over 24 hours" action={<Badge>{unpaid.length}</Badge>} className="px-2" />
+          <CardHeader title="Unpaid over 24 hours" action={<Badge>{unpaid.length}</Badge>} className="px-2 pt-2" />
           <AttentionList className="mt-1">
             {unpaid.map((o) => (
               <AttentionItem
@@ -309,7 +309,7 @@ function Orders() {
         </Button>
       </PageHeader>
       <Toolbar>
-        <Search value={q} onValueChange={setQ} placeholder="Order, product or customer" wrapperClassName="max-sm:w-full" />
+        <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />
         <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
         <MultiSelect aria-label="Status" placeholder="Status" value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} />
         <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />

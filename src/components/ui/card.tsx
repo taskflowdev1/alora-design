@@ -38,7 +38,7 @@ export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   label: React.ReactNode;
   value: React.ReactNode;
   /** Change against the previous period, shown beside the number, e.g. "9,7%". */
-  delta?: { value: string; direction: "up" | "down" };
+  delta?: { value: React.ReactNode; direction: "up" | "down" };
   /** The one card that matters most may be highlighted. */
   primary?: boolean;
   interactive?: boolean;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/ad";
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill";
+const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-ink/8";
 
 /** A pulsing block. Give it the exact size of what will load. */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

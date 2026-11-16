@@ -92,7 +92,7 @@ export function ConfigPanel({
                 aria-pressed={value.accent === s}
                 onClick={() => onChange({ accent: s })}
                 data-shape="round"
-                className="grid size-6 cursor-pointer place-items-center rounded-full text-white transition-transform duration-[160ms] ease-ad hover:scale-110 active:scale-95"
+                className="grid size-6 cursor-pointer place-items-center rounded-full text-white transition-transform duration-[160ms] ease-ad active:scale-95"
                 style={{ background: s }}
               >
                 {value.accent === s ? <Check size={14} /> : null}

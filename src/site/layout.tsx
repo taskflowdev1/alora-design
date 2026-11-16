@@ -1,5 +1,5 @@
 import * as React from "react";
-import { NavLink, Outlet, ScrollRestoration } from "react-router";
+import { NavLink, Outlet, ScrollRestoration, useLocation } from "react-router";
 import { Moon, Sliders, Sun } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
@@ -87,11 +87,13 @@ export function PhoneNav() {
 }
 
 export function SiteLayout() {
+  const { pathname } = useLocation();
+  const app = pathname.startsWith("/examples");
   return (
     <TooltipProvider>
       <ConfigTokens />
       <ScrollRestoration />
-      <SiteHeader />
+      <SiteHeader className={app ? "max-w-none sm:px-4" : undefined} />
       <PhoneNav />
       <Outlet />
       <Toaster />
