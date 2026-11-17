@@ -1,7 +1,25 @@
 import * as React from "react";
-import { useBlocker, useParams, useSearchParams } from "react-router";
-import { Bell, ChevronDown, Download, Home, LogOut, Package, Plus, Settings as SettingsIcon, ShoppingBag, Tag, User, Users, XCircle, Search as SearchIcon } from "react-feather";
+import { useBlocker, useNavigate, useParams, useSearchParams } from "react-router";
+import {
+  Bell,
+  ChevronDown,
+  Download,
+  Home,
+  LogOut,
+  MoreHorizontal,
+  Package,
+  Plus,
+  Search as SearchIcon,
+  Settings as SettingsIcon,
+  ShoppingBag,
+  Tag,
+  User,
+  UserPlus,
+  Users,
+  XCircle,
+} from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
+import { serializeConfig } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, MetricCard } from "@/components/ui/card";
 import { Segmented } from "@/components/ui/segmented";
@@ -9,14 +27,12 @@ import { BarChart, BarList } from "@/components/ui/bar-chart";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { Thumb } from "@/components/ui/thumb";
 import { Badge } from "@/components/ui/badge";
-import { Status } from "@/components/ui/status";
+import { Chip, Pill, Status } from "@/components/ui/status";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { Search } from "@/components/ui/search";
 import { Select } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PeriodStepper } from "@/components/ui/period-stepper";
-import { Popover } from "@/components/ui/popover";
-import { CheckboxField } from "@/components/ui/checkbox";
 import { Sheet } from "@/components/ui/sheet";
 import { PageHeader, Toolbar, ToolbarSpacer } from "@/components/ui/toolbar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
@@ -32,18 +48,60 @@ import { toast } from "@/components/ui/toast";
 import { Loading, LoadingText } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
-import { SLink } from "./config";
+import { Alert } from "@/components/ui/alert";
+import { ColumnMenu } from "@/components/ui/column-menu";
+import { ShopPicker } from "@/components/ui/shop-picker";
+import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
+import { InlineEdit } from "@/components/ui/inline-edit";
+import { Sparkline } from "@/components/ui/sparkline";
+import { CurrencyInput } from "@/components/ui/currency-input";
+import { QuantityStepper } from "@/components/ui/quantity-stepper";
+import { TagInput } from "@/components/ui/tag-input";
+import { Dropzone, type DropFile } from "@/components/ui/dropzone";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { MarketMark } from "@/components/ui/marketplace-mark";
+import { DateRangePicker, formatRange, type DateRange } from "@/components/ui/date-range-picker";
+import { ToggleGroup } from "@/components/ui/toggle-group";
+import { Slider } from "@/components/ui/slider";
+import { Diff } from "@/components/ui/diff";
+import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
+import { CommentThread, type Comment } from "@/components/ui/comment-thread";
+import { CopyChip } from "@/components/ui/copy-chip";
+import { Timeline } from "@/components/ui/timeline";
+import { AvatarGroup } from "@/components/ui/avatar-group";
+import { CalendarMonth } from "@/components/ui/calendar-month";
+import { SplitButton } from "@/components/ui/split-button";
+import { SLink, useConfig } from "./config";
 import { OrderDetail } from "./demos";
-import { DAILY, HOURLY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime, type OrderStatus } from "./data";
+import {
+  CANCEL_REASONS,
+  CANCELLATIONS,
+  DAILY,
+  HOURLY,
+  MARKET_SHOPS,
+  NOW,
+  ORDERS,
+  PRODUCTS,
+  PROMOTIONS,
+  SHOPS,
+  TEAM,
+  TEAM_ACTIVITY,
+  TEAM_DETAIL,
+  smartTime,
+  type Cancellation,
+  type OrderStatus,
+  type Promotion,
+} from "./data";
 
-type Page = "dashboard" | "orders" | "settings";
+type Page = "dashboard" | "orders" | "products" | "promotions" | "cancellations" | "team" | "settings";
+const PAGES: Page[] = ["dashboard", "orders", "products", "promotions", "cancellations", "team", "settings"];
 
-const NAV: { key: Page | "products" | "promotions" | "cancellations" | "team"; label: string; icon: typeof Home; count?: number }[] = [
+const NAV: { key: Page; label: string; icon: typeof Home; count?: number }[] = [
   { key: "dashboard", label: "Dashboard", icon: Home },
   { key: "orders", label: "Orders", icon: ShoppingBag, count: 23 },
   { key: "products", label: "Products", icon: Package },
   { key: "promotions", label: "Promotions", icon: Tag },
-  { key: "cancellations", label: "Cancellations", icon: XCircle },
+  { key: "cancellations", label: "Cancellations", icon: XCircle, count: 4 },
 ];
 
 function useLoading() {
@@ -51,8 +109,15 @@ function useLoading() {
   return params.get("loading") === "1";
 }
 
+const NOTICES: Notice[] = [
+  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
+  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
+  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
+];
+
 function AppSidebar({ page }: { page: Page }) {
   const [shop, setShop] = React.useState("All shops");
+  const [notices, setNotices] = React.useState(NOTICES);
   return (
     <Sidebar className="h-full max-lg:hidden">
       <Menu
@@ -71,21 +136,15 @@ function AppSidebar({ page }: { page: Page }) {
         ))}
       </Menu>
       <SidebarSection>
-        {NAV.map((n) =>
-          n.key === "dashboard" || n.key === "orders" ? (
-            <SidebarItem key={n.key} icon={n.icon} active={page === n.key} count={n.count} asChild>
-              <SLink to={`/examples/${n.key}`}>{n.label}</SLink>
-            </SidebarItem>
-          ) : (
-            <SidebarItem key={n.key} icon={n.icon} count={n.count} onClick={() => toast(`${n.label} isn't part of this example`, "neutral")}>
-              {n.label}
-            </SidebarItem>
-          ),
-        )}
+        {NAV.map((n) => (
+          <SidebarItem key={n.key} icon={n.icon} active={page === n.key} count={n.count} asChild>
+            <SLink to={`/examples/${n.key}`}>{n.label}</SLink>
+          </SidebarItem>
+        ))}
       </SidebarSection>
       <SidebarSection label="Shop">
-        <SidebarItem icon={Users} onClick={() => toast("Team isn't part of this example", "neutral")}>
-          Team
+        <SidebarItem icon={Users} active={page === "team"} asChild>
+          <SLink to="/examples/team">Team</SLink>
         </SidebarItem>
         <SidebarItem icon={SettingsIcon} active={page === "settings"} asChild>
           <SLink to="/examples/settings">Settings</SLink>
@@ -105,12 +164,20 @@ function AppSidebar({ page }: { page: Page }) {
           <MenuItem icon={Bell}>Notifications</MenuItem>
           <MenuItem icon={LogOut}>Sign out</MenuItem>
         </Menu>
+        <div className="ad-on-dark">
+          <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} className="text-side-muted hover:text-side-ink" />
+        </div>
       </div>
     </Sidebar>
   );
 }
 
 function PhoneNavBar({ page }: { page: Page }) {
+  const navigate = useNavigate();
+  const [config] = useConfig();
+  const q = serializeConfig(config);
+  const go = (p: Page) => navigate(`/examples/${p}${q ? `?${q}` : ""}`);
+  const more: Page[] = ["promotions", "cancellations", "team", "settings"];
   return (
     <div className="lg:hidden">
       <BottomNav>
@@ -120,10 +187,15 @@ function PhoneNavBar({ page }: { page: Page }) {
         <SLink to="/examples/orders" className="flex flex-1">
           <BottomNavItem icon={ShoppingBag} label="Orders" active={page === "orders"} />
         </SLink>
-        <BottomNavItem icon={Package} label="Stock" onClick={() => toast("Stock isn't part of this example", "neutral")} />
-        <SLink to="/examples/settings" className="flex flex-1">
-          <BottomNavItem icon={SettingsIcon} label="Settings" active={page === "settings"} />
+        <SLink to="/examples/products" className="flex flex-1">
+          <BottomNavItem icon={Package} label="Products" active={page === "products"} />
         </SLink>
+        <Menu side="top" align="end" trigger={<span className="flex flex-1"><BottomNavItem icon={MoreHorizontal} label="More" active={more.includes(page)} /></span>}>
+          <MenuItem icon={Tag} onSelect={() => go("promotions")}>Promotions</MenuItem>
+          <MenuItem icon={XCircle} onSelect={() => go("cancellations")}>Cancellations</MenuItem>
+          <MenuItem icon={Users} onSelect={() => go("team")}>Team</MenuItem>
+          <MenuItem icon={SettingsIcon} onSelect={() => go("settings")}>Settings</MenuItem>
+        </Menu>
       </BottomNav>
       {page === "orders" ? <Fab icon={Plus} label="Add order" onClick={() => toast("New order")} /> : null}
     </div>
@@ -132,13 +204,27 @@ function PhoneNavBar({ page }: { page: Page }) {
 
 export function Examples() {
   const { page = "dashboard" } = useParams();
-  const p = (["dashboard", "orders", "settings"].includes(page) ? page : "dashboard") as Page;
+  const p = (PAGES.includes(page as Page) ? page : "dashboard") as Page;
   return (
-    <div className="flex h-[calc(100dvh-64px)] gap-3 px-3 pb-3 max-sm:h-auto max-sm:min-h-[calc(100dvh-104px)]">
+    <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
       <AppSidebar page={p} />
       <div data-app className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
-        <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-2 py-2 sm:px-5 sm:py-3">
-          {p === "dashboard" ? <Dashboard /> : p === "orders" ? <Orders /> : <Settings />}
+        <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
+          {p === "dashboard" ? (
+            <Dashboard />
+          ) : p === "orders" ? (
+            <Orders />
+          ) : p === "products" ? (
+            <Products />
+          ) : p === "promotions" ? (
+            <Promotions />
+          ) : p === "cancellations" ? (
+            <Cancellations />
+          ) : p === "team" ? (
+            <Team />
+          ) : (
+            <Settings />
+          )}
         </div>
       </div>
       <PhoneNavBar page={p} />
@@ -151,6 +237,7 @@ export function Examples() {
 function Dashboard() {
   const loading = useLoading();
   const [range, setRange] = React.useState("day");
+  const [shops, setShops] = React.useState(MARKET_SHOPS.map((s) => s.id));
   const [shop, setShop] = React.useState<string | null>(null);
   const low = PRODUCTS.filter((p) => p.stock < 5);
   const unpaid = ORDERS.filter((o) => o.status === "Unpaid").slice(0, 4);
@@ -158,6 +245,7 @@ function Dashboard() {
   return (
     <div className="grid gap-5">
       <PageHeader title="Dashboard">
+        <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={setShops} />
         <Segmented
           aria-label="Range"
           value={range}
@@ -173,12 +261,13 @@ function Dashboard() {
           Export
         </Button>
       </PageHeader>
+      <Alert tone="attention" title="2 shops haven't synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
       <div className="flex flex-wrap gap-4">
-        <MetricCard primary label="Sales today" value={<L>{formatRp(48240000)}</L>} delta={{ value: <L>9,7%</L>, direction: "up" }} />
-        <MetricCard label="Orders" value={<L>312</L>} />
-        <MetricCard label="Basket" value={<L>{formatRp(154600)}</L>} />
-        <MetricCard label="To ship" value={<L>18</L>} className="min-w-0" />
-        <MetricCard label="Cancelled" value={<L>4</L>} className="min-w-0" />
+        <MetricCard primary loading={loading} label="Sales today" unit="Rp" value={48240000} delta={{ value: "9,7%", direction: "up" }} />
+        <MetricCard loading={loading} label="Orders" value={312} />
+        <MetricCard loading={loading} label="Basket" unit="Rp" value={154600} />
+        <MetricCard loading={loading} label="To ship" value={18} />
+        <MetricCard loading={loading} label="Cancelled" value={4} />
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Card>
@@ -246,6 +335,17 @@ function Dashboard() {
 /* ------------------------------------------------------------ orders */
 
 const STATUSES: OrderStatus[] = ["Unpaid", "Paid", "Packed", "Shipped", "Cancelled"];
+const ORDER_COLS = [
+  { key: "order", label: "Order", locked: true },
+  { key: "time", label: "Time" },
+  { key: "shop", label: "Shop" },
+  { key: "customer", label: "Customer" },
+  { key: "items", label: "Items" },
+  { key: "payment", label: "Payment" },
+  { key: "status", label: "Status", locked: true },
+  { key: "total", label: "Total", locked: true },
+  { key: "fee", label: "Fee" },
+];
 
 function Orders() {
   const forcedLoading = useLoading();
@@ -255,10 +355,11 @@ function Orders() {
   const [week, setWeek] = React.useState(NOW);
   const [page, setPage] = React.useState(1);
   const [openId, setOpenId] = React.useState<string | null>(null);
-  const [cols, setCols] = React.useState({ customer: true, payment: true, fee: true });
+  const [cols, setCols] = React.useState(["time", "shop", "customer", "items", "payment", "fee"]);
   const [busy, setBusy] = React.useState(false);
   const loading = forcedLoading || busy;
   const first = React.useRef(true);
+  const show = (k: string) => cols.includes(k);
 
   const rows = React.useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -271,7 +372,7 @@ function Orders() {
   }, [q, shop, status]);
   const pageRows = rows.slice((page - 1) * 50, page * 50);
 
-  // A short skeleton when the page changes, the same shape as the rows that arrive.
+  // A filter or page change shows the skeleton, the same shape as the rows that arrive.
   React.useEffect(() => {
     if (first.current) {
       first.current = false;
@@ -280,7 +381,7 @@ function Orders() {
     setBusy(true);
     const id = window.setTimeout(() => setBusy(false), 350);
     return () => window.clearTimeout(id);
-  }, [page, shop, week]);
+  }, [page, shop, week, status]);
 
   React.useEffect(() => setPage(1), [q, shop, status]);
 
@@ -288,7 +389,7 @@ function Orders() {
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
 
   return (
-    <div className="flex h-[calc(100dvh-64px-24px-24px)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
+    <div className="flex h-[calc(100dvh-64px-16px-16px)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
       <PageHeader title="Orders">
         <Button>
           <Download />
@@ -305,13 +406,7 @@ function Orders() {
         <MultiSelect aria-label="Status" placeholder="Status" value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} />
         <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
         <ToolbarSpacer />
-        <Popover align="end" trigger={<Button>Columns</Button>}>
-          <div className="grid w-48 gap-2.5">
-            <CheckboxField label="Customer" checked={cols.customer} onCheckedChange={(v) => setCols({ ...cols, customer: v === true })} />
-            <CheckboxField label="Payment" checked={cols.payment} onCheckedChange={(v) => setCols({ ...cols, payment: v === true })} />
-            <CheckboxField label="Fee" checked={cols.fee} onCheckedChange={(v) => setCols({ ...cols, fee: v === true })} />
-          </div>
-        </Popover>
+        <ColumnMenu columns={ORDER_COLS} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
       </Toolbar>
       <Card inset="nest" className="flex min-h-0 flex-1 flex-col max-lg:min-h-[480px]" data-orders>
         {rows.length === 0 ? (
@@ -322,14 +417,14 @@ function Orders() {
               <THead>
                 <tr>
                   <TH>Order</TH>
-                  <TH>Time</TH>
-                  <TH>Shop</TH>
-                  {cols.customer ? <TH>Customer</TH> : null}
-                  <TH>Items</TH>
-                  {cols.payment ? <TH>Payment</TH> : null}
+                  {show("time") ? <TH>Time</TH> : null}
+                  {show("shop") ? <TH>Shop</TH> : null}
+                  {show("customer") ? <TH>Customer</TH> : null}
+                  {show("items") ? <TH>Items</TH> : null}
+                  {show("payment") ? <TH>Payment</TH> : null}
                   <TH>Status</TH>
                   <TH align="right">Total</TH>
-                  {cols.fee ? <TH align="right">Fee</TH> : null}
+                  {show("fee") ? <TH align="right">Fee</TH> : null}
                 </tr>
               </THead>
               <TBody>
@@ -338,21 +433,27 @@ function Orders() {
                     <TD>
                       <L>{o.id}</L>
                     </TD>
-                    <TD className="text-ink-muted">
-                      <L>{smartTime(o.at)}</L>
-                    </TD>
-                    <TD>
-                      <L>{o.shop}</L>
-                    </TD>
-                    {cols.customer ? (
+                    {show("time") ? (
+                      <TD className="text-ink-muted">
+                        <L>{smartTime(o.at)}</L>
+                      </TD>
+                    ) : null}
+                    {show("shop") ? (
+                      <TD>
+                        <L>{o.shop}</L>
+                      </TD>
+                    ) : null}
+                    {show("customer") ? (
                       <TD>
                         <L>{o.customer}</L>
                       </TD>
                     ) : null}
-                    <TD maxWidth={220}>
-                      <L>{o.items}</L>
-                    </TD>
-                    {cols.payment ? (
+                    {show("items") ? (
+                      <TD maxWidth={220}>
+                        <L>{o.items}</L>
+                      </TD>
+                    ) : null}
+                    {show("payment") ? (
                       <TD>
                         <L>{o.payment}</L>
                       </TD>
@@ -367,7 +468,7 @@ function Orders() {
                     <TD align="right">
                       <L>{formatRp(o.total)}</L>
                     </TD>
-                    {cols.fee ? (
+                    {show("fee") ? (
                       <TD align="right" className="text-ink-muted">
                         <L>{formatRp(o.fee)}</L>
                       </TD>
@@ -399,6 +500,561 @@ function Orders() {
       >
         {open ? <OrderDetail id={open.id} /> : null}
       </Sheet>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ products */
+
+type ProductRow = (typeof PRODUCTS)[number] & { sold: number[] };
+
+const PRODUCT_ROWS: ProductRow[] = PRODUCTS.map((p, i) => ({
+  ...p,
+  sold: Array.from({ length: 12 }, (_, w) => Math.max(1, Math.round(8 + 6 * Math.sin((w + i) / 2) + ((i * 7 + w * 3) % 5)))),
+}));
+
+function stockStatus(n: number) {
+  if (n === 0) return <Pill>Out of stock</Pill>;
+  if (n < 5) return <Status tone="attention">Low</Status>;
+  return <Status>In stock</Status>;
+}
+
+function Products() {
+  const loading = useLoading();
+  const [rows, setRows] = React.useState(PRODUCT_ROWS);
+  const [q, setQ] = React.useState("");
+  const [filter, setFilter] = React.useState("all");
+  const [adding, setAdding] = React.useState(false);
+  const [draft, setDraft] = React.useState({ name: "", price: null as number | null, stock: 10, tags: ["Handmade"] as string[] });
+  const [files, setFiles] = React.useState<DropFile[]>([]);
+  const list = rows.filter(
+    (p) =>
+      (filter === "all" || (filter === "low" && p.stock > 0 && p.stock < 5) || (filter === "out" && p.stock === 0)) &&
+      (!q || `${p.name} ${p.sku}`.toLowerCase().includes(q.toLowerCase())),
+  );
+  const set = (sku: string, patch: Partial<ProductRow>) => setRows(rows.map((r) => (r.sku === sku ? { ...r, ...patch } : r)));
+  const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
+  return (
+    <div className="grid gap-4">
+      <PageHeader title="Products">
+        <Button>
+          <Download />
+          Export
+        </Button>
+        <Button variant="primary" onClick={() => setAdding(true)}>
+          <Plus />
+          Add product
+        </Button>
+      </PageHeader>
+      <Toolbar>
+        <Search value={q} onValueChange={setQ} placeholder="Name or SKU" wrapperClassName="max-sm:w-full" />
+        <div className="flex gap-1">
+          {[
+            ["all", "All"],
+            ["low", "Low stock"],
+            ["out", "Out of stock"],
+          ].map(([k, l]) => (
+            <Chip key={k} selected={filter === k} onClick={() => setFilter(k)}>
+              {l}
+            </Chip>
+          ))}
+        </div>
+      </Toolbar>
+      <Card inset="nest">
+        {list.length === 0 ? (
+          <EmptyState icon={Package} title="No products match" className="py-16" />
+        ) : (
+          <Table>
+            <THead>
+              <tr>
+                <TH>Product</TH>
+                <TH>SKU</TH>
+                <TH align="right">Price</TH>
+                <TH align="right">Stock</TH>
+                <TH>Status</TH>
+                <TH>Last 12 weeks</TH>
+              </tr>
+            </THead>
+            <TBody>
+              {list.map((p) => (
+                <TRow key={p.sku}>
+                  <TD>
+                    <span className="flex items-center gap-3">
+                      <Loading loading={loading}>
+                        <Thumb alt={p.name} size={28} />
+                      </Loading>
+                      <span className="max-w-[240px] truncate">
+                        <L>{p.name}</L>
+                      </span>
+                    </span>
+                  </TD>
+                  <TD className="text-ink-muted">
+                    <L>{p.sku}</L>
+                  </TD>
+                  <TD align="right" className="w-40">
+                    <InlineEdit
+                      align="right"
+                      aria-label={`${p.name} price`}
+                      inputMode="numeric"
+                      value={String(p.price)}
+                      display={(v) => formatRp(Number(v))}
+                      validate={(v) => (/^\d+$/.test(v.replace(/\./g, "")) ? null : "Numbers only")}
+                      onSave={(v) => {
+                        set(p.sku, { price: Number(v.replace(/\./g, "")) });
+                        toast("Price saved");
+                      }}
+                    />
+                  </TD>
+                  <TD align="right" className="w-28">
+                    <InlineEdit
+                      align="right"
+                      aria-label={`${p.name} stock`}
+                      inputMode="numeric"
+                      value={String(p.stock)}
+                      validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
+                      onSave={(v) => {
+                        set(p.sku, { stock: Number(v) });
+                        toast("Stock saved");
+                      }}
+                    />
+                  </TD>
+                  <TD>{loading ? <L>In stock</L> : stockStatus(p.stock)}</TD>
+                  <TD>
+                    <Sparkline data={p.sold} aria-label={`${p.name}, sold per week`} width={88} height={22} />
+                  </TD>
+                </TRow>
+              ))}
+            </TBody>
+          </Table>
+        )}
+      </Card>
+      <Sheet
+        open={adding}
+        onOpenChange={setAdding}
+        title="New product"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setAdding(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setAdding(false);
+                toast(`${draft.name || "Product"} added`);
+              }}
+            >
+              Add product
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-5">
+          <Field label="Name">
+            <Input aria-label="Name" value={draft.name} placeholder="Gelas kopi tanah liat" onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+          </Field>
+          <div className="flex flex-wrap items-end gap-4">
+            <Field label="Price">
+              <CurrencyInput aria-label="Price" value={draft.price} onValueChange={(price) => setDraft({ ...draft, price })} className="w-44" />
+            </Field>
+            <Field label="Stock">
+              <QuantityStepper aria-label="Stock" value={draft.stock} onValueChange={(stock) => setDraft({ ...draft, stock })} max={999} />
+            </Field>
+          </div>
+          <Field label="Tags">
+            <TagInput value={draft.tags} onValueChange={(tags) => setDraft({ ...draft, tags })} suggestions={["Keramik", "Kayu jati", "Bambu", "Rotan", "Best seller"]} />
+          </Field>
+          <Field label="Photos">
+            <Dropzone
+              title="Drop product photos"
+              accept="image/*"
+              files={files}
+              onRemove={(id) => setFiles(files.filter((f) => f.id !== id))}
+              onFiles={(fs) => setFiles([...files, ...fs.map((f, i) => ({ id: `${f.name}-${i}`, name: f.name, size: f.size }))])}
+            />
+          </Field>
+        </div>
+      </Sheet>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ promotions */
+
+function PromotionCard({ p }: { p: Promotion }) {
+  const pct = p.budget ? Math.round((p.used / p.budget) * 100) : 0;
+  return (
+    <Card interactive className="flex items-center gap-4" onClick={() => toast(p.name, "neutral")}>
+      <ProgressRing value={pct} size={52} aria-label={`${p.name}, budget used`} />
+      <div className="grid min-w-0 flex-1 gap-0.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-title font-semibold">{p.name}</span>
+          {p.status === "Live" ? <Pill>Live</Pill> : null}
+        </div>
+        <span className="truncate text-body text-ink-muted">
+          {p.discount} · {formatRange({ from: p.from, to: p.to })}
+        </span>
+      </div>
+      <div className="grid shrink-0 justify-items-end gap-1.5">
+        <span className="flex -space-x-1">
+          {p.markets.map((m) => (
+            <MarketMark key={m} market={m} className="shadow-[0_0_0_2px_var(--ad-surface)]" />
+          ))}
+        </span>
+        <span className="text-small tabular-nums text-ink-muted">
+          {formatRp(p.used)} of {formatRp(p.budget)}
+        </span>
+      </div>
+    </Card>
+  );
+}
+
+function Promotions() {
+  const [view, setView] = React.useState("list");
+  const [month, setMonth] = React.useState(new Date(NOW.getFullYear(), NOW.getMonth(), 1));
+  const [creating, setCreating] = React.useState(false);
+  const [range, setRange] = React.useState<DateRange>({ from: NOW, to: new Date(2026, 10, 22) });
+  const [discount, setDiscount] = React.useState(15);
+  const [budget, setBudget] = React.useState<number | null>(5000000);
+  const [channels, setChannels] = React.useState(["shopee", "tiktok"]);
+  const groups: [string, Promotion[]][] = [
+    ["Live", PROMOTIONS.filter((p) => p.status === "Live")],
+    ["Scheduled", PROMOTIONS.filter((p) => p.status === "Scheduled")],
+    ["Ended", PROMOTIONS.filter((p) => p.status === "Ended")],
+  ];
+  const events = PROMOTIONS.flatMap((p) => {
+    const out = [];
+    for (let d = new Date(p.from); d <= p.to; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1))
+      out.push({ id: `${p.id}-${d.getDate()}-${d.getMonth()}`, date: d, title: p.name, tone: p.status === "Live" ? ("accent" as const) : ("neutral" as const) });
+    return out;
+  });
+  return (
+    <div className="grid gap-5">
+      <PageHeader title="Promotions">
+        <Segmented
+          aria-label="View"
+          value={view}
+          onValueChange={setView}
+          options={[
+            { value: "list", label: "List" },
+            { value: "calendar", label: "Calendar" },
+          ]}
+        />
+        <Button variant="primary" onClick={() => setCreating(true)}>
+          <Plus />
+          New promotion
+        </Button>
+      </PageHeader>
+      {view === "calendar" ? (
+        <Card>
+          <CalendarMonth month={month} onMonthChange={setMonth} events={events} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} />
+        </Card>
+      ) : (
+        groups.map(([title, list]) => (
+          <section key={title} className="grid gap-2">
+            <h2 className="px-1 text-title font-semibold">{title}</h2>
+            <div className="grid gap-3 xl:grid-cols-2">
+              {list.map((p) => (
+                <PromotionCard key={p.id} p={p} />
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+      <Dialog
+        open={creating}
+        onOpenChange={setCreating}
+        title="New promotion"
+        className="w-[min(480px,calc(100vw-32px))]"
+        footer={
+          <>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="primary" onClick={() => toast("Promotion scheduled")}>
+                Schedule
+              </Button>
+            </DialogClose>
+          </>
+        }
+      >
+        <div className="grid gap-4">
+          <Field label="Name">
+            <Input aria-label="Promotion name" placeholder="Rotan week" />
+          </Field>
+          <Field label="Dates">
+            <DateRangePicker value={range} onValueChange={setRange} today={NOW} />
+          </Field>
+          <Slider label="Discount" value={discount} min={5} max={50} onValueChange={setDiscount} display={`${discount}%`} />
+          <Field label="Budget">
+            <CurrencyInput aria-label="Budget" value={budget} onValueChange={setBudget} className="w-48" />
+          </Field>
+          <Field label="Where">
+            <ToggleGroup
+              aria-label="Channels"
+              value={channels}
+              onValueChange={setChannels}
+              options={[
+                { value: "offline", label: <><MarketMark market="offline" />Shops</> },
+                { value: "shopee", label: <><MarketMark market="shopee" />Shopee</> },
+                { value: "tiktok", label: <><MarketMark market="tiktok" />TikTok</> },
+              ]}
+            />
+          </Field>
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ cancellations */
+
+const CANCEL_COMMENTS: Comment[] = [
+  { id: "1", author: "Dewi Anggraini", time: "Today, 10:20", body: "Shopee kept the admin fee on this one. Opened a dispute.", reactions: [{ emoji: "👀", by: ["Rizky Hartono"] }] },
+];
+
+function CancellationDetail({ c }: { c: Cancellation }) {
+  const [comments, setComments] = React.useState(CANCEL_COMMENTS);
+  const fee = c.market === "offline" ? 0 : Math.round(c.refund * 0.045);
+  return (
+    <div className="grid gap-6">
+      <div className="grid gap-2 text-body">
+        {(
+          [
+            ["Order", <CopyChip key="c" value={c.id} />],
+            ["Cancelled", smartTime(c.at)],
+            ["Shop", <span key="s" className="inline-flex items-center gap-2"><MarketMark market={c.market} />{c.shop}</span>],
+            ["Customer", c.customer],
+            ["Reason", c.reason],
+          ] as [string, React.ReactNode][]
+        ).map(([k, v]) => (
+          <div key={k} className="flex min-h-6 items-center justify-between gap-4">
+            <span className="text-ink-muted">{k}</span>
+            <span className="truncate">{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-1.5">
+        <h3 className="text-body font-semibold">Refund</h3>
+        <div className="-mx-2.5 grid gap-px">
+          <FeeRow payer="buyer" label={`Refund, ${c.items}`} amount={-c.refund} />
+          {c.market !== "offline" ? <FeeRow payer="platform" market={c.market} label="Admin fee returned" amount={fee + c.feeDiff} /> : null}
+          <FeeTotal label="Net" amount={-c.refund + (c.market !== "offline" ? fee + c.feeDiff : 0)} className="mt-1" />
+        </div>
+        {c.feeDiff ? (
+          <div className="flex items-center justify-between px-0 pt-1 text-body">
+            <span className="text-ink-muted">Fee not returned</span>
+            <Diff value={c.feeDiff} unit="Rp" />
+          </div>
+        ) : null}
+      </div>
+      <div className="grid gap-2">
+        <h3 className="text-body font-semibold">Notes</h3>
+        <CommentThread
+          me="Rizky Hartono"
+          comments={comments}
+          onReact={(id, emoji) =>
+            setComments(
+              comments.map((x) => {
+                if (x.id !== id) return x;
+                const rs = x.reactions ?? [];
+                const has = rs.find((r) => r.emoji === emoji);
+                return {
+                  ...x,
+                  reactions: has
+                    ? rs.map((r) => (r.emoji === emoji ? { ...r, by: r.by.includes("Rizky Hartono") ? r.by.filter((b) => b !== "Rizky Hartono") : [...r.by, "Rizky Hartono"] } : r))
+                    : [...rs, { emoji, by: ["Rizky Hartono"] }],
+                };
+              }),
+            )
+          }
+          onReply={(text) => setComments([...comments, { id: String(comments.length + 1), author: "Rizky Hartono", time: "Today, 14:20", body: text }])}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Cancellations() {
+  const loading = useLoading();
+  const [reason, setReason] = React.useState<string | null>(null);
+  const [range, setRange] = React.useState<DateRange>({ from: new Date(2026, 10, 10), to: NOW });
+  const [openId, setOpenId] = React.useState<string | null>(null);
+  const rows = CANCELLATIONS.filter((c) => !reason || c.reason === reason);
+  const counts = CANCEL_REASONS.map((r) => CANCELLATIONS.filter((c) => c.reason === r).length);
+  const open = CANCELLATIONS.find((c) => c.id === openId);
+  const lost = CANCELLATIONS.reduce((a, c) => a + c.feeDiff, 0);
+  return (
+    <div className="grid gap-5">
+      <PageHeader title="Cancellations">
+        <DateRangePicker value={range} onValueChange={setRange} today={NOW} />
+        <Button>
+          <Download />
+          Export
+        </Button>
+      </PageHeader>
+      <div className="flex flex-wrap gap-4">
+        <MetricCard loading={loading} label="Today" value={4} />
+        <MetricCard loading={loading} label="This week" value={CANCELLATIONS.length} />
+        <MetricCard loading={loading} label="Refunded" unit="Rp" value={CANCELLATIONS.reduce((a, c) => a + c.refund, 0)} />
+        <MetricCard loading={loading} label="Disputed" value={CANCELLATIONS.filter((c) => c.status === "Disputed").length} />
+        <MetricCard loading={loading} label="Fees not returned" unit="Rp" value={Math.abs(lost)} />
+      </div>
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <Card inset="nest" data-cancels>
+          <Table>
+            <THead>
+              <tr>
+                <TH>Order</TH>
+                <TH>Time</TH>
+                <TH>Shop</TH>
+                <TH>Reason</TH>
+                <TH align="right">Refund</TH>
+                <TH align="right">Fee difference</TH>
+                <TH>Status</TH>
+              </tr>
+            </THead>
+            <TBody>
+              {rows.map((c) => (
+                <TRow key={c.id} selected={c.id === openId} onActivate={() => setOpenId(c.id)}>
+                  <TD>{c.id}</TD>
+                  <TD className="text-ink-muted">{smartTime(c.at)}</TD>
+                  <TD>
+                    <span className="inline-flex items-center gap-2">
+                      <MarketMark market={c.market} />
+                      {c.shop}
+                    </span>
+                  </TD>
+                  <TD>{c.reason}</TD>
+                  <TD align="right">{formatRp(c.refund)}</TD>
+                  <TD align="right">
+                    <Diff value={c.feeDiff} unit="Rp" />
+                  </TD>
+                  <TD>{c.status === "Disputed" ? <Pill>Disputed</Pill> : <Status tone={c.status === "Refunded" ? "muted" : "default"}>{c.status}</Status>}</TD>
+                </TRow>
+              ))}
+            </TBody>
+          </Table>
+        </Card>
+        <Card inset="nest">
+          <CardHeader title="By reason" className="px-2 pt-2" action={reason ? <Button variant="ghost" size="sm" onClick={() => setReason(null)}>All reasons</Button> : undefined} />
+          <BarList
+            selected={reason}
+            onSelect={setReason}
+            loading={loading}
+            data={CANCEL_REASONS.map((r, i) => ({ key: r, label: r, value: counts[i], display: String(counts[i]) }))}
+          />
+        </Card>
+      </div>
+      <Sheet
+        open={!!open}
+        onOpenChange={(o) => !o && setOpenId(null)}
+        modal={false}
+        keepOpenOn="[data-cancels]"
+        title={open?.id}
+        footer={
+          <SplitButton
+            onClick={() => toast("Dispute sent to the platform")}
+            menu={
+              <>
+                <MenuItem onSelect={() => toast("Marked as refunded")}>Mark as refunded</MenuItem>
+                <MenuItem onSelect={() => toast("Buyer contacted", "neutral")}>Message the buyer</MenuItem>
+              </>
+            }
+          >
+            Dispute the fee
+          </SplitButton>
+        }
+      >
+        {open ? <CancellationDetail key={open.id} c={open} /> : null}
+      </Sheet>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ team */
+
+function Team() {
+  const [roles, setRoles] = React.useState(Object.fromEntries(TEAM_DETAIL.map((t) => [t.email, t.role])));
+  const [inviting, setInviting] = React.useState(false);
+  return (
+    <div className="grid gap-5">
+      <PageHeader title="Team">
+        <AvatarGroup people={TEAM_DETAIL} max={4} className="max-sm:hidden" />
+        <Button variant="primary" onClick={() => setInviting(true)}>
+          <UserPlus />
+          Invite
+        </Button>
+      </PageHeader>
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <Card inset="nest" className="grid gap-px">
+          {TEAM_DETAIL.map((t) => (
+            <div key={t.email} className="flex min-h-[calc(var(--ad-row-h)+16px)] items-center gap-3 rounded-item px-2.5 py-1.5 hover:bg-fill">
+              <Avatar name={t.name} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body font-medium">{t.name}</p>
+                <p className="truncate text-small text-ink-muted">{t.email}</p>
+              </div>
+              <span className="w-28 truncate text-body text-ink-muted max-md:hidden">{t.shops}</span>
+              <span className="w-28 max-md:hidden">
+                {t.active === "Online" ? <Status tone="attention">Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
+              </span>
+              <Select
+                aria-label={`${t.name} role`}
+                align="end"
+                value={roles[t.email]}
+                onValueChange={(v) => {
+                  setRoles({ ...roles, [t.email]: v });
+                  toast(`${t.name.split(" ")[0]} is now ${v}`);
+                }}
+                options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
+              />
+            </div>
+          ))}
+        </Card>
+        <Card inset="nest">
+          <CardHeader title="Activity" className="px-2 pt-2" />
+          <Timeline
+            events={TEAM_ACTIVITY.map((a) => ({
+              id: a.id,
+              time: a.time,
+              title: (
+                <>
+                  <span className="font-medium">{a.who.split(" ")[0]}</span> {a.what}
+                </>
+              ),
+              media: <Avatar name={a.who} size="sm" className="size-5 text-[9px]" />,
+            }))}
+          />
+        </Card>
+      </div>
+      <Dialog
+        open={inviting}
+        onOpenChange={setInviting}
+        title="Invite to Rimba"
+        footer={
+          <>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="primary" onClick={() => toast("Invite sent")}>
+                Send invite
+              </Button>
+            </DialogClose>
+          </>
+        }
+      >
+        <div className="grid gap-4">
+          <Field label="Email">
+            <Input aria-label="Email" placeholder="name@rimba.example" type="email" />
+          </Field>
+          <Field label="Role">
+            <Select aria-label="Role" value="Cashier" onValueChange={() => {}} options={["Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))} />
+          </Field>
+        </div>
+      </Dialog>
     </div>
   );
 }
@@ -585,7 +1241,6 @@ function Settings() {
             value={member?.role ?? "Admin"}
             onValueChange={() => {}}
             options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
-            className="w-full"
           />
         </Field>
       </Dialog>

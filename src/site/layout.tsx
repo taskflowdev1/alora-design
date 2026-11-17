@@ -1,11 +1,14 @@
 import * as React from "react";
-import { NavLink, Outlet, ScrollRestoration, useLocation } from "react-router";
-import { Moon, Sliders, Sun } from "react-feather";
+import { NavLink, Outlet, ScrollRestoration, useNavigate } from "react-router";
+import { Box, Download, Grid, Home, Layout, Moon, Search as SearchIcon, Sliders, Sun } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { Toaster } from "@/components/ui/toast";
+import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
+import { Shortcut } from "@/components/ui/kbd";
+import { GROUPS, ITEMS } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigPanel, resetPatch } from "./config-panel";
@@ -57,44 +60,83 @@ export function ThemeButton() {
   );
 }
 
-export function SiteHeader({ className }: { className?: string }) {
+function HeaderSearch() {
+  const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const [config] = useConfig();
+  const q = serializeConfig(config);
+  const go = (path: string) => navigate(q ? `${path}?${q}` : path);
+  useCommandShortcut(setOpen);
+  const groups = React.useMemo(
+    () => [
+      {
+        label: "Pages",
+        items: [
+          { id: "home", label: "Home", icon: Home, onSelect: () => go("/") },
+          { id: "gallery", label: "Gallery", icon: Grid, onSelect: () => go("/gallery") },
+          { id: "examples", label: "Examples", icon: Layout, onSelect: () => go("/examples/dashboard") },
+          { id: "export", label: "Export", icon: Download, onSelect: () => go("/export") },
+        ],
+      },
+      ...GROUPS.map((g) => ({
+        label: g,
+        items: ITEMS.filter((i) => i.group === g).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(`/gallery/${i.name}`) })),
+      })),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q],
+  );
   return (
-    <header className={cn("mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6", className)}>
-      <SLink to="/" className="mr-3 rounded-control px-1 py-1 sm:mr-6">
-        <Wordmark />
-      </SLink>
-      <nav className="flex items-center gap-1 max-sm:hidden">
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Search components"
+        className={cn(buttonClass({ variant: "secondary" }), "w-control justify-center px-0 font-normal text-ink-muted sm:w-52 sm:justify-start sm:px-3")}
+      >
+        <SearchIcon />
+        <span className="flex-1 text-left max-sm:hidden">Search</span>
+        <Shortcut keys={["mod", "K"]} className="max-sm:hidden" />
+      </button>
+      <CommandPalette open={open} onOpenChange={setOpen} groups={groups} placeholder="Find a component or page" />
+    </>
+  );
+}
+
+/** One header for every page: same position, width and height on landing, gallery, examples and export. */
+export function SiteHeader() {
+  return (
+    <header className="sticky top-0 z-40 bg-page/85 backdrop-blur-md">
+      <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
+        <SLink to="/" className="mr-3 rounded-control px-1 py-1 sm:mr-6">
+          <Wordmark />
+        </SLink>
+        <nav className="flex items-center gap-1 max-md:hidden">
+          <NavItem to="/gallery">Gallery</NavItem>
+          <NavItem to="/examples">Examples</NavItem>
+          <NavItem to="/export">Export</NavItem>
+        </nav>
+        <div className="ml-auto flex items-center gap-1.5">
+          <HeaderSearch />
+          <CustomizeButton />
+          <ThemeButton />
+        </div>
+      </div>
+      <nav className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-1 px-4 sm:px-6 md:hidden">
         <NavItem to="/gallery">Gallery</NavItem>
         <NavItem to="/examples">Examples</NavItem>
         <NavItem to="/export">Export</NavItem>
       </nav>
-      <div className="ml-auto flex items-center gap-1.5">
-        <CustomizeButton />
-        <ThemeButton />
-      </div>
     </header>
   );
 }
 
-export function PhoneNav() {
-  return (
-    <nav className="mx-4 mb-2 flex gap-1 sm:hidden">
-      <NavItem to="/gallery">Gallery</NavItem>
-      <NavItem to="/examples">Examples</NavItem>
-      <NavItem to="/export">Export</NavItem>
-    </nav>
-  );
-}
-
 export function SiteLayout() {
-  const { pathname } = useLocation();
-  const app = pathname.startsWith("/examples");
   return (
     <TooltipProvider>
       <ConfigTokens />
       <ScrollRestoration />
-      <SiteHeader className={app ? "max-w-none sm:px-4" : undefined} />
-      <PhoneNav />
+      <SiteHeader />
       <Outlet />
       <Toaster />
     </TooltipProvider>

@@ -43,7 +43,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox, CheckboxField } from "@/components/ui/checkbox";
 import { Radio, RadioGroup } from "@/components/ui/radio";
 import { Slider } from "@/components/ui/slider";
-import { Card, CardHeader, MetricCard } from "@/components/ui/card";
+import { Card, CardHeader, MetricCard, type MetricVariant } from "@/components/ui/card";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { BarChart, BarList } from "@/components/ui/bar-chart";
@@ -66,11 +66,16 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
 import { BottomNav, BottomNavItem } from "@/components/ui/bottom-nav";
 import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime } from "./data";
-import { radii, type Config } from "@/lib/config";
+import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
+import { NICHE_DEMOS } from "./demos-niche";
+import { CopyChip } from "@/components/ui/copy-chip";
+import { Steps } from "@/components/ui/steps";
+import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
+import { Timeline } from "@/components/ui/timeline";
 
 export type Control =
-  | { key: string; type: "select"; label: string; options: string[]; default: string }
+  | { key: string; type: "select"; label: string; options: string[]; labels?: string[]; default: string }
   | { key: string; type: "toggle"; label: string; default: boolean };
 
 export type Props = Record<string, string | boolean>;
@@ -89,17 +94,21 @@ function ShapesCompare({ config }: { config: Config }) {
     { key: "round", label: "Round", css: "round" },
     { key: "squircle", label: "Squircle", css: config.smoothing === 2 ? "squircle" : `superellipse(${config.smoothing})` },
   ];
+  // Same visual size: the squircle gets the compensation the components use, so its
+  // corner sits where the round one's does instead of looking almost square.
   const r = Math.max(config.radius, 1) * 3;
+  const comp = shapedSupported() ? squircleCompensation(config.smoothing) : 1;
+  const radiusOf = (k: Config["corner"]) => (k === "square" ? 0 : k === "squircle" ? Math.min(96, Math.round(r * comp)) : r);
   return (
     <div className="grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
       {shapes.map((s) => (
         <div key={s.key} className="grid justify-items-center gap-3">
           <div
             className="aspect-square w-full max-w-48 bg-brand transition-[border-radius] duration-[220ms] ease-ad"
-            style={{ borderRadius: s.key === "square" ? 0 : r, cornerShape: s.css } as React.CSSProperties}
+            style={{ borderRadius: radiusOf(s.key), cornerShape: s.css } as React.CSSProperties}
           />
           <span className="text-body font-medium text-ink">{s.label}</span>
-          <span className="text-small tabular-nums text-ink-muted">{s.key === "square" ? "0 px" : `${r} px · ${s.css}`}</span>
+          <span className="text-small tabular-nums text-ink-muted">{`${radiusOf(s.key)} px`}</span>
         </div>
       ))}
     </div>
@@ -123,6 +132,7 @@ function Concentric({ config }: { config: Config }) {
 const orderRows = ORDERS.slice(0, 8);
 
 export const DEMOS: Record<string, Demo> = {
+  ...NICHE_DEMOS,
   "corner-shape": {
     stage: "surface",
     render: (_p, config) => (
@@ -521,17 +531,26 @@ export const DEMOS: Record<string, Demo> = {
   "metric-card": {
     stage: "page",
     controls: [
-      { key: "primary", type: "toggle", label: "Primary", default: false },
+      { key: "variant", type: "select", label: "Variant", options: ["tile", "scale", "compact"], labels: ["A · Tile", "B · Scale", "C · Compact"], default: "tile" },
+      { key: "primary", type: "toggle", label: "Primary", default: true },
       { key: "delta", type: "toggle", label: "Change", default: true },
+      { key: "loading", type: "toggle", label: "Loading", default: false },
     ],
-    render: (p) => (
-      <div className="flex flex-wrap justify-center gap-4">
-        <MetricCard primary={!!p.primary} label="Sales today" value={formatRp(48240000)} delta={p.delta ? { value: "9,7%", direction: "up" } : undefined} />
-        <MetricCard label="Orders" value="312" delta={p.delta ? { value: "3,1%", direction: "down" } : undefined} />
-        <MetricCard label="Cancelled" value="4" className="min-w-0" />
-      </div>
-    ),
-    usage: (p) => `<MetricCard label="Sales today" value="Rp 48.240.000"${p.primary ? " primary" : ""}${p.delta ? ` delta={{ value: "9,7%", direction: "up" }}` : ""} />`,
+    render: (p) => {
+      const v = p.variant as MetricVariant;
+      const l = !!p.loading;
+      return (
+        <div className="flex max-w-3xl flex-wrap justify-center gap-4">
+          <MetricCard variant={v} loading={l} primary={!!p.primary} label="Sales today" unit="Rp" value={48240000} delta={p.delta ? { value: "9,7%", direction: "up" } : undefined} />
+          <MetricCard variant={v} loading={l} label="Orders" value={312} delta={p.delta ? { value: "3,1%", direction: "down" } : undefined} />
+          <MetricCard variant={v} loading={l} label="Basket" unit="Rp" value={154600} />
+          <MetricCard variant={v} loading={l} label="To ship" value={18} />
+          <MetricCard variant={v} loading={l} label="Cancelled" value={4} />
+        </div>
+      );
+    },
+    usage: (p) =>
+      `<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""}${p.primary ? " primary" : ""} label="Sales today" unit="Rp" value={48240000}${p.delta ? ` delta={{ value: "9,7%", direction: "up" }}` : ""} />\n<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""} label="Cancelled" value={4} />  // one or two digits: the short treatment`,
   },
   table: {
     stage: "page",
@@ -620,17 +639,25 @@ export const DEMOS: Record<string, Demo> = {
           <Status>Paid</Status>
           <Status tone="attention">Unpaid</Status>
           <Status tone="muted">Cancelled</Status>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Pill>Needs review</Pill>
+          <Pill tone="neutral" dot="default">Paid</Pill>
+          <Pill tone="neutral" dot="muted">Cancelled</Pill>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-1">
           <Chip selected>All</Chip>
           <Chip>Unpaid</Chip>
           <Chip>To pack</Chip>
+          <Chip>Shipped</Chip>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip onRemove={() => toast("Filter removed", "neutral")}>Kemang</Chip>
+          <Chip onRemove={() => toast("Filter removed", "neutral")}>This week</Chip>
         </div>
       </div>
     ),
-    usage: () => `<Status>Paid</Status>\n<Status tone="attention">Unpaid</Status>\n<Pill>Needs review</Pill>\n<Chip selected onClick={…}>All</Chip>\n<Chip onRemove={…}>Kemang</Chip>`,
+    usage: () => `<Status>Paid</Status>                       // tables and detail rows\n<Pill>Needs review</Pill>                  // the one status that needs attention\n<Pill tone="neutral" dot="default">Paid</Pill>  // beside a pill, same box\n<Chip selected onClick={…}>All</Chip>\n<Chip onRemove={…}>Kemang</Chip>\n// Pills, chips, segments and tabs share --ad-bubble-x / --ad-bubble-x-sm.`,
   },
   badge: {
     render: () => (
@@ -662,15 +689,19 @@ export const DEMOS: Record<string, Demo> = {
   },
   alert: {
     controls: [
-      { key: "tone", type: "select", label: "Tone", options: ["neutral", "attention", "danger"], default: "danger" },
-      { key: "body", type: "toggle", label: "Second line", default: true },
+      { key: "tone", type: "select", label: "Tone", options: ["neutral", "attention", "danger"], default: "attention" },
+      { key: "action", type: "toggle", label: "Action", default: true },
     ],
     render: (p) => (
-      <Alert tone={p.tone as never} title="Payout failed" className="w-full max-w-md" action={p.tone === "attention" ? <Button size="sm">Sync</Button> : undefined}>
-        {p.body ? "The bank rejected the account number. Check it in Settings." : null}
-      </Alert>
+      <div className="grid w-full max-w-md gap-3">
+        <Alert tone={p.tone as never} title="2 shops haven't synced since 09:40" action={p.action ? <Button size="sm">Sync</Button> : undefined} />
+        <Alert tone={p.tone === "attention" ? "danger" : (p.tone as never)} title="Payout failed" action={p.action ? <Button size="sm">Open</Button> : undefined}>
+          The bank rejected the account number. Check it in Settings.
+        </Alert>
+      </div>
     ),
-    usage: (p) => `<Alert tone="${p.tone}" title="Payout failed">\n  The bank rejected the account number.\n</Alert>`,
+    usage: (p) =>
+      `// One line: icon, text and action share one centre line.\n<Alert tone="${p.tone}" title="2 shops haven't synced since 09:40"${p.action ? ` action={<Button size="sm">Sync</Button>}` : ""} />\n\n// Two lines: the icon stays on the first line.\n<Alert tone="danger" title="Payout failed">\n  The bank rejected the account number. Check it in Settings.\n</Alert>`,
   },
   progress: {
     render: () => (
@@ -888,18 +919,25 @@ export const DEMOS: Record<string, Demo> = {
 
 export function OrderDetail({ id }: { id: string }) {
   const o = ORDERS.find((x) => x.id === id) ?? ORDERS[0];
+  const step = { Unpaid: 0, Paid: 1, Packed: 2, Shipped: 3, Cancelled: 0 }[o.status];
+  const market = o.shop === "TikTok Shop" ? "tiktok" : "shopee";
   const rows: [string, React.ReactNode][] = [
+    ["Order", <CopyChip key="c" value={o.id} />],
     ["Time", smartTime(o.at)],
     ["Shop", o.shop],
     ["Customer", o.customer],
     ["Payment", o.payment],
-    ["Status", <Status key="s" tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{o.status}</Status>],
   ];
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-6">
+      {o.status === "Cancelled" ? (
+        <Alert tone="neutral" title="Cancelled by the buyer" />
+      ) : (
+        <Steps steps={["Ordered", "Paid", "Packed", "Shipped"]} current={step + 1} />
+      )}
       <div className="grid gap-2 text-body">
         {rows.map(([k, v]) => (
-          <div key={k} className="flex items-center justify-between gap-4">
+          <div key={k} className="flex min-h-6 items-center justify-between gap-4">
             <span className="text-ink-muted">{k}</span>
             <span className="truncate">{v}</span>
           </div>
@@ -907,7 +945,7 @@ export function OrderDetail({ id }: { id: string }) {
       </div>
       <div className="grid gap-1.5">
         <h3 className="text-body font-semibold">Items</h3>
-        <div className="flex items-center gap-3 rounded-item bg-fill p-2">
+        <div className="flex items-center gap-3 rounded-item bg-fill px-2.5 py-2">
           <Thumb alt={o.items} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-body">{o.items}</p>
@@ -915,24 +953,28 @@ export function OrderDetail({ id }: { id: string }) {
               {o.qty} × {formatRp(o.total / o.qty)}
             </p>
           </div>
-          <span className="shrink-0 pr-1 text-body font-medium tabular-nums">{formatRp(o.total)}</span>
+          <span className="shrink-0 text-body font-medium tabular-nums">{formatRp(o.total)}</span>
         </div>
       </div>
-      <div className="grid gap-2 text-body">
-        <div className="flex justify-between">
-          <span className="text-ink-muted">Subtotal</span>
-          <span className="tabular-nums">{formatRp(o.total)}</span>
+      <div className="grid gap-1.5">
+        <h3 className="text-body font-semibold">Money</h3>
+        <div className="-mx-2.5 grid gap-px">
+          <FeeRow payer="buyer" label="Items" amount={o.total} />
+          <FeeRow payer="platform" market={market} label="Admin fee 4,5%" amount={-o.fee} />
+          <FeeTotal label="You receive" amount={o.total - o.fee} className="mt-1" />
         </div>
-        <div className="flex justify-between">
-          <span className="text-ink-muted">Platform fee</span>
-          <span className="tabular-nums">−{formatRp(o.fee)}</span>
-        </div>
-        <div className="flex justify-between font-semibold">
-          <span>You receive</span>
-          <span className="tabular-nums">{formatRp(o.total - o.fee)}</span>
-        </div>
+      </div>
+      <div className="grid gap-1.5">
+        <h3 className="text-body font-semibold">Activity</h3>
+        <Timeline
+          className="-mx-2"
+          events={[
+            ...(step >= 2 ? [{ id: "p", time: "Today, 11:40", title: `Packed by ${TEAM[3].name}`, media: <Box /> }] : []),
+            ...(step >= 1 ? [{ id: "y", time: smartTime(new Date(o.at.getTime() + 4 * 60000)), title: `Paid with ${o.payment}` }] : []),
+            { id: "o", time: smartTime(o.at), title: `Ordered at ${o.shop}` },
+          ]}
+        />
       </div>
     </div>
   );
 }
-

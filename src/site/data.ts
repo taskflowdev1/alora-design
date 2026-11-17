@@ -115,3 +115,96 @@ export const TEAM = [
   { name: "Bayu Saputra", role: "Cashier", email: "bayu@rimba.example" },
   { name: "Intan Permata", role: "Stock", email: "intan@rimba.example" },
 ];
+
+/** Shops with their marketplace, for the shop picker, fee rows and the examples. */
+export const MARKET_SHOPS: { id: string; name: string; market: "shopee" | "tiktok" | "tokopedia" | "offline" }[] = [
+  { id: "kemang", name: "Kemang", market: "offline" },
+  { id: "senopati", name: "Senopati", market: "offline" },
+  { id: "dago", name: "Dago", market: "offline" },
+  { id: "shopee-official", name: "Rimba Official", market: "shopee" },
+  { id: "shopee-outlet", name: "Rimba Outlet", market: "shopee" },
+  { id: "tiktok", name: "Rimba Live", market: "tiktok" },
+  { id: "tokopedia", name: "Rimba Tokopedia", market: "tokopedia" },
+];
+
+export const SPARK = [12, 14, 13, 17, 16, 19, 18, 22, 21, 24, 23, 27];
+
+const day = (n: number, h = 9, m = 0) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n, h, m);
+
+export interface Promotion {
+  id: string;
+  name: string;
+  from: Date;
+  to: Date;
+  discount: string;
+  budget: number;
+  used: number;
+  markets: ("shopee" | "tiktok" | "offline")[];
+  status: "Live" | "Scheduled" | "Ended";
+}
+
+export const PROMOTIONS: Promotion[] = [
+  { id: "p1", name: "Payday sale", from: day(-3), to: day(2), discount: "15% off", budget: 6000000, used: 4320000, markets: ["shopee", "tiktok"], status: "Live" },
+  { id: "p2", name: "Rotan week", from: day(-1), to: day(5), discount: "Rp 25.000 off", budget: 2500000, used: 640000, markets: ["offline", "shopee"], status: "Live" },
+  { id: "p3", name: "12.12 sale", from: day(26), to: day(26), discount: "20% off", budget: 12000000, used: 0, markets: ["shopee", "tiktok", "offline"], status: "Scheduled" },
+  { id: "p4", name: "Free shipping, Jabodetabek", from: day(4), to: day(11), discount: "Free shipping", budget: 3000000, used: 0, markets: ["tiktok"], status: "Scheduled" },
+  { id: "p5", name: "11.11 sale", from: day(-5), to: day(-5), discount: "11% off", budget: 8000000, used: 7880000, markets: ["shopee", "tiktok"], status: "Ended" },
+  { id: "p6", name: "Lilin bundle", from: day(-20), to: day(-10), discount: "Buy 2 get 1", budget: 1500000, used: 1120000, markets: ["offline"], status: "Ended" },
+];
+
+export const CANCEL_REASONS = ["Out of stock", "Buyer changed mind", "Not paid in time", "Wrong address", "Courier failed"];
+
+export interface Cancellation {
+  id: string;
+  at: Date;
+  shop: string;
+  market: "shopee" | "tiktok" | "offline";
+  customer: string;
+  items: string;
+  reason: string;
+  refund: number;
+  /** Fee the platform kept that it should have returned (negative = we lost money). */
+  feeDiff: number;
+  status: "Refunded" | "Waiting refund" | "Disputed";
+}
+
+export const CANCELLATIONS: Cancellation[] = (() => {
+  const r = rng(424);
+  const markets: Cancellation["market"][] = ["shopee", "tiktok", "offline"];
+  const shopOf = { shopee: "Rimba Official", tiktok: "Rimba Live", offline: "Kemang" } as const;
+  return Array.from({ length: 38 }, (_, i) => {
+    const p = PRODUCTS[Math.floor(r() * PRODUCTS.length)];
+    const market = markets[Math.floor(r() * 3)];
+    const refund = p.price * (1 + Math.floor(r() * 2));
+    const roll = r();
+    return {
+      id: `RMB-${24790 - i * 7}`,
+      at: new Date(NOW.getTime() - (i * 5 + Math.floor(r() * 4)) * 60 * 60 * 1000),
+      shop: shopOf[market],
+      market,
+      customer: `${FIRST[Math.floor(r() * FIRST.length)]} ${String.fromCharCode(65 + Math.floor(r() * 26))}.`,
+      items: p.name,
+      reason: CANCEL_REASONS[Math.min(4, Math.floor(r() * r() * 5.5))],
+      refund,
+      feeDiff: market !== "offline" && roll < 0.22 ? -Math.round(refund * 0.045) : 0,
+      status: roll < 0.12 ? "Disputed" : roll < 0.35 ? "Waiting refund" : "Refunded",
+    };
+  });
+})();
+
+export const TEAM_ACTIVITY = [
+  { id: "a1", time: "Today, 14:05", who: "Intan Permata", what: "packed 12 orders at Kemang" },
+  { id: "a2", time: "Today, 13:40", who: "Dewi Anggraini", what: "changed the courier for Dago to SiCepat" },
+  { id: "a3", time: "Today, 11:12", who: "Bayu Saputra", what: "closed the Senopati till, Rp 4.820.000" },
+  { id: "a4", time: "Today, 09:30", who: "Rizky Hartono", what: "started the Rotan week promotion" },
+  { id: "a5", time: "Yesterday, 18:02", who: "Dewi Anggraini", what: "invited Wulan Sari as Cashier" },
+  { id: "a6", time: "Yesterday, 16:45", who: "Intan Permata", what: "counted stock at Dago, 2 differences" },
+];
+
+export const TEAM_DETAIL = [
+  { ...TEAM[0], shops: "All shops", active: "Online" },
+  { ...TEAM[1], shops: "All shops", active: "Online" },
+  { ...TEAM[2], shops: "Senopati", active: "Today, 11:12" },
+  { ...TEAM[3], shops: "Kemang, Dago", active: "Today, 14:05" },
+  { name: "Wulan Sari", role: "Cashier", email: "wulan@rimba.example", shops: "Kemang", active: "Invited" },
+];

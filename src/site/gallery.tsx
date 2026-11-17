@@ -1,9 +1,9 @@
 import * as React from "react";
-import { NavLink, useParams } from "react-router";
+import { NavLink, useNavigate, useParams, useSearchParams } from "react-router";
 import { Check, Copy, Search as SearchIcon } from "react-feather";
 import { cn } from "@/lib/ad";
 import { inlineTokens, serializeConfig, type Config } from "@/lib/config";
-import { GROUPS, ITEMS, SITE, findItem } from "@/lib/registry";
+import { GROUPS, ITEMS, SITE, findItem, type Item } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search } from "@/components/ui/search";
@@ -22,7 +22,7 @@ function GallerySidebar() {
   const [config] = useConfig();
   const q = serializeConfig(config);
   return (
-    <aside className="sticky top-4 hidden max-h-[calc(100dvh-96px)] w-52 shrink-0 overflow-auto pb-8 lg:block">
+    <aside className="sticky top-20 hidden max-h-[calc(100dvh-96px)] w-52 shrink-0 overflow-auto pb-8 lg:block">
       {GROUPS.map((g) => (
         <div key={g} className="mb-4 grid gap-px">
           <div className="flex h-7 items-center px-2.5 text-small text-ink-muted">{g}</div>
@@ -48,9 +48,10 @@ function GallerySidebar() {
 
 function PhonePicker({ current }: { current?: string }) {
   const [config] = useConfig();
+  const navigate = useNavigate();
   const go = (name: string) => {
     const q = serializeConfig(config);
-    window.location.assign(`/gallery/${name}${q ? `?${q}` : ""}`);
+    navigate(`/gallery/${name}${q ? `?${q}` : ""}`);
   };
   return (
     <div className="mb-4 lg:hidden">
@@ -82,13 +83,43 @@ function DemoRender({ demo, p, config }: { demo: Demo; p: Props; config: Config 
   return <>{demo.render(p, config)}</>;
 }
 
-function defaults(demo?: Demo): Props {
-  return Object.fromEntries((demo?.controls ?? []).map((c) => [c.key, c.default]));
+/** Control defaults, overridden by matching URL params (?variant=scale), so any state has a link. */
+function defaults(demo?: Demo, params?: URLSearchParams): Props {
+  return Object.fromEntries(
+    (demo?.controls ?? []).map((c) => {
+      const v = params?.get(c.key);
+      if (v == null) return [c.key, c.default];
+      return [c.key, c.type === "toggle" ? v === "1" || v === "true" : c.options.includes(v) ? v : c.default];
+    }),
+  );
+}
+
+/** The component grid: every tile is a live, scaled-down preview that opens its gallery page. */
+export function GalleryGrid({ items, className }: { items: Item[]; className?: string }) {
+  const [config] = useConfig();
+  return (
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3", className)}>
+      {items.map((i) => {
+        const demo = DEMOS[i.name];
+        return (
+          <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
+            <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
+              <div className="pointer-events-none relative h-44 overflow-hidden" inert>
+                <div className="absolute left-0 top-0 flex h-[166.6%] w-[166.6%] origin-top-left scale-[0.6] items-center justify-center p-6">
+                  {demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}
+                </div>
+              </div>
+              <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
+            </Card>
+          </SLink>
+        );
+      })}
+    </div>
+  );
 }
 
 export function GalleryIndex() {
   const [q, setQ] = React.useState("");
-  const [config] = useConfig();
   const list = ITEMS.filter((i) => i.title.toLowerCase().includes(q.toLowerCase()));
   return (
     <GalleryLayout>
@@ -97,23 +128,7 @@ export function GalleryIndex() {
         <Search value={q} onValueChange={setQ} placeholder="Find a component" />
       </div>
       {list.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {list.map((i) => {
-          const demo = DEMOS[i.name];
-          return (
-            <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
-              <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
-                <div className="pointer-events-none relative h-44 overflow-hidden" inert>
-                  <div className="absolute left-0 top-0 flex h-[166.6%] w-[166.6%] origin-top-left scale-[0.6] items-center justify-center p-6">
-                    {demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}
-                  </div>
-                </div>
-                <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
-              </Card>
-            </SLink>
-          );
-        })}
-      </div>
+      <GalleryGrid items={list} />
     </GalleryLayout>
   );
 }
@@ -154,14 +169,15 @@ export function GalleryItem() {
   const item = findItem(name);
   const demo = DEMOS[name];
   const [global] = useConfig();
+  const [params] = useSearchParams();
   const [overrides, setOverrides] = React.useState<Partial<Config>>({});
-  const [props, setProps] = React.useState<Props>(() => defaults(demo));
+  const [props, setProps] = React.useState<Props>(() => defaults(demo, params));
   const [source, setSource] = React.useState("");
   const merged = React.useMemo(() => ({ ...global, ...overrides, theme: global.theme }), [global, overrides]);
 
   React.useEffect(() => {
     setOverrides({});
-    setProps(defaults(DEMOS[name]));
+    setProps(defaults(DEMOS[name], new URLSearchParams(window.location.search)));
   }, [name]);
 
   // Portalled overlays (menus, popovers, dialogs) render in <body>, so the overrides
@@ -213,14 +229,14 @@ export function GalleryItem() {
         <Card className="grid content-start gap-4 self-start">
           {(demo.controls ?? []).map((c) =>
             c.type === "select" ? (
-              <div key={c.key} className="grid gap-1.5">
+              <div key={c.key} className="flex items-center justify-between gap-3">
                 <span className="text-body text-ink-muted">{c.label}</span>
                 <Select
                   aria-label={c.label}
+                  align="end"
                   value={String(props[c.key])}
                   onValueChange={(v) => setProps({ ...props, [c.key]: v })}
-                  options={c.options.map((o) => ({ value: o, label: o[0].toUpperCase() + o.slice(1) }))}
-                  className="w-full"
+                  options={c.options.map((o, i) => ({ value: o, label: c.labels?.[i] ?? o[0].toUpperCase() + o.slice(1) }))}
                 />
               </div>
             ) : (

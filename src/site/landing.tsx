@@ -1,66 +1,48 @@
 import * as React from "react";
-import { ArrowRight, Bell, Box, Edit2, Folder, Inbox, MoreHorizontal, Plus, Share2, Trash2, Truck } from "react-feather";
+import { ArrowRight, ArrowUpRight } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { radii } from "@/lib/config";
+import { ITEMS, findItem } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, MetricCard } from "@/components/ui/card";
-import { Segmented } from "@/components/ui/segmented";
+import { Card } from "@/components/ui/card";
 import { BarChart } from "@/components/ui/bar-chart";
-import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
-import { Thumb } from "@/components/ui/thumb";
-import { Switch } from "@/components/ui/switch";
-import { Status, Pill, Chip } from "@/components/ui/status";
-import { Search } from "@/components/ui/search";
-import { Select } from "@/components/ui/select";
+import { Status } from "@/components/ui/status";
 import { Avatar } from "@/components/ui/avatar";
-import { LanguagePicker } from "@/components/ui/language-picker";
-import { Alert } from "@/components/ui/alert";
-import { EmptyState } from "@/components/ui/empty-state";
-import { DatePicker } from "@/components/ui/date-picker";
-import { PeriodStepper } from "@/components/ui/period-stepper";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Menu, MenuGroup, MenuItem, MenuSub } from "@/components/ui/menu";
-import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { toast } from "@/components/ui/toast";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { Toolbar } from "@/components/ui/toolbar";
 import { SLink, shapedSupported, useConfig } from "./config";
 import { CornerControl, RadiusControl, SmoothingControl } from "./config-panel";
 import { Wordmark } from "./layout";
-import { HOURLY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM } from "./data";
+import { GalleryGrid } from "./gallery";
+import { DEMOS } from "./demos";
+import { HOURLY } from "./data";
 
-/* The signature visual: card > panel > pill > button, every corner concentric. */
+/* The signature visual: card > panel > pill > button, every corner concentric. No halo around it. */
 function ConcentricStack() {
   const [config] = useConfig();
   const r = radii(config, shapedSupported());
   const zero = config.corner === "square";
-  const pad = { pill: 5, panel: 14, card: 16, ring: 26 };
+  const pad = { pill: 5, panel: 14, card: 16 };
   const r0 = r.control;
   const r1 = zero ? 0 : r0 + pad.pill;
   const r2 = zero ? 0 : r1 + pad.panel;
   const r3 = zero ? 0 : r2 + pad.card;
-  const r4 = zero ? 0 : r3 + pad.ring;
   const ease = "transition-[border-radius] duration-[220ms] ease-ad";
   return (
-    <div className={cn("w-full max-w-[540px] bg-brand-soft", ease)} style={{ borderRadius: r4, padding: pad.ring }}>
-      <div className={cn("bg-surface shadow-raised", ease)} style={{ borderRadius: r3, padding: pad.card }}>
-        <div className={cn("bg-fill", ease)} style={{ borderRadius: r2, padding: pad.panel }}>
-          <div className="flex items-start justify-between gap-3 px-1">
-            <div className="grid gap-0.5">
-              <span className="text-body text-ink-muted">Sales today</span>
-              <span className="text-number font-semibold tabular-nums">{formatRp(48240000)}</span>
-            </div>
-            <Avatar name="Rizky Hartono" size="sm" className="mt-0.5 bg-surface" />
+    <div className={cn("w-full max-w-[500px] bg-surface shadow-raised", ease)} style={{ borderRadius: r3, padding: pad.card }}>
+      <div className={cn("bg-fill", ease)} style={{ borderRadius: r2, padding: pad.panel }}>
+        <div className="flex items-start justify-between gap-3 px-1">
+          <div className="grid gap-0.5">
+            <span className="text-body text-ink-muted">Sales today</span>
+            <span className="text-number font-semibold tabular-nums">{formatRp(48240000)}</span>
           </div>
-          <BarChart data={HOURLY} height={92} current={6} labelEvery={3} className="mt-4 px-1" aria-label="Sales by hour" />
-          <div className={cn("mt-4 flex items-center justify-between gap-3 bg-surface shadow-card", ease)} style={{ borderRadius: r1, padding: pad.pill, paddingLeft: 14 }}>
-            <Status tone="attention">3 orders to pack</Status>
-            <Button variant="primary" onClick={() => toast("3 orders packed")}>
-              Pack orders
-            </Button>
-          </div>
+          <Avatar name="Rizky Hartono" size="sm" className="mt-0.5 bg-surface" />
+        </div>
+        <BarChart data={HOURLY} height={92} current={6} labelEvery={3} className="mt-4 px-1" aria-label="Sales by hour" />
+        <div className={cn("mt-4 flex items-center justify-between gap-3 bg-surface shadow-card", ease)} style={{ borderRadius: r1, padding: pad.pill, paddingLeft: 14 }}>
+          <Status tone="attention">3 orders to pack</Status>
+          <Button variant="primary" onClick={() => toast("3 orders packed")}>
+            Pack orders
+          </Button>
         </div>
       </div>
     </div>
@@ -68,375 +50,139 @@ function ConcentricStack() {
 }
 
 function Hero() {
-  const [config, setConfig] = useConfig();
   return (
-    <section className="mx-auto grid w-full max-w-[1280px] items-center gap-12 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-[1fr_540px] lg:gap-16 lg:pb-24 lg:pt-16">
-      <div className="grid max-w-[520px] gap-8">
-        <h1 className="text-[clamp(44px,7.2vw,84px)] font-semibold leading-[0.98] tracking-[-0.035em] text-ink">Corners that agree.</h1>
-        <div className="grid gap-4 sm:max-w-[380px]">
-          <CornerControl value={config} onChange={setConfig} />
-          <SmoothingControl value={config} onChange={setConfig} />
-          <RadiusControl value={config} onChange={setConfig} />
-        </div>
-        <div>
-          <Button variant="primary" asChild>
-            <SLink to="/gallery">
-              Explore gallery
-              <ArrowRight />
-            </SLink>
-          </Button>
-        </div>
-      </div>
-      <div className="flex justify-center lg:justify-end">
-        <ConcentricStack />
+    <section className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-14 sm:px-6 lg:pb-20 lg:pt-24">
+      <h1 className="max-w-[13ch] text-[clamp(44px,7.2vw,88px)] font-semibold leading-[0.98] tracking-[-0.035em] text-ink">UI parts for shops that sell everywhere.</h1>
+      <div className="mt-10">
+        <Button variant="primary" asChild>
+          <SLink to="/gallery">
+            Explore gallery
+            <ArrowRight />
+          </SLink>
+        </Button>
       </div>
     </section>
   );
 }
 
-/* ------------------------------------------------------------ the wall */
-
-function Tile({ className, children, ...props }: React.ComponentProps<typeof Card>) {
+function SectionTitle({ children, to }: { children: React.ReactNode; to?: string }) {
   return (
-    <Card className={cn("min-w-0", className)} {...props}>
-      {children}
+    <div className="mb-5 flex min-h-control items-center justify-between gap-3">
+      <h2 className="text-[clamp(24px,3vw,32px)] font-semibold tracking-[-0.02em] text-ink">{children}</h2>
+      {to ? (
+        <Button variant="ghost" asChild>
+          <SLink to={to}>
+            Open gallery
+            <ArrowRight />
+          </SLink>
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ the gallery, right away */
+
+function Components() {
+  const items = ITEMS.filter((i) => i.group !== "Niche");
+  return (
+    <section aria-label="Components" className="mx-auto w-full max-w-[1280px] px-4 sm:px-6">
+      <SectionTitle to="/gallery">Components</SectionTitle>
+      <GalleryGrid items={items} className="xl:grid-cols-4" />
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------ spotlight: the niche ones, live */
+
+const SPOT: [string, string][] = [
+  ["command-palette", "lg:col-span-4"],
+  ["date-range-picker", "lg:col-span-4"],
+  ["shop-picker", "lg:col-span-4"],
+  ["fee-row", "lg:col-span-6"],
+  ["diff", "lg:col-span-6"],
+  ["comment-thread", "lg:col-span-5"],
+  ["kanban-card", "lg:col-span-7"],
+  ["calendar-month", "lg:col-span-8"],
+  ["timeline", "lg:col-span-4"],
+  ["inline-edit", "lg:col-span-6"],
+  ["context-menu", "lg:col-span-6"],
+  ["split-button", "lg:col-span-4"],
+  ["toggle-group", "lg:col-span-4"],
+  ["notification-bell", "lg:col-span-4"],
+  ["quantity-stepper", "lg:col-span-6"],
+  ["currency-input", "lg:col-span-3"],
+  ["time-picker", "lg:col-span-3"],
+  ["sparkline", "lg:col-span-5"],
+  ["progress-ring", "lg:col-span-4"],
+  ["steps", "lg:col-span-3"],
+  ["dropzone", "lg:col-span-5"],
+  ["tag-input", "lg:col-span-4"],
+  ["column-menu", "lg:col-span-3"],
+  ["hover-card", "lg:col-span-4"],
+  ["copy-chip", "lg:col-span-4"],
+  ["avatar-group", "lg:col-span-4"],
+  ["kbd", "lg:col-span-4"],
+  ["marketplace-mark", "lg:col-span-4"],
+];
+
+function SpotTile({ name, className }: { name: string; className?: string }) {
+  const item = findItem(name);
+  const demo = DEMOS[name];
+  const [config] = useConfig();
+  if (!item || !demo) return null;
+  const p = Object.fromEntries((demo.controls ?? []).map((c) => [c.key, c.default]));
+  return (
+    <Card inset="nest" className={cn("flex min-w-0 flex-col", className)}>
+      <div className="flex h-control items-center justify-between gap-2 pl-2">
+        <h3 className="truncate text-body font-medium text-ink">{item.title}</h3>
+        <Button variant="ghost" icon asChild aria-label={`Open ${item.title}`}>
+          <SLink to={`/gallery/${name}`}>
+            <ArrowUpRight />
+          </SLink>
+        </Button>
+      </div>
+      <div
+        className={cn(
+          "mt-nest flex min-h-40 flex-1 items-center justify-center overflow-hidden rounded-item p-5",
+          demo.stage === "page" ? "bg-page" : "bg-surface",
+        )}
+      >
+        {demo.render(p, config)}
+      </div>
     </Card>
   );
 }
 
-function MetricsTile() {
+function Spotlight() {
   return (
-    <div className="flex flex-wrap gap-4 ">
-      <MetricCard primary label="Sales today" value={formatRp(48240000)} delta={{ value: "9,7%", direction: "up" }} />
-      <MetricCard label="Orders" value="312" />
-      <MetricCard label="Basket" value={formatRp(154600)} />
-      <MetricCard label="Cancelled" value="4" className="min-w-0" />
-    </div>
-  );
-}
-
-function ChartTile() {
-  const [range, setRange] = React.useState("day");
-  return (
-    <Tile >
-      <CardHeader
-        title="Sales"
-        action={
-          <Segmented
-            aria-label="Range"
-            value={range}
-            onValueChange={setRange}
-            options={[
-              { value: "day", label: "Today" },
-              { value: "week", label: "Week" },
-              { value: "month", label: "Month" },
-            ]}
-          />
-        }
-      />
-      <BarChart data={HOURLY} current={10} labelEvery={2} height={150} className="mt-5" aria-label="Sales by hour" />
-    </Tile>
-  );
-}
-
-function StockTile() {
-  const low = PRODUCTS.filter((p) => p.stock < 5).slice(0, 4);
-  return (
-    <Tile inset="nest" >
-      <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
-      <AttentionList className="mt-1">
-        {low.map((p) => (
-          <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
-        ))}
-      </AttentionList>
-    </Tile>
-  );
-}
-
-function MenuTile() {
-  return (
-    <Tile className="flex flex-col gap-3 ">
-      <CardHeader
-        title="Order RMB-24817"
-        action={
-          <Menu
-            align="end"
-            trigger={
-              <Button variant="ghost" icon aria-label="More">
-                <MoreHorizontal />
-              </Button>
-            }
-          >
-            <MenuItem icon={Edit2}>Edit</MenuItem>
-            <MenuItem icon={Share2}>Share</MenuItem>
-            <MenuSub icon={Folder} label="Move to">
-              <MenuItem>To pack</MenuItem>
-              <MenuItem>On hold</MenuItem>
-              <MenuItem>Archive</MenuItem>
-            </MenuSub>
-            <MenuGroup>
-              <MenuItem icon={Trash2}>Cancel order</MenuItem>
-            </MenuGroup>
-          </Menu>
-        }
-      />
-      <div className="grid gap-2 text-body">
-        <div className="flex justify-between gap-3">
-          <span className="text-ink-muted">Customer</span>
-          <span>Rina S.</span>
-        </div>
-        <div className="flex justify-between gap-3">
-          <span className="text-ink-muted">Status</span>
-          <Status>Paid</Status>
-        </div>
-        <div className="flex justify-between gap-3">
-          <span className="text-ink-muted">Total</span>
-          <span className="font-medium tabular-nums">{formatRp(434000)}</span>
-        </div>
-      </div>
-    </Tile>
-  );
-}
-
-function ToolbarTile() {
-  const [q, setQ] = React.useState("");
-  const [shop, setShop] = React.useState("all");
-  const [status, setStatus] = React.useState<string[]>(["Paid"]);
-  const [week, setWeek] = React.useState(NOW);
-  const [view, setView] = React.useState("list");
-  return (
-    <Tile >
-      <Toolbar>
-        <Search value={q} onValueChange={setQ} placeholder="Order or product" wrapperClassName="w-full sm:w-56" />
-        <Select
-          aria-label="Shop"
-          prefix="Shop"
-          value={shop}
-          onValueChange={setShop}
-          options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]}
-        />
-        <MultiSelect aria-label="Status" value={status} onValueChange={setStatus} placeholder="Status" options={["Paid", "Packed", "Shipped", "Unpaid"].map((s) => ({ value: s, label: s }))} />
-        <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
-        <Segmented
-          aria-label="View"
-          value={view}
-          onValueChange={setView}
-          className="sm:ml-auto"
-          options={[
-            { value: "list", label: "List" },
-            { value: "board", label: "Board" },
-          ]}
-        />
-        <Button variant="primary">
-          <Plus />
-          Add order
-        </Button>
-      </Toolbar>
-    </Tile>
-  );
-}
-
-function TableTile() {
-  const [sel, setSel] = React.useState(1);
-  return (
-    <Tile inset="nest" >
-      <Table>
-        <THead>
-          <tr>
-            <TH>Order</TH>
-            <TH>Shop</TH>
-            <TH>Status</TH>
-            <TH align="right">Total</TH>
-          </tr>
-        </THead>
-        <TBody>
-          {ORDERS.slice(0, 5).map((o, i) => (
-            <TRow key={o.id} selected={sel === i} onActivate={() => setSel(i)}>
-              <TD>{o.id}</TD>
-              <TD>{o.shop}</TD>
-              <TD>
-                <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{o.status}</Status>
-              </TD>
-              <TD align="right">{formatRp(o.total)}</TD>
-            </TRow>
-          ))}
-        </TBody>
-      </Table>
-    </Tile>
-  );
-}
-
-function SettingsTile() {
-  const [a, setA] = React.useState(true);
-  const [b, setB] = React.useState(false);
-  const [c, setC] = React.useState(true);
-  const rows: [string, boolean, (v: boolean) => void][] = [
-    ["Round cash totals", a, setA],
-    ["Print receipts", b, setB],
-    ["Ask why a sale is cancelled", c, setC],
-  ];
-  return (
-    <Tile inset="nest" >
-      <CardHeader title="Checkout" className="px-2 pt-2" />
-      <div className="grid gap-px">
-        {rows.map(([label, v, set]) => (
-          <label key={label} className="flex h-row cursor-pointer items-center justify-between gap-3 rounded-item px-2 text-body hover:bg-fill">
-            {label}
-            <Switch checked={v} onCheckedChange={set} />
-          </label>
+    <section aria-label="Niche components" className="mx-auto mt-24 w-full max-w-[1280px] px-4 sm:px-6">
+      <SectionTitle>The niche ones</SectionTitle>
+      <div className="grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+        {SPOT.map(([n, c]) => (
+          <SpotTile key={n} name={n} className={cn(c, ["calendar-month", "kanban-card", "fee-row", "diff", "inline-edit", "context-menu"].includes(n) && "md:col-span-2")} />
         ))}
       </div>
-    </Tile>
+    </section>
   );
 }
 
-function ChipsTile() {
-  const [on, setOn] = React.useState("all");
-  const [tags, setTags] = React.useState(["Kemang", "This week"]);
-  return (
-    <Tile className="flex flex-col gap-3 ">
-      <div className="flex flex-wrap gap-1">
-        {["all", "unpaid", "to pack", "shipped"].map((k) => (
-          <Chip key={k} selected={on === k} onClick={() => setOn(k)}>
-            {k[0].toUpperCase() + k.slice(1)}
-          </Chip>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {tags.map((t) => (
-          <Chip key={t} onRemove={() => setTags(tags.filter((x) => x !== t))}>
-            {t}
-          </Chip>
-        ))}
-        {tags.length === 0 ? (
-          <Button variant="ghost" onClick={() => setTags(["Kemang", "This week"])}>
-            Reset filters
-          </Button>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Pill>Needs review</Pill>
-        <Status>Paid</Status>
-        <Status tone="muted">Cancelled</Status>
-      </div>
-    </Tile>
-  );
-}
+/* ------------------------------------------------------------ the concentric demo, at the bottom */
 
-function DateTile() {
-  const [d, setD] = React.useState<Date | null>(NOW);
-  const [w, setW] = React.useState(NOW);
+function CornersDemo() {
+  const [config, setConfig] = useConfig();
   return (
-    <Tile className="flex flex-col gap-3 ">
-      <DatePicker value={d} onValueChange={setD} today={NOW} className="w-full" />
-      <PeriodStepper value={w} period="week" onValueChange={setW} max={NOW} />
-    </Tile>
-  );
-}
-
-function PeopleTile() {
-  const [lang, setLang] = React.useState("en");
-  return (
-    <Tile className="flex items-center justify-between gap-3 ">
-      <div className="flex gap-1.5">
-        {TEAM.map((t) => (
-          <Avatar key={t.name} name={t.name} />
-        ))}
-      </div>
-      <LanguagePicker value={lang} onValueChange={setLang} />
-    </Tile>
-  );
-}
-
-function AlertTile() {
-  return (
-    <div className="grid gap-4 ">
-      <Alert tone="attention" title="2 shops haven't synced since 09:40" action={<Button size="sm">Sync</Button>} />
-      <Alert tone="danger" title="Payout failed">
-        The bank rejected the account number. Check it in Settings.
-      </Alert>
-    </div>
-  );
-}
-
-function EmptyTile() {
-  return (
-    <Tile className="grid place-items-center ">
-      <EmptyState icon={Inbox} title="No returns yet" className="py-6" />
-    </Tile>
-  );
-}
-
-function TabsTile() {
-  const [checked, setChecked] = React.useState([true, false, true]);
-  return (
-    <Tile className="flex flex-col gap-3 ">
-      <Tabs defaultValue="pack">
-        <TabsList>
-          <TabsTrigger value="pack">
-            <Box />
-            Pack
-          </TabsTrigger>
-          <TabsTrigger value="ship">
-            <Truck />
-            Ship
-          </TabsTrigger>
-          <TabsTrigger value="alerts">
-            <Bell />
-            Alerts
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-      <div className="grid gap-px">
-        {["RMB-24817 · Gelas kopi", "RMB-24815 · Piring rotan", "RMB-24811 · Lilin sereh"].map((t, i) => (
-          <label key={t} className="flex h-item cursor-pointer items-center gap-2.5 rounded-item px-2 text-body hover:bg-fill">
-            <Checkbox checked={checked[i]} onCheckedChange={(v) => setChecked(checked.map((c, j) => (j === i ? v === true : c)))} />
-            <span className="truncate">{t}</span>
-          </label>
-        ))}
-      </div>
-    </Tile>
-  );
-}
-
-function SaveTile() {
-  return (
-    <div className="flex items-center justify-center ">
-      <div className="ad-on-dark flex items-center gap-3 rounded-card bg-side p-nest pl-4 text-side-ink shadow-dialog">
-        <span className="whitespace-nowrap text-body">Unsaved changes</span>
-        <Button variant="ghost">Discard</Button>
-        <Button variant="primary" onClick={() => toast("Changes saved")}>
-          Save changes
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function Wall() {
-  return (
-    <section aria-label="Components" className="mx-auto grid w-full max-w-[1280px] gap-4 px-4 sm:px-6">
-      <ToolbarTile />
-      <div className="grid items-start gap-4 lg:grid-cols-3">
-        <div className="grid gap-4">
-          <MetricsTile />
-          <StockTile />
-          <DateTile />
-          <AlertTile />
+    <section className="mx-auto mt-24 grid w-full max-w-[1280px] items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_540px] lg:gap-16">
+      <div className="grid max-w-[460px] gap-8">
+        <h2 className="text-[clamp(36px,5vw,60px)] font-semibold leading-[1] tracking-[-0.03em] text-ink">Corners that agree.</h2>
+        <div className="grid gap-4 sm:max-w-[380px]">
+          <CornerControl value={config} onChange={setConfig} />
+          <SmoothingControl value={config} onChange={setConfig} />
+          <RadiusControl value={config} onChange={setConfig} />
         </div>
-        <div className="grid gap-4">
-          <ChartTile />
-          <TableTile />
-          <TabsTile />
-          <EmptyTile />
-        </div>
-        <div className="grid gap-4">
-          <MenuTile />
-          <SettingsTile />
-          <ChipsTile />
-          <PeopleTile />
-          <SaveTile />
-        </div>
+      </div>
+      <div className="flex justify-center lg:justify-end">
+        <ConcentricStack />
       </div>
     </section>
   );
@@ -478,7 +224,9 @@ export function Landing() {
   return (
     <main>
       <Hero />
-      <Wall />
+      <Components />
+      <Spotlight />
+      <CornersDemo />
       <Footer />
     </main>
   );
