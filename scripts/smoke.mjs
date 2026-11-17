@@ -45,9 +45,9 @@ check((await page.getAttribute("a:has-text('Explore gallery')", "href"))?.includ
 
 // Select opens and picks
 await page.goto(`${BASE}/gallery/select`, { waitUntil: "networkidle" });
-await page.click("main [aria-haspopup=listbox]");
+await page.click("[data-stage] [aria-haspopup=listbox]");
 await page.click("[role=option]:has-text('Dago')");
-check(await page.locator("main [aria-haspopup=listbox]:has-text('Dago')").isVisible(), "select picks an option");
+check(await page.locator("[data-stage] [aria-haspopup=listbox]:has-text('Dago')").isVisible(), "select picks an option");
 
 // Menu: submenu opens on click and on keyboard
 await page.goto(`${BASE}/gallery/menu`, { waitUntil: "networkidle" });
