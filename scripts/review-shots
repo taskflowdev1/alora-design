@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
+# Build, then capture the lettered review shots + checks into output/review-v4/ (OUT to change). BEFORE_BASE (default
+# the live site) gives the before shots; ONLY=<regex> limits by letter. Run through the job queue (see AGENTS.md).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+npx vite build --logLevel warn
+BEFORE_BASE="${BEFORE_BASE-https://design.alorawork.com}" node scripts/review-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/review-shots.log"

@@ -15,6 +15,11 @@ probe "/r/ad.json" "application/json" "extendTailwindMerge"
 probe "/tokens.css?t=d" "text/css" "--ad-radius-card"
 probe "/tokens.json?c=s" "application/json" '"corner": "square"'
 probe "/tailwind.css" "text/css" "@theme inline"
-probe "/gallery/button?r=16" "text/html" '<div id="root">'
+probe "/r/thinking-orbs.json" "application/json" "export function ThinkingOrbs"
+probe "/r/run-status.json" "application/json" "/r/thinking-orbs.json"
+probe "/r/sand-field.json" "application/json" "export function SandField"
+probe "/api/kit" "text/markdown" "/ai/thinking-orbs"
+probe "/components/button?r=16" "text/html" '<div id="root">'
+probe "/ai/thinking-orbs" "text/html" '<div id="root">'
 rm -f /tmp/ad-probe.$$
 [ $fail = 0 ] && echo "ENDPOINTS PASS" || { echo "ENDPOINTS FAIL"; exit 1; }

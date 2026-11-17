@@ -132,7 +132,7 @@ async function run() {
   }
 
   // Header: same box on every page.
-  for (const path of ["/", "/gallery", "/gallery/button", "/examples/dashboard", "/examples/team", "/export"]) {
+  for (const path of ["/", "/components", "/components/button", "/examples/dashboard", "/examples/team", "/export"]) {
     const page = await visit("desktop", path);
     const box = await page.evaluate(() => {
       const h = document.querySelector("header")?.getBoundingClientRect();
@@ -146,7 +146,7 @@ async function run() {
   // Pages
   const pages = [
     ["L1", "landing", "/", true, true],
-    ["G0", "gallery-index", "/gallery", false, false],
+    ["G0", "components-index", "/components", false, false],
     ["E1", "dashboard", "/examples/dashboard", false, true],
     ["E2", "orders", "/examples/orders", false, false],
     ["E3", "settings", "/examples/settings", true, false],
@@ -178,10 +178,10 @@ async function run() {
     for (const view of ["desktop", "phone"]) {
       const file = `${letter}-${name}-${view}-dark`;
       if (!want(file)) continue;
-      const page = await visit(view, `/gallery/${name}`);
+      const page = await visit(view, `/components/${name}`);
       if (view === "desktop") {
-        await scan(page, `gallery/${name}`);
-        if (["button", "status", "segmented", "quantity-stepper", "toggle-group", "inline-edit", "copy-chip", "split-button"].includes(name)) await shiftCheck(page, `gallery/${name}`);
+        await scan(page, `components/${name}`);
+        if (["button", "status", "segmented", "quantity-stepper", "toggle-group", "inline-edit", "copy-chip", "split-button"].includes(name)) await shiftCheck(page, `components/${name}`);
       }
       await shot(page, file, { letter, what: name, view, theme: "dark" });
       await page.close();
@@ -193,13 +193,13 @@ async function run() {
     for (const theme of ["dark", "light"]) {
       const file = `${letter}-metric-${v}-desktop-${theme}`;
       if (!want(file)) continue;
-      const page = await visit("desktop", `/gallery/metric-card?variant=${v}`, theme);
+      const page = await visit("desktop", `/components/metric-card?variant=${v}`, theme);
       await shot(page, file, { letter, what: `metric ${v}`, view: "desktop", theme }, "[data-stage] > *");
       await page.close();
     }
     const file = `${letter}-metric-${v}-phone-dark`;
     if (want(file)) {
-      const page = await visit("phone", `/gallery/metric-card?variant=${v}`);
+      const page = await visit("phone", `/components/metric-card?variant=${v}`);
       await shot(page, file, { letter, what: `metric ${v}`, view: "phone", theme: "dark" });
       await page.close();
     }
@@ -207,11 +207,11 @@ async function run() {
 
   // Item 4 fixes, after: the same elements v1 showed on the landing wall (before/ holds the v1 crops).
   const fixes = [
-    ["F1", "low-stock", "/gallery/attention-list", "[data-stage] > *"],
-    ["F2", "bubbles", "/gallery/status", "[data-stage] > *"],
-    ["F3", "date-trigger", "/gallery/date-picker", "[data-stage] > *"],
-    ["F4", "alerts", "/gallery/alert", "[data-stage] > *"],
-    ["F5", "metrics", "/gallery/metric-card", "[data-stage] > *"],
+    ["F1", "low-stock", "/components/attention-list", "[data-stage] > *"],
+    ["F2", "bubbles", "/components/status", "[data-stage] > *"],
+    ["F3", "date-trigger", "/components/date-picker", "[data-stage] > *"],
+    ["F4", "alerts", "/components/alert", "[data-stage] > *"],
+    ["F5", "metrics", "/components/metric-card", "[data-stage] > *"],
   ];
   for (const [letter, name, path, el] of fixes) {
     for (const theme of ["light", "dark"]) {
@@ -229,12 +229,12 @@ async function run() {
     await p.mouse.click(b.x + b.width / 2, b.y + b.height / 2, { button: "right" });
   };
   const states = [
-    ["S1", "select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
-    ["S2", "combobox-open", "/gallery/combobox", async (p) => { await p.click("[data-stage] [aria-haspopup=listbox]"); await p.keyboard.type("rot"); }],
-    ["S3", "multi-select-open", "/gallery/multi-select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
-    ["S4", "date-picker-open", "/gallery/date-picker", async (p) => p.click("main button:has-text('7 Nov 2026')")],
-    ["S5", "language-picker-open", "/gallery/language-picker", async (p) => p.click("main [aria-label=Language]")],
-    ["S6", "submenu-safe-triangle", "/gallery/menu", async (p) => {
+    ["S1", "select-open", "/components/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
+    ["S2", "combobox-open", "/components/combobox", async (p) => { await p.click("[data-stage] [aria-haspopup=listbox]"); await p.keyboard.type("rot"); }],
+    ["S3", "multi-select-open", "/components/multi-select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
+    ["S4", "date-picker-open", "/components/date-picker", async (p) => p.click("main button:has-text('7 Nov 2026')")],
+    ["S5", "language-picker-open", "/components/language-picker", async (p) => p.click("main [aria-label=Language]")],
+    ["S6", "submenu-safe-triangle", "/components/menu", async (p) => {
       await p.click("main button:has-text('Actions')");
       await sleep(300);
       const sub = p.locator("[role=menuitem]:has-text('Move to')");
@@ -259,28 +259,28 @@ async function run() {
       await sleep(300);
       await p.click("button:has-text('Shopee')");
     }],
-    ["S12", "dialog", "/gallery/dialog", async (p) => p.click("main button:has-text('Cancel order')")],
-    ["S13", "toolbar-popover", "/gallery/toolbar", async (p) => { await p.click("main button:has-text('Filter')"); await sleep(200); await p.click("main button:has-text('Columns')"); }],
+    ["S12", "dialog", "/components/dialog", async (p) => p.click("main button:has-text('Cancel order')")],
+    ["S13", "toolbar-popover", "/components/toolbar", async (p) => { await p.click("main button:has-text('Filter')"); await sleep(200); await p.click("main button:has-text('Columns')"); }],
     ["S14", "dashboard-skeleton", "/examples/dashboard?loading=1", null],
     ["S15", "orders-skeleton", "/examples/orders?loading=1", null],
-    ["S17", "tooltip-stepper", "/gallery/period-stepper", async (p) => p.hover("main [aria-label^='Previous']")],
+    ["S17", "tooltip-stepper", "/components/period-stepper", async (p) => p.hover("main [aria-label^='Previous']")],
     ["S18", "corners-radius-20-round", "/?r=20&c=r", async (p) => p.locator("text=Corners that agree.").scrollIntoViewIfNeeded()],
     ["S19", "corners-square", "/?c=s", async (p) => p.locator("text=Corners that agree.").scrollIntoViewIfNeeded()],
     ["S20", "examples-custom-config", "/examples/dashboard?r=6&c=r&a=0f8a8a&g=w&h=40&sh=80", null],
-    ["S23", "header-search", "/gallery", async (p) => { await p.keyboard.press("Control+k"); await sleep(250); await p.keyboard.type("pick"); }],
+    ["S23", "header-search", "/components", async (p) => { await p.keyboard.press("Control+k"); await sleep(250); await p.keyboard.type("pick"); }],
     ["S24", "landing-spotlight", "/", async (p) => p.locator("text=The niche ones").scrollIntoViewIfNeeded()],
-    ["S25", "landing-gallery", "/", async (p) => p.locator("h2:has-text('Components')").scrollIntoViewIfNeeded()],
-    ["N1", "command-palette-open", "/gallery/command-palette", async (p) => p.click("[data-stage] button:has-text('Search')")],
-    ["N2", "date-range-open", "/gallery/date-range-picker", async (p) => p.click("[data-stage] button")],
-    ["N3", "time-picker-open", "/gallery/time-picker", async (p) => p.click("[data-stage] button")],
-    ["N9", "shop-picker-open", "/gallery/shop-picker", async (p) => p.click("[data-stage] button")],
-    ["N10", "split-button-open", "/gallery/split-button", async (p) => p.click("[data-stage] [aria-label='More actions']")],
-    ["N12", "context-menu-open", "/gallery/context-menu", async (p) => rightClick(p, "[data-stage] tbody tr >> nth=1")],
-    ["N13", "hover-card-open", "/gallery/hover-card", async (p) => { await p.hover("[data-stage] a"); await sleep(500); }],
-    ["N14", "column-menu-open", "/gallery/column-menu", async (p) => p.click("[data-stage] button")],
-    ["N15", "inline-edit-editing", "/gallery/inline-edit", async (p) => p.click("[data-stage] tbody tr >> nth=1 >> button >> nth=0")],
-    ["N22", "comment-reactions-open", "/gallery/comment-thread", async (p) => p.click("[data-stage] [aria-label='Add reaction'] >> nth=0")],
-    ["N26", "notification-bell-open", "/gallery/notification-bell", async (p) => p.click("[data-stage] button")],
+    ["S25", "landing-ai", "/", async (p) => p.locator("[data-landing=ai]").scrollIntoViewIfNeeded()],
+    ["N1", "command-palette-open", "/components/command-palette", async (p) => p.click("[data-stage] button:has-text('Search')")],
+    ["N2", "date-range-open", "/components/date-range-picker", async (p) => p.click("[data-stage] button")],
+    ["N3", "time-picker-open", "/components/time-picker", async (p) => p.click("[data-stage] button")],
+    ["N9", "shop-picker-open", "/components/shop-picker", async (p) => p.click("[data-stage] button")],
+    ["N10", "split-button-open", "/components/split-button", async (p) => p.click("[data-stage] [aria-label='More actions']")],
+    ["N12", "context-menu-open", "/components/context-menu", async (p) => rightClick(p, "[data-stage] tbody tr >> nth=1")],
+    ["N13", "hover-card-open", "/components/hover-card", async (p) => { await p.hover("[data-stage] a"); await sleep(500); }],
+    ["N14", "column-menu-open", "/components/column-menu", async (p) => p.click("[data-stage] button")],
+    ["N15", "inline-edit-editing", "/components/inline-edit", async (p) => p.click("[data-stage] tbody tr >> nth=1 >> button >> nth=0")],
+    ["N22", "comment-reactions-open", "/components/comment-thread", async (p) => p.click("[data-stage] [aria-label='Add reaction'] >> nth=0")],
+    ["N26", "notification-bell-open", "/components/notification-bell", async (p) => p.click("[data-stage] button")],
     ["E2b", "orders-columns", "/examples/orders", async (p) => p.click("button:has-text('Columns')")],
     ["E4b", "products-add", "/examples/products", async (p) => p.click("button:has-text('Add product')")],
     ["E5b", "promotions-calendar", "/examples/promotions", async (p) => p.click("[role=radio]:has-text('Calendar')")],
@@ -305,7 +305,7 @@ async function run() {
   // Phone states
   for (const [letter, name, path, act] of [
     ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("tbody tr >> nth=1")],
-    ["S22", "phone-select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
+    ["S22", "phone-select-open", "/components/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
     ["S26", "phone-more-menu", "/examples/dashboard", async (p) => p.click("text=More")],
   ]) {
     const file = `${letter}-${name}-phone-dark`;

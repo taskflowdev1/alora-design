@@ -24,10 +24,18 @@ page.on("pageerror", (e) => errors.push(e.message));
 for (const [path, text] of [
   ["/", "just some random ui styling"],
   ["/", "Orders"],
-  ["/gallery", "Gallery"],
-  ["/gallery/menu", "Menu"],
-  ["/gallery/command-palette", "Command palette"],
+  ["/", "Where should we start?"],
+  ["/components", "Components"],
+  ["/components/menu", "Menu"],
+  ["/components/command-palette", "Command palette"],
+  ["/components/fee-row", "Fee row"],
   ["/gallery/fee-row", "Fee row"],
+  ["/ai", "In use"],
+  ["/ai/thinking-orbs", "Thinking orbs"],
+  ["/ai/run-status", "Run status"],
+  ["/ai/composer-glow", "Composer glow"],
+  ["/backgrounds", "Where should we start?"],
+  ["/backgrounds/sand-field", "Sand field"],
   ["/examples/dashboard", "Dashboard"],
   ["/examples/orders", "Orders"],
   ["/examples/products", "Products"],
@@ -103,9 +111,13 @@ await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({
   bands: document.querySelectorAll("[data-bento]").length,
   corners: document.body.innerText.includes("Corners that agree"),
-  tiles: document.querySelectorAll("main a[href^='/gallery/']").length,
+  tiles: document.querySelectorAll("main a[href^='/components/'], main a[href^='/gallery/']").length,
+  order: [...document.querySelectorAll("main [data-bento='1'], main [data-landing]")].map((e) => e.dataset.landing ?? "bento"),
+  orbs: document.querySelectorAll("[data-landing=ai] canvas").length,
+  sand: document.querySelectorAll("[data-landing=backgrounds] [data-sand-field]").length,
 }));
 check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
+check(landing.order.join() === "bento,ai,backgrounds" && landing.orbs > 0 && landing.sand === 1, `landing: components first, then AI and Backgrounds live (${JSON.stringify(landing)})`);
 await page.locator("[data-bento] [role=combobox][aria-label='Search commands']").fill("sync");
 check((await page.locator("[data-bento] [role=option]").count()) === 1, "inline command palette filters");
 const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();
@@ -118,7 +130,7 @@ await phone.close();
 // 360 px: no horizontal page scroll anywhere; the header stays on one line
 const small = await (await browser.newContext({ viewport: { width: 360, height: 780 }, isMobile: true, hasTouch: true })).newPage();
 small.on("pageerror", (e) => errors.push(e.message));
-for (const path of ["/", "/gallery", "/gallery/select", "/examples/dashboard", "/examples/orders", "/export"]) {
+for (const path of ["/", "/components", "/components/select", "/ai", "/ai/thinking-orbs", "/backgrounds", "/backgrounds/sand-field", "/examples/dashboard", "/examples/orders", "/export"]) {
   await small.goto(BASE + path, { waitUntil: "networkidle" });
   const w = await small.evaluate(() => ({
     scroll: document.scrollingElement.scrollWidth,
@@ -159,11 +171,58 @@ check(def.dark && rgb.length === 3 && Math.max(...rgb) - Math.min(...rgb) <= 1, 
 
 // One header: same box on every page
 const boxes = new Set();
-for (const path of ["/", "/gallery", "/examples/dashboard", "/export"]) {
+for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashboard", "/export"]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   boxes.add(await page.evaluate(() => JSON.stringify([document.querySelector("header")?.getBoundingClientRect(), document.querySelector("header a")?.getBoundingClientRect()])));
 }
 check(boxes.size === 1, "header sits in the same place on every page");
+
+// Nav tabs: Components first, then AI, Backgrounds, Examples, Export; the current section is highlighted
+await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
+const tabs = await page.evaluate(() => {
+  const nav = document.querySelector("header nav[aria-label=Sections]");
+  return { labels: [...nav.querySelectorAll("a")].map((a) => a.textContent), active: nav.querySelector("[aria-current=page]")?.textContent };
+});
+check(tabs.labels.join() === "Components,AI,Backgrounds,Examples,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
+
+// Components page: the components themselves, live, grouped; no thumbnail tiles. A spot's chip opens its sliders.
+await page.goto(BASE + "/components", { waitUntil: "networkidle" });
+const index = await page.evaluate(() => ({
+  spots: document.querySelectorAll("[data-spot]").length,
+  groups: [...document.querySelectorAll("[data-group]")].map((g) => g.dataset.group),
+  tiles: document.querySelectorAll("[data-fit], [inert] [data-spot]").length,
+}));
+check(index.spots >= 60 && index.groups[0] === "Foundations" && index.tiles === 0, `components page is live components by group (${JSON.stringify(index)})`);
+await page.locator("[data-spot=select]").hover();
+await page.locator("[data-spot=select] > a").click();
+await page.waitForURL("**/components/select*");
+check(await page.locator("[data-stage]").waitFor({ timeout: 4000 }).then(() => true, () => false), "a spot opens its component page");
+await page.goto(BASE + "/ai", { waitUntil: "networkidle" });
+await page.locator("[data-spot=thinking-orbs] > a").click();
+await page.waitForURL("**/ai/thinking-orbs*");
+await page.locator("[role=slider][aria-label=Size]").focus();
+for (let i = 0; i < 10; i++) await page.keyboard.press("ArrowRight");
+const orbBox = await page.evaluate(() => Math.round(document.querySelector("[data-stage] canvas").parentElement.getBoundingClientRect().width));
+check(orbBox === 32, `orb size slider resizes the orbs (${orbBox} px)`);
+
+// Footer: one quiet credit line on every page
+for (const path of ["/", "/components", "/ai", "/export"]) {
+  await page.goto(BASE + path, { waitUntil: "networkidle" });
+  const f = await page.evaluate(() => {
+    const el = document.querySelector("footer");
+    return { text: el?.innerText.trim(), href: el?.querySelector("a")?.getAttribute("href") };
+  });
+  check(f.text === "Curated by Joshua Dirga · 2026" && f.href === "https://joshuadirga.com", `${path} footer credit (${JSON.stringify(f)})`);
+}
+
+// The customize tab never covers the page at tablet width
+const tablet = await (await browser.newContext({ viewport: { width: 768, height: 900 } })).newPage();
+for (const path of ["/", "/components", "/examples/dashboard"]) {
+  await tablet.goto(BASE + path, { waitUntil: "networkidle" });
+  const g = await tablet.evaluate(() => ({ flap: Math.round(document.querySelector("[data-customize-flap]").getBoundingClientRect().right), logo: Math.round(document.querySelector("header [data-logo]").getBoundingClientRect().left), main: Math.round(document.querySelector("main h1")?.getBoundingClientRect().left ?? 999) }));
+  check(g.flap + 4 <= g.logo && g.flap + 4 <= g.main, `768 ${path}: customize tab clear of the page (${JSON.stringify(g)})`);
+}
+await tablet.close();
 
 // Every example nav item opens a real page
 await page.goto(BASE + "/examples/dashboard", { waitUntil: "networkidle" });
@@ -175,7 +234,7 @@ for (const label of ["Products", "Promotions", "Cancellations", "Team"]) {
 }
 
 // Command palette opens with Ctrl+K
-await page.goto(BASE + "/gallery", { waitUntil: "networkidle" });
+await page.goto(BASE + "/components", { waitUntil: "networkidle" });
 await page.keyboard.press("Control+k");
 await sleep(200);
 check(await page.locator("[role=listbox] >> text=Fee row").isVisible(), "Ctrl+K opens the command palette");
@@ -188,16 +247,16 @@ const vars = await page.evaluate(() => {
   return { r: s.getPropertyValue("--ad-radius-control").trim(), brand: s.getPropertyValue("--ad-brand").trim(), dark: document.documentElement.classList.contains("dark") };
 });
 check(vars.r === "20px" && !vars.dark, `URL config applies (radius ${vars.r}, light ${!vars.dark})`);
-check((await page.getAttribute("a:has-text('Explore gallery')", "href"))?.includes("r=20"), "links carry the settings");
+check((await page.getAttribute("a:has-text('Explore components')", "href"))?.includes("r=20"), "links carry the settings");
 
 // Select opens and picks
-await page.goto(`${BASE}/gallery/select`, { waitUntil: "networkidle" });
+await page.goto(`${BASE}/components/select`, { waitUntil: "networkidle" });
 await page.click("[data-stage] [aria-haspopup=listbox]");
 await page.click("[role=option]:has-text('Dago')");
 check(await page.locator("[data-stage] [aria-haspopup=listbox]:has-text('Dago')").isVisible(), "select picks an option");
 
 // Menu: submenu opens on click and on keyboard
-await page.goto(`${BASE}/gallery/menu`, { waitUntil: "networkidle" });
+await page.goto(`${BASE}/components/menu`, { waitUntil: "networkidle" });
 await page.click("main button:has-text('Actions')");
 await page.click("[role=menuitem]:has-text('Move to')");
 check(await page.locator("[role=menuitem]:has-text('To pack')").isVisible(), "submenu opens on click");
@@ -208,8 +267,8 @@ await sleep(200);
 await page.keyboard.press("ArrowDown");
 await page.keyboard.press("ArrowDown");
 await page.keyboard.press("ArrowRight");
-await sleep(200);
-check(await page.locator("[role=menuitem]:has-text('To pack')").isVisible(), "submenu opens with ArrowRight");
+const viaKey = await page.locator("[role=menuitem]:has-text('To pack')").waitFor({ timeout: 2000 }).then(() => true, () => false);
+check(viaKey, `submenu opens with ArrowRight (focused: ${await page.evaluate(() => document.activeElement?.textContent?.slice(0, 30))})`);
 
 // Orders: row click opens the pane, pager moves
 await page.goto(`${BASE}/examples/orders`, { waitUntil: "networkidle" });
