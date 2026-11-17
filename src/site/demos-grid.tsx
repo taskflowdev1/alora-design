@@ -3,7 +3,7 @@ import { formatRp } from "@/lib/ad";
 import { Card } from "@/components/ui/card";
 import { ColumnMenu } from "@/components/ui/column-menu";
 import { TableBar } from "@/components/ui/table";
-import { DataGrid, type GridColumn } from "@/components/ui/data-grid";
+import { DataGrid, type GridColumn, type GridTone } from "@/components/ui/data-grid";
 import type { Demo } from "./demos";
 
 // A payroll register: the case the plain Table can't carry (many money columns, names pinned, totals).
@@ -65,6 +65,17 @@ const COLUMNS: GridColumn<PayRow>[] = [
 
 const OPTIONAL = COLUMNS.filter((c) => !c.pin).map((c) => c.key);
 
+/** Shared with the Components page tile. */
+export const REGISTER = {
+  columns: COLUMNS,
+  rows: ROWS,
+  legend: [
+    { tone: "brand", label: "Typed by hand" },
+    { tone: "success", label: "Higher than last month" },
+    { tone: "danger", label: "Lower than last month" },
+  ] satisfies { tone: GridTone; label: string }[],
+};
+
 function RegisterDemo({ pins, totals, legend }: { pins: number; totals: boolean; legend: boolean }) {
   const [visible, setVisible] = React.useState(OPTIONAL);
   const [sel, setSel] = React.useState<string>(ROWS[2].id);
@@ -91,15 +102,7 @@ function RegisterDemo({ pins, totals, legend }: { pins: number; totals: boolean;
         visible={visible}
         selectedKey={sel}
         onRowActivate={(r) => setSel(r.id)}
-        legend={
-          legend
-            ? [
-                { tone: "brand", label: "Typed by hand" },
-                { tone: "success", label: "Higher than last month" },
-                { tone: "danger", label: "Lower than last month" },
-              ]
-            : undefined
-        }
+        legend={legend ? REGISTER.legend : undefined}
         maxHeight={340}
       />
       <TableBar page={page} total={ROWS.length} onPageChange={setPage} className="mt-1" />

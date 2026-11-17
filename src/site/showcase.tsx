@@ -55,6 +55,8 @@ import { Checkbox, CheckboxField } from "@/components/ui/checkbox";
 import { Radio, RadioGroup } from "@/components/ui/radio";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
+import { DataGrid } from "@/components/ui/data-grid";
+import { REGISTER } from "./demos-grid";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { BarChart } from "@/components/ui/bar-chart";
 import { Chip, Status } from "@/components/ui/status";
@@ -526,6 +528,26 @@ function CheckoutTile({ className }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------ Display */
+
+function RegisterTile({ className }: { className?: string }) {
+  const [sel, setSel] = React.useState<string>(REGISTER.rows[1].id);
+  return (
+    <Tile className={className}>
+      <Head title="Payroll, November" />
+      <Mark name="data-grid" className="min-w-0 flex-1">
+        <DataGrid
+          columns={REGISTER.columns}
+          rows={REGISTER.rows.slice(0, 8)}
+          rowKey={(r) => r.id}
+          selectedKey={sel}
+          onRowActivate={(r) => setSel(r.id)}
+          legend={REGISTER.legend}
+          maxHeight={320}
+        />
+      </Mark>
+    </Tile>
+  );
+}
 
 function TableTile({ className }: { className?: string }) {
   const [chip, setChip] = React.useState("all");
@@ -1466,6 +1488,7 @@ const TILES: Record<Group, TileDef[]> = {
     { items: ["badge", "attention-list"], render: () => <LowStockTile className={S[3]} /> },
     { items: ["alert", "progress"], render: () => <AlertsTile className={S[3]} /> },
     { items: ["skeleton", "empty-state"], render: () => <EmptyLoadingStack className={S[3]} /> },
+    { items: ["data-grid"], render: () => <RegisterTile className={S[12]} /> },
   ],
   Overlays: [
     { items: ["dialog"], render: () => <DialogTile className={S[6]} /> },

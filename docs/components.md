@@ -611,6 +611,39 @@ Also takes the native props of the element it renders.
 | `onPageChange` (required) | `(page: number) => void` |  |  |
 | `className` | `string` |  |  |
 
+### Data grid
+
+<a id="data-grid"></a>Page: https://design.alorawork.com/components/data-grid
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/data-grid.json"
+```
+
+Files: `src/components/ui/data-grid.tsx`. Installs too: `table`, `column-menu`.
+
+`GridLegend`
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `{ tone: GridTone; label: string; }[]` |  |  |
+| `className` | `string` |  |  |
+
+`DataGrid`
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `columns` (required) | `GridColumn<R>[]` |  |  |
+| `rows` (required) | `R[]` |  |  |
+| `rowKey` (required) | `(row: R) => string` |  |  |
+| `visible` | `string[]` |  | Keys to show (e.g. from <ColumnMenu>). Pinned columns always show. Default: all. |
+| `onRowActivate` | `((row: R) => void)` |  | Whole-row click opens the detail pane; no per-cell actions. |
+| `selectedKey` | `string` |  |  |
+| `legend` | `{ tone: GridTone; label: string; }[]` |  | What each tone means, shown in a row above the grid. |
+| `totalLabel` | `string` | `"Total"` | Label in the first cell of the totals row. Shown when any column has `total`. |
+| `maxHeight` | `string \| number` |  | Scroll area height, e.g. "calc(100dvh - 240px)". |
+| `empty` | `ReactNode` | `"Nothing here yet"` |  |
+| `className` | `string` |  |  |
+
 ### Attention list
 
 <a id="attention-list"></a>Page: https://design.alorawork.com/components/attention-list
@@ -778,7 +811,7 @@ Files: `src/components/ui/alert.tsx`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `tone` | `"attention" \| "neutral" \| "danger"` | `"neutral"` |  |
+| `tone` | `"danger" \| "attention" \| "neutral"` | `"neutral"` |  |
 | `title` (required) | `ReactNode` |  |  |
 | `children` | `ReactNode` |  | A second line. Without it the alert is one line and everything centres on it. |
 | `action` | `ReactNode` |  | One action on the right, such as a Button size="sm". |
@@ -968,7 +1001,7 @@ Files: `src/components/ui/toast.tsx`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `tone` | `"neutral" \| "success"` | `"success"` |  |
+| `tone` | `"success" \| "neutral"` | `"success"` |  |
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
