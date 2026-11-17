@@ -1,10 +1,10 @@
 # Alora Design
 
-Open-source (repo private until Joshua says otherwise), shadcn-like React component library in Joshua's
+Open-source (public on GitHub since 2026-11-17, MIT), shadcn-like React component library in Joshua's
 ERP UI taste, plus the gallery site at https://design.alorawork.com. Users: Joshua (critiques every
 component), Alora builders and agents who install components into client apps.
 
-The taste source is the erp-ui skill (`~/.claude-personal/skills/erp-ui/taste.md`, `joshua-feedback.md`).
+The taste source is the erp-ui skill (`~/.claude-personal/skills/erp-ui/taste.md`, `joshua-feedback.md`; public copy: https://github.com/JoshD94/ai-skills/tree/main/erp-ui).
 taste.md wins over anything here. Build to his taste, not library defaults.
 
 ## Layout
@@ -54,7 +54,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 
 ## Accounts and deploy
 
-- Alora only: `~/.local/bin/alora git|gh|vercel`. GitHub `taskflowdev1/alora-design` (private).
+- Alora only: `~/.local/bin/alora git|gh|vercel`. GitHub `taskflowdev1/alora-design` (public).
   Vercel project `alora-design`, scope `taskflowdevs-projects`, Git-connected: push to `main` deploys.
 - Domain `design.alorawork.com` (Cloudflare wildcard DNS already points at Vercel; never touch DNS).
 - Push-to-live is measured from the `<meta name="build">` commit stamp in `index.html`; target 60 s.

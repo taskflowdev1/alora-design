@@ -215,3 +215,7 @@ for the job queue, review screenshots, deploy and the deliberate oddities.
 | `api/` | Vercel functions behind `/r/*.json`, `/api/kit`, `/tokens.*` |
 | `scripts/` | verify, smoke test, docs generator, review screenshots |
 | `docs/components.md` | generated props reference |
+
+## License
+
+MIT, see [LICENSE](LICENSE).
