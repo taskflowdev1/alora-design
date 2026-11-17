@@ -64,7 +64,8 @@ await page.goto(BASE + "/examples/dashboard", { waitUntil: "networkidle" });
 for (const label of ["Products", "Promotions", "Cancellations", "Team"]) {
   await page.click(`nav a:has-text('${label}')`);
   await page.waitForURL(`**/examples/${label.toLowerCase()}*`);
-  check(await page.locator(`h1:has-text('${label}')`).isVisible(), `sidebar ${label} opens its page`);
+  const ok = await page.locator(`h1:text-is('${label}')`).waitFor({ timeout: 4000 }).then(() => true, () => false);
+  check(ok, `sidebar ${label} opens its page`);
 }
 
 // Command palette opens with Ctrl+K
