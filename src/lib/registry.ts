@@ -1,6 +1,6 @@
 // Component list: drives the gallery sidebar, the shadcn registry (/r/<name>.json) and /api/kit.
 
-export type Group = "Actions" | "Inputs" | "Display" | "Overlays" | "Layout" | "Foundations";
+export type Group = "Actions" | "Inputs" | "Display" | "Overlays" | "Layout" | "Foundations" | "Niche";
 
 export interface Item {
   name: string;
@@ -61,9 +61,39 @@ export const ITEMS: Item[] = [
 
   { name: "sidebar", title: "Sidebar", group: "Layout", files: ["sidebar.tsx"], deps: [RADIX] },
   { name: "bottom-nav", title: "Bottom nav", group: "Layout", files: ["bottom-nav.tsx"] },
+
+  // Niche ERP parts: the spotlight on the landing page.
+  { name: "command-palette", title: "Command palette", group: "Niche", files: ["command-palette.tsx"], deps: [RADIX], registryDeps: ["dialog", "kbd"] },
+  { name: "date-range-picker", title: "Date range picker", group: "Niche", files: ["date-range-picker.tsx"], deps: [RADIX], registryDeps: ["button", "select"] },
+  { name: "time-picker", title: "Time picker", group: "Niche", files: ["time-picker.tsx"], deps: [RADIX], registryDeps: ["select"] },
+  { name: "quantity-stepper", title: "Quantity stepper", group: "Niche", files: ["quantity-stepper.tsx"] },
+  { name: "currency-input", title: "Currency input", group: "Niche", files: ["currency-input.tsx"], registryDeps: ["input"] },
+  { name: "diff", title: "Difference", group: "Niche", files: ["diff.tsx"] },
+  { name: "fee-row", title: "Fee row", group: "Niche", files: ["fee-row.tsx"], registryDeps: ["marketplace-mark"] },
+  { name: "marketplace-mark", title: "Marketplace mark", group: "Niche", files: ["marketplace-mark.tsx"] },
+  { name: "shop-picker", title: "Shop picker", group: "Niche", files: ["shop-picker.tsx"], deps: [RADIX], registryDeps: ["checkbox", "select", "marketplace-mark"] },
+  { name: "split-button", title: "Split button", group: "Niche", files: ["split-button.tsx"], registryDeps: ["menu"] },
+  { name: "toggle-group", title: "Toggle group", group: "Niche", files: ["toggle-group.tsx"], deps: [RADIX] },
+  { name: "context-menu", title: "Context menu", group: "Niche", files: ["context-menu.tsx"], deps: [RADIX], registryDeps: ["menu"] },
+  { name: "hover-card", title: "Hover card", group: "Niche", files: ["hover-card.tsx"], deps: [RADIX] },
+  { name: "column-menu", title: "Column menu", group: "Niche", files: ["column-menu.tsx"], registryDeps: ["button", "checkbox", "popover"] },
+  { name: "inline-edit", title: "Inline edit", group: "Niche", files: ["inline-edit.tsx"] },
+  { name: "copy-chip", title: "Copy chip", group: "Niche", files: ["copy-chip.tsx"] },
+  { name: "kbd", title: "Keyboard shortcut", group: "Niche", files: ["kbd.tsx"] },
+  { name: "sparkline", title: "Sparkline", group: "Niche", files: ["sparkline.tsx"] },
+  { name: "progress-ring", title: "Progress ring", group: "Niche", files: ["progress-ring.tsx"] },
+  { name: "steps", title: "Step progress", group: "Niche", files: ["steps.tsx"] },
+  { name: "timeline", title: "Activity timeline", group: "Niche", files: ["timeline.tsx"] },
+  { name: "comment-thread", title: "Comment thread", group: "Niche", files: ["comment-thread.tsx"], registryDeps: ["avatar", "button", "popover"] },
+  { name: "dropzone", title: "File dropzone", group: "Niche", files: ["dropzone.tsx"], registryDeps: ["button", "progress"] },
+  { name: "tag-input", title: "Tag input", group: "Niche", files: ["tag-input.tsx"], registryDeps: ["input"] },
+  { name: "avatar-group", title: "Avatar group", group: "Niche", files: ["avatar-group.tsx"], deps: [RADIX], registryDeps: ["avatar", "tooltip"] },
+  { name: "notification-bell", title: "Notification bell", group: "Niche", files: ["notification-bell.tsx"], registryDeps: ["button", "popover"] },
+  { name: "kanban-card", title: "Kanban card", group: "Niche", files: ["kanban-card.tsx"], registryDeps: ["avatar-group", "badge"] },
+  { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], registryDeps: ["button"] },
 ];
 
-export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Overlays", "Layout"];
+export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Overlays", "Layout", "Niche"];
 
 export const SITE = "https://design.alorawork.com";
 
