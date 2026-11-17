@@ -460,7 +460,10 @@ export const DEMOS: Record<string, Demo> = {
     usage: () => `<Tabs defaultValue="pack">\n  <TabsList>\n    <TabsTrigger value="pack"><Box />To pack</TabsTrigger>\n    <TabsTrigger value="ship"><Truck />To ship</TabsTrigger>\n  </TabsList>\n  <TabsContent value="pack">…</TabsContent>\n</Tabs>`,
   },
   switch: {
-    controls: [{ key: "disabled", type: "toggle", label: "Disabled", default: false }],
+    controls: [
+      { key: "size", type: "select", label: "Size", options: ["default", "lg"], default: "default" },
+      { key: "disabled", type: "toggle", label: "Disabled", default: false },
+    ],
     render: (p) => {
       const [a, setA] = React.useState(true);
       const [b, setB] = React.useState(false);
@@ -472,13 +475,13 @@ export const DEMOS: Record<string, Demo> = {
           ].map(([l, v, s]) => (
             <label key={l as string} className="flex h-row cursor-pointer items-center justify-between rounded-item px-2 text-body hover:bg-fill">
               {l as string}
-              <Switch checked={v as boolean} onCheckedChange={s as (v: boolean) => void} disabled={!!p.disabled} />
+              <Switch size={p.size as "lg"} checked={v as boolean} onCheckedChange={s as (v: boolean) => void} disabled={!!p.disabled} />
             </label>
           ))}
         </div>
       );
     },
-    usage: () => `<Switch checked={on} onCheckedChange={setOn} />`,
+    usage: (p) => `<Switch${p.size === "lg" ? ` size="lg"` : ""} checked={on} onCheckedChange={setOn} />`,
   },
   checkbox: {
     render: () => (

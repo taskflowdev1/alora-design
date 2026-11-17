@@ -7,8 +7,8 @@ import { Bento } from "./bento";
 function Hero() {
   return (
     <section className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-14 sm:px-6 lg:pb-20 lg:pt-24">
-      <h1 className="max-w-[13ch] text-[clamp(44px,7.2vw,88px)] font-semibold leading-[0.98] tracking-[-0.035em] text-ink">UI parts for shops that sell everywhere.</h1>
-      <div className="mt-10">
+      <h1 className="text-[clamp(32px,3.8vw,48px)] font-semibold leading-[1.1] tracking-[-0.025em] text-ink">just some random ui styling</h1>
+      <div className="mt-8">
         <Button variant="primary" asChild>
           <SLink to="/gallery">
             Explore gallery

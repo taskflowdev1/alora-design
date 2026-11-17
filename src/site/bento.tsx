@@ -706,6 +706,12 @@ function ShipmentCard({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ B10 shop settings */
 
+/** One row rhythm for settings-style cards: a 36 px control sits one nest gap inside a 44 px row.
+ * In a card taller than its rows, the rows share the extra height evenly (`auto-rows-fr`). */
+const setRow = "flex min-h-[calc(var(--ad-control-h)+var(--ad-nest)*2)] items-center justify-between gap-3 rounded-item px-2";
+/** Card insets: 16 to the content on every side (rows add the nest gap vertically). */
+const setCard = "flex min-w-0 flex-col gap-nest py-[calc(var(--ad-nest)*3)]";
+
 function SettingsCard({ className }: { className?: string }) {
   const [receipts, setReceipts] = React.useState(true);
   const [round, setRound] = React.useState(false);
@@ -718,18 +724,19 @@ function SettingsCard({ className }: { className?: string }) {
   const set =
     <T,>(f: (v: T) => void) =>
     (v: T) => (f(v), setDirty(true));
-  const row = "flex min-h-row items-center justify-between gap-3 rounded-item px-2";
+  const row = setRow;
+  const ctl = "w-36";
   return (
-    <Card inset="nest" className={cn("flex min-w-0 flex-col gap-nest", className)}>
-      <CardHeader title="Kemang" className="px-2 pt-2" />
-      <div className="grid gap-px">
+    <Card inset="nest" className={cn(setCard, className)}>
+      <CardHeader title="Kemang" className={row} />
+      <div className="grid flex-1 auto-rows-fr">
         <label className={cn(row, "cursor-pointer hover:bg-fill")}>
           <span className="text-body">Print receipts</span>
-          <Switch checked={receipts} onCheckedChange={set(setReceipts)} />
+          <Switch size="lg" checked={receipts} onCheckedChange={set(setReceipts)} />
         </label>
         <label className={cn(row, "cursor-pointer hover:bg-fill")}>
           <span className="text-body">Round cash totals</span>
-          <Switch checked={round} onCheckedChange={set(setRound)} />
+          <Switch size="lg" checked={round} onCheckedChange={set(setRound)} />
         </label>
         <div className={row}>
           <span className="text-body">Courier</span>
@@ -738,6 +745,7 @@ function SettingsCard({ className }: { className?: string }) {
             value={courier}
             onValueChange={set(setCourier)}
             align="end"
+            className={ctl}
             options={[
               { value: "jne", label: "JNE Regular" },
               { value: "sicepat", label: "SiCepat" },
@@ -747,24 +755,24 @@ function SettingsCard({ className }: { className?: string }) {
         </div>
         <div className={row}>
           <span className="text-body">Pickup at</span>
-          <TimePicker value={pickup} onValueChange={set(setPickup)} />
+          <TimePicker value={pickup} onValueChange={set(setPickup)} className={ctl} />
         </div>
         <div className={row}>
           <span className="text-body">Free shipping over</span>
-          <CurrencyInput aria-label="Free shipping over" value={freeShip} onValueChange={set(setFreeShip)} className="w-36" />
+          <CurrencyInput aria-label="Free shipping over" value={freeShip} onValueChange={set(setFreeShip)} className={ctl} />
         </div>
         <div className={row}>
           <span className="text-body">Low stock at</span>
-          <QuantityStepper aria-label="Low stock at" value={alertAt} onValueChange={set(setAlertAt)} min={1} max={50} size="sm" />
+          <QuantityStepper aria-label="Low stock at" value={alertAt} onValueChange={set(setAlertAt)} min={1} max={50} className={ctl} />
         </div>
         <div className={row}>
           <span className="text-body">Receipt language</span>
-          <LanguagePicker value={lang} onValueChange={set(setLang)} />
+          <LanguagePicker value={lang} onValueChange={set(setLang)} className={ctl} />
         </div>
       </div>
       <SaveBar
         open={dirty}
-        className="static mt-auto"
+        inline
         onDiscard={() => setDirty(false)}
         onSave={() => {
           setDirty(false);
@@ -829,27 +837,30 @@ function PromotionCard({ className }: { className?: string }) {
 /* ------------------------------------------------------------ B12 team */
 
 function TeamCard({ className }: { className?: string }) {
-  const [roles, setRoles] = React.useState(TEAM.map((t) => t.role));
+  const team = TEAM.slice(0, 3);
+  const [roles, setRoles] = React.useState(team.map((t) => t.role));
   const [email, setEmail] = React.useState("");
   const roleOptions = ["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }));
+  // One right-hand column: role selects, the owner's fixed role (text on the selects' text inset) and Invite.
+  const ctl = "w-28";
   return (
-    <Card inset="nest" className={cn("flex min-w-0 flex-col gap-nest", className)}>
-      <CardHeader title="Team" action={<AvatarGroup people={[...TEAM, { name: "Wulan Sari" }, { name: "Eko Prasetyo" }]} max={4} size="sm" />} className="px-2 pt-2" />
-      <div className="grid gap-px">
-        {TEAM.map((t, i) => (
-          <div key={t.name} className="flex min-h-row items-center gap-2.5 rounded-item px-2">
+    <Card inset="nest" className={cn(setCard, className)}>
+      <CardHeader title="Team" action={<AvatarGroup people={[...TEAM, { name: "Wulan Sari" }, { name: "Eko Prasetyo" }]} max={4} />} className={setRow} />
+      <div className="grid">
+        {team.map((t, i) => (
+          <div key={t.name} className={cn(setRow, "justify-start")}>
             <Avatar name={t.name} size="sm" />
             <span className="min-w-0 flex-1 truncate text-body">{t.name}</span>
             {i === 0 ? (
-              <span className="px-2.5 text-body text-ink-muted">Owner</span>
+              <span className={cn(ctl, "shrink-0 pl-3 text-body text-ink-muted")}>Owner</span>
             ) : (
-              <Select aria-label={`${t.name} role`} value={roles[i]} onValueChange={(v) => setRoles(roles.map((r, j) => (j === i ? v : r)))} align="end" options={roleOptions.slice(1)} />
+              <Select aria-label={`${t.name} role`} value={roles[i]} onValueChange={(v) => setRoles(roles.map((r, j) => (j === i ? v : r)))} align="end" options={roleOptions.slice(1)} className={cn(ctl, "shrink-0")} />
             )}
           </div>
         ))}
       </div>
       <form
-        className="flex gap-2 px-2 pb-2"
+        className={setRow}
         onSubmit={(e) => {
           e.preventDefault();
           toast(email ? `Invite sent to ${email}` : "Add an email first", email ? "success" : "neutral");
@@ -857,7 +868,9 @@ function TeamCard({ className }: { className?: string }) {
         }}
       >
         <Input aria-label="Email" placeholder="Email" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} wrapperClassName="min-w-0 flex-1" />
-        <Button type="submit">Invite</Button>
+        <Button type="submit" className={cn(ctl, "shrink-0")}>
+          Invite
+        </Button>
       </form>
     </Card>
   );
@@ -1074,14 +1087,16 @@ function PhotosCard({ className }: { className?: string }) {
   return (
     <Card className={cn("flex min-w-0 flex-col gap-4", className)}>
       <CardHeader title="Gelas kopi tanah liat" />
-      <Dropzone
-        title="Drop product photos"
-        accept="image/*"
-        files={files}
-        onRemove={(id) => setFiles(files.filter((f) => f.id !== id))}
-        onFiles={(fs) => setFiles([...files, ...fs.map((f, i) => ({ id: `${Date.now()}-${i}`, name: f.name, size: f.size }))])}
-      />
-      <TagInput aria-label="Tags" value={tags} onValueChange={setTags} suggestions={["Rotan", "Kayu jati", "Bambu", "Best seller", "Pre-order"]} />
+      <div className="grid gap-2">
+        <Dropzone
+          title="Drop product photos"
+          accept="image/*"
+          files={files}
+          onRemove={(id) => setFiles(files.filter((f) => f.id !== id))}
+          onFiles={(fs) => setFiles([...files, ...fs.map((f, i) => ({ id: `${Date.now()}-${i}`, name: f.name, size: f.size }))])}
+        />
+        <TagInput aria-label="Tags" value={tags} onValueChange={setTags} suggestions={["Rotan", "Kayu jati", "Bambu", "Best seller", "Pre-order"]} />
+      </div>
     </Card>
   );
 }

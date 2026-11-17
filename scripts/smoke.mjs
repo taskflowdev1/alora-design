@@ -22,7 +22,7 @@ const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 
 for (const [path, text] of [
-  ["/", "UI parts for shops that sell everywhere."],
+  ["/", "just some random ui styling"],
   ["/", "Orders"],
   ["/gallery", "Gallery"],
   ["/gallery/menu", "Menu"],

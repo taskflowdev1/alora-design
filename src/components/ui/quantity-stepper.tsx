@@ -53,7 +53,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
             onValueChange(clamp(value - step));
           }
         }}
-        className="w-[calc(var(--w)*1ch+16px)] min-w-9 bg-transparent text-center text-body font-medium tabular-nums text-ink outline-none"
+        className="w-[calc(var(--w)*1ch+16px)] min-w-9 grow bg-transparent text-center text-body font-medium tabular-nums text-ink outline-none"
         style={{ ["--w" as string]: Math.max(2, String(draft ?? value).length) }}
       />
       <button type="button" aria-label="More" className={btn} disabled={value >= max} onClick={() => onValueChange(clamp(value + step))}>

@@ -4,7 +4,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 
 /**
  * Overlapping circles with "+n". Each circle is cut out by a ring in the surface colour
- * (a shadow, not a border), so it reads as a gap rather than a line.
+ * (a shadow, not a border), so it reads as a gap rather than a line. The overlap stays small
+ * enough that the next circle never cuts into the initials.
  */
 export function AvatarGroup({
   people,
@@ -21,7 +22,7 @@ export function AvatarGroup({
   const rest = people.length - shown.length;
   const ring = "shadow-[0_0_0_2px_var(--ad-surface)]";
   return (
-    <span className={cn("inline-flex items-center", size === "sm" ? "-space-x-1.5" : "-space-x-2", className)}>
+    <span className={cn("inline-flex items-center", size === "sm" ? "-space-x-0.5" : "-space-x-1", className)}>
       {shown.map((p) => (
         <Tooltip key={p.name} content={p.name}>
           <span data-shape="round" className="rounded-full">
