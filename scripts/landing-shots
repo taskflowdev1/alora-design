@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Build, then capture the landing bento review shots into output/review-v3/. Run through the job queue.
-set -euo pipefail
-cd "$(dirname "$0")/.."
-[ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null
-npx vite build --logLevel warn
-node scripts/landing-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/landing-shots.log"

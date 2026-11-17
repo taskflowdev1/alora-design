@@ -10,6 +10,7 @@ export type Theme = "light" | "dark";
 export interface Config {
   /** Control radius in px (buttons, inputs, dropdowns). Cards and menus derive from it. */
   radius: number;
+  /** Square, round (circular arcs) or squircle (continuous curves, via corner-shape where supported). */
   corner: Corner;
   /** superellipse(k): 1 = round, 2 = squircle, up to 3. Used when corner = squircle. */
   smoothing: number;
@@ -17,12 +18,15 @@ export interface Config {
   padding: number;
   /** Control height and table row height in px. */
   height: number;
+  /** Primary buttons, key actions and focus fills; chart shades derive from it. */
   accent: string;
+  /** Tint of the greys: neutral, cool (blue hint) or warm. */
   tone: Tone;
-  /** 0 to 100. */
+  /** Card and menu shadow strength, 0 to 100. */
   shadow: number;
   /** Base font size in px. */
   font: number;
+  /** Default theme; the other one is a class away (.light or .dark). */
   theme: Theme;
 }
 

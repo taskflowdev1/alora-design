@@ -1141,7 +1141,7 @@ function ByShopCard({ className }: { className?: string }) {
               <Loading loading={loading}>
                 <Sparkline data={d} width={72} height={22} aria-label={`${s}, last 12 weeks`} />
               </Loading>
-              <span className="w-28 text-right text-body font-medium tabular-nums">
+              <span className="w-30 shrink-0 whitespace-nowrap text-right text-body font-medium tabular-nums">
                 <LoadingText loading={loading}>{formatRp(v)}</LoadingText>
               </span>
             </div>

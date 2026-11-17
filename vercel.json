@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/*.ts": { "includeFiles": "src/{styles,components/ui,lib}/**" }
+    "api/*.ts": { "includeFiles": "src/{styles,components,lib}/**" }
   },
   "rewrites": [
     { "source": "/r/:name.json", "destination": "/api/r?name=:name" },

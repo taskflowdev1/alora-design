@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Build, then capture review screenshots + automatic checks into output/review/. Run through the job queue.
+# jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
+# Build, then capture per-component review screenshots + automatic taste checks (borders, fonts, hover shifts) into output/review-v2/. Run through the job queue.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-[ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null
+. scripts/env.sh
 npx vite build --logLevel warn
 node scripts/shots.mjs

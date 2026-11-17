@@ -1,6 +1,6 @@
 import * as React from "react";
-import { NavLink, Outlet, ScrollRestoration, useNavigate } from "react-router";
-import { Box, Download, Grid, Home, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
+import { NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from "react-router";
+import { Box, Cpu, Download, Grid, Home, Image, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
@@ -8,25 +8,50 @@ import { Popover } from "@/components/ui/popover";
 import { Toaster } from "@/components/ui/toast";
 import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
 import { Shortcut } from "@/components/ui/kbd";
-import { GROUPS, ITEMS } from "@/lib/registry";
+import { GROUPS, ITEMS, itemPath, type Group } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
+import { Wordmark } from "./logo";
 
-export function Wordmark({ className }: { className?: string }) {
-  return <span className={cn("whitespace-nowrap text-[15px] font-semibold tracking-[-0.01em] text-ink", className)}>Alora Design</span>;
-}
+/** The nav tabs, in order. Components first: the site starts with them. */
+export const TABS = [
+  { to: "/components", label: "Components" },
+  { to: "/ai", label: "AI" },
+  { to: "/backgrounds", label: "Backgrounds" },
+  { to: "/examples", label: "Examples" },
+  { to: "/export", label: "Export" },
+];
 
-function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
+function NavItem({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
   return (
     <NavLink
       to={q ? `${to}?${q}` : to}
-      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "text-ink-muted hover:text-ink", isActive && "bg-fill text-ink")}
+      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "bg-fill text-ink", className)}
     >
       {children}
     </NavLink>
+  );
+}
+
+/** The tab row under the header on phones and tablets. It scrolls sideways when it doesn't fit, never the page. */
+function PhoneTabs() {
+  const ref = React.useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    const active = ref.current?.querySelector<HTMLElement>("a[aria-current=page]");
+    if (active && ref.current) ref.current.scrollTo({ left: Math.max(0, active.offsetLeft - 16), behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
+  return (
+    <nav ref={ref} aria-label="Sections" className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] sm:px-6 lg:hidden [&::-webkit-scrollbar]:hidden">
+      {TABS.map((t) => (
+        <NavItem key={t.to} to={t.to} className="px-2.5">
+          {t.label}
+        </NavItem>
+      ))}
+    </nav>
   );
 }
 
@@ -36,7 +61,7 @@ export function CustomizeButton({ label = true, className }: { label?: boolean; 
   return (
     <Popover
       align="end"
-      className="w-72 p-pad"
+      className="flex max-h-[min(var(--radix-popover-content-available-height),calc(100dvh-16px))] w-[min(340px,calc(100vw-16px))] flex-col p-0"
       trigger={
         <Button variant="secondary" icon={!label} aria-label="Customize" className={className}>
           <Sliders />
@@ -44,8 +69,22 @@ export function CustomizeButton({ label = true, className }: { label?: boolean; 
         </Button>
       }
     >
-      <ConfigPanel value={config} onChange={setConfig} onReset={() => setConfig(resetPatch(ALL_FIELDS))} />
+      <OwnScrollBox className="p-pad">
+        <ConfigPanel value={config} onChange={setConfig} onReset={() => setConfig(resetPatch(ALL_FIELDS))} />
+      </OwnScrollBox>
     </Popover>
+  );
+}
+
+/** A scroll box that never hands its scroll to the page (wheel or touch), with a soft fade on the cut edge. */
+function OwnScrollBox({ className, children }: { className?: string; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  useOwnScroll(ref, ref);
+  useEdgeFade(ref);
+  return (
+    <div ref={ref} data-own-scroll className={cn("ad-fade-y min-h-0 flex-1 overflow-y-auto overscroll-contain", className)}>
+      <div>{children}</div>
+    </div>
   );
 }
 
@@ -74,14 +113,16 @@ function HeaderSearch() {
         label: "Pages",
         items: [
           { id: "home", label: "Home", icon: Home, onSelect: () => go("/") },
-          { id: "gallery", label: "Gallery", icon: Grid, onSelect: () => go("/gallery") },
+          { id: "components", label: "Components", icon: Grid, onSelect: () => go("/components") },
+          { id: "ai", label: "AI", icon: Cpu, onSelect: () => go("/ai") },
+          { id: "backgrounds", label: "Backgrounds", icon: Image, onSelect: () => go("/backgrounds") },
           { id: "examples", label: "Examples", icon: Layout, onSelect: () => go("/examples/dashboard") },
           { id: "export", label: "Export", icon: Download, onSelect: () => go("/export") },
         ],
       },
-      ...GROUPS.map((g) => ({
+      ...[...GROUPS, "AI", "Backgrounds"].map((g) => ({
         label: g,
-        items: ITEMS.filter((i) => i.group === g).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(`/gallery/${i.name}`) })),
+        items: ITEMS.filter((i) => i.group === (g as Group)).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(itemPath(i)) })),
       })),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,13 +150,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
-        <SLink to="/" className="mr-3 rounded-control px-1 py-1 sm:mr-6">
+        <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
           <Wordmark />
         </SLink>
-        <nav className="flex items-center gap-1 max-md:hidden">
-          <NavItem to="/gallery">Gallery</NavItem>
-          <NavItem to="/examples">Examples</NavItem>
-          <NavItem to="/export">Export</NavItem>
+        <nav aria-label="Sections" className="flex items-center gap-1 max-lg:hidden">
+          {TABS.map((t) => (
+            <NavItem key={t.to} to={t.to}>
+              {t.label}
+            </NavItem>
+          ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
           <HeaderSearch />
@@ -123,12 +166,23 @@ export function SiteHeader() {
           <ThemeButton />
         </div>
       </div>
-      <nav className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-1 px-4 sm:px-6 md:hidden">
-        <NavItem to="/gallery">Gallery</NavItem>
-        <NavItem to="/examples">Examples</NavItem>
-        <NavItem to="/export">Export</NavItem>
-      </nav>
+      <PhoneTabs />
     </header>
+  );
+}
+
+/** One quiet line at the bottom of every page. */
+export function SiteFooter() {
+  return (
+    <footer className="mx-auto w-full max-w-[1280px] px-4 pb-10 pt-16 sm:px-6">
+      <p className="px-1 text-small text-ink-muted">
+        Curated by{" "}
+        <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="rounded-small text-ink-muted transition-colors duration-[160ms] hover:text-ink">
+          Joshua Dirga
+        </a>{" "}
+        · 2026
+      </p>
+    </footer>
   );
 }
 
@@ -146,6 +200,89 @@ const SLIDE_MS = 300;
 const panelWidth = (vw: number) => Math.max(PANEL_MIN, vw - CONTENT_MAX);
 const inside = (t: EventTarget | null, ...els: (HTMLElement | null)[]) =>
   t instanceof Node && (els.some((el) => el?.contains(t)) || !!(t instanceof Element && t.closest("[data-radix-popper-content-wrapper]")));
+
+/** Whether `el` itself would scroll for this delta (an overflowing auto/scroll box not already at that end). */
+function canScroll(el: Element, dx: number, dy: number) {
+  const s = getComputedStyle(el);
+  const y = dy !== 0 && /auto|scroll/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 1;
+  const x = dx !== 0 && /auto|scroll/.test(s.overflowX) && el.scrollWidth > el.clientWidth + 1;
+  if (y && (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+  if (x && (dx < 0 ? el.scrollLeft > 0 : el.scrollLeft + el.clientWidth < el.scrollWidth - 1)) return true;
+  return false;
+}
+
+/**
+ * The panel is its own scroll area: wheel and touch over it scroll only its list and never chain into the page,
+ * even at the list's ends or when the list fits without scrolling (overscroll-behavior can't stop that case).
+ * Wheel over the panel's header goes to the list. Popovers opened from the panel are portalled outside it, so
+ * they scroll as usual.
+ */
+export function useOwnScroll(panelRef: React.RefObject<HTMLElement | null>, listRef: React.RefObject<HTMLElement | null>, on = true) {
+  React.useEffect(() => {
+    const panel = panelRef.current;
+    const list = listRef.current;
+    if (!panel || !list) return;
+    // The nearest box between the target and the panel that can take this delta, if any.
+    const taker = (target: EventTarget | null, dx: number, dy: number) => {
+      for (let el = target instanceof Element ? target : null; el; el = el.parentElement) {
+        if (canScroll(el, dx, dy)) return el;
+        if (el === panel) break;
+      }
+      return null;
+    };
+    const wheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // pinch zoom
+      if (taker(e.target, e.deltaX, e.deltaY)) return;
+      e.preventDefault();
+      if (!list.contains(e.target as Node) && canScroll(list, 0, e.deltaY)) {
+        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? list.clientHeight : 1;
+        list.scrollBy({ top: e.deltaY * unit });
+      }
+    };
+    let last: { x: number; y: number } | null = null;
+    const start = (e: TouchEvent) => {
+      last = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    };
+    const move = (e: TouchEvent) => {
+      if (!last || e.touches.length !== 1 || !e.cancelable) return;
+      const t = e.touches[0];
+      const dx = last.x - t.clientX;
+      const dy = last.y - t.clientY;
+      last = { x: t.clientX, y: t.clientY };
+      if (!taker(e.target, dx, dy)) e.preventDefault();
+    };
+    panel.addEventListener("wheel", wheel, { passive: false });
+    panel.addEventListener("touchstart", start, { passive: true });
+    panel.addEventListener("touchmove", move, { passive: false });
+    return () => {
+      panel.removeEventListener("wheel", wheel);
+      panel.removeEventListener("touchstart", start);
+      panel.removeEventListener("touchmove", move);
+    };
+  }, [panelRef, listRef, on]);
+}
+
+/** Soft fade on the list's cut edge(s), only where there is more to scroll to. */
+export function useEdgeFade(listRef: React.RefObject<HTMLElement | null>, on = true) {
+  React.useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const set = () => {
+      const top = list.scrollTop > 1;
+      const bottom = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
+      list.dataset.fade = top && bottom ? "both" : top ? "top" : bottom ? "bottom" : "none";
+    };
+    set();
+    list.addEventListener("scroll", set, { passive: true });
+    const ro = new ResizeObserver(set);
+    ro.observe(list);
+    if (list.firstElementChild) ro.observe(list.firstElementChild);
+    return () => {
+      list.removeEventListener("scroll", set);
+      ro.disconnect();
+    };
+  }, [listRef, on]);
+}
 
 function useViewportWidth() {
   const [vw, setVw] = React.useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
@@ -178,6 +315,9 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
   const leaveT = React.useRef<number>(undefined);
   const flapRef = React.useRef<HTMLButtonElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const listRef = React.useRef<HTMLDivElement>(null);
+  useOwnScroll(panelRef, listRef, enabled);
+  useEdgeFade(listRef, enabled);
   const openRef = React.useRef(open);
   openRef.current = open;
 
@@ -313,7 +453,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
           if (mode.current === "pinned" && e.relatedTarget && !inside(e.relatedTarget, panelRef.current, flapRef.current)) hide();
         }}
         className="fixed inset-y-0 left-0 z-50 p-3 pr-0 will-change-transform"
-        style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 8px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
+        style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 64px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
       >
         <div
           className="flex h-full flex-col bg-surface text-ink shadow-dialog"
@@ -332,8 +472,14 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
               </Button>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-[calc(var(--ad-nest)*2)] pb-[calc(var(--ad-nest)*2)]">
-            <ConfigGroups value={config} onChange={setConfig} />
+          <div
+            ref={listRef}
+            data-customize-scroll
+            className="ad-fade-y min-h-0 flex-1 overflow-y-auto overscroll-contain px-[calc(var(--ad-nest)*2)] pb-[calc(var(--ad-nest)*2)]"
+          >
+            <div>
+              <ConfigGroups value={config} onChange={setConfig} />
+            </div>
           </div>
         </div>
       </div>
@@ -349,9 +495,12 @@ export function SiteLayout() {
       <ScrollRestoration />
       <CustomizeFlap pageRef={pageRef} />
       <div className="overflow-x-clip">
-        <div ref={pageRef} data-page>
+        <div ref={pageRef} data-page className="flex min-h-dvh flex-col md:pl-[clamp(0px,calc(12px-(100vw-1280px)/2),12px)]">
           <SiteHeader />
-          <Outlet />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <SiteFooter />
         </div>
       </div>
       <Toaster />

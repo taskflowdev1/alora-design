@@ -2,12 +2,12 @@
 // Pure: callers pass the CSS files and component sources in.
 
 import { cornerValue, radii, serializeConfig, tokens, tokensCss, typeScale, type Config } from "./config.js";
-import { ITEMS, REGISTRY_ITEMS, SITE, type Item } from "./registry.js";
+import { ITEMS, REGISTRY_ITEMS, SITE, itemPath, sourceKey, type Item } from "./registry.js";
 
 export interface Assets {
   themeCss: string;
   baseCss: string;
-  /** file name -> source, for src/components/ui/* and src/lib/ad.ts ("ad.ts"). */
+  /** source key -> source: src/components/ui/* by file name, ai/* and backgrounds/* with their folder, src/lib/ad.ts as "ad.ts". */
   sources: Record<string, string>;
 }
 
@@ -137,7 +137,8 @@ export function componentItem(item: Item, c: Config, a: Pick<Assets, "sources">)
     title: item.title,
     dependencies: ["react-feather", ...(item.deps ?? [])],
     registryDependencies: [registryUrl("theme", c), `${SITE}/r/ad.json`, ...(item.registryDeps ?? []).map((n) => registryUrl(n, c))],
-    files: item.files.map((f) => ({ path: `registry/alora/ui/${f}`, type: "registry:ui", content: a.sources[f] ?? "" })),
+    // registry:ui files land in the app's ui folder, collections included, so their relative imports resolve.
+    files: item.files.map((f) => ({ path: `registry/alora/${item.dir ?? "ui"}/${f}`, type: "registry:ui", content: a.sources[sourceKey(item, f)] ?? "" })),
   };
 }
 
@@ -168,7 +169,7 @@ export function kitMarkdown(c: Config) {
 
   lines.push(`# Alora Design kit`, "");
   lines.push(`React components for dense business apps (ERP, admin, dashboards). Built on Tailwind v4 and Radix, installed with the shadcn CLI.`);
-  lines.push(`Settings in this file: \`${serializeConfig(c) || "defaults"}\`. Gallery: ${SITE}/gallery${q}`, "");
+  lines.push(`Settings in this file: \`${serializeConfig(c) || "defaults"}\`. Components: ${SITE}/components${q}`, "");
 
   lines.push(`## Install`, "");
   lines.push("```sh");
@@ -250,10 +251,10 @@ export function kitMarkdown(c: Config) {
   lines.push("");
 
   lines.push(`## Components`, "");
-  row("Component", "Install", "Gallery");
+  row("Component", "Install", "Page");
   row("---", "---", "---");
   for (const i of ITEMS) {
-    row(i.title, i.files.length ? registryUrl(i.name, c) : `(in theme) ${registryUrl("theme", c)}`, `${SITE}/gallery/${i.name}${q}`);
+    row(i.title, i.files.length ? registryUrl(i.name, c) : `(in theme) ${registryUrl("theme", c)}`, `${SITE}${itemPath(i)}${q}`);
   }
   lines.push("", `Each registry URL returns shadcn JSON with the full source in \`files[].content\`.`, "");
   return lines.join("\n");
