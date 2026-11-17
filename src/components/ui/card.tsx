@@ -49,7 +49,7 @@ export function MetricCard({ label, value, delta, primary, interactive, classNam
   return (
     <Card
       interactive={interactive}
-      className={cn("inline-flex w-fit min-w-36 flex-col gap-1", primary && "bg-on text-on-ink", className)}
+      className={cn("inline-flex w-fit min-w-36 flex-col gap-1", primary && "bg-on text-on-ink [--ad-ink:var(--ad-on-ink)]", className)}
       {...props}
     >
       <span className={cn("whitespace-nowrap text-body", primary ? "text-on-ink/70" : "text-ink-muted")}>{label}</span>

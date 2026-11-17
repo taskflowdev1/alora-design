@@ -163,20 +163,19 @@ async function run() {
       await sleep(300);
       const sub = p.locator("[role=menuitem]:has-text('Move to')");
       const b = await sub.boundingBox();
-      await p.mouse.move(b.x + 20, b.y + b.height / 2, { steps: 4 });
+      await p.mouse.move(b.x + 30, b.y + b.height / 2, { steps: 4 });
       await sleep(400);
-      const panel = await p.locator("[role=menu] >> nth=1").boundingBox();
-      // move diagonally toward the lower part of the submenu, crossing "Share"
-      await p.mouse.move(b.x + b.width + 2, b.y + b.height - 2, { steps: 3 });
-      await p.mouse.move(b.x + b.width + (panel.x - b.x - b.width) * 0.4, b.y + b.height + 10, { steps: 3 });
+      // Leave through the bottom edge, heading diagonally for the submenu across "Share".
+      const x = b.x + 60, y = b.y + b.height + 6;
+      await p.mouse.move(x, y, { steps: 4 });
       // Keep creeping toward the panel so the debounced triangle stays alive for the screenshot.
       await p.evaluate(({ x, y }) => {
         let i = 0;
         window.setInterval(() => {
           i++;
-          document.dispatchEvent(new PointerEvent("pointermove", { clientX: x + i * 0.25, clientY: y + i * 0.1, pointerType: "mouse", bubbles: true }));
+          document.dispatchEvent(new PointerEvent("pointermove", { clientX: x + i * 0.3, clientY: y + i * 0.05, pointerType: "mouse", bubbles: true }));
         }, 40);
-      }, { x: b.x + b.width + (panel.x - b.x - b.width) * 0.4, y: b.y + b.height + 10 });
+      }, { x, y });
     }],
     ["S7", "submenu-keyboard", "/gallery/menu", async (p) => {
       await p.focus("main button:has-text('Actions')");
