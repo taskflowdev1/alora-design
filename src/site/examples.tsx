@@ -243,7 +243,7 @@ function Dashboard() {
   const unpaid = ORDERS.filter((o) => o.status === "Unpaid").slice(0, 4);
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Dashboard">
         <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={setShops} />
         <Segmented
@@ -261,7 +261,7 @@ function Dashboard() {
           Export
         </Button>
       </PageHeader>
-      <Alert tone="attention" title="2 shops haven't synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
+      <Alert tone="neutral" title="2 shops haven't synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
       <div className="flex flex-wrap gap-4">
         <MetricCard primary loading={loading} label="Sales today" unit="Rp" value={48240000} delta={{ value: "9,7%", direction: "up" }} />
         <MetricCard loading={loading} label="Orders" value={312} />
@@ -535,7 +535,7 @@ function Products() {
   const set = (sku: string, patch: Partial<ProductRow>) => setRows(rows.map((r) => (r.sku === sku ? { ...r, ...patch } : r)));
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <PageHeader title="Products">
         <Button>
           <Download />
@@ -729,7 +729,7 @@ function Promotions() {
     return out;
   });
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Promotions">
         <Segmented
           aria-label="View"
@@ -886,7 +886,7 @@ function Cancellations() {
   const open = CANCELLATIONS.find((c) => c.id === openId);
   const lost = CANCELLATIONS.reduce((a, c) => a + c.feeDiff, 0);
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Cancellations">
         <DateRangePicker value={range} onValueChange={setRange} today={NOW} />
         <Button>
@@ -979,7 +979,7 @@ function Team() {
   const [roles, setRoles] = React.useState(Object.fromEntries(TEAM_DETAIL.map((t) => [t.email, t.role])));
   const [inviting, setInviting] = React.useState(false);
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Team">
         <AvatarGroup people={TEAM_DETAIL} max={4} className="max-sm:hidden" />
         <Button variant="primary" onClick={() => setInviting(true)}>

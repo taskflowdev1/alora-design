@@ -68,7 +68,7 @@ const groups = (v: number) => Math.round(v).toLocaleString("id-ID");
 /** "Rp 48,2 jt", "Rp 1,2 M", "Rp 154 rb". */
 export function compactNumber(v: number) {
   const abs = Math.abs(v);
-  const f = (n: number, s: string) => `${n.toLocaleString("id-ID", { maximumFractionDigits: n < 10 ? 1 : 0 })} ${s}`;
+  const f = (n: number, s: string) => `${n.toLocaleString("id-ID", { maximumFractionDigits: Math.abs(n) < 100 ? 1 : 0 })} ${s}`;
   if (abs >= 1e9) return f(v / 1e9, "M");
   if (abs >= 1e6) return f(v / 1e6, "jt");
   if (abs >= 1e4) return f(v / 1e3, "rb");

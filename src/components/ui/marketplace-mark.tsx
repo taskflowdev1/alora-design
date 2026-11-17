@@ -4,7 +4,7 @@ export type Market = "shopee" | "tiktok" | "tokopedia" | "offline";
 
 const MARKS: Record<Market, { bg: string; label: string }> = {
   shopee: { bg: "#ee4d2d", label: "Shopee" },
-  tiktok: { bg: "#111111", label: "TikTok Shop" },
+  tiktok: { bg: "color-mix(in oklab, #111111, var(--ad-ink) 14%)", label: "TikTok Shop" },
   tokopedia: { bg: "#03ac0e", label: "Tokopedia" },
   offline: { bg: "var(--ad-fill-strong)", label: "Shop" },
 };

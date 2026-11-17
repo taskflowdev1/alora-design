@@ -1,17 +1,18 @@
-// Headless screenshots + automatic taste checks. Run through the job queue:
+// Headless review screenshots + automatic taste checks. Run through the job queue:
 //   job submit --kind script --name alora-design-shots ... --cmd './scripts/shots'
-// Serves the built site on its own port, writes output/review/*.png, index.md and checks.json.
+// Serves the built site on its own port, writes output/review-v2/*.png, index.md and checks.json.
+// Dark is the default theme; light shots add t=l. ONLY=<regex> limits the shots.
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 
 const PORT = Number(process.env.SHOTS_PORT || 5197);
 const BASE = `http://127.0.0.1:${PORT}`;
-const OUT = "output/review";
+const OUT = process.env.OUT || "output/review-v2";
 const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 
-rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
+for (const f of readdirSync(OUT)) if (f.endsWith(".png") || f === "index.md" || f === "checks.json") rmSync(`${OUT}/${f}`);
 
 const server = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
 const stop = () => server.kill("SIGTERM");
@@ -33,14 +34,21 @@ const VIEWS = {
 };
 
 const index = [];
-const checks = { borders: [], fonts: new Set(), shifts: [], skeleton: [], errors: [] };
+const checks = { borders: [], fonts: new Set(), shifts: [], skeleton: [], header: [], errors: [] };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const ITEMS = [
+// v1 letters G1–G41 keep their order; niche components are N1–N28.
+const CORE = [
   "corner-shape", "scrollbar", "button", "menu", "toolbar", "save-bar", "input", "search", "field", "select", "multi-select", "combobox",
   "date-picker", "period-stepper", "language-picker", "segmented", "tabs", "switch", "checkbox", "radio", "slider", "card", "metric-card",
   "table", "attention-list", "bar-chart", "status", "badge", "avatar", "thumb", "alert", "progress", "empty-state", "skeleton", "dialog",
   "sheet", "popover", "tooltip", "toast", "sidebar", "bottom-nav",
+];
+const NICHE = [
+  "command-palette", "date-range-picker", "time-picker", "quantity-stepper", "currency-input", "diff", "fee-row", "marketplace-mark",
+  "shop-picker", "split-button", "toggle-group", "context-menu", "hover-card", "column-menu", "inline-edit", "copy-chip", "kbd", "sparkline",
+  "progress-ring", "steps", "timeline", "comment-thread", "dropzone", "tag-input", "avatar-group", "notification-bell", "kanban-card",
+  "calendar-month",
 ];
 
 /** Visible borders/outlines anywhere = a dividing line (taste Never #3). */
@@ -53,12 +61,11 @@ async function scan(page, label) {
       const r = el.getBoundingClientRect();
       if (!r.width || !r.height || cs.visibility === "hidden") continue;
       if (el.closest("svg")) continue;
-      fonts.add(cs.fontFamily.split(",")[0].trim());
+      if (el.tagName !== "CODE" && el.tagName !== "PRE") fonts.add(cs.fontFamily.split(",")[0].trim());
       for (const side of ["Top", "Right", "Bottom", "Left"]) {
         const w = parseFloat(cs[`border${side}Width`]);
         const c = cs[`border${side}Color`];
         if (w > 0 && cs[`border${side}Style`] !== "none" && !/rgba\(.*, 0\)$/.test(c) && c !== "transparent") {
-          // background-clip scrollbar thumbs and transparent borders are fine
           out.borders.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} border-${side.toLowerCase()} ${w}px ${c}`);
           break;
         }
@@ -76,7 +83,7 @@ async function scan(page, label) {
 /** Hover/focus must not move anything: compare boxes of every control before and after. */
 async function shiftCheck(page, label) {
   const handles = await page.$$("button:not([disabled]), [role=option], [role=menuitem], input, [role=tab], [role=radio], label");
-  for (const h of handles.slice(0, 14)) {
+  for (const h of handles.slice(0, 16)) {
     try {
       await h.scrollIntoViewIfNeeded({ timeout: 500 });
       const before = await h.boundingBox();
@@ -92,12 +99,22 @@ async function shiftCheck(page, label) {
   await page.mouse.move(2, 2);
 }
 
-async function shot(page, file, what) {
+async function shot(page, file, what, el) {
   if (ONLY && !ONLY.test(file)) return;
   await sleep(250);
-  await page.screenshot({ path: `${OUT}/${file}.png`, fullPage: what.full ?? false });
+  if (el) {
+    const b = await page.locator(el).first().boundingBox();
+    const m = 20;
+    await page.screenshot({ path: `${OUT}/${file}.png`, clip: { x: Math.max(0, b.x - m), y: Math.max(0, b.y - m), width: b.width + m * 2, height: b.height + m * 2 } });
+  } else {
+    // A sticky header would be painted mid-page in a stitched full-page capture.
+    if (what.full) await page.addStyleTag({ content: "header{position:static!important}" });
+    await page.screenshot({ path: `${OUT}/${file}.png`, fullPage: what.full ?? false });
+  }
   index.push({ file: `${file}.png`, ...what });
 }
+
+const want = (file) => !ONLY || ONLY.test(file);
 
 async function run() {
   await waitUp();
@@ -105,53 +122,112 @@ async function run() {
   const ctxs = {};
   for (const [k, v] of Object.entries(VIEWS)) ctxs[k] = await browser.newContext({ ...v, reducedMotion: "no-preference" });
 
-  async function visit(view, path, theme) {
+  async function visit(view, path, theme = "dark") {
     const page = await ctxs[view].newPage();
     page.on("pageerror", (e) => checks.errors.push(`${path}: ${e.message}`));
     const sep = path.includes("?") ? "&" : "?";
-    await page.goto(`${BASE}${path}${theme === "dark" ? `${sep}t=d` : ""}`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}${path}${theme === "light" ? `${sep}t=l` : ""}`, { waitUntil: "networkidle" });
     await sleep(300);
     return page;
   }
 
-  // Pages in all four variants
+  // Header: same box on every page.
+  for (const path of ["/", "/gallery", "/gallery/button", "/examples/dashboard", "/examples/team", "/export"]) {
+    const page = await visit("desktop", path);
+    const box = await page.evaluate(() => {
+      const h = document.querySelector("header")?.getBoundingClientRect();
+      const w = document.querySelector("header a")?.getBoundingClientRect();
+      return h && w ? [h.x, h.y, h.width, h.height, Math.round(w.x), Math.round(w.y)].join(",") : "none";
+    });
+    checks.header.push({ path, box });
+    await page.close();
+  }
+
+  // Pages
   const pages = [
-    ["L1", "landing", "/", true],
-    ["G0", "gallery-index", "/gallery", true],
-    ["E1", "dashboard", "/examples/dashboard", false],
-    ["E2", "orders", "/examples/orders", false],
-    ["E3", "settings", "/examples/settings", true],
-    ["X1", "export", "/export", true],
+    ["L1", "landing", "/", true, true],
+    ["G0", "gallery-index", "/gallery", false, false],
+    ["E1", "dashboard", "/examples/dashboard", false, true],
+    ["E2", "orders", "/examples/orders", false, false],
+    ["E3", "settings", "/examples/settings", true, false],
+    ["E4", "products", "/examples/products", false, false],
+    ["E5", "promotions", "/examples/promotions", false, false],
+    ["E6", "cancellations", "/examples/cancellations", false, false],
+    ["E7", "team", "/examples/team", false, false],
+    ["X1", "export", "/export", true, false],
   ];
-  for (const [letter, name, path, full] of pages) {
+  for (const [letter, name, path, full, light] of pages) {
     for (const view of ["desktop", "phone"]) {
-      for (const theme of ["light", "dark"]) {
+      for (const theme of light ? ["dark", "light"] : ["dark"]) {
+        const file = `${letter}-${name}-${view}-${theme}`;
+        if (!want(file)) continue;
         const page = await visit(view, path, theme);
-        if (view === "desktop" && theme === "light") {
+        if (view === "desktop" && theme === "dark") {
           await scan(page, name);
-          if (name === "landing" || name === "settings") await shiftCheck(page, name);
+          if (["landing", "settings", "products"].includes(name)) await shiftCheck(page, name);
         }
-        await shot(page, `${letter}-${name}-${view}-${theme}`, { letter, what: name, view, theme, full });
+        await shot(page, file, { letter, what: name, view, theme, full: full && view === "desktop" ? true : full && view === "phone" ? false : false });
         await page.close();
       }
     }
   }
 
-  // One shot per component page
-  for (const [i, name] of ITEMS.entries()) {
-    const letter = `G${i + 1}`;
-    for (const [view, theme] of [["desktop", "light"], ["desktop", "dark"], ["phone", "light"]]) {
-      const page = await visit(view, `/gallery/${name}`, theme);
-      if (view === "desktop" && theme === "light") {
+  // One shot per component page, desktop and phone, dark.
+  const comps = [...CORE.map((n, i) => [`G${i + 1}`, n]), ...NICHE.map((n, i) => [`N${i + 1}`, n])];
+  for (const [letter, name] of comps) {
+    for (const view of ["desktop", "phone"]) {
+      const file = `${letter}-${name}-${view}-dark`;
+      if (!want(file)) continue;
+      const page = await visit(view, `/gallery/${name}`);
+      if (view === "desktop") {
         await scan(page, `gallery/${name}`);
-        if (["button", "select", "segmented", "table", "switch", "status"].includes(name)) await shiftCheck(page, `gallery/${name}`);
+        if (["button", "status", "segmented", "quantity-stepper", "toggle-group", "inline-edit", "copy-chip", "split-button"].includes(name)) await shiftCheck(page, `gallery/${name}`);
       }
-      await shot(page, `${letter}-${name}-${view}-${theme}`, { letter, what: name, view, theme });
+      await shot(page, file, { letter, what: name, view, theme: "dark" });
+      await page.close();
+    }
+  }
+
+  // Metric variants A/B/C: whole stage, dark and light.
+  for (const [letter, v] of [["M-A", "tile"], ["M-B", "scale"], ["M-C", "compact"]]) {
+    for (const theme of ["dark", "light"]) {
+      const file = `${letter}-metric-${v}-desktop-${theme}`;
+      if (!want(file)) continue;
+      const page = await visit("desktop", `/gallery/metric-card?variant=${v}`, theme);
+      await shot(page, file, { letter, what: `metric ${v}`, view: "desktop", theme }, "[data-stage] > *");
+      await page.close();
+    }
+    const file = `${letter}-metric-${v}-phone-dark`;
+    if (want(file)) {
+      const page = await visit("phone", `/gallery/metric-card?variant=${v}`);
+      await shot(page, file, { letter, what: `metric ${v}`, view: "phone", theme: "dark" });
+      await page.close();
+    }
+  }
+
+  // Item 4 fixes, after: the same elements v1 showed on the landing wall (before/ holds the v1 crops).
+  const fixes = [
+    ["F1", "low-stock", "/gallery/attention-list", "[data-stage] > *"],
+    ["F2", "bubbles", "/gallery/status", "[data-stage] > *"],
+    ["F3", "date-trigger", "/gallery/date-picker", "[data-stage] > *"],
+    ["F4", "alerts", "/gallery/alert", "[data-stage] > *"],
+    ["F5", "metrics", "/gallery/metric-card", "[data-stage] > *"],
+  ];
+  for (const [letter, name, path, el] of fixes) {
+    for (const theme of ["light", "dark"]) {
+      const file = `${letter}-${name}-after-${theme}`;
+      if (!want(file)) continue;
+      const page = await visit("desktop", path, theme);
+      await shot(page, file, { letter, what: `${name} (after)`, view: "desktop", theme }, el);
       await page.close();
     }
   }
 
   // States
+  const rightClick = async (p, sel) => {
+    const b = await p.locator(sel).first().boundingBox();
+    await p.mouse.click(b.x + b.width / 2, b.y + b.height / 2, { button: "right" });
+  };
   const states = [
     ["S1", "select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
     ["S2", "combobox-open", "/gallery/combobox", async (p) => { await p.click("[data-stage] [aria-haspopup=listbox]"); await p.keyboard.type("rot"); }],
@@ -165,10 +241,8 @@ async function run() {
       const b = await sub.boundingBox();
       await p.mouse.move(b.x + 30, b.y + b.height / 2, { steps: 4 });
       await sleep(400);
-      // Leave through the bottom edge, heading diagonally for the submenu across "Share".
       const x = b.x + 60, y = b.y + b.height + 6;
       await p.mouse.move(x, y, { steps: 4 });
-      // Keep creeping toward the panel so the debounced triangle stays alive for the screenshot.
       await p.evaluate(({ x, y }) => {
         let i = 0;
         window.setInterval(() => {
@@ -176,14 +250,6 @@ async function run() {
           document.dispatchEvent(new PointerEvent("pointermove", { clientX: x + i * 0.3, clientY: y + i * 0.05, pointerType: "mouse", bubbles: true }));
         }, 40);
       }, { x, y });
-    }],
-    ["S7", "submenu-keyboard", "/gallery/menu", async (p) => {
-      await p.focus("main button:has-text('Actions')");
-      await p.keyboard.press("Enter");
-      await sleep(250);
-      await p.keyboard.press("ArrowDown");
-      await p.keyboard.press("ArrowDown");
-      await p.keyboard.press("ArrowRight");
     }],
     ["S8", "sidebar-dark-menu", "/examples/dashboard", async (p) => p.click("nav [aria-label=Account]")],
     ["S9", "side-pane", "/examples/orders", async (p) => p.click("tbody tr >> nth=2")],
@@ -197,51 +263,68 @@ async function run() {
     ["S13", "toolbar-popover", "/gallery/toolbar", async (p) => { await p.click("main button:has-text('Filter')"); await sleep(200); await p.click("main button:has-text('Columns')"); }],
     ["S14", "dashboard-skeleton", "/examples/dashboard?loading=1", null],
     ["S15", "orders-skeleton", "/examples/orders?loading=1", null],
-    ["S16", "leave-unsaved", "/examples/settings", async (p) => {
-      await p.fill("input[aria-label='Shop name']", "Rimba Home");
-      await sleep(200);
-      await p.click("nav a:has-text('Dashboard')");
-    }],
     ["S17", "tooltip-stepper", "/gallery/period-stepper", async (p) => p.hover("main [aria-label^='Previous']")],
-    ["S18", "landing-radius-20-round", "/?r=20&c=r", null],
-    ["S19", "landing-square", "/?c=s", null],
+    ["S18", "corners-radius-20-round", "/?r=20&c=r", async (p) => p.locator("text=Corners that agree.").scrollIntoViewIfNeeded()],
+    ["S19", "corners-square", "/?c=s", async (p) => p.locator("text=Corners that agree.").scrollIntoViewIfNeeded()],
     ["S20", "examples-custom-config", "/examples/dashboard?r=6&c=r&a=0f8a8a&g=w&h=40&sh=80", null],
+    ["S23", "header-search", "/gallery", async (p) => { await p.keyboard.press("Control+k"); await sleep(250); await p.keyboard.type("pick"); }],
+    ["S24", "landing-spotlight", "/", async (p) => p.locator("text=The niche ones").scrollIntoViewIfNeeded()],
+    ["S25", "landing-gallery", "/", async (p) => p.locator("h2:has-text('Components')").scrollIntoViewIfNeeded()],
+    ["N1", "command-palette-open", "/gallery/command-palette", async (p) => p.click("[data-stage] button:has-text('Search')")],
+    ["N2", "date-range-open", "/gallery/date-range-picker", async (p) => p.click("[data-stage] button")],
+    ["N3", "time-picker-open", "/gallery/time-picker", async (p) => p.click("[data-stage] button")],
+    ["N9", "shop-picker-open", "/gallery/shop-picker", async (p) => p.click("[data-stage] button")],
+    ["N10", "split-button-open", "/gallery/split-button", async (p) => p.click("[data-stage] [aria-label='More actions']")],
+    ["N12", "context-menu-open", "/gallery/context-menu", async (p) => rightClick(p, "[data-stage] tbody tr >> nth=1")],
+    ["N13", "hover-card-open", "/gallery/hover-card", async (p) => { await p.hover("[data-stage] a"); await sleep(500); }],
+    ["N14", "column-menu-open", "/gallery/column-menu", async (p) => p.click("[data-stage] button")],
+    ["N15", "inline-edit-editing", "/gallery/inline-edit", async (p) => p.click("[data-stage] tbody tr >> nth=1 >> button >> nth=0")],
+    ["N22", "comment-reactions-open", "/gallery/comment-thread", async (p) => p.click("[data-stage] [aria-label='Add reaction'] >> nth=0")],
+    ["N26", "notification-bell-open", "/gallery/notification-bell", async (p) => p.click("[data-stage] button")],
+    ["E2b", "orders-columns", "/examples/orders", async (p) => p.click("button:has-text('Columns')")],
+    ["E4b", "products-add", "/examples/products", async (p) => p.click("button:has-text('Add product')")],
+    ["E5b", "promotions-calendar", "/examples/promotions", async (p) => p.click("[role=radio]:has-text('Calendar')")],
+    ["E5c", "promotions-new", "/examples/promotions", async (p) => p.click("button:has-text('New promotion')")],
+    ["E6b", "cancellation-pane", "/examples/cancellations", async (p) => p.click("tbody tr >> nth=1")],
+    ["E7b", "team-invite", "/examples/team", async (p) => p.click("button:has-text('Invite')")],
   ];
   for (const [letter, name, path, act] of states) {
-    for (const theme of ["light", "dark"]) {
-      if (theme === "dark" && ["S16", "S17", "S18", "S19"].includes(letter)) continue;
-      const page = await visit("desktop", path, theme);
-      try {
-        if (act) await act(page);
-      } catch (e) {
-        checks.errors.push(`${letter} ${name}: ${e.message.split("\n")[0]}`);
-      }
-      await sleep(500);
-      if (theme === "light") await scan(page, `state/${name}`);
-      await shot(page, `${letter}-${name}-desktop-${theme}`, { letter, what: name, view: "desktop", theme });
-      await page.close();
+    const file = `${letter}-${name}-desktop-dark`;
+    if (!want(file)) continue;
+    const page = await visit("desktop", path);
+    try {
+      if (act) await act(page);
+    } catch (e) {
+      checks.errors.push(`${letter} ${name}: ${e.message.split("\n")[0]}`);
     }
+    await sleep(500);
+    await scan(page, `state/${name}`);
+    await shot(page, file, { letter, what: name, view: "desktop", theme: "dark" });
+    await page.close();
   }
   // Phone states
   for (const [letter, name, path, act] of [
     ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("tbody tr >> nth=1")],
     ["S22", "phone-select-open", "/gallery/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
+    ["S26", "phone-more-menu", "/examples/dashboard", async (p) => p.click("text=More")],
   ]) {
-    const page = await visit("phone", path, "light");
+    const file = `${letter}-${name}-phone-dark`;
+    if (!want(file)) continue;
+    const page = await visit("phone", path);
     try {
       await act(page);
     } catch (e) {
       checks.errors.push(`${letter}: ${e.message.split("\n")[0]}`);
     }
     await sleep(500);
-    await shot(page, `${letter}-${name}-phone-light`, { letter, what: name, view: "phone", theme: "light" });
+    await shot(page, file, { letter, what: name, view: "phone", theme: "dark" });
     await page.close();
   }
 
   // Skeleton vs loaded: every card and soft row must keep its box.
   for (const path of ["/examples/dashboard", "/examples/orders"]) {
     const boxes = async (q) => {
-      const page = await visit("desktop", `${path}${q}`, "light");
+      const page = await visit("desktop", `${path}${q}`);
       const r = await page.evaluate(() =>
         [...document.querySelectorAll("[data-app] .rounded-card, [data-app] li, [data-app] tr")].map((e) => {
           const b = e.getBoundingClientRect();
@@ -260,17 +343,22 @@ async function run() {
   await browser.close();
   stop();
 
-  const md = ["# Review shots", "", `${index.length} screenshots. Desktop 1440×900, phone 390×844 (2x). Light and dark.`, "", "| File | Letter | What | View | Theme |", "| --- | --- | --- | --- | --- |"];
+  const md = ["# Review shots (v2)", "", `${index.length} screenshots. Desktop 1440×900, phone 390×844 (2x). Dark by default; light for landing and the dashboard.`, "", "| File | Letter | What | View | Theme |", "| --- | --- | --- | --- | --- |"];
   for (const s of index) md.push(`| ${s.file} | ${s.letter} | ${s.what} | ${s.view} | ${s.theme} |`);
-  writeFileSync(`${OUT}/index.md`, md.join("\n") + "\n");
+  writeFileSync(`${OUT}/shots.md`, md.join("\n") + "\n");
   writeFileSync(`${OUT}/checks.json`, JSON.stringify({ ...checks, fonts: [...checks.fonts] }, null, 2));
+  const headers = new Set(checks.header.map((h) => h.box));
   console.log(`shots: ${index.length}`);
   console.log(`borders: ${checks.borders.length} pages with visible borders`);
+  checks.borders.slice(0, 6).forEach((b) => console.log(`  ${b.label}: ${b.borders[0]}`));
   console.log(`fonts: ${[...checks.fonts].join(" | ")}`);
   console.log(`shifts: ${checks.shifts.length}`);
+  checks.shifts.slice(0, 6).forEach((s) => console.log(`  ${s.label}: ${s.el}`));
+  console.log(`header boxes: ${headers.size === 1 ? "identical" : JSON.stringify(checks.header)}`);
   console.log(`skeleton: ${JSON.stringify(checks.skeleton)}`);
   console.log(`errors: ${checks.errors.length}`);
-  checks.errors.slice(0, 10).forEach((e) => console.log(`  ${e}`));
+  checks.errors.slice(0, 12).forEach((e) => console.log(`  ${e}`));
+  if (existsSync(`${OUT}/before`)) console.log("before/ kept");
 }
 
 run().catch((e) => {

@@ -144,7 +144,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                     key={d.toISOString()}
                     className={cn(
                       "relative grid h-item place-items-center",
-                      (inside || (edge && !same(shown.from, shown.to))) && "bg-fill",
+                      (inside || (edge && !same(shown.from, shown.to))) && "bg-fill-hover",
                       start && !end && "rounded-l-control",
                       end && !start && "rounded-r-control",
                       inside && col === 0 && "rounded-l-control",
@@ -159,7 +159,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                       onPointerEnter={() => anchor && setHover(d)}
                       className={cn(
                         "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-90",
-                        edge ? "bg-on text-on-ink" : "hover:bg-fill-hover",
+                        edge ? "bg-on text-on-ink" : "hover:bg-fill-strong",
                         !inMonth && !edge && "text-ink-faint",
                         same(d, today) && !edge && "font-semibold",
                       )}

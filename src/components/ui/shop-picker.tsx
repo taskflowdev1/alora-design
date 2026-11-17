@@ -40,16 +40,16 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   return (
     <P.Root>
       <P.Trigger className={cn(triggerClass, className)} aria-label="Shops">
-        <span className="flex shrink-0 items-center -space-x-1">
+        <span className="flex shrink-0 items-center gap-0.5">
           {(all || !markets.length ? [...new Set(shops.map((s) => s.market))] : markets).slice(0, 3).map((m) => (
-            <MarketMark key={m} market={m} className="shadow-[0_0_0_2px_var(--ad-fill)]" />
+            <MarketMark key={m} market={m} />
           ))}
         </span>
         <span className="truncate">{label}</span>
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>
-        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-72")}>
+        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-80")}>
           <div className="flex flex-wrap gap-1 pb-nest">
             <button type="button" className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>
               All

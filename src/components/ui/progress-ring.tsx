@@ -30,6 +30,7 @@ export function ProgressRing({ value, max = 100, size = 48, thickness = 5, label
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ad-fill)" strokeWidth={thickness} />
+        {pct > 0 ? (
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -41,6 +42,7 @@ export function ProgressRing({ value, max = 100, size = 48, thickness = 5, label
           strokeDasharray={`${c * pct} ${c}`}
           className="transition-[stroke-dasharray] duration-[220ms] ease-ad"
         />
+        ) : null}
       </svg>
       {label === null ? null : (
         <span className={cn("relative font-semibold tabular-nums text-ink", size >= 64 ? "text-title" : "text-small")}>{label ?? `${Math.round(pct * 100)}%`}</span>

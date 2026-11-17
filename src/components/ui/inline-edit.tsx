@@ -74,7 +74,7 @@ export function InlineEdit({ value, onSave, display, validate, align = "left", i
       onClick={(e) => (e.stopPropagation(), setDraft(value))}
       className={cn(box, "group w-full cursor-text tabular-nums hover:bg-fill focus-visible:bg-fill")}
     >
-      <span className="min-w-0 flex-1 truncate">{display ? display(value) : value}</span>
+      <span className="flex-1 whitespace-nowrap">{display ? display(value) : value}</span>
       <Edit2 size={14} className="shrink-0 text-ink-faint opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-visible:opacity-100" />
     </button>
   );

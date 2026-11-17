@@ -100,7 +100,7 @@ function ShapesCompare({ config }: { config: Config }) {
   const comp = shapedSupported() ? squircleCompensation(config.smoothing) : 1;
   const radiusOf = (k: Config["corner"]) => (k === "square" ? 0 : k === "squircle" ? Math.min(96, Math.round(r * comp)) : r);
   return (
-    <div className="grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
+    <div className="grid w-full max-w-3xl grid-cols-3 gap-3 sm:gap-6">
       {shapes.map((s) => (
         <div key={s.key} className="grid justify-items-center gap-3">
           <div
@@ -689,13 +689,13 @@ export const DEMOS: Record<string, Demo> = {
   },
   alert: {
     controls: [
-      { key: "tone", type: "select", label: "Tone", options: ["neutral", "attention", "danger"], default: "attention" },
+      { key: "tone", type: "select", label: "Tone", options: ["neutral", "attention", "danger"], default: "neutral" },
       { key: "action", type: "toggle", label: "Action", default: true },
     ],
     render: (p) => (
       <div className="grid w-full max-w-md gap-3">
         <Alert tone={p.tone as never} title="2 shops haven't synced since 09:40" action={p.action ? <Button size="sm">Sync</Button> : undefined} />
-        <Alert tone={p.tone === "attention" ? "danger" : (p.tone as never)} title="Payout failed" action={p.action ? <Button size="sm">Open</Button> : undefined}>
+        <Alert tone="danger" title="Payout failed" action={p.action ? <Button size="sm">Open</Button> : undefined}>
           The bank rejected the account number. Check it in Settings.
         </Alert>
       </div>

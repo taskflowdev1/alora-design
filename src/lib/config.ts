@@ -204,7 +204,7 @@ function themeColors(c: Config, dark: boolean) {
     brand,
     "brand-hover": brandHover,
     "brand-ink": brandInk,
-    "brand-soft": dark ? oklchToHex({ l: 0.29, c: acc.c * 0.3, h: acc.h }) : shades[0],
+    "brand-soft": dark ? oklchToHex({ l: 0.27, c: acc.c * 0.2, h: acc.h }) : shades[0],
     "brand-soft-ink": dark ? oklchToHex({ l: 0.85, c: acc.c * 0.55, h: acc.h }) : shades[6],
     danger: dark ? "#e8867c" : "#c2493d",
     "danger-soft": dark ? "#33201e" : "#fbeeec",
