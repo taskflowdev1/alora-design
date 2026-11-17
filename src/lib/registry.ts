@@ -42,6 +42,7 @@ export const ITEMS: Item[] = [
   { name: "card", title: "Card", group: "Display", files: ["card.tsx"] },
   { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"] },
   { name: "table", title: "Table", group: "Display", files: ["table.tsx"], registryDeps: ["button", "tooltip"] },
+  { name: "data-grid", title: "Data grid", group: "Display", files: ["data-grid.tsx"], registryDeps: ["table", "column-menu"] },
   { name: "attention-list", title: "Attention list", group: "Display", files: ["attention-list.tsx"], registryDeps: ["thumb"] },
   { name: "bar-chart", title: "Bar chart", group: "Display", files: ["bar-chart.tsx"] },
   { name: "status", title: "Status, pill, chip", group: "Display", files: ["status.tsx"] },
