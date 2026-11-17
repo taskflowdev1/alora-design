@@ -845,7 +845,7 @@ export const DEMOS: Record<string, Demo> = {
         <Button onClick={() => toast("Copied", "neutral")}>Copy link</Button>
       </div>
     ),
-    usage: () => `// once, near the root\n<Toaster />\n\ntoast("Changes saved");`,
+    usage: () => `// once, near the root\n<Toaster />\n\ntoast("Changes saved");\n\n// One shown in place (a preview):\n<ToastView>3 orders packed</ToastView>`,
   },
   sidebar: {
     stage: "page",

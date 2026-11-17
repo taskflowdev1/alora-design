@@ -210,7 +210,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
   "command-palette": {
     render: () => <CommandDemo />,
     usage: () =>
-      `const [open, setOpen] = useState(false);\nuseCommandShortcut(setOpen); // Cmd+K / Ctrl+K\n\n<CommandPalette open={open} onOpenChange={setOpen} groups={[\n  { label: "Actions", items: [{ id: "new", label: "New order", icon: Plus, shortcut: ["N"], onSelect: newOrder }] },\n]} />`,
+      `const [open, setOpen] = useState(false);\nuseCommandShortcut(setOpen); // Cmd+K / Ctrl+K\n\n<CommandPalette open={open} onOpenChange={setOpen} groups={[\n  { label: "Actions", items: [{ id: "new", label: "New order", icon: Plus, shortcut: ["N"], onSelect: newOrder }] },\n]} />\n\n// In place (no dialog), e.g. in a side card:\n<CommandPalette inline groups={groups} />`,
   },
   "date-range-picker": {
     render: () => <DateRangeDemo />,

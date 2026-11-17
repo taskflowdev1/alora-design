@@ -65,17 +65,24 @@ export function Toaster() {
       style={pos}
     >
       {list.map((t) => (
-        <div
+        <ToastView
           key={t.id}
-          className={cn(
-            "pointer-events-auto flex h-control items-center gap-2 rounded-card bg-on px-3.5 text-body text-on-ink shadow-raised",
-            t.leaving ? "animate-[ad-fade-out_200ms_ease-in_forwards]" : "animate-[ad-up_220ms_var(--ad-ease)]",
-          )}
+          tone={t.tone}
+          className={cn("pointer-events-auto", t.leaving ? "animate-[ad-fade-out_200ms_ease-in_forwards]" : "animate-[ad-up_220ms_var(--ad-ease)]")}
         >
-          {t.tone === "success" ? <Check size={16} /> : <Info size={16} />}
           {t.message}
-        </div>
+        </ToastView>
       ))}
+    </div>
+  );
+}
+
+/** The toast itself, for showing one in place (a preview, a docs page). Toaster uses it too. */
+export function ToastView({ tone = "success", children, className }: { tone?: ToastItem["tone"]; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn("flex h-control w-fit items-center gap-2 rounded-card bg-on px-3.5 text-body text-on-ink shadow-raised", className)}>
+      {tone === "success" ? <Check size={16} /> : <Info size={16} />}
+      {children}
     </div>
   );
 }
