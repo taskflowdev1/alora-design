@@ -51,7 +51,7 @@ export interface CommandPaletteProps {
  * Groups are separated by space and a quiet label, never by lines.
  */
 export function CommandPalette({ open = false, onOpenChange, inline, className, ...panel }: CommandPaletteProps) {
-  if (inline) return <CommandPanel {...panel} className={cn("rounded-card bg-raised p-nest text-ink", className)} />;
+  if (inline) return <CommandPanel {...panel} inline className={cn("flex flex-col rounded-card bg-raised p-nest text-ink", className)} />;
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
@@ -78,8 +78,9 @@ function CommandPanel({
   empty = "Nothing found",
   autoFocus,
   onRun,
+  inline,
   className,
-}: Pick<CommandPaletteProps, "groups" | "placeholder" | "empty" | "className"> & { autoFocus?: boolean; onRun?: () => void }) {
+}: Pick<CommandPaletteProps, "groups" | "placeholder" | "empty" | "className" | "inline"> & { autoFocus?: boolean; onRun?: () => void }) {
   const [q, setQ] = React.useState("");
   const [active, setActive] = React.useState(0);
   const list = React.useRef<HTMLDivElement>(null);
@@ -136,7 +137,7 @@ function CommandPanel({
           className="h-full w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-faint"
         />
       </label>
-      <div ref={list} id={`${uid}-list`} role="listbox" className="relative mt-nest max-h-[min(360px,56vh)] overflow-auto">
+      <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56vh)]")}>
         {flat.length === 0 ? <div className="flex h-16 items-center justify-center text-body text-ink-muted">{empty}</div> : null}
         {filtered.map((g) => (
           <div key={g.label} role="group" aria-label={g.label} className="grid gap-px pb-1">

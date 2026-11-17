@@ -23,7 +23,7 @@ page.on("pageerror", (e) => errors.push(e.message));
 
 for (const [path, text] of [
   ["/", "UI parts for shops that sell everywhere."],
-  ["/", "The niche ones"],
+  ["/", "Orders"],
   ["/gallery", "Gallery"],
   ["/gallery/menu", "Menu"],
   ["/gallery/command-palette", "Command palette"],
@@ -40,6 +40,23 @@ for (const [path, text] of [
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   check(await page.getByText(text, { exact: true }).first().isVisible(), `${path} shows "${text}"`);
 }
+
+// Landing: one bento of components in use; no tile grid, no corner demo, nothing wider than a phone
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+const landing = await page.evaluate(() => ({
+  bands: document.querySelectorAll("[data-bento]").length,
+  corners: document.body.innerText.includes("Corners that agree"),
+  tiles: document.querySelectorAll("main a[href^='/gallery/']").length,
+}));
+check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
+await page.locator("[data-bento] [role=combobox][aria-label='Search commands']").fill("sync");
+check((await page.locator("[data-bento] [role=option]").count()) === 1, "inline command palette filters");
+const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();
+phone.on("pageerror", (e) => errors.push(e.message));
+await phone.goto(BASE + "/", { waitUntil: "networkidle" });
+const pw = await phone.evaluate(() => [document.scrollingElement.scrollWidth, document.documentElement.clientWidth]);
+check(pw[0] <= pw[1], `landing has no horizontal scroll on phone (${pw.join(" vs ")})`);
+await phone.close();
 
 // Dark by default, neutral (no blue tint in the page colour)
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
