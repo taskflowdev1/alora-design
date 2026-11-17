@@ -15,6 +15,7 @@ import { toast } from "@/components/ui/toast";
 import { applyTokens, SLink, TokenScope, shapedSupported, useConfig } from "./config";
 import { COMPONENT_FIELDS, ConfigPanel } from "./config-panel";
 import { DEMOS, type Demo, type Props } from "./demos";
+import { THUMBS } from "./thumbs";
 
 const sources = import.meta.glob("../components/ui/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
 
@@ -94,11 +95,12 @@ function defaults(demo?: Demo, params?: URLSearchParams): Props {
   );
 }
 
-const FIT_STEPS = [1, 0.85, 0.72, 0.6, 0.5, 0.42];
+const FIT_STEPS = [1, 0.85, 0.72, 0.6];
 
 /**
  * A live preview as large as it can be: full size when the demo fits the tile, scaled down
- * step by step only as far as it needs. Small controls never shrink to a speck in an empty tile.
+ * step by step only as far as it needs (never below 60%; past that, safe centring shows the top of the demo).
+ * Trigger-only demos (menus, overlays) show their open state from `THUMBS`.
  */
 function FitPreview({ children }: { children: React.ReactNode }) {
   const box = React.useRef<HTMLDivElement>(null);
@@ -136,7 +138,7 @@ function FitPreview({ children }: { children: React.ReactNode }) {
     <div ref={box} data-fit={scale} className="pointer-events-none relative h-44 overflow-hidden" inert>
       <div
         ref={stage}
-        className="absolute left-0 top-0 flex min-h-full origin-top-left items-center justify-center overflow-hidden p-5"
+        className="absolute left-0 top-0 flex min-h-full origin-top-left items-center-safe justify-center-safe overflow-hidden p-5"
         style={{ width: `${100 / scale}%`, minHeight: `${100 / scale}%`, transform: `scale(${scale})` }}
       >
         {children}
@@ -155,7 +157,7 @@ export function GalleryGrid({ items, className }: { items: Item[]; className?: s
         return (
           <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
             <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
-              <FitPreview>{demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : demo}</FitPreview>
+              <FitPreview>{THUMBS[i.name] ? THUMBS[i.name]() : demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}</FitPreview>
               <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
             </Card>
           </SLink>
