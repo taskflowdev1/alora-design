@@ -45,7 +45,7 @@ html {
   --ad-ink: var(--ad-side-ink);
   --ad-ink-muted: var(--ad-side-muted);
   --ad-ink-faint: var(--ad-side-muted);
-  --ad-scroll: rgba(255, 255, 255, 0.16);
+  --ad-scroll: color-mix(in srgb, var(--ad-side-ink) 16%, transparent);
   color: var(--ad-ink);
 }
 @keyframes ad-pulse {

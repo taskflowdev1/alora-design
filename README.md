@@ -103,7 +103,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Card](https://design.alorawork.com/components/card) | `card` | `Card`, `CardHeader` | `interactive`, `inset="pad"`, `title`, `action`, `className` |
 | [Metric card](https://design.alorawork.com/components/metric-card) | `metric-card` | `MetricCard` | `label`, `value`, `unit`, `delta`, `primary`, `interactive`, `variant="tile"`, `short`, `loading` |
 | [Table](https://design.alorawork.com/components/table) | `table` | `Table`, `THead`, `TBody`, `TRow`, `TH`, `TD`, `TableBar` | `children`, `selected`, `onActivate`, `align="left"`, `className`, `width`, `maxWidth`, `page`, `total`, `pageSize=50`, `onPageChange` |
-| [Data grid](https://design.alorawork.com/components/data-grid) | `data-grid` | `GridLegend`, `DataGrid` | `items`, `className`, `columns`, `rows`, `rowKey`, `visible`, `onRowActivate`, `selectedKey`, `legend`, `totalLabel="Total"`, `maxHeight`, `empty="Nothing here yet"` |
+| [Data grid](https://design.alorawork.com/components/data-grid) | `data-grid` | `GridLegend`, `DataGrid`, `GridDetail`, `GridFigureDialog` | `items`, `className`, `columns`, `rows`, `rowKey`, `visible`, `onRowActivate`, `onCellDetail`, `selectedKey`, `legend`, `totalLabel="Total"`, `maxHeight`, `empty="Nothing here yet"`, `figures`, `open`, `onOpenChange`, `figure` |
 | [Attention list](https://design.alorawork.com/components/attention-list) | `attention-list` | `AttentionList`, `AttentionItem` | `children`, `className`, `media`, `title`, `meta`, `value`, `action`, `onClick` |
 | [Bar chart](https://design.alorawork.com/components/bar-chart) | `bar-chart` | `BarChart`, `BarList` | `data`, `height=140`, `current`, `labelEvery=1`, `loading`, `className`, `aria-label`, `selected`, `onSelect` |
 | [Status, pill, chip](https://design.alorawork.com/components/status) | `status` | `Status`, `Pill`, `Chip` | `tone="default"`, `children`, `className`, `tone="attention"`, `dot`, `selected`, `onClick`, `onRemove`, `size="default"` |
@@ -172,6 +172,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Thinking orbs](https://design.alorawork.com/ai/thinking-orbs) | `thinking-orbs` | `ThinkingOrbs` | `active=true`, `size=22`, `count=3`, `speed=1`, `orb=0.154`, `ring=0.32`, `tone="ink"`, `className` |
 | [Run status](https://design.alorawork.com/ai/run-status) | `run-status` | `RunStatus` | `text`, `active=true`, `size=22`, `shimmer=2.2`, `speed=1`, `tone="ink"`, `className` |
 | [Composer glow](https://design.alorawork.com/ai/composer-glow) | `composer-glow` | `ComposerGlow` | `children`, `working=false`, `breathe=true`, `halo=20`, `strength=0.52`, `pulse=3.6`, `ring=0.48`, `radius="var(--ad-radius-sheet)"`, `className` |
+| [Assistant launcher](https://design.alorawork.com/ai/assistant-launcher) | `assistant-launcher` | `AloraMark`, `AssistantLauncher` | `className`, `label="Alora"`, `open`, `onOpenChange`, `floating=false`, `onNewChat`, `onExpand`, `icon`, `children` |
 
 ### Backgrounds
 

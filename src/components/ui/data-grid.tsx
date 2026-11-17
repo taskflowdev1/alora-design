@@ -1,5 +1,7 @@
 import * as React from "react";
+import { ChevronDown, Info } from "react-feather";
 import { cn } from "@/lib/ad";
+import { Dialog } from "@/components/ui/dialog";
 
 /*
  * Wide, spreadsheet-like table (payroll registers, recaps). Same taste as Table: no row or column lines,
@@ -8,7 +10,10 @@ import { cn } from "@/lib/ad";
  * - column widths people can drag (double-click a handle to reset);
  * - a totals row that sticks to the bottom;
  * - cell tones with their legend in a row above (a soft tint, never a loud fill);
- * - a soft fade on the side that still has more columns.
+ * - a soft fade on the side that still has more columns;
+ * - a small (i) on figures that can be explained. It opens <GridFigureDialog> for that one cell: the
+ *   column as title, the value, how it's calculated, where it comes from, note, change history and a
+ *   control to change it. A row click opens the row's side pane, where <GridDetail> lists every figure.
  * Pair with <ColumnMenu> to choose columns and <TableBar> to page. Put it in <Card inset="nest">.
  */
 
@@ -30,6 +35,8 @@ export interface GridColumn<R> {
   tone?: (row: R) => GridTone | undefined;
   /** Content of this column in the totals row. */
   total?: (rows: R[]) => React.ReactNode;
+  /** Show an (i) after the value that opens this figure in the row's pane. Needs `onCellDetail`. */
+  explain?: boolean | ((row: R) => boolean);
 }
 
 export interface DataGridProps<R> {
@@ -38,8 +45,10 @@ export interface DataGridProps<R> {
   rowKey: (row: R) => string;
   /** Keys to show (e.g. from <ColumnMenu>). Pinned columns always show. Default: all. */
   visible?: string[];
-  /** Whole-row click opens the detail pane; no per-cell actions. */
+  /** Whole-row click opens the detail pane. */
   onRowActivate?: (row: R) => void;
+  /** The (i) on an explainable cell, e.g. open <GridFigureDialog> for this row and column. */
+  onCellDetail?: (row: R, columnKey: string) => void;
   selectedKey?: string;
   /** What each tone means, shown in a row above the grid. */
   legend?: { tone: GridTone; label: string }[];
@@ -81,6 +90,7 @@ export function DataGrid<R>({
   rowKey,
   visible,
   onRowActivate,
+  onCellDetail,
   selectedKey,
   legend,
   totalLabel = "Total",
@@ -210,17 +220,33 @@ export function DataGrid<R>({
                     {cols.map((c) => {
                       const tone = c.tone?.(r);
                       const content = c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? "");
+                      const explain = onCellDetail && (typeof c.explain === "function" ? c.explain(r) : c.explain);
+                      const value = tone ? (
+                        <span className={cn("-mx-1.5 inline-block min-w-0 max-w-[calc(100%+12px)] truncate rounded-item px-1.5 align-middle leading-6", TONE[tone])}>{content}</span>
+                      ) : (
+                        <span className="block min-w-0 truncate">{content}</span>
+                      );
                       return (
                         <td
                           key={c.key}
                           style={pinStyle(c)}
                           className={cn("whitespace-nowrap bg-surface px-3 text-ink", ALIGN[c.align ?? "left"], pinClass(c))}
                         >
-                          {tone ? (
-                            <span className={cn("-mx-1.5 inline-block max-w-[calc(100%+12px)] truncate rounded-item px-1.5 align-middle leading-6", TONE[tone])}>{content}</span>
-                          ) : (
-                            <span className="block truncate">{content}</span>
-                          )}
+                          {explain ? (
+                            <span className={cn("flex min-w-0 items-center gap-1", c.align === "right" ? "justify-end" : c.align === "center" && "justify-center")}>
+                              {value}
+                              <button
+                                type="button"
+                                aria-label={`Details of ${c.label}`}
+                                title={`Details of ${c.label}`}
+                                onClick={(e) => { e.stopPropagation(); onCellDetail(r, c.key); }}
+                                onKeyDown={(e) => e.stopPropagation()}
+                                className="-mr-1.5 grid size-5 shrink-0 cursor-pointer place-items-center rounded-item text-ink-faint transition-colors duration-[160ms] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink [&_svg]:size-3.5"
+                              >
+                                <Info />
+                              </button>
+                            </span>
+                          ) : value}
                         </td>
                       );
                     })}
@@ -253,6 +279,159 @@ export function DataGrid<R>({
           )}
         />
       </div>
+    </div>
+  );
+}
+
+export interface GridFigure {
+  key: string;
+  label: string;
+  value: React.ReactNode;
+  tone?: GridTone;
+  /** Where the figure comes from, e.g. "Employee record", "Typed by hand", "Calculated". */
+  source?: string;
+  /** How it's calculated, in words, e.g. "Base + overtime + allowance − BPJS − tax". */
+  formula?: string;
+  /** The numbers the formula used. */
+  inputs?: { label: string; value: React.ReactNode }[];
+  note?: React.ReactNode;
+  /** Changes to this figure, newest first. */
+  history?: { when: string; who?: string; before: React.ReactNode; after: React.ReactNode; reason?: string }[];
+  /** A control to change the figure, e.g. an amount and Save. */
+  action?: React.ReactNode;
+}
+
+/**
+ * A row's figures for its side pane: one line each (label, value). A figure with something to say opens
+ * in place: how it's calculated, the inputs, where it comes from, a note, its changes and an optional control.
+ * `open` is the figure to show open (the column whose (i) was pressed); the pane scrolls to it.
+ */
+export function GridDetail({
+  figures,
+  open,
+  onOpenChange,
+  className,
+}: {
+  figures: GridFigure[];
+  open: string | null;
+  onOpenChange: (key: string | null) => void;
+  className?: string;
+}) {
+  const refs = React.useRef<Record<string, HTMLDivElement | null>>({});
+  React.useEffect(() => {
+    if (open) refs.current[open]?.scrollIntoView({ block: "nearest" });
+  }, [open]);
+  return (
+    <div className={cn("grid gap-1", className)}>
+      {figures.map((f) => {
+        const isOpen = open === f.key;
+        const explains = !!(f.source || f.formula || f.inputs?.length || f.note || f.history?.length || f.action);
+        return (
+          <div
+            key={f.key}
+            ref={(el) => {
+              refs.current[f.key] = el;
+            }}
+            className={cn("rounded-card transition-colors duration-[160ms]", isOpen && "bg-fill")}
+          >
+            <button
+              type="button"
+              disabled={!explains}
+              aria-expanded={explains ? isOpen : undefined}
+              onClick={() => onOpenChange(isOpen ? null : f.key)}
+              className={cn(
+                "flex h-row w-full items-center gap-2 rounded-card px-3 text-left text-body transition-colors duration-[160ms]",
+                explains && "cursor-pointer",
+                explains && !isOpen && "hover:bg-fill focus-visible:bg-fill",
+              )}
+            >
+              <span className="min-w-0 flex-1 truncate text-ink-muted">{f.label}</span>
+              <span className={cn("shrink-0 tabular-nums text-ink", f.tone && cn("-my-0.5 rounded-item px-1.5 leading-6", TONE[f.tone]))}>{f.value}</span>
+              {explains ? (
+                <ChevronDown className={cn("size-4 shrink-0 text-ink-faint transition-transform duration-[220ms] ease-ad", isOpen && "rotate-180")} />
+              ) : (
+                <span className="size-4 shrink-0" />
+              )}
+            </button>
+            {isOpen ? <FigureExplain figure={f} /> : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FigureRows({ rows }: { rows: [string, React.ReactNode][] }) {
+  return (
+    <div className="grid gap-0.5">
+      {rows.map(([label, value], i) => (
+        <div key={i} className="flex min-h-7 items-center justify-between gap-3 text-body">
+          <span className="min-w-0 truncate text-ink-muted">{label}</span>
+          <span className="shrink-0 text-right tabular-nums text-ink">{value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * One cell's figure in a dialog, opened from its (i): the column as title, the value on a soft fill, then
+ * how it's calculated, where it comes from, note, changes and the optional control.
+ */
+export function GridFigureDialog({
+  figure,
+  open,
+  onOpenChange,
+}: {
+  figure: GridFigure | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange} title={figure?.label ?? ""} className="sm:max-w-[440px]">
+      {figure ? (
+        <div className="grid gap-4">
+          <div className={cn("rounded-card px-4 py-3 text-[20px] font-semibold leading-tight tabular-nums", figure.tone ? TONE[figure.tone] : "bg-fill text-ink")}>
+            {figure.value}
+          </div>
+          <FigureExplain figure={figure} bare />
+        </div>
+      ) : null}
+    </Dialog>
+  );
+}
+
+function FigureExplain({ figure: f, bare }: { figure: GridFigure; bare?: boolean }) {
+  const facts: [string, React.ReactNode][] = [];
+  if (f.source) facts.push(["Source", f.source]);
+  if (f.note) facts.push(["Note", f.note]);
+  return (
+    <div className={cn("grid gap-4", !bare && "px-3 pb-3 pt-1")}>
+      {f.formula ? (
+        <div className="grid gap-1">
+          <span className="text-small text-ink-muted">How it's calculated</span>
+          <span className="text-body text-ink">{f.formula}</span>
+        </div>
+      ) : null}
+      {f.inputs?.length ? <FigureRows rows={f.inputs.map((i) => [i.label, i.value])} /> : null}
+      {facts.length ? <FigureRows rows={facts} /> : null}
+      {f.history?.length ? (
+        <div className="grid gap-1.5">
+          <span className="text-small text-ink-muted">Changes</span>
+          {f.history.map((h, i) => (
+            <div key={i} className="grid gap-0.5 rounded-item bg-surface px-3 py-2">
+              <span className="flex items-baseline justify-between gap-3 text-body">
+                <span className="min-w-0 truncate tabular-nums text-ink">
+                  {h.before} → {h.after}
+                </span>
+                <span className="shrink-0 text-small text-ink-muted">{h.when}</span>
+              </span>
+              {h.who || h.reason ? <span className="text-small text-ink-muted">{[h.who, h.reason].filter(Boolean).join(" · ")}</span> : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {f.action ? <div className="grid gap-2">{f.action}</div> : null}
     </div>
   );
 }

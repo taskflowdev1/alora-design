@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TokenScope, useConfig } from "./config";
 import { ConfigPanel } from "./config-panel";
 import { CodeBlock, GalleryLayout, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
-import { ChatsCard, Composer, NewChat, ThreadCard } from "./agent";
+import { ChatsCard, Composer, NewChat, PanelThread, ThreadCard } from "./agent";
 
 type Values = Record<string, number | string | boolean>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,6 +60,14 @@ export function CollectionPreview({ item, values, tall }: { item: Item; values: 
         </C>
       </div>
     );
+  if (item.stage === "panel")
+    return (
+      <div className="w-full max-w-[460px]">
+        <C {...values} onNewChat={() => undefined} onExpand={() => undefined}>
+          <PanelThread />
+        </C>
+      </div>
+    );
   if (item.stage === "field")
     return (
       <div
@@ -85,6 +93,7 @@ function usageOf(item: Item, values: Values) {
   const tag = `${item.export}${attrs.length ? ` ${attrs.join(" ")}` : ""}`;
   const imp = `import { ${item.export} } from "@/components/ui/${item.files[0].replace(/\.tsx$/, "")}";\n\n`;
   if (item.stage === "composer") return `${imp}<${tag}>\n  <YourComposer />\n</${item.export}>`;
+  if (item.stage === "panel") return `${imp}<${tag} floating onNewChat={newChat} onExpand={openFullPage}>\n  <YourChat />\n</${item.export}>`;
   if (item.stage === "field") return `${imp}<div className="relative">\n  <${tag} />\n  {/* your screen */}\n</div>`;
   return `${imp}<${tag} />`;
 }
@@ -119,7 +128,7 @@ function ParamControl({ p, value, onChange }: { p: Param; value: number | string
 }
 
 /** AI page tiles: loaders small, the composer wide, so the row packs to twelve columns like the landing bento. */
-const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-4", "composer-glow": "md:col-span-2 lg:col-span-5" };
+const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-4", "composer-glow": "md:col-span-2 lg:col-span-5", "assistant-launcher": "md:col-span-2 lg:col-span-6" };
 
 /** The AI or Backgrounds page: every item live, under its small kind heading; each opens its sliders. */
 export function CollectionIndex({ section }: { section: Exclude<Section, "components"> }) {

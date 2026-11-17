@@ -18,7 +18,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `src/styles/base.css`: corner-shape, scrollbar, no focus rings, keyframes. Both ship in exports.
 - `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style). 41 core
   components plus 28 niche ERP parts (group "Niche"). `src/components/ai/` (Thinking orbs, Run status, Composer
-  glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
+  glow; Assistant launcher = Mayapada's Alora button and chat panel, with the Alora mark) and
+  `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant (the launcher from Mayapada).
 - `src/site/`: landing (hero, `bento.tsx` = every component in 19 real ERP cards, then the AI and Backgrounds bands),
   Components page (`showcase.tsx`: every component live in category bento tiles; `gallery.tsx` = page shell + detail
   pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
@@ -71,8 +72,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   Square mode zeroes every radius; circles (`rounded-full`, `data-shape="round"`) always stay round.
 - Gallery per-component overrides are applied to `<body>` (portalled menus/popovers live there) while
   `#root` keeps the global tokens. Cleanup removes both.
-- Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
-  a step above the page, so it still stands out.
+- Sidebar (and save bar, bottom nav) use `--ad-side`, which follows the theme (owner, 17 Nov 2026: "light mode light,
+  dark mode dark"): a white panel with the light greys in light mode; in dark mode it sits at card level, a step above
+  the page, so it still stands out. `.ad-on-dark` keeps its name but now means "on the side surface".
 - Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
 - /components is a bento like the landing (12 columns, 16 px gaps): per category, tiles that compose its components

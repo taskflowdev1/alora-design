@@ -191,7 +191,8 @@ function themeColors(c: Config, dark: boolean) {
   const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : g(0.18, 1.4);
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
-  // Dark sidebar in both themes; in dark mode it sits a step above the page (like a card) so it still stands out.
+  // The sidebar follows the theme: a white panel in light mode (greys as in the rest of the light UI);
+  // in dark mode it sits a step above the page (like a card) so it still stands out.
   const sideL = 0.2;
   return {
     page: dark ? g(0.155, 0.8) : g(0.985, 0.35),
@@ -222,12 +223,12 @@ function themeColors(c: Config, dark: boolean) {
     "chart-3": chart[2],
     "chart-4": chart[3],
     "chart-5": chart[4],
-    side: g(sideL, 1.2),
-    "side-raised": g(sideL + 0.06, 1.2),
-    "side-fill": g(sideL + 0.06, 1.2),
-    "side-fill-hover": g(sideL + 0.1, 1.2),
-    "side-ink": g(0.93, 0.4),
-    "side-muted": g(0.68, 0.6),
+    side: dark ? g(sideL, 1.2) : "#ffffff",
+    "side-raised": dark ? g(sideL + 0.06, 1.2) : g(0.97, 0.5),
+    "side-fill": dark ? g(sideL + 0.06, 1.2) : g(0.958, 0.6),
+    "side-fill-hover": dark ? g(sideL + 0.1, 1.2) : g(0.928, 0.7),
+    "side-ink": dark ? g(0.93, 0.4) : ink,
+    "side-muted": dark ? g(0.68, 0.6) : g(0.5, 1.2),
     "shadow-card": sh.card,
     "shadow-raised": sh.raised,
     "shadow-dialog": sh.dialog,

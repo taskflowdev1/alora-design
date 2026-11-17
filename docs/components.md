@@ -619,7 +619,7 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/data-grid.json"
 ```
 
-Files: `src/components/ui/data-grid.tsx`. Installs too: `table`, `column-menu`.
+Files: `src/components/ui/data-grid.tsx`. Installs too: `table`, `column-menu`, `dialog`.
 
 `GridLegend`
 
@@ -636,13 +636,31 @@ Files: `src/components/ui/data-grid.tsx`. Installs too: `table`, `column-menu`.
 | `rows` (required) | `R[]` |  |  |
 | `rowKey` (required) | `(row: R) => string` |  |  |
 | `visible` | `string[]` |  | Keys to show (e.g. from <ColumnMenu>). Pinned columns always show. Default: all. |
-| `onRowActivate` | `((row: R) => void)` |  | Whole-row click opens the detail pane; no per-cell actions. |
+| `onRowActivate` | `((row: R) => void)` |  | Whole-row click opens the detail pane. |
+| `onCellDetail` | `((row: R, columnKey: string) => void)` |  | The (i) on an explainable cell, e.g. open <GridFigureDialog> for this row and column. |
 | `selectedKey` | `string` |  |  |
 | `legend` | `{ tone: GridTone; label: string; }[]` |  | What each tone means, shown in a row above the grid. |
 | `totalLabel` | `string` | `"Total"` | Label in the first cell of the totals row. Shown when any column has `total`. |
 | `maxHeight` | `string \| number` |  | Scroll area height, e.g. "calc(100dvh - 240px)". |
 | `empty` | `ReactNode` | `"Nothing here yet"` |  |
 | `className` | `string` |  |  |
+
+`GridDetail`: A row's figures for its side pane: one line each (label, value). A figure with something to say opens in place: how it's calculated, the inputs, where it comes from, a note, its changes and an optional control. `open` is the figure to show open (the column whose (i) was pressed); the pane scrolls to it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `figures` (required) | `GridFigure[]` |  |  |
+| `open` (required) | `string \| null` |  |  |
+| `onOpenChange` (required) | `(key: string \| null) => void` |  |  |
+| `className` | `string` |  |  |
+
+`GridFigureDialog`: One cell's figure in a dialog, opened from its (i): the column as title, the value on a soft fill, then how it's calculated, where it comes from, note, changes and the optional control.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `figure` (required) | `GridFigure \| null` |  |  |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
 
 ### Attention list
 
@@ -1802,6 +1820,44 @@ Sliders on its page:
 | `pulse` | `number` | `3.6` | One idle pulse, in seconds; working runs at 0.6 of it. |
 | `ring` | `number` | `0.48` | How bright the top of the ring is, 0 to 1. |
 | `radius` | `string` | `"var(--ad-radius-sheet)"` | Corner radius of the box inside; defaults to the sheet radius. |
+| `className` | `string` |  |  |
+
+### Assistant launcher
+
+<a id="assistant-launcher"></a>Page: https://design.alorawork.com/ai/assistant-launcher
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/assistant-launcher.json"
+```
+
+Files: `src/components/ai/assistant-launcher.tsx`. Installs too: `button`.
+
+Sliders on its page:
+
+| Control | Prop | Default | Range or values |
+| --- | --- | --- | --- |
+| Name | `label` | `Alora` | text |
+| Open | `open` | `true` | toggle |
+| Float on the page | `floating` | `false` | toggle |
+
+`AloraMark`: The Alora mark: the "o" of the wordmark, a rounded tile cut by a wave (the site favicon). Fills with currentColor.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `className` | `string` |  |  |
+
+`AssistantLauncher`: The assistant's button and its small chat panel (Mayapada's Alora launcher). A round accent button bottom right; it opens a panel in its place with the name, New chat, Expand and Close. Escape closes it unless a dialog above already took the key. The panel stays mounted while closed, so the conversation is kept.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Alora"` | The assistant's name, on the button and the panel, e.g. "Alora". |
+| `open` | `boolean` |  | Panel open. The button opens it and Close or Escape shut it; this sets where it starts. |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `floating` | `boolean` | `false` | Fixed to the page's bottom-right corner, over the content (the real use). Off: drawn in place. |
+| `onNewChat` | `(() => void)` |  | Header actions. Each shows only when given. |
+| `onExpand` | `(() => void)` |  |  |
+| `icon` | `ReactNode` |  | The mark on the button and the panel. Default: the Alora mark. |
+| `children` | `ReactNode` |  | The chat inside the panel: thread and message box. |
 | `className` | `string` |  |  |
 
 ## Backgrounds

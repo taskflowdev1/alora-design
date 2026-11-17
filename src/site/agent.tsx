@@ -88,6 +88,24 @@ export function useCycle<T>(list: T[], ms: number, ref: React.RefObject<HTMLElem
 }
 
 /** A thread: the question, the answer so far, the live run line, then the working message box. */
+/** The chat inside the assistant launcher's panel: a question, the answer so far, the live run line, the message box. */
+export function PanelThread() {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const step = useCycle(STEPS, 2400, ref);
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="grid min-h-0 flex-1 content-start gap-4 overflow-auto px-1">
+        <div className="ml-auto max-w-[85%] rounded-card bg-fill px-3.5 py-2 text-body text-ink">Which orders are late this week?</div>
+        <p className="text-body leading-relaxed text-ink">Seven orders are past their ship-by date, five of them at Rimba Kemang.</p>
+        <div ref={ref}>
+          <RunStatus text={step} />
+        </div>
+      </div>
+      <Composer placeholder="Ask Alora" className="shadow-none bg-fill" />
+    </div>
+  );
+}
+
 export function ThreadCard({ className }: { className?: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const step = useCycle(STEPS, 2400, ref);

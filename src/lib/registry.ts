@@ -28,8 +28,8 @@ export interface Item {
   kind?: string;
   /** AI and Backgrounds only: props for its live spot on the section page, over the param defaults. */
   preview?: Record<string, number | string | boolean>;
-  /** AI and Backgrounds only: how the site shows it ("inline" alone, "composer" around a message box, "field" behind a new-chat screen). */
-  stage?: "inline" | "composer" | "field";
+  /** AI and Backgrounds only: how the site shows it ("inline" alone, "composer" around a message box, "field" behind a new-chat screen, "panel" with a chat inside). */
+  stage?: "inline" | "composer" | "field" | "panel";
 }
 
 const RADIX = "radix-ui";
@@ -62,7 +62,7 @@ export const ITEMS: Item[] = [
   { name: "card", title: "Card", group: "Display", files: ["card.tsx"] },
   { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"] },
   { name: "table", title: "Table", group: "Display", files: ["table.tsx"], registryDeps: ["button", "tooltip"] },
-  { name: "data-grid", title: "Data grid", group: "Display", files: ["data-grid.tsx"], registryDeps: ["table", "column-menu"] },
+  { name: "data-grid", title: "Data grid", group: "Display", files: ["data-grid.tsx"], registryDeps: ["table", "column-menu", "dialog"] },
   { name: "attention-list", title: "Attention list", group: "Display", files: ["attention-list.tsx"], registryDeps: ["thumb"] },
   { name: "bar-chart", title: "Bar chart", group: "Display", files: ["bar-chart.tsx"] },
   { name: "status", title: "Status, pill, chip", group: "Display", files: ["status.tsx"] },
@@ -168,6 +168,23 @@ export const ITEMS: Item[] = [
       { key: "pulse", label: "Pulse", type: "range", min: 1, max: 6, step: 0.1, default: 3.6, unit: "s" },
       { key: "ring", label: "Ring", type: "range", min: 0, max: 1, step: 0.05, default: 0.48 },
       { key: "working", label: "Working", type: "toggle", default: false },
+    ],
+  },
+
+  {
+    name: "assistant-launcher",
+    title: "Assistant launcher",
+    group: "AI",
+    dir: "ai",
+    files: ["assistant-launcher.tsx"],
+    registryDeps: ["button"],
+    export: "AssistantLauncher",
+    kind: "Launcher",
+    stage: "panel",
+    params: [
+      { key: "label", label: "Name", type: "text", default: "Alora" },
+      { key: "open", label: "Open", type: "toggle", default: true },
+      { key: "floating", label: "Float on the page", type: "toggle", default: false },
     ],
   },
 
