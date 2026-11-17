@@ -187,7 +187,8 @@ function themeColors(c: Config, dark: boolean) {
   const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : g(0.18, 1.4);
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
-  const sideL = dark ? 0.12 : 0.2;
+  // Dark sidebar in both themes; in dark mode it sits a step above the page (like a card) so it still stands out.
+  const sideL = 0.2;
   return {
     page: dark ? g(0.155, 0.8) : g(0.985, 0.35),
     surface: dark ? g(0.2, 0.8) : "#ffffff",
