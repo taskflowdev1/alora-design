@@ -71,8 +71,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   Square mode zeroes every radius; circles (`rounded-full`, `data-shape="round"`) always stay round.
 - Gallery per-component overrides are applied to `<body>` (portalled menus/popovers live there) while
   `#root` keeps the global tokens. Cleanup removes both.
-- Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
-  a step above the page, so it still stands out.
+- Sidebar (and save bar, bottom nav) use `--ad-side`, which follows the theme (owner, 17 Nov 2026: "light mode light,
+  dark mode dark"): a white panel with the light greys in light mode; in dark mode it sits at card level, a step above
+  the page, so it still stands out. `.ad-on-dark` keeps its name but now means "on the side surface".
 - Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
 - /components is a bento like the landing (12 columns, 16 px gaps): per category, tiles that compose its components
