@@ -171,6 +171,8 @@ export function TileSpot({ item, className, children }: { item: Item; className?
         {item.title}
       </SLink>
       <div className="flex min-w-0 flex-1 items-center justify-center-safe px-2 py-4">{children}</div>
+      {/* As tall as the name link, so the piece sits centred in the whole tile, not just under the link. */}
+      <span aria-hidden="true" className="h-7 shrink-0" />
     </Card>
   );
 }

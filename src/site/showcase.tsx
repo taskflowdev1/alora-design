@@ -188,20 +188,40 @@ function CornerTile({ config, className }: { config: Config; className?: string 
   );
 }
 
+/** Whole rows only: the scroll area is as many rows tall as fit the tile, and sits centred in it. */
 function ScrollTile({ className }: { className?: string }) {
+  const box = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = React.useState<{ h: number; top: number } | null>(null);
+  React.useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => {
+      const row = (el.querySelector("[data-row]") as HTMLElement | null)?.offsetHeight ?? 36;
+      const H = el.clientHeight;
+      const n = Math.max(3, Math.floor((H + 1) / (row + 1)));
+      const h = n * row + (n - 1);
+      setFit({ h, top: Math.max(0, Math.floor((H - h) / 2)) });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
     <Tile className={className}>
-      <Mark name="scrollbar" className="flex-1">
-        <div className="h-[164px] overflow-auto rounded-item">
-          <div className="grid w-[560px] gap-px">
-            {ORDERS.slice(0, 14).map((o) => (
-              <div key={o.id} className="flex h-row items-center gap-5 rounded-item px-2 text-body hover:bg-fill">
-                <span className="w-24 shrink-0">{o.id}</span>
-                <span className="w-28 shrink-0 text-ink-muted">{smartTime(o.at)}</span>
-                <span className="w-48 truncate">{o.items}</span>
-                <span className="ml-auto tabular-nums">{formatRp(o.total)}</span>
-              </div>
-            ))}
+      <Mark name="scrollbar" className="flex flex-1 flex-col">
+        <div ref={box} className="relative min-h-[calc(var(--spacing-row)*3+2px)] flex-1">
+          <div className="absolute inset-x-0 overflow-auto rounded-item" style={{ top: fit?.top ?? 0, height: fit?.h ?? "100%" }}>
+            <div className="grid w-[560px] gap-px">
+              {ORDERS.slice(0, 14).map((o) => (
+                <div key={o.id} data-row className="flex h-row shrink-0 items-center gap-5 rounded-item px-2 text-body hover:bg-fill">
+                  <span className="w-24 shrink-0">{o.id}</span>
+                  <span className="w-28 shrink-0 text-ink-muted">{smartTime(o.at)}</span>
+                  <span className="w-48 truncate">{o.items}</span>
+                  <span className="ml-auto tabular-nums">{formatRp(o.total)}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Mark>

@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TokenScope, useConfig } from "./config";
 import { ConfigPanel } from "./config-panel";
 import { CodeBlock, GalleryLayout, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
-import { ChatsCard, Composer, NewChat, ThreadCard } from "./agent";
+import { AgentApp, Composer, NewChat } from "./agent";
 
 type Values = Record<string, number | string | boolean>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,10 +148,7 @@ export function CollectionIndex({ section }: { section: Exclude<Section, "compon
       {section === "ai" ? (
         <section aria-label="In use" className="mt-10 grid gap-3">
           <h2 className="text-title font-semibold text-ink">In use</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
-            <ThreadCard className="md:col-span-2 lg:col-span-8" />
-            <ChatsCard className="md:col-span-2 lg:col-span-4" />
-          </div>
+          <AgentApp />
         </section>
       ) : null}
     </main>

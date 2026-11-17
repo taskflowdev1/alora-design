@@ -4,7 +4,7 @@ import { SandField } from "@/components/backgrounds/sand-field";
 import { SLink } from "./config";
 import { Wordmark } from "./logo";
 import { Bento } from "./bento";
-import { ChatsCard, NewChat, ThreadCard } from "./agent";
+import { AgentApp, NewChat } from "./agent";
 import { TABS } from "./layout";
 
 function Hero() {
@@ -44,10 +44,7 @@ function AiBand() {
   return (
     <section aria-label="AI" data-landing="ai" className="mx-auto mt-20 grid w-full max-w-[1280px] gap-4 px-4 sm:px-6">
       <SectionTitle to="/ai">AI</SectionTitle>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
-        <ThreadCard className="md:col-span-2 lg:col-span-8" />
-        <ChatsCard className="md:col-span-2 lg:col-span-4" />
-      </div>
+      <AgentApp />
     </section>
   );
 }

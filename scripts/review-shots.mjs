@@ -2,6 +2,8 @@
 // port. BEFORE_BASE (the live site) gives the "before" shots. Run through the job queue: ./scripts/review-shots.
 //   L landing (full page: 1440 dark, 1440 light, 390)   H header with the tabs (1440, 1024, 768, 390)
 //   G Components page (before = live, after)    A AI page, its detail      B Backgrounds page, its detail
+//   C AI chat app + composer + Foundations tile (before/after: /ai first screen and phone, landing band, composer
+//     close-ups empty and with two lines, the Composer glow tile, the Foundations row)
 //   S landing "By shop" card (before/after)   F footer   W flap at 768 (never covers content)       V1 orbs video, V2 background video
 // checks.json: horizontal scroll at 360/390/768/1024/1440 in both themes, flap clearance, orbs drawing/pausing,
 // reduced motion, sand field reacting to the pointer, page errors. ONLY=<regex> limits the shots by letter.
@@ -12,7 +14,7 @@ import { chromium } from "playwright-core";
 const PORT = Number(process.env.SHOTS_PORT || 5193);
 const AFTER = `http://127.0.0.1:${PORT}`;
 const BEFORE = process.env.BEFORE_BASE || "";
-const OUT = process.env.OUT || "output/review-v4.1";
+const OUT = process.env.OUT || "output/review-v4.2";
 const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 const want = (letter) => !ONLY || ONLY.test(letter);
 mkdirSync(`${OUT}/before`, { recursive: true });
@@ -85,6 +87,115 @@ if (want("S")) {
         [...el.querySelectorAll(".tabular-nums")].filter((n) => /Rp/.test(n.textContent)).map((n) => ({ text: n.textContent, oneLine: n.getBoundingClientRect().height < 24, right: Math.round(n.getBoundingClientRect().right) })),
       );
     await ctx.close();
+  }
+}
+
+// C: the agent in use (chat list left, thread right), the composer close up, and the Foundations row; before = live.
+const TWO_LINES = "Which orders are late this week, and which of them wait on stock?\nDraft a short note to each buyer.";
+// Geometry of every message box on the page: text and button insets from the box edges, radii.
+const composerGeometry = (page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("textarea[aria-label=Message]")].map((ta) => {
+      const box = ta.parentElement.getBoundingClientRect();
+      const btns = [...ta.parentElement.querySelectorAll("button")].map((b) => b.getBoundingClientRect());
+      const t = ta.getBoundingClientRect();
+      const [a, z] = [btns[0], btns[btns.length - 1]];
+      const r = (el) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+      return {
+        width: Math.round(box.width),
+        height: Math.round(box.height),
+        textLeft: Math.round(t.left - box.left),
+        textTop: Math.round(t.top - box.top),
+        attachLeft: Math.round(a.left - box.left),
+        attachBottom: Math.round(box.bottom - a.bottom),
+        sendRight: Math.round(box.right - z.right),
+        sendBottom: Math.round(box.bottom - z.bottom),
+        sameSize: a.width === z.width && a.height === z.height,
+        boxRadius: r(ta.parentElement),
+        buttonRadius: r(ta.parentElement.querySelector("button")),
+      };
+    }),
+  );
+async function tileShot(page, sel, file, pad = 24) {
+  const el = page.locator(sel).first();
+  await el.scrollIntoViewIfNeeded();
+  await sleep(300);
+  const b = await el.boundingBox();
+  const vw = page.viewportSize().width;
+  await page.screenshot({ path: `${OUT}/${file}.png`, clip: { x: Math.max(0, b.x - pad), y: Math.max(0, b.y - pad), width: Math.min(vw - Math.max(0, b.x - pad), b.width + pad * 2), height: b.height + pad * 2 } });
+}
+if (want("C")) {
+  checks.composer = {};
+  for (const [base, dir] of [[BEFORE, "before/"], [AFTER, ""]]) {
+    if (!base) continue;
+    for (const theme of ["dark", "light"]) {
+      if (dir && theme === "light") continue;
+      const ctx = await ctxFor(1440, 900, { dsf: 2 });
+      const page = await open(ctx, base, q("/ai", theme));
+      await page.evaluate(() => {
+        const s = document.querySelector("section[aria-label='In use']");
+        scrollTo(0, s.getBoundingClientRect().top + scrollY - 80);
+      });
+      await sleep(500);
+      await shot(page, `${dir}C1-ai-1440-${theme}`);
+      if (theme !== "dark") {
+        await ctx.close();
+        continue;
+      }
+      await page.evaluate(() => scrollTo(0, 0));
+      await sleep(300);
+      await shot(page, `${dir}C1-ai-1440-top`);
+      await tileShot(page, "[data-spot=composer-glow]", `${dir}C5-composer-glow-tile`, 8);
+      const glowTa = page.locator("[data-spot=composer-glow] textarea");
+      await tileShot(page, "[data-spot=composer-glow] .ad-glow", `${dir}C4a-composer-empty`, 40);
+      if (!dir) checks.composer.tile = await page.evaluate(() => {
+        const t = document.querySelector("[data-spot=composer-glow]").getBoundingClientRect();
+        const g = document.querySelector("[data-spot=composer-glow] .ad-glow").getBoundingClientRect();
+        return { left: Math.round(g.left - t.left), right: Math.round(t.right - g.right), top: Math.round(g.top - t.top), bottom: Math.round(t.bottom - g.bottom) };
+      });
+      if (!dir) checks.composer.empty = await composerGeometry(page);
+      await glowTa.fill(TWO_LINES);
+      await sleep(300);
+      await tileShot(page, "[data-spot=composer-glow] .ad-glow", `${dir}C4b-composer-two-lines`, 40);
+      if (!dir) checks.composer.twoLines = await composerGeometry(page);
+      const land = await open(ctx, base, "/");
+      await tileShot(land, "[data-landing=ai]", `${dir}C3-landing-ai-band`, 16);
+      const comp = await open(ctx, base, "/components");
+      const row = await comp.evaluate(() => {
+        const cards = ["corner-shape", "scrollbar"].map((n) => document.querySelector(`[data-spot=${n}]`).parentElement.getBoundingClientRect());
+        const x = Math.min(...cards.map((c) => c.left));
+        const y = Math.min(...cards.map((c) => c.top));
+        return { x: x - 16, y: y - 16 + scrollY, width: Math.max(...cards.map((c) => c.right)) - x + 32, height: Math.max(...cards.map((c) => c.bottom)) - y + 32 };
+      });
+      await comp.screenshot({ path: `${OUT}/${dir}C6-foundations-1440.png`, clip: row, fullPage: true });
+      if (!dir)
+        checks.composer.scrollTile = await comp.evaluate(() => {
+          const sc = document.querySelector("[data-spot=scrollbar] .overflow-auto");
+          const rows = [...sc.querySelectorAll("[data-row]")];
+          const h = sc.getBoundingClientRect();
+          const whole = rows.filter((r) => {
+            const b = r.getBoundingClientRect();
+            return b.top >= h.top - 0.5 && b.bottom <= h.bottom + 0.5;
+          }).length;
+          const cut = rows.filter((r) => {
+            const b = r.getBoundingClientRect();
+            return b.top < h.bottom - 0.5 && b.bottom > h.bottom + 0.5;
+          }).length;
+          return { whole, cut };
+        });
+      await ctx.close();
+    }
+    const phone = await ctxFor(390, 844);
+    const p = await open(phone, base, "/ai");
+    await shot(p, `${dir}C2-ai-390`, { fullPage: true });
+    if (!dir) {
+      checks.composer.phone = await composerGeometry(p);
+      await p.locator("section[aria-label='In use'] textarea").fill(TWO_LINES);
+      await sleep(200);
+      await tileShot(p, "section[aria-label='In use'] .ad-glow", "C4c-composer-390-two-lines", 24);
+      checks.composer.phoneTwoLines = (await composerGeometry(p)).slice(-1);
+    }
+    await phone.close();
   }
 }
 

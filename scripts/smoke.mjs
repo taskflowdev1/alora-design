@@ -118,6 +118,20 @@ const landing = await page.evaluate(() => ({
 }));
 check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
 check(landing.order.join() === "bento,ai,backgrounds" && landing.orbs > 0 && landing.sand === 1, `landing: components first, then AI and Backgrounds live (${JSON.stringify(landing)})`);
+// AI band: chat list left of the thread at the same height; the message box has one inset on every side and its
+// radius is the button radius plus that inset (concentric)
+const agent = await page.evaluate(() => {
+  const c = document.querySelector("[data-landing=ai] [data-chats]").getBoundingClientRect();
+  const t = document.querySelector("[data-landing=ai] [data-thread]").getBoundingClientRect();
+  const box = document.querySelector("[data-landing=ai] [data-composer]");
+  const b = box.getBoundingClientRect();
+  const ta = box.querySelector("textarea").getBoundingClientRect();
+  const btns = [...box.querySelectorAll("button")].map((x) => x.getBoundingClientRect());
+  const r = (el) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+  const insets = [ta.left - b.left, ta.top - b.top, btns[0].left - b.left, b.bottom - btns[0].bottom, b.right - btns[1].right, b.bottom - btns[1].bottom].map(Math.round);
+  return { left: c.right <= t.left, sameHeight: Math.round(c.height) === Math.round(t.height), height: Math.round(t.height), insets, concentric: Math.abs(r(box) - r(box.querySelector("button")) - insets[0]) < 0.6 };
+});
+check(agent.left && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.concentric, `AI band: chats left, thread right, composer balanced (${JSON.stringify(agent)})`);
 await page.locator("[data-bento] [role=combobox][aria-label='Search commands']").fill("sync");
 check((await page.locator("[data-bento] [role=option]").count()) === 1, "inline command palette filters");
 const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();
@@ -147,13 +161,20 @@ await short.locator("header button[aria-label=Customize]").tap();
 await sleep(400);
 const pop = await short.locator("[data-own-scroll]").boundingBox();
 const cdp = await short.context().newCDPSession(short);
+// Real touch events: Chromium 158's headless shell ignores synthesizeScrollGesture (nothing scrolls, the page neither).
 const touchScroll = async (x, y, dy) => {
-  await cdp.send("Input.synthesizeScrollGesture", { x: Math.round(x), y: Math.round(y), yDistance: -dy, gestureSourceType: "touch", speed: 1200 });
-  await sleep(300);
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: Math.round(x), y: Math.round(y) }] });
+  for (let i = 1; i <= 12; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: Math.round(x), y: Math.round(y - (dy * i) / 12) }] });
+    await sleep(16);
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await sleep(400);
 };
 const phoneScroll = () => short.evaluate(() => ({ page: Math.round(scrollY), box: Math.round(document.querySelector("[data-own-scroll]")?.scrollTop ?? -1) }));
-await touchScroll(pop.x + pop.width / 2, pop.y + pop.height / 2, 900);
-await touchScroll(pop.x + pop.width / 2, pop.y + pop.height / 2, 900);
+// Start on the panel's own padding (a swipe that starts on a slider drags the slider); the second swipe is at the end.
+await touchScroll(pop.x + 6, pop.y + pop.height * 0.8, 300);
+await touchScroll(pop.x + 6, pop.y + pop.height * 0.8, 300);
 const t1 = await phoneScroll();
 const popW = await short.evaluate(() => { const b = document.querySelector("[data-own-scroll]"); return [b.scrollWidth, b.clientWidth]; });
 check(t1.page === 0 && t1.box > 0 && popW[0] <= popW[1], `phone customize scrolls on its own, nothing clipped (${JSON.stringify({ ...t1, width: popW })})`);
