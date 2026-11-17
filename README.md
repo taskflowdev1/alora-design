@@ -170,7 +170,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | --- | --- | --- | --- |
 | [Thinking orbs](https://design.alorawork.com/ai/thinking-orbs) | `thinking-orbs` | `ThinkingOrbs` | `active=true`, `size=22`, `count=3`, `speed=1`, `orb=0.154`, `ring=0.32`, `tone="ink"`, `className` |
 | [Run status](https://design.alorawork.com/ai/run-status) | `run-status` | `RunStatus` | `text`, `active=true`, `size=22`, `shimmer=2.2`, `speed=1`, `tone="ink"`, `className` |
-| [Composer glow](https://design.alorawork.com/ai/composer-glow) | `composer-glow` | `ComposerGlow` | `children`, `working=false`, `breathe=true`, `halo=20`, `strength=0.52`, `pulse=3.6`, `ring=0.48`, `radius="var(--ad-radius-sheet)"`, `className` |
+| [Composer glow](https://design.alorawork.com/ai/composer-glow) | `composer-glow` | `Composer`, `ComposerGlow` | `placeholder="Ask anything"`, `working=false`, `value`, `onValueChange`, `onSend`, `onStop`, `onAttach`, `maxLines=6`, `disabled`, `className`, `children`, `breathe=true`, `halo=20`, `strength=0.52`, `pulse=3.6`, `ring=0.48`, `radius=COMPOSER_RADIUS` |
 
 ### Backgrounds
 

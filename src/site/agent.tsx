@@ -1,56 +1,14 @@
 // Agent screens the AI and Backgrounds pieces sit in on the site: a message box, the new-chat screen, a thread
-// with its live run line, and a chat list. Site-only (not shipped); the pieces themselves are in src/components/ai.
+// with its live run line, and a chat list. Site-only (not shipped); the pieces themselves (Composer included) are in
+// src/components/ai.
 import * as React from "react";
-import { ArrowUp, Clock, Edit, Inbox, Paperclip, Square, TrendingUp } from "react-feather";
+import { Clock, Edit, Inbox, TrendingUp } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { ComposerGlow, type ComposerGlowProps } from "@/components/ai/composer-glow";
+import { Composer, ComposerGlow, type ComposerGlowProps } from "@/components/ai/composer-glow";
 import { RunStatus } from "@/components/ai/run-status";
 import { ThinkingOrbs } from "@/components/ai/thinking-orbs";
-
-/**
- * The message box: text, attach, send (stop while working). One inset on every side (the card padding), so the
- * placeholder's corner and the buttons' corners sit the same distance from the edges, and the box radius is the
- * button radius plus that inset (the sheet radius), so the corners are concentric. The text grows with its lines.
- */
-export function Composer({ working, placeholder = "Ask about orders, stock or payouts", className }: { working?: boolean; placeholder?: string; className?: string }) {
-  const [value, setValue] = React.useState("");
-  const ref = React.useRef<HTMLTextAreaElement>(null);
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
-  return (
-    <div data-composer className={cn("grid gap-2 rounded-sheet bg-surface p-[var(--ad-pad)] shadow-card", className)}>
-      <textarea
-        ref={ref}
-        aria-label="Message"
-        rows={1}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        className="block max-h-[calc(1.45em*6)] min-h-[1.45em] w-full resize-none bg-transparent p-0 text-body leading-[1.45] text-ink outline-none placeholder:text-ink-faint"
-      />
-      <div className="flex items-center justify-between">
-        <Button icon aria-label="Attach">
-          <Paperclip />
-        </Button>
-        {working ? (
-          <Button icon aria-label="Stop">
-            <Square />
-          </Button>
-        ) : (
-          <Button variant="primary" icon aria-label="Send" disabled={!value.trim()}>
-            <ArrowUp />
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 const SUGGESTIONS = [
   { icon: Clock, text: "Which orders are late this week?" },
@@ -64,7 +22,7 @@ export function NewChat({ glow, className }: { glow?: Omit<ComposerGlowProps, "c
     <div className={cn("relative mx-auto grid w-full max-w-[560px] justify-items-center gap-6", className)}>
       <h2 className="text-center text-[length:clamp(22px,3vw,28px)] font-semibold tracking-[-0.01em] text-ink">Where should we start?</h2>
       <ComposerGlow {...glow} className="w-full">
-        <Composer working={glow?.working} />
+        <Composer working={glow?.working} placeholder="Ask about orders, stock or payouts" />
       </ComposerGlow>
       <ul className="grid w-full gap-0.5">
         {SUGGESTIONS.map(({ icon: Icon, text }) => (
@@ -218,12 +176,15 @@ export function ChatsCard({ className }: { className?: string }) {
   );
 }
 
-/** The agent in use, as an app: the chat list on the left like a sidebar, the running thread on the right. */
+/**
+ * The agent in use, as an app: the chat list on the left as a sidebar (sized to its labels, 240 to 280 px), the running
+ * thread takes the rest. Below lg they stack.
+ */
 export function AgentApp({ className }: { className?: string }) {
   return (
-    <div data-agent-app className={cn("grid grid-cols-1 gap-4 md:grid-cols-2 lg:h-[580px] lg:grid-cols-12", className)}>
-      <ChatsCard className="md:col-span-2 lg:col-span-4" />
-      <ThreadCard className="md:col-span-2 lg:col-span-8" />
+    <div data-agent-app className={cn("grid grid-cols-1 gap-4 lg:h-[580px] lg:grid-cols-[fit-content(280px)_minmax(0,1fr)]", className)}>
+      <ChatsCard className="lg:min-w-[240px]" />
+      <ThreadCard />
     </div>
   );
 }

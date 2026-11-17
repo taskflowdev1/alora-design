@@ -158,6 +158,7 @@ export const ITEMS: Item[] = [
     group: "AI",
     dir: "ai",
     files: ["composer-glow.tsx"],
+    registryDeps: ["button"],
     export: "ComposerGlow",
     kind: "Composer",
     stage: "composer",

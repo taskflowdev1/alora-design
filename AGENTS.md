@@ -22,7 +22,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - `src/site/`: landing (hero, `bento.tsx` = every component in 19 real ERP cards, then the AI and Backgrounds bands),
   Components page (`showcase.tsx`: every component live in category bento tiles; `gallery.tsx` = page shell + detail
   pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
-  they sit in; `AgentApp` = chat list left, thread right, 580 px from lg), examples (7 pages), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
+  they sit in; `AgentApp` = chat sidebar left (fit-content, 240–280 px), thread takes the rest, 580 px tall from lg). The message box
+  (`Composer`) ships in `composer-glow.tsx`: one row attach | text | send, one control size, inset = half the card padding,
+  radius = control radius + inset; text grows upward, buttons stay at the bottom (Board's assistant composer), examples (7 pages), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
@@ -42,7 +44,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
 - Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min; `ONLY="C|W"` ~2 min): lettered PNGs + two webm videos +
   `checks.json` (no horizontal scroll at 360–1440 in both themes, flap clearance, orbs drawing/pausing, reduced
-  motion, sand field reacting) in `output/review-v4.2/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
+  motion, sand field reacting) in `output/review-v4.3/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
   from `BEFORE_BASE`, default the live site). `index.md` there is written by hand.
 - Per-component shots + taste checks (visible borders, fonts, hover shifts, skeleton boxes): `./scripts/shots`
   (port 5197, ~0.6 GB, ~10 min) into `output/review-v2/`.

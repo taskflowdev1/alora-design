@@ -118,20 +118,49 @@ const landing = await page.evaluate(() => ({
 }));
 check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
 check(landing.order.join() === "bento,ai,backgrounds" && landing.orbs > 0 && landing.sand === 1, `landing: components first, then AI and Backgrounds live (${JSON.stringify(landing)})`);
-// AI band: chat list left of the thread at the same height; the message box has one inset on every side and its
-// radius is the button radius plus that inset (concentric)
-const agent = await page.evaluate(() => {
+// AI band: the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
+// attach | text | send: both buttons one size, one inset on every side, a single text line centred on the buttons, and
+// the radius is the button radius plus that inset (concentric). Three lines grow the box upward, buttons stay at the bottom.
+const agent = await page.evaluate(async () => {
   const c = document.querySelector("[data-landing=ai] [data-chats]").getBoundingClientRect();
   const t = document.querySelector("[data-landing=ai] [data-thread]").getBoundingClientRect();
   const box = document.querySelector("[data-landing=ai] [data-composer]");
-  const b = box.getBoundingClientRect();
-  const ta = box.querySelector("textarea").getBoundingClientRect();
-  const btns = [...box.querySelectorAll("button")].map((x) => x.getBoundingClientRect());
+  const ta = box.querySelector("textarea");
+  const geo = () => {
+    const b = box.getBoundingClientRect();
+    const [a, z] = [...box.querySelectorAll("button")].map((x) => x.getBoundingClientRect());
+    const tr = ta.getBoundingClientRect();
+    return {
+      b, a, z, tr,
+      insets: [a.left - b.left, a.top - b.top, b.bottom - a.bottom, b.right - z.right, z.top - b.top, b.bottom - z.bottom].map(Math.round),
+      centre: Math.abs(tr.top + tr.height / 2 - (a.top + a.height / 2)),
+    };
+  };
+  const one = geo();
   const r = (el) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
-  const insets = [ta.left - b.left, ta.top - b.top, btns[0].left - b.left, b.bottom - btns[0].bottom, b.right - btns[1].right, b.bottom - btns[1].bottom].map(Math.round);
-  return { left: c.right <= t.left, sameHeight: Math.round(c.height) === Math.round(t.height), height: Math.round(t.height), insets, concentric: Math.abs(r(box) - r(box.querySelector("button")) - insets[0]) < 0.6 };
+  const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set;
+  set.call(ta, "One\nTwo\nThree");
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+  const three = geo();
+  set.call(ta, "");
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+  return {
+    left: c.right <= t.left,
+    chatsWidth: Math.round(c.width),
+    sameHeight: Math.round(c.height) === Math.round(t.height),
+    height: Math.round(t.height),
+    insets: one.insets,
+    centred: one.centre < 1,
+    sameSize: one.a.width === one.z.width && one.a.height === one.z.height && one.a.width === one.a.height,
+    concentric: Math.abs(r(box) - r(box.querySelector("button")) - one.insets[0]) < 0.6,
+    grows: three.b.height > one.b.height + 20 && Math.round(three.b.bottom) === Math.round(one.b.bottom) && three.insets[2] === one.insets[2] && three.insets[5] === one.insets[5],
+  };
 });
-check(agent.left && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.concentric, `AI band: chats left, thread right, composer balanced (${JSON.stringify(agent)})`);
+check(
+  agent.left && agent.chatsWidth >= 240 && agent.chatsWidth <= 280 && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.centred && agent.sameSize && agent.concentric && agent.grows,
+  `AI band: chat sidebar left, thread right; composer one row, centred, concentric, grows up (${JSON.stringify(agent)})`,
+);
 await page.locator("[data-bento] [role=combobox][aria-label='Search commands']").fill("sync");
 check((await page.locator("[data-bento] [role=option]").count()) === 1, "inline command palette filters");
 const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();

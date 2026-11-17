@@ -1745,7 +1745,7 @@ Sliders on its page:
 npx shadcn@latest add "https://design.alorawork.com/r/composer-glow.json"
 ```
 
-Files: `src/components/ai/composer-glow.tsx`.
+Files: `src/components/ai/composer-glow.tsx`. Installs too: `button`.
 
 Sliders on its page:
 
@@ -1756,6 +1756,21 @@ Sliders on its page:
 | Pulse | `pulse` | `3.6` | 1–6 s |
 | Ring | `ring` | `0.48` | 0–1 |
 | Working | `working` | `false` | toggle |
+
+`Composer`: The message box, one row: attach | text | send (Alora Board's assistant). The buttons are the control height and one line of text is padded to the same height, so the placeholder and both buttons share one centre. Longer text grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls. The inset is the same on every side and the radius is the button radius plus that inset.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `placeholder` | `string` | `"Ask anything"` |  |
+| `working` | `boolean` | `false` | The agent is replying: with the box empty, send turns into stop. |
+| `value` | `string` |  | Controlled text; leave out to let the box hold its own. |
+| `onValueChange` | `((value: string) => void)` |  |  |
+| `onSend` | `((text: string) => void)` |  | Enter or the send button; the box clears itself when uncontrolled. Shift+Enter is a new line. |
+| `onStop` | `(() => void)` |  |  |
+| `onAttach` | `(() => void)` |  |  |
+| `maxLines` | `number` | `6` | Lines the text grows to before it scrolls. |
+| `disabled` | `boolean` |  |  |
+| `className` | `string` |  |  |
 
 `ComposerGlow`: The AI composer's glow (Alora Board, "G2 aura"): a soft grainy aura in the accent around the box, a ring lit from the top on its edge, and a slow pulse. Wrap the message box with it. Only opacity and translate animate; it pauses off screen, and reduced motion keeps the glow but stops the motion.
 
@@ -1768,7 +1783,7 @@ Sliders on its page:
 | `strength` | `number` | `0.52` | Aura strength at the top of its pulse, 0 to 1. |
 | `pulse` | `number` | `3.6` | One idle pulse, in seconds; working runs at 0.6 of it. |
 | `ring` | `number` | `0.48` | How bright the top of the ring is, 0 to 1. |
-| `radius` | `string` | `"var(--ad-radius-sheet)"` | Corner radius of the box inside; defaults to the sheet radius. |
+| `radius` | `string` | `COMPOSER_RADIUS` | Corner radius of the box inside; defaults to the Composer's. |
 | `className` | `string` |  |  |
 
 ## Backgrounds

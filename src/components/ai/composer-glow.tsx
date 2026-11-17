@@ -1,5 +1,7 @@
 import * as React from "react";
+import { ArrowUp, Plus, Square } from "react-feather";
 import { cn } from "@/lib/ad";
+import { Button } from "@/components/ui/button";
 
 export interface ComposerGlowProps {
   children: React.ReactNode;
@@ -15,9 +17,99 @@ export interface ComposerGlowProps {
   pulse?: number;
   /** How bright the top of the ring is, 0 to 1. */
   ring?: number;
-  /** Corner radius of the box inside; defaults to the sheet radius. */
+  /** Corner radius of the box inside; defaults to the Composer's. */
   radius?: string;
   className?: string;
+}
+
+/** The composer's inset: half the card padding, so it follows the padding setting. */
+const COMPOSER_PAD = "calc(var(--ad-pad) / 2)";
+/**
+ * Button radius plus the inset, so the corners are concentric. The min() drops the inset when the button radius is 0
+ * (square corners), so square stays square.
+ */
+export const COMPOSER_RADIUS = `calc(var(--ad-radius-control) + min(var(--ad-radius-control) * 99, ${COMPOSER_PAD}))`;
+
+export interface ComposerProps {
+  placeholder?: string;
+  /** The agent is replying: with the box empty, send turns into stop. */
+  working?: boolean;
+  /** Controlled text; leave out to let the box hold its own. */
+  value?: string;
+  onValueChange?: (value: string) => void;
+  /** Enter or the send button; the box clears itself when uncontrolled. Shift+Enter is a new line. */
+  onSend?: (text: string) => void;
+  onStop?: () => void;
+  onAttach?: () => void;
+  /** Lines the text grows to before it scrolls. */
+  maxLines?: number;
+  disabled?: boolean;
+  className?: string;
+}
+
+/**
+ * The message box, one row: attach | text | send (Alora Board's assistant). The buttons are the control height and
+ * one line of text is padded to the same height, so the placeholder and both buttons share one centre. Longer text
+ * grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls.
+ * The inset is the same on every side and the radius is the button radius plus that inset.
+ */
+export function Composer({ placeholder = "Ask anything", working = false, value, onValueChange, onSend, onStop, onAttach, maxLines = 6, disabled, className }: ComposerProps) {
+  const [own, setOwn] = React.useState("");
+  const text = value ?? own;
+  const set = (v: string) => (value === undefined ? setOwn(v) : onValueChange?.(v));
+  const ref = React.useRef<HTMLTextAreaElement>(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
+  const empty = !text.trim();
+  const send = () => {
+    if (empty || disabled) return;
+    onSend?.(text);
+    if (value === undefined) setOwn("");
+  };
+  const style = { "--composer-pad": COMPOSER_PAD, "--composer-line": "calc(var(--ad-text-body) * 1.45)", "--composer-lines": maxLines, borderRadius: COMPOSER_RADIUS } as React.CSSProperties;
+  return (
+    <form
+      data-composer
+      style={style}
+      onSubmit={(e) => {
+        e.preventDefault();
+        send();
+      }}
+      className={cn("flex items-end gap-1 bg-surface p-[var(--composer-pad)] shadow-card", className)}
+    >
+      <Button variant="ghost" icon aria-label="Attach files" disabled={disabled} onClick={onAttach} className="text-ink-muted hover:text-ink">
+        <Plus />
+      </Button>
+      <textarea
+        ref={ref}
+        aria-label="Message"
+        rows={1}
+        value={text}
+        disabled={disabled}
+        placeholder={placeholder}
+        onChange={(e) => set(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+          e.preventDefault();
+          send();
+        }}
+        className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-faint max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
+      />
+      {working && empty ? (
+        <Button icon aria-label="Stop" onClick={onStop}>
+          <Square />
+        </Button>
+      ) : (
+        <Button type="submit" variant="primary" icon aria-label="Send" disabled={empty || disabled}>
+          <ArrowUp />
+        </Button>
+      )}
+    </form>
+  );
 }
 
 // Film grain as a mask: fractal noise drives the alpha between about 45% and 100%, so the aura reads as a glow with
@@ -51,7 +143,7 @@ const CSS = `
  * the top on its edge, and a slow pulse. Wrap the message box with it. Only opacity and translate animate; it pauses
  * off screen, and reduced motion keeps the glow but stops the motion.
  */
-export function ComposerGlow({ children, working = false, breathe = true, halo = 20, strength = 0.52, pulse = 3.6, ring = 0.48, radius = "var(--ad-radius-sheet)", className }: ComposerGlowProps) {
+export function ComposerGlow({ children, working = false, breathe = true, halo = 20, strength = 0.52, pulse = 3.6, ring = 0.48, radius = COMPOSER_RADIUS, className }: ComposerGlowProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = ref.current;
