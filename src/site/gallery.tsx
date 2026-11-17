@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useParams, useSearchParams } from "react-router";
 import { Check, Copy, Search as SearchIcon, Sliders } from "react-feather";
 import { cn } from "@/lib/ad";
 import { inlineTokens, serializeConfig, type Config } from "@/lib/config";
-import { COMPONENT_ITEMS, GROUPS, ITEMS, SITE, findItem, itemPath, type Group, type Item } from "@/lib/registry";
+import { GROUPS, ITEMS, SITE, findItem, itemPath, type Group, type Item } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search } from "@/components/ui/search";
@@ -15,6 +15,7 @@ import { toast } from "@/components/ui/toast";
 import { applyTokens, SLink, TokenScope, shapedSupported, useConfig, useHref } from "./config";
 import { COMPONENT_FIELDS, ConfigPanel } from "./config-panel";
 import { DEMOS, type Demo, type Props } from "./demos";
+import { ComponentBento } from "./showcase";
 
 const sources = import.meta.glob("../components/*/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
 /** Lazy source text of an item's first file, for its Source tab. */
@@ -144,14 +145,36 @@ export function Spot({ item, className, children }: { item: Item; className?: st
   );
 }
 
-/** How many of 12 columns a component takes on the Components page (default 4), so the page reads like a bento. */
-const SPAN: Record<string, 3 | 6 | 8 | 12> = {
-  ...Object.fromEntries(["badge", "avatar", "thumb", "kbd", "switch", "checkbox", "radio", "tooltip", "popover", "copy-chip", "quantity-stepper", "dialog", "sheet", "toast", "marketplace-mark", "progress-ring", "empty-state", "button"].map((n) => [n, 3])),
-  ...Object.fromEntries(
-    ["corner-shape", "scrollbar", "save-bar", "alert", "attention-list", "bar-chart", "comment-thread", "command-palette", "date-range-picker", "fee-row", "diff", "column-menu", "timeline", "shop-picker", "hover-card", "notification-bell", "bottom-nav", "sparkline", "field", "tabs", "skeleton", "card", "steps", "menu", "split-button", "dropzone", "context-menu", "status"].map((n) => [n, 6]),
-  ),
-  ...Object.fromEntries(["table", "toolbar", "sidebar", "calendar-month", "kanban-card", "metric-card", "inline-edit"].map((n) => [n, 8])),
-};
+/**
+ * A tile on a section page (the AI row): a soft surface with the item live in its middle and its name chip in the
+ * corner, which opens the item's sliders; a click on the tile's empty space does the same.
+ */
+export function TileSpot({ item, className, children }: { item: Item; className?: string; children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const href = useHref(itemPath(item));
+  return (
+    <Card
+      data-spot={item.name}
+      inset="none"
+      onClick={(e) => {
+        const t = e.target as Element;
+        if (t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
+        navigate(href);
+      }}
+      className={cn("relative flex min-h-[232px] min-w-0 cursor-pointer flex-col p-[calc(var(--ad-nest)*2)] transition-shadow duration-[220ms] ease-ad hover:shadow-raised", className)}
+    >
+      <SLink
+        to={itemPath(item)}
+        className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill-hover hover:text-ink"
+      >
+        <Sliders size={14} />
+        {item.title}
+      </SLink>
+      <div className="flex min-w-0 flex-1 items-center justify-center-safe px-2 py-4">{children}</div>
+    </Card>
+  );
+}
+
 const SPAN_CLASS = { 3: "lg:col-span-3", 4: "lg:col-span-4", 6: "md:col-span-2 lg:col-span-6", 8: "md:col-span-2 lg:col-span-8", 12: "md:col-span-2 lg:col-span-12" } as const;
 
 /**
@@ -197,27 +220,16 @@ export function SpotGroups({ groups, render, span }: { groups: { title: string; 
   );
 }
 
-/** The Components page: every component live, grouped by category. */
+/** The Components page: every component live, composed into a bento by category (showcase.tsx). */
 export function GalleryIndex() {
   const [q, setQ] = React.useState("");
-  const [config] = useConfig();
-  const match = (i: Item) => i.title.toLowerCase().includes(q.toLowerCase()) || i.name.includes(q.toLowerCase());
-  const groups = GROUPS.map((g) => ({ title: g, items: COMPONENT_ITEMS.filter((i) => i.group === g && match(i)) })).filter((g) => g.items.length);
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="mr-auto text-heading font-semibold">Components</h1>
         <Search value={q} onValueChange={setQ} placeholder="Find a component" />
       </div>
-      {groups.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
-      <SpotGroups
-        groups={groups}
-        span={(i) => SPAN[i.name] ?? 4}
-        render={(i) => {
-          const demo = DEMOS[i.name];
-          return demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null;
-        }}
-      />
+      <ComponentBento query={q} />
     </main>
   );
 }

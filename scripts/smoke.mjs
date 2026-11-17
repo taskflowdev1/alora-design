@@ -185,16 +185,26 @@ const tabs = await page.evaluate(() => {
 });
 check(tabs.labels.join() === "Components,AI,Backgrounds,Examples,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
 
-// Components page: the components themselves, live, grouped; no thumbnail tiles. A spot's chip opens its sliders.
+// Components page: every component live in category bento tiles (each exactly once); a component's chip opens its sliders.
 await page.goto(BASE + "/components", { waitUntil: "networkidle" });
 const index = await page.evaluate(() => ({
   spots: document.querySelectorAll("[data-spot]").length,
+  missing: (document.querySelector("[data-components]")?.dataset.components.split(",") ?? ["(no list)"]).filter((n) => document.querySelectorAll(`[data-spot="${n}"]`).length !== 1),
   groups: [...document.querySelectorAll("[data-group]")].map((g) => g.dataset.group),
   tiles: document.querySelectorAll("[data-fit], [inert] [data-spot]").length,
 }));
-check(index.spots >= 60 && index.groups[0] === "Foundations" && index.tiles === 0, `components page is live components by group (${JSON.stringify(index)})`);
-await page.locator("[data-spot=select]").hover();
-await page.locator("[data-spot=select] > a").click();
+check(index.spots >= 60 && index.missing.length === 0 && index.groups[0] === "Foundations" && index.tiles === 0, `components page: every component live exactly once, in category bento tiles (${JSON.stringify(index)})`);
+// Like a person: centre it (clear of the sticky header), hover it, then move up onto its chip and click.
+await page.locator("[data-spot=select]").evaluate((el) => el.scrollIntoView({ block: "center" }));
+await sleep(300);
+const selBox = await page.locator("[data-spot=select]").boundingBox();
+await page.mouse.move(selBox.x + selBox.width / 2, selBox.y + selBox.height / 2);
+await sleep(300);
+const chipBox = await page.locator("[data-spot=select] > a").boundingBox();
+await page.mouse.move(selBox.x + 12, selBox.y + 2, { steps: 4 });
+await page.mouse.move(chipBox.x + chipBox.width / 2, chipBox.y + chipBox.height / 2, { steps: 4 });
+await page.mouse.down();
+await page.mouse.up();
 await page.waitForURL("**/components/select*");
 check(await page.locator("[data-stage]").waitFor({ timeout: 4000 }).then(() => true, () => false), "a spot opens its component page");
 await page.goto(BASE + "/ai", { waitUntil: "networkidle" });

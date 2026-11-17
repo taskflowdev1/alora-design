@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TokenScope, useConfig } from "./config";
 import { ConfigPanel } from "./config-panel";
-import { CodeBlock, GalleryLayout, SpotGroups, installCommand, useBodyTokens, useSource } from "./gallery";
+import { CodeBlock, GalleryLayout, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
 import { ChatsCard, Composer, NewChat, ThreadCard } from "./agent";
 
 type Values = Record<string, number | string | boolean>;
@@ -118,6 +118,9 @@ function ParamControl({ p, value, onChange }: { p: Param; value: number | string
   );
 }
 
+/** AI page tiles: loaders small, the composer wide, so the row packs to twelve columns like the landing bento. */
+const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-4", "composer-glow": "md:col-span-2 lg:col-span-5" };
+
 /** The AI or Backgrounds page: every item live, under its small kind heading; each opens its sliders. */
 export function CollectionIndex({ section }: { section: Exclude<Section, "components"> }) {
   const items = itemsOf(section);
@@ -127,14 +130,24 @@ export function CollectionIndex({ section }: { section: Exclude<Section, "compon
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
       <h1 className="mb-6 text-heading font-semibold">{SECTION_TITLE[section]}</h1>
-      <SpotGroups
-        groups={groups}
-        span={(i) => (i.stage === "field" ? 12 : 4)}
-        render={(i) => <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />}
-      />
       {section === "ai" ? (
-        <section aria-label="In use" className="mt-10 grid gap-2">
-          <h2 className="px-1 text-title font-semibold text-ink">In use</h2>
+        <div data-group="AI" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+          {items.map((i) => (
+            <TileSpot key={i.name} item={i} className={AI_SPAN[i.name] ?? "lg:col-span-4"}>
+              <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />
+            </TileSpot>
+          ))}
+        </div>
+      ) : (
+        <SpotGroups
+          groups={groups}
+          span={(i) => (i.stage === "field" ? 12 : 4)}
+          render={(i) => <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />}
+        />
+      )}
+      {section === "ai" ? (
+        <section aria-label="In use" className="mt-10 grid gap-3">
+          <h2 className="text-title font-semibold text-ink">In use</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
             <ThreadCard className="md:col-span-2 lg:col-span-8" />
             <ChatsCard className="md:col-span-2 lg:col-span-4" />

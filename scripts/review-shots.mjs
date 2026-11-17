@@ -1,8 +1,8 @@
 // Review screenshots for Joshua (lettered, for index.md) plus the checks behind them, from a local build on its own
 // port. BEFORE_BASE (the live site) gives the "before" shots. Run through the job queue: ./scripts/review-shots.
 //   L landing (full page: 1440 dark, 1440 light, 390)   H header with the tabs (1440, 1024, 768, 390)
-//   G Components page (before = live /gallery, after)    A AI page, its detail      B Backgrounds page, its detail
-//   F footer   W flap at 768 (never covers content)       V1 orbs video, V2 background video
+//   G Components page (before = live, after)    A AI page, its detail      B Backgrounds page, its detail
+//   S landing "By shop" card (before/after)   F footer   W flap at 768 (never covers content)       V1 orbs video, V2 background video
 // checks.json: horizontal scroll at 360/390/768/1024/1440 in both themes, flap clearance, orbs drawing/pausing,
 // reduced motion, sand field reacting to the pointer, page errors. ONLY=<regex> limits the shots by letter.
 import { spawn } from "node:child_process";
@@ -12,7 +12,7 @@ import { chromium } from "playwright-core";
 const PORT = Number(process.env.SHOTS_PORT || 5193);
 const AFTER = `http://127.0.0.1:${PORT}`;
 const BEFORE = process.env.BEFORE_BASE || "";
-const OUT = process.env.OUT || "output/review-v4";
+const OUT = process.env.OUT || "output/review-v4.1";
 const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 const want = (letter) => !ONLY || ONLY.test(letter);
 mkdirSync(`${OUT}/before`, { recursive: true });
@@ -69,6 +69,25 @@ if (want("L")) {
   }
 }
 
+// S: the landing's "By shop" card, before and after (amounts on one line, right-aligned).
+if (want("S")) {
+  for (const [base, file] of [[BEFORE, "before/S1-by-shop-1440"], [AFTER, "S1-by-shop-1440"], [BEFORE, "before/S2-by-shop-390"], [AFTER, "S2-by-shop-390"]]) {
+    if (!base) continue;
+    const w = file.includes("390") ? 390 : 1440;
+    const ctx = await ctxFor(w, w < 768 ? 844 : 900, { dsf: 2 });
+    const page = await open(ctx, base, "/");
+    const card = page.locator("h3:text-is('By shop')").locator("xpath=ancestor::div[contains(@class,'rounded-card')][1]");
+    await card.scrollIntoViewIfNeeded();
+    await sleep(400);
+    await card.screenshot({ path: `${OUT}/${file}.png` });
+    if (base === AFTER && w === 1440)
+      checks.byShop = await card.evaluate((el) =>
+        [...el.querySelectorAll(".tabular-nums")].filter((n) => /Rp/.test(n.textContent)).map((n) => ({ text: n.textContent, oneLine: n.getBoundingClientRect().height < 24, right: Math.round(n.getBoundingClientRect().right) })),
+      );
+    await ctx.close();
+  }
+}
+
 // H: header with the tabs, active tab shown, at four widths.
 if (want("H")) {
   for (const [w, path] of [[1440, "/components"], [1024, "/ai"], [768, "/backgrounds"], [390, "/ai"], [360, "/components"]]) {
@@ -94,9 +113,12 @@ if (want("H")) {
 if (want("G")) {
   const ctx = await ctxFor(1440);
   if (BEFORE) {
-    const b = await open(ctx, BEFORE, "/gallery");
-    await shot(b, "before/G1-gallery-before-1440", { fullPage: true });
-    await shot(b, "before/G1-gallery-before-1440-top");
+    const b = await open(ctx, BEFORE, "/components");
+    await shot(b, "before/G2-components-1440", { fullPage: true });
+    await shot(b, "before/G2-components-1440-top");
+    const bp = await ctxFor(390, 844);
+    await shot(await open(bp, BEFORE, "/components"), "before/G6-components-390", { fullPage: true });
+    await bp.close();
   }
   const a = await open(ctx, AFTER, "/components");
   await shot(a, "G2-components-1440", { fullPage: true });
@@ -104,10 +126,13 @@ if (want("G")) {
   const spot = a.locator("[data-spot=metric-card]");
   await spot.scrollIntoViewIfNeeded();
   const sb = await spot.boundingBox();
-  await a.mouse.move(sb.x + sb.width - 12, sb.y + 20);
+  // Shot G3 needs room above the mark for its chip.
+  sb.y -= 32;
+  sb.height += 32;
+  await a.mouse.move(sb.x + sb.width - 12, sb.y + 52);
   await sleep(400);
   await shot(a, "G3-components-hover", { clip: { x: Math.max(0, sb.x - 16), y: Math.max(0, sb.y - 16), width: Math.min(1440, sb.width + 32), height: sb.height + 32 } });
-  await a.mouse.click(sb.x + sb.width - 12, sb.y + 20);
+  await a.mouse.click(sb.x + sb.width - 12, sb.y + 52);
   await a.waitForURL("**/components/metric-card*");
   await sleep(500);
   await shot(a, "G4-component-detail-1440");
@@ -141,6 +166,7 @@ if (want("A")) {
     const ctx = await ctxFor(1440);
     const page = await open(ctx, AFTER, q("/ai", theme));
     await shot(page, `A1-ai-1440-${theme}`, { fullPage: true });
+    if (BEFORE && theme === "dark") await shot(await open(ctx, BEFORE, "/ai"), "before/A1-ai-1440-dark", { fullPage: true });
     if (theme === "dark") {
       const sel = "[data-spot=thinking-orbs] canvas";
       const s1 = await canvasSig(page, sel);

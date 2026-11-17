@@ -20,8 +20,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   components plus 28 niche ERP parts (group "Niche"). `src/components/ai/` (Thinking orbs, Run status, Composer
   glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
 - `src/site/`: landing (hero, `bento.tsx` = every component in 19 real ERP cards, then the AI and Backgrounds bands),
-  Components page (`gallery.tsx`: every component live in `Spot`s by group, `demos.tsx` + `demos-niche.tsx` = one demo
-  each; detail pages with sliders), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
+  Components page (`showcase.tsx`: every component live in category bento tiles; `gallery.tsx` = page shell + detail
+  pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
   they sit in), examples (7 pages), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
@@ -42,7 +42,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
 - Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min): lettered PNGs + two webm videos +
   `checks.json` (no horizontal scroll at 360–1440 in both themes, flap clearance, orbs drawing/pausing, reduced
-  motion, sand field reacting) in `output/review-v4/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
+  motion, sand field reacting) in `output/review-v4.1/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
   from `BEFORE_BASE`, default the live site). `index.md` there is written by hand.
 - Per-component shots + taste checks (visible borders, fonts, hover shifts, skeleton boxes): `./scripts/shots`
   (port 5197, ~0.6 GB, ~10 min) into `output/review-v2/`.
@@ -75,9 +75,11 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   a step above the page, so it still stands out.
 - Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
-- Section pages show components live, not as tiles: a `Spot` has no box; hover shows a soft fill and a name chip that
-  opens the item's page (sliders), a click on its empty space does too, the component stays interactive. Widths come
-  from `SPAN` in `gallery.tsx` (12-column grid).
+- /components is a bento like the landing (12 columns, 16 px gaps): per category, tiles that compose its components
+  in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
+  sliders; a click on its empty space does too. Every component appears exactly once (smoke checks against the
+  registry); a new component needs a place in a tile in `TILES`. Overlays are drawn open in place. /ai uses `TileSpot`
+  tiles; /backgrounds keeps `Spot`s.
 - AI/Backgrounds item = one file + one registry entry (`export`, `params`, `stage`, `kind`, `preview`);
   `collections.tsx` finds the export with `import.meta.glob` and builds the sliders. They install as `registry:ui`
   next to the ui components, so `run-status.tsx` imports `./thinking-orbs`. Keyframes live in the file as a React 19

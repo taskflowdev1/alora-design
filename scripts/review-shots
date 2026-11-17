@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Build, then capture the lettered review shots + checks into output/review-v4/ (OUT to change). BEFORE_BASE (default
+# Build, then capture the lettered review shots + checks into output/review-v4.1/ (OUT to change). BEFORE_BASE (default
 # the live site) gives the before shots; ONLY=<regex> limits by letter. Run through the job queue (see AGENTS.md).
 set -euo pipefail
 cd "$(dirname "$0")/.."

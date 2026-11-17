@@ -23,3 +23,41 @@ body {
 .ad-fade-y[data-fade="both"] {
   --fade-b: 32px;
 }
+
+/* Site-only: a component inside a Components-page tile (Mark in showcase.tsx). Only the innermost hovered mark shows its
+   soft fill and its name chip; the chip sits just above the mark and opens the component's sliders. */
+.ad-mark {
+  position: relative;
+  border-radius: calc(var(--ad-radius-control) + 6px);
+  transition: background-color 220ms var(--ad-ease);
+}
+.ad-mark:hover:not(:has(.ad-mark:hover)) {
+  background-color: color-mix(in oklab, var(--ad-fill) 55%, transparent);
+}
+.ad-mark-chip {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  z-index: 30;
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 0 var(--ad-bubble-x-sm);
+  background: var(--ad-raised);
+  box-shadow: var(--ad-shadow-raised);
+  color: var(--ad-ink);
+  font-size: var(--ad-text-small);
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+  transition: opacity 160ms var(--ad-ease), transform 160ms var(--ad-ease);
+}
+.ad-mark:hover:not(:has(.ad-mark:hover)) > .ad-mark-chip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
