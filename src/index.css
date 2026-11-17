@@ -8,3 +8,18 @@ body {
   min-height: 100dvh;
   background: var(--ad-page);
 }
+
+/* Site-only: a soft fade on a scroll area's cut edge, only where there is more to scroll to (data-fade from useEdgeFade). */
+.ad-fade-y {
+  --fade-t: 0px;
+  --fade-b: 0px;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-t), #000 calc(100% - var(--fade-b)), transparent 100%);
+}
+.ad-fade-y[data-fade="top"],
+.ad-fade-y[data-fade="both"] {
+  --fade-t: 24px;
+}
+.ad-fade-y[data-fade="bottom"],
+.ad-fade-y[data-fade="both"] {
+  --fade-b: 32px;
+}

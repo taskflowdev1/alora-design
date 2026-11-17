@@ -56,6 +56,48 @@ await page.mouse.move(1000, 450, { steps: 4 });
 await sleep(800);
 check((await page.locator("[data-customize-panel]").getAttribute("data-state")) === "closed", "flap closes on leave");
 
+// The open panel scrolls on its own: wheel over it never moves the page, wheel over the page never moves it.
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+await page.locator("[data-customize-flap]").click();
+await sleep(500);
+const scrolls = () => page.evaluate(() => ({ page: Math.round(scrollY), panel: Math.round(document.querySelector("[data-customize-scroll]").scrollTop) }));
+const panelBox = await page.locator("[data-customize-scroll]").boundingBox();
+await page.mouse.move(panelBox.x + panelBox.width / 2, panelBox.y + panelBox.height / 2);
+for (let i = 0; i < 6; i++) {
+  await page.mouse.wheel(0, 400);
+  await sleep(60);
+}
+await sleep(300);
+const s1 = await scrolls();
+await page.mouse.move(panelBox.x + panelBox.width / 2, 30); // the panel's title row
+await page.mouse.wheel(0, 600);
+await sleep(300);
+const s2 = await scrolls();
+await page.mouse.move(1200, 500);
+await page.mouse.wheel(0, 700);
+await sleep(400);
+const s3 = await scrolls();
+check(s1.page === 0 && s1.panel > 0 && s2.page === 0 && s3.page > 0 && s3.panel === s2.panel, `panel and page scroll separately (${JSON.stringify([s1, s2, s3])})`);
+await page.setViewportSize({ width: 1440, height: 2600 }); // the panel's list now fits: nothing to chain from
+await page.evaluate(() => scrollTo(0, 0));
+await sleep(400);
+await page.mouse.move(panelBox.x + panelBox.width / 2, 600);
+await page.mouse.wheel(0, 500);
+await sleep(300);
+const s4 = await scrolls();
+check(s4.page === 0, `wheel over a panel that fits never scrolls the page (${JSON.stringify(s4)})`);
+await page.setViewportSize({ width: 1440, height: 900 });
+await page.keyboard.press("Escape");
+
+// Header: the traced Alora wordmark (not typed text) + "design", same on every page
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+const logo = await page.evaluate(() => {
+  const a = document.querySelector("header [data-logo]");
+  return { svg: !!a?.querySelector("svg path"), text: a?.textContent?.trim(), label: a?.querySelector("[role=img]")?.getAttribute("aria-label") };
+});
+check(logo.svg && logo.text === "design" && logo.label === "Alora Design", `header shows the Alora logo (${JSON.stringify(logo)})`);
+check((await page.getAttribute("a:has-text('erp-ui skill')", "href")) === "https://github.com/JoshD94/ai-skills/tree/main/erp-ui", "hero links the erp-ui skill");
+
 // Landing: one bento of components in use; no tile grid, no corner demo, nothing wider than a phone
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({
@@ -72,6 +114,38 @@ await phone.goto(BASE + "/", { waitUntil: "networkidle" });
 const pw = await phone.evaluate(() => [document.scrollingElement.scrollWidth, document.documentElement.clientWidth]);
 check(pw[0] <= pw[1], `landing has no horizontal scroll on phone (${pw.join(" vs ")})`);
 await phone.close();
+
+// 360 px: no horizontal page scroll anywhere; the header stays on one line
+const small = await (await browser.newContext({ viewport: { width: 360, height: 780 }, isMobile: true, hasTouch: true })).newPage();
+small.on("pageerror", (e) => errors.push(e.message));
+for (const path of ["/", "/gallery", "/gallery/select", "/examples/dashboard", "/examples/orders", "/export"]) {
+  await small.goto(BASE + path, { waitUntil: "networkidle" });
+  const w = await small.evaluate(() => ({
+    scroll: document.scrollingElement.scrollWidth,
+    client: document.documentElement.clientWidth,
+    logo: Math.round(document.querySelector("header [data-logo]").getBoundingClientRect().height),
+  }));
+  check(w.scroll <= w.client && w.logo <= 32, `360 ${path}: no horizontal scroll, logo on one line (${JSON.stringify(w)})`);
+}
+await small.close();
+// Phone customize popover (a short phone, so it overflows): a touch scroll inside it never moves the page
+const short = await (await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true })).newPage();
+await short.goto(BASE + "/", { waitUntil: "networkidle" });
+await short.locator("header button[aria-label=Customize]").tap();
+await sleep(400);
+const pop = await short.locator("[data-own-scroll]").boundingBox();
+const cdp = await short.context().newCDPSession(short);
+const touchScroll = async (x, y, dy) => {
+  await cdp.send("Input.synthesizeScrollGesture", { x: Math.round(x), y: Math.round(y), yDistance: -dy, gestureSourceType: "touch", speed: 1200 });
+  await sleep(300);
+};
+const phoneScroll = () => short.evaluate(() => ({ page: Math.round(scrollY), box: Math.round(document.querySelector("[data-own-scroll]")?.scrollTop ?? -1) }));
+await touchScroll(pop.x + pop.width / 2, pop.y + pop.height / 2, 900);
+await touchScroll(pop.x + pop.width / 2, pop.y + pop.height / 2, 900);
+const t1 = await phoneScroll();
+const popW = await short.evaluate(() => { const b = document.querySelector("[data-own-scroll]"); return [b.scrollWidth, b.clientWidth]; });
+check(t1.page === 0 && t1.box > 0 && popW[0] <= popW[1], `phone customize scrolls on its own, nothing clipped (${JSON.stringify({ ...t1, width: popW })})`);
+await short.close();
 
 // Dark by default, neutral (no blue tint in the page colour)
 await page.goto(BASE + "/", { waitUntil: "networkidle" });

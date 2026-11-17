@@ -30,13 +30,19 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 
 - `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm.
 - Quick inline checks: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `npx vite build` (~2 s).
-- Full verify (typecheck, lint, build, headless Playwright smoke on port 5196) goes through the queue:
-  `job submit --kind script --name alora-design-verify --ram 2 --minutes 6 --needs yoga --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
+- Full verify (typecheck, lint, build, headless Playwright smoke on port 5196) goes through the queue. Job scripts
+  source `scripts/env.sh` (nvm Node 24, `npm ci` when deps are missing, Playwright headless shell + ffmpeg when
+  missing; caches under `$HOME`), so they are portable. While `mac status` shows the Mac lent, send them there:
+  `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
+  (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
+  `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
 - Review screenshots + automatic taste checks (visible borders, fonts, hover shifts, skeleton boxes, header
   box on every page): `./scripts/shots` through the queue (port 5197, ~0.6 GB, ~10 min). Output in
   `output/review-v2/` (gitignored): PNGs lettered L/G/N/M/E/F/X/S, `shots.md`, `checks.json`; `index.md` is
   written by hand for Joshua (before/after pairs use `before/`, v1 crops). `ONLY=<regex>` limits the shots.
   v1 shots stay in `output/review/`.
+- Logo/scroll/responsive review (v3.3): `./scripts/v33-shots` (port 5194, ~0.6 GB, then the smoke test):
+  `output/review-v3.3/` (header before/after, hero at 360–1440, flap and phone-popover scroll frames + webm, `checks.json`).
 - Landing review (v3): `./scripts/landing-shots` through the queue (port 5198, ~0.6 GB): `output/review-v3/`,
   full page + first two viewports, phone, one crop per bento card (B1…B19), skeletons, E1, gallery index, and
   `checks.json` (phone overflow, borders, hover shifts, thumbnail fill).
@@ -44,7 +50,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   site, `BEFORE_BASE`) and after, dark and light, `output/review-v3.2/` + `checks.json` (push geometry, hover/drag/Esc,
   Sales card size per range) and a webm of the flap.
 - Endpoints on a deployment: `./scripts/check-endpoints [base-url]` (curl, quick, inline is fine).
-- Playwright uses `playwright-core` 1.65 with the cached `chromium_headless_shell-1254`; no download.
+- Playwright uses `playwright-core` 1.65 with `chromium_headless_shell-1254` (cached on Yoga; `env.sh` installs it
+  on the Mac once).
 
 ## Accounts and deploy
 
@@ -84,7 +91,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   page (min 344 px) and pushes the page wrapper (`[data-page]`) flush right. The margin is set once and a WAAPI
   transform slides it (FLIP), so text rewraps once at the start, never per frame. Below md the header Customize
   popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing.
-- The site header is sticky and shared by every page (same box; shots and smoke check it). Examples sit in
+- The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
+  wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor) + a muted "design" on its baseline; the
+  favicon is the traced mark. The customize panel and phone popover are their own scroll areas (`useOwnScroll`). Examples sit in
   the same 1280 px container. Ctrl/Cmd+K opens the command palette over pages and components.
 
 ## Landmines

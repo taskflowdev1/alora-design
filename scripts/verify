@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
 # Typecheck, lint, build, headless smoke on its own port. Cheapest first; stops at the first failure.
 # Heavy: run through the job queue (see AGENTS.md).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-[ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null
+. scripts/env.sh
 step() { echo "== $1"; }
 step typecheck; npx tsc -p tsconfig.json --noEmit
 step lint; npx eslint .

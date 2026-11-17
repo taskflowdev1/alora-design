@@ -12,10 +12,7 @@ import { GROUPS, ITEMS } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
-
-export function Wordmark({ className }: { className?: string }) {
-  return <span className={cn("whitespace-nowrap text-[15px] font-semibold tracking-[-0.01em] text-ink", className)}>Alora Design</span>;
-}
+import { Wordmark } from "./logo";
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   const [config] = useConfig();
@@ -36,7 +33,7 @@ export function CustomizeButton({ label = true, className }: { label?: boolean; 
   return (
     <Popover
       align="end"
-      className="w-72 p-pad"
+      className="flex max-h-[min(var(--radix-popover-content-available-height),calc(100dvh-16px))] w-[min(340px,calc(100vw-16px))] flex-col p-0"
       trigger={
         <Button variant="secondary" icon={!label} aria-label="Customize" className={className}>
           <Sliders />
@@ -44,8 +41,22 @@ export function CustomizeButton({ label = true, className }: { label?: boolean; 
         </Button>
       }
     >
-      <ConfigPanel value={config} onChange={setConfig} onReset={() => setConfig(resetPatch(ALL_FIELDS))} />
+      <OwnScrollBox className="p-pad">
+        <ConfigPanel value={config} onChange={setConfig} onReset={() => setConfig(resetPatch(ALL_FIELDS))} />
+      </OwnScrollBox>
     </Popover>
+  );
+}
+
+/** A scroll box that never hands its scroll to the page (wheel or touch), with a soft fade on the cut edge. */
+function OwnScrollBox({ className, children }: { className?: string; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  useOwnScroll(ref, ref);
+  useEdgeFade(ref);
+  return (
+    <div ref={ref} data-own-scroll className={cn("ad-fade-y min-h-0 flex-1 overflow-y-auto overscroll-contain", className)}>
+      <div>{children}</div>
+    </div>
   );
 }
 
@@ -109,7 +120,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
-        <SLink to="/" className="mr-3 rounded-control px-1 py-1 sm:mr-6">
+        <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
           <Wordmark />
         </SLink>
         <nav className="flex items-center gap-1 max-md:hidden">
@@ -147,6 +158,89 @@ const panelWidth = (vw: number) => Math.max(PANEL_MIN, vw - CONTENT_MAX);
 const inside = (t: EventTarget | null, ...els: (HTMLElement | null)[]) =>
   t instanceof Node && (els.some((el) => el?.contains(t)) || !!(t instanceof Element && t.closest("[data-radix-popper-content-wrapper]")));
 
+/** Whether `el` itself would scroll for this delta (an overflowing auto/scroll box not already at that end). */
+function canScroll(el: Element, dx: number, dy: number) {
+  const s = getComputedStyle(el);
+  const y = dy !== 0 && /auto|scroll/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 1;
+  const x = dx !== 0 && /auto|scroll/.test(s.overflowX) && el.scrollWidth > el.clientWidth + 1;
+  if (y && (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+  if (x && (dx < 0 ? el.scrollLeft > 0 : el.scrollLeft + el.clientWidth < el.scrollWidth - 1)) return true;
+  return false;
+}
+
+/**
+ * The panel is its own scroll area: wheel and touch over it scroll only its list and never chain into the page,
+ * even at the list's ends or when the list fits without scrolling (overscroll-behavior can't stop that case).
+ * Wheel over the panel's header goes to the list. Popovers opened from the panel are portalled outside it, so
+ * they scroll as usual.
+ */
+export function useOwnScroll(panelRef: React.RefObject<HTMLElement | null>, listRef: React.RefObject<HTMLElement | null>, on = true) {
+  React.useEffect(() => {
+    const panel = panelRef.current;
+    const list = listRef.current;
+    if (!panel || !list) return;
+    // The nearest box between the target and the panel that can take this delta, if any.
+    const taker = (target: EventTarget | null, dx: number, dy: number) => {
+      for (let el = target instanceof Element ? target : null; el; el = el.parentElement) {
+        if (canScroll(el, dx, dy)) return el;
+        if (el === panel) break;
+      }
+      return null;
+    };
+    const wheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // pinch zoom
+      if (taker(e.target, e.deltaX, e.deltaY)) return;
+      e.preventDefault();
+      if (!list.contains(e.target as Node) && canScroll(list, 0, e.deltaY)) {
+        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? list.clientHeight : 1;
+        list.scrollBy({ top: e.deltaY * unit });
+      }
+    };
+    let last: { x: number; y: number } | null = null;
+    const start = (e: TouchEvent) => {
+      last = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    };
+    const move = (e: TouchEvent) => {
+      if (!last || e.touches.length !== 1 || !e.cancelable) return;
+      const t = e.touches[0];
+      const dx = last.x - t.clientX;
+      const dy = last.y - t.clientY;
+      last = { x: t.clientX, y: t.clientY };
+      if (!taker(e.target, dx, dy)) e.preventDefault();
+    };
+    panel.addEventListener("wheel", wheel, { passive: false });
+    panel.addEventListener("touchstart", start, { passive: true });
+    panel.addEventListener("touchmove", move, { passive: false });
+    return () => {
+      panel.removeEventListener("wheel", wheel);
+      panel.removeEventListener("touchstart", start);
+      panel.removeEventListener("touchmove", move);
+    };
+  }, [panelRef, listRef, on]);
+}
+
+/** Soft fade on the list's cut edge(s), only where there is more to scroll to. */
+export function useEdgeFade(listRef: React.RefObject<HTMLElement | null>, on = true) {
+  React.useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const set = () => {
+      const top = list.scrollTop > 1;
+      const bottom = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
+      list.dataset.fade = top && bottom ? "both" : top ? "top" : bottom ? "bottom" : "none";
+    };
+    set();
+    list.addEventListener("scroll", set, { passive: true });
+    const ro = new ResizeObserver(set);
+    ro.observe(list);
+    if (list.firstElementChild) ro.observe(list.firstElementChild);
+    return () => {
+      list.removeEventListener("scroll", set);
+      ro.disconnect();
+    };
+  }, [listRef, on]);
+}
+
 function useViewportWidth() {
   const [vw, setVw] = React.useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
   React.useEffect(() => {
@@ -178,6 +272,9 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
   const leaveT = React.useRef<number>(undefined);
   const flapRef = React.useRef<HTMLButtonElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const listRef = React.useRef<HTMLDivElement>(null);
+  useOwnScroll(panelRef, listRef, enabled);
+  useEdgeFade(listRef, enabled);
   const openRef = React.useRef(open);
   openRef.current = open;
 
@@ -332,8 +429,14 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
               </Button>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-[calc(var(--ad-nest)*2)] pb-[calc(var(--ad-nest)*2)]">
-            <ConfigGroups value={config} onChange={setConfig} />
+          <div
+            ref={listRef}
+            data-customize-scroll
+            className="ad-fade-y min-h-0 flex-1 overflow-y-auto overscroll-contain px-[calc(var(--ad-nest)*2)] pb-[calc(var(--ad-nest)*2)]"
+          >
+            <div>
+              <ConfigGroups value={config} onChange={setConfig} />
+            </div>
           </div>
         </div>
       </div>
