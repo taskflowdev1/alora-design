@@ -44,7 +44,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
           {shown.map((o) => (
             <span
               key={o.value}
-              className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-surface pl-2 pr-1 text-body shadow-card"
+              className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-surface pl-bubble-sm pr-1 text-body shadow-card"
             >
               <span className="max-w-28 truncate">{o.label}</span>
               <span

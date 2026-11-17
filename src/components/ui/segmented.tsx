@@ -72,7 +72,7 @@ export function Segmented<T extends string>({ value, onValueChange, options, cla
           tabIndex={o.value === value ? 0 : -1}
           onClick={() => onValueChange(o.value)}
           className={cn(
-            "relative z-10 inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-3 text-body transition-[color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
+            "relative z-10 inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
             o.value === value ? "text-ink" : "text-ink-muted hover:text-ink",
           )}
         >

@@ -52,7 +52,7 @@ export function PeriodStepper({ value, period, onValueChange, max, className }: 
           <ChevronLeft />
         </Button>
       </Tooltip>
-      <span className="inline-flex h-control min-w-28 items-center justify-center rounded-control bg-fill px-3 text-body tabular-nums text-ink">
+      <span className="inline-flex h-control min-w-28 items-center justify-center rounded-control bg-fill px-bubble text-body tabular-nums text-ink">
         {periodLabel(value, period)}
       </span>
       <Tooltip content={nextDisabled ? "No later period" : periodLabel(next, period)}>

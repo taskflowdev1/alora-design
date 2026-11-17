@@ -18,12 +18,14 @@ export interface AttentionItemProps {
   onClick?: () => void;
 }
 
+/** Left and right insets match: the media's gap to the edge is the value's gap to the edge. */
 export function AttentionItem({ media, title, meta, value, action, onClick }: AttentionItemProps) {
   return (
     <li
       onClick={onClick}
       className={cn(
-        "flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill py-1.5 pl-2 pr-1.5 transition-colors duration-[160ms]",
+        "flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5 transition-colors duration-[160ms]",
+        action && "pr-1.5",
         onClick && "cursor-pointer hover:bg-fill-hover",
       )}
     >
