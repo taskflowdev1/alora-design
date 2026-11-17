@@ -12,43 +12,40 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - `src/lib/config.ts`: the one config object (radius, corner shape, smoothing, padding, height, accent,
   greys, shadow, font size, theme), URL (de)serialization, and every derived `--ad-*` CSS variable.
 - `src/lib/color.ts`: OKLCH maths, accent shade ramp. `src/lib/kit.ts`: export generators (agent kit
-  markdown, shadcn registry items, Tailwind block). `src/lib/registry.ts`: the component list.
+  markdown, shadcn registry items, Tailwind block). `src/lib/registry.ts`: every item, its section and page path.
 - `src/lib/ad.ts`: `cn()` (tailwind-merge that knows our token names) and date/money formatters.
 - `src/styles/theme.css`: Tailwind v4 `@theme inline` mapping (`bg-fill`, `rounded-card`, `h-control`...).
   `src/styles/base.css`: corner-shape, scrollbar, no focus rings, keyframes. Both ship in exports.
 - `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style). 41 core
-  components plus 28 niche ERP parts (group "Niche": command palette, date range, fee rows, shop picker…).
-- `src/site/`: landing (plain hero, then `bento.tsx`: every component in use inside 19 real ERP cards of
-  varied sizes, no per-component labels; `?loading=1` holds its skeletons), gallery (`demos.tsx` + `demos-niche.tsx` = one demo per component), examples (7 pages: dashboard, orders,
-  products, promotions, cancellations, team, settings), export. `layout.tsx` holds the one site header.
+  components plus 28 niche ERP parts (group "Niche"). `src/components/ai/` (Thinking orbs, Run status, Composer
+  glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
+- `src/site/`: landing (hero, `bento.tsx` = every component in 19 real ERP cards, then the AI and Backgrounds bands),
+  Components page (`gallery.tsx`: every component live in `Spot`s by group, `demos.tsx` + `demos-niche.tsx` = one demo
+  each; detail pages with sliders), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
+  they sit in), examples (7 pages), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `smoke.mjs`, `shots` + `shots.mjs`, `landing-shots`, `flap-shots`, `check-endpoints`.
+- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables + `docs/components.md`), `review-shots`, `shots`,
+  `check-endpoints`, `env.sh`.
 
 ## Run, test, verify
 
 - `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm.
-- Quick inline checks: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `npx vite build` (~2 s).
-- Full verify (typecheck, lint, build, headless Playwright smoke on port 5196) goes through the queue. Job scripts
-  source `scripts/env.sh` (nvm Node 24, `npm ci` when deps are missing, Playwright headless shell + ffmpeg when
+- Quick inline checks: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `node scripts/gen-docs.mjs --check`,
+  `npx vite build` (~2 s). After changing a component's props, the settings or the registry: `node scripts/gen-docs.mjs`.
+- Full verify (typecheck, lint, docs drift, build, headless Playwright smoke on port 5196) goes through the queue. Job
+  scripts source `scripts/env.sh` (nvm Node 24, `npm ci` when deps are missing, Playwright headless shell + ffmpeg when
   missing; caches under `$HOME`), so they are portable. While `mac status` shows the Mac lent, send them there:
   `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
   (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
-- Review screenshots + automatic taste checks (visible borders, fonts, hover shifts, skeleton boxes, header
-  box on every page): `./scripts/shots` through the queue (port 5197, ~0.6 GB, ~10 min). Output in
-  `output/review-v2/` (gitignored): PNGs lettered L/G/N/M/E/F/X/S, `shots.md`, `checks.json`; `index.md` is
-  written by hand for Joshua (before/after pairs use `before/`, v1 crops). `ONLY=<regex>` limits the shots.
-  v1 shots stay in `output/review/`.
-- Logo/scroll/responsive review (v3.3): `./scripts/v33-shots` (port 5194, ~0.6 GB, then the smoke test):
-  `output/review-v3.3/` (header before/after, hero at 360–1440, flap and phone-popover scroll frames + webm, `checks.json`).
-- Landing review (v3): `./scripts/landing-shots` through the queue (port 5198, ~0.6 GB): `output/review-v3/`,
-  full page + first two viewports, phone, one crop per bento card (B1…B19), skeletons, E1, gallery index, and
-  `checks.json` (phone overflow, borders, hover shifts, thumbnail fill).
-- Flap/hero/Sales review (v3.2): `./scripts/flap-shots` through the queue (port 5199, ~0.7 GB, ~1 min): before (live
-  site, `BEFORE_BASE`) and after, dark and light, `output/review-v3.2/` + `checks.json` (push geometry, hover/drag/Esc,
-  Sales card size per range) and a webm of the flap.
+- Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min): lettered PNGs + two webm videos +
+  `checks.json` (no horizontal scroll at 360–1440 in both themes, flap clearance, orbs drawing/pausing, reduced
+  motion, sand field reacting) in `output/review-v4/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
+  from `BEFORE_BASE`, default the live site). `index.md` there is written by hand.
+- Per-component shots + taste checks (visible borders, fonts, hover shifts, skeleton boxes): `./scripts/shots`
+  (port 5197, ~0.6 GB, ~10 min) into `output/review-v2/`.
 - Endpoints on a deployment: `./scripts/check-endpoints [base-url]` (curl, quick, inline is fine).
 - Playwright uses `playwright-core` 1.65 with `chromium_headless_shell-1254` (cached on Yoga; `env.sh` installs it
   on the Mac once).
@@ -76,7 +73,15 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `#root` keeps the global tokens. Cleanup removes both.
 - Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
   a step above the page, so it still stands out.
-- Gallery thumbnails render full size when the demo fits the tile and step down only as far as needed (`FitPreview`).
+- Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
+  tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
+- Section pages show components live, not as tiles: a `Spot` has no box; hover shows a soft fill and a name chip that
+  opens the item's page (sliders), a click on its empty space does too, the component stays interactive. Widths come
+  from `SPAN` in `gallery.tsx` (12-column grid).
+- AI/Backgrounds item = one file + one registry entry (`export`, `params`, `stage`, `kind`, `preview`);
+  `collections.tsx` finds the export with `import.meta.glob` and builds the sliders. They install as `registry:ui`
+  next to the ui components, so `run-status.tsx` imports `./thinking-orbs`. Keyframes live in the file as a React 19
+  `<style href precedence>` tag. Each pauses off screen and honours reduced motion (sand field: plain ground).
 - Menu is custom (not Radix DropdownMenu) to get a debounced safe triangle; see the header comment in
   `menu.tsx`. `showSafeArea` draws it.
 - Toasts read `data-toast-avoid` elements to stay clear of save bars and side panes.
@@ -90,7 +95,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - Customize (md and up) is the left flap in `layout.tsx`: hover opens a panel as wide as the room left of the 1280 px
   page (min 344 px) and pushes the page wrapper (`[data-page]`) flush right. The margin is set once and a WAAPI
   transform slides it (FLIP), so text rewraps once at the start, never per frame. Below md the header Customize
-  popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing.
+  popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing. Below 1304 px the page wrapper
+  gets up to 12 px of left padding so the edge tab never covers content (smoke checks it at 768).
+- Footer: one muted line on every page, "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com).
 - The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
   wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor) + a muted "design" on its baseline; the
   favicon is the traced mark. The customize panel and phone popover are their own scroll areas (`useOwnScroll`). Examples sit in
