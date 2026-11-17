@@ -1,3 +1,40 @@
+# Alora Design v3: landing bento (16 Nov 2026)
+Shots: `output/review-v3/` (gitignored; `./scripts/landing-shots`), `index.md` there is the review page, `checks.json` the automatic checks.
+
+## What changed after Joshua's v2 review
+1. The labelled component tile grid and "The niche ones" are gone. Under the plain hero there is one bento of 19 real-looking ERP cards (B1–B19) in a 12-column grid of bands: cards in a band share a height, a stack of two cards fills a column. Tablet: two columns. Phone: one column, no horizontal page scroll (checked: scrollWidth 390 = width 390).
+2. Every component sits in the cards in use, interactive, with no per-component labels; card titles only where an app would have one ("Orders", "Notes", "Team", an order number). The command palette is shown open (new `inline` prop); a toast is shown in place in the phone card (new `ToastView`). Filter changes (orders, sales range, by-shop range and channels) swap content for its skeleton; `?loading=1` holds them.
+3. "Corners that agree" is removed with its concentric stack. Corner shape, smoothing and radius stay in the gallery, the Customize panel and the export.
+4. Dark mode: the example sidebar (and the save bar, bottom nav) is at card level, a step lighter than the page, so it still contrasts (it was darker than the page).
+5. Gallery thumbnails render full size when the demo fits and step down only to 60%; trigger-only demos (menu, context menu, split button, popover, tooltip, dialog, side pane, toast, command palette, hover card, notification bell) show their open state; badge, avatar, thumb and marketplace mark show in a small list instead of alone in an empty tile.
+
+## Where each component is (B = bento card)
+- B1 Orders: card, toolbar, search, shop picker (marketplace marks), period stepper (tooltip), popover (filter with checkboxes), column menu, chips, table + bottom bar, status dots, difference, hover card (customer), context menu (right click a row), menu (… with submenu), split button, side pane (click a row: steps, copy chip, fee rows, timeline), empty state when nothing matches.
+- B2 Sales: metric card (tile, primary), segmented Today/Week/Month, sparkline, bar chart, skeleton on switch.
+- B3 Command palette, open, with keyboard shortcuts (kbd).
+- B4 Sidebar (dark) with workspace menu, counts, account menu, notification bell.
+- B5 Packing board: kanban columns and cards (thumb, tag, avatar group, due).
+- B6 Fees on an order: fee rows with who pays, total, attention pill, dialog (Dispute: field, select, textarea).
+- B7 Calendar month with events. B8 Notes: comment thread with emoji reactions. B9 Shipment: steps, timeline, copy chip.
+- B10 Shop settings: toggles, select, time picker, currency input, quantity stepper, language picker, save bar.
+- B11 New promotion: field, input, combobox, multi-select, date picker, slider, radio, buttons.
+- B12 Team: avatar group, avatars, role selects, invite input. B13 Returns: empty state.
+- B14 Products: tabs, checkbox (select all, indeterminate), thumb, inline edit (price, stock).
+- B15 Low stock: attention list, badge. B16 Phone view: bottom nav, toast. B17 Stock sync: alert, progress rings, progress, tooltip.
+- B18 Photos: dropzone (with upload progress), tag input. B19 By shop: date range picker, toggle group, sparklines, skeleton on change.
+
+## Not shown on the landing, and why
+- Corner shape and Scrollbar are foundations, not components: every card follows the corner setting, and the orders table, kanban and palette use the one scrollbar. Their controls live in the gallery and the Customize panel (the corner demo was removed on Joshua's request).
+- Every other component (67 of 67) appears at least once.
+
+## Checks (`output/review-v3/checks.json`)
+- Borders and outlines on the landing: 0. Page errors: 0. Hover shifts (60 controls and rows, scroll undone): 0.
+- Phone: no horizontal page scroll in dark or light. The orders table and kanban scroll inside their cards on phone; the calendar shrinks to the width.
+
+## Bent, and why
+- The settings card opens with its save bar showing (an edit in progress) so the save bar is seen; Save or Discard hides it, any change brings it back.
+- The phone card is a card with the bottom nav floating in it, not a device frame (no mockups).
+
 # Alora Design v2: self-audit (16 Nov 2026)
 Shots: `output/review-v2/` (gitignored). `index.md` is the review page (letters, before/after pairs for the spacing fixes); `shots.md` lists every file; `checks.json` holds the automatic checks. v1 shots stay in `output/review/`.
 

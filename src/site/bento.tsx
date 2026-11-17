@@ -614,7 +614,7 @@ function FeesCard({ className }: { className?: string }) {
         ))}
       </div>
       <FeeTotal label="You receive" amount={lines.reduce((a, l) => a + l.amount, 0)} />
-      <div className="mt-auto grid gap-2 px-2 pb-2 pt-3 text-body">
+      <div className="grid gap-2 px-2 pb-2 pt-2 text-body">
         {[
           ["Paid out", "18 Nov 2026"],
           ["To", "BCA •••• 4410"],
