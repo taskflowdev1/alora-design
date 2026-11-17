@@ -1,9 +1,9 @@
 import * as React from "react";
 import { NavLink, useNavigate, useParams, useSearchParams } from "react-router";
-import { Check, Copy, Search as SearchIcon } from "react-feather";
+import { Check, Copy, Search as SearchIcon, Sliders } from "react-feather";
 import { cn } from "@/lib/ad";
 import { inlineTokens, serializeConfig, type Config } from "@/lib/config";
-import { GROUPS, ITEMS, SITE, findItem, type Item } from "@/lib/registry";
+import { COMPONENT_ITEMS, GROUPS, ITEMS, SITE, findItem, itemPath, type Group, type Item } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search } from "@/components/ui/search";
@@ -12,25 +12,36 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from "@/components/ui/toast";
-import { applyTokens, SLink, TokenScope, shapedSupported, useConfig } from "./config";
+import { applyTokens, SLink, TokenScope, shapedSupported, useConfig, useHref } from "./config";
 import { COMPONENT_FIELDS, ConfigPanel } from "./config-panel";
 import { DEMOS, type Demo, type Props } from "./demos";
-import { THUMBS } from "./thumbs";
 
-const sources = import.meta.glob("../components/ui/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
+const sources = import.meta.glob("../components/*/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
+/** Lazy source text of an item's first file, for its Source tab. */
+export function useSource(item?: Item) {
+  const [source, setSource] = React.useState("");
+  React.useEffect(() => {
+    const file = item?.files[0];
+    const load = file ? sources[`../components/${item.dir ?? "ui"}/${file}`] : undefined;
+    if (load) void load().then(setSource);
+    else setSource("");
+  }, [item]);
+  return source;
+}
 
-function GallerySidebar() {
+/** Detail pages: every item of these groups, the current one highlighted. */
+function GallerySidebar({ groups }: { groups: Group[] }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
   return (
     <aside className="sticky top-20 hidden max-h-[calc(100dvh-96px)] w-52 shrink-0 overflow-auto pb-8 lg:block">
-      {GROUPS.map((g) => (
+      {groups.map((g) => (
         <div key={g} className="mb-4 grid gap-px">
           <div className="flex h-7 items-center px-2.5 text-small text-ink-muted">{g}</div>
           {ITEMS.filter((i) => i.group === g).map((i) => (
             <NavLink
               key={i.name}
-              to={`/gallery/${i.name}${q ? `?${q}` : ""}`}
+              to={`${itemPath(i)}${q ? `?${q}` : ""}`}
               className={({ isActive }) =>
                 cn(
                   "flex h-item items-center rounded-control px-2.5 text-body transition-colors duration-[160ms]",
@@ -47,12 +58,14 @@ function GallerySidebar() {
   );
 }
 
-function PhonePicker({ current }: { current?: string }) {
+function PhonePicker({ current, groups }: { current?: string; groups: Group[] }) {
   const [config] = useConfig();
   const navigate = useNavigate();
+  const items = ITEMS.filter((i) => groups.includes(i.group));
   const go = (name: string) => {
     const q = serializeConfig(config);
-    navigate(`/gallery/${name}${q ? `?${q}` : ""}`);
+    const item = findItem(name);
+    if (item) navigate(`${itemPath(item)}${q ? `?${q}` : ""}`);
   };
   return (
     <div className="mb-4 lg:hidden">
@@ -61,19 +74,20 @@ function PhonePicker({ current }: { current?: string }) {
         value={current ?? null}
         placeholder="Components"
         onValueChange={go}
-        options={ITEMS.map((i) => ({ value: i.name, label: i.title }))}
+        options={items.map((i) => ({ value: i.name, label: i.title }))}
         className="w-full"
       />
     </div>
   );
 }
 
-export function GalleryLayout({ children, current }: { children: React.ReactNode; current?: string }) {
+/** A detail page: the section's item list on the left (a picker on phones), the page on the right. */
+export function GalleryLayout({ children, current, groups = GROUPS }: { children: React.ReactNode; current?: string; groups?: Group[] }) {
   return (
     <div className="mx-auto flex w-full max-w-[1280px] gap-8 px-4 pb-24 pt-2 sm:px-6">
-      <GallerySidebar />
+      <GallerySidebar groups={groups} />
       <main className="min-w-0 flex-1">
-        <PhonePicker current={current} />
+        <PhonePicker current={current} groups={groups} />
         {children}
       </main>
     </div>
@@ -95,90 +109,116 @@ function defaults(demo?: Demo, params?: URLSearchParams): Props {
   );
 }
 
-const FIT_STEPS = [1, 0.85, 0.72, 0.6];
+const INTERACTIVE = "a,button,input,textarea,select,label,[role=button],[role=combobox],[role=slider],[role=switch],[role=checkbox],[role=radio],[role=tab],[role=option],[role=menuitem],[contenteditable=true]";
 
 /**
- * A live preview as large as it can be: full size when the demo fits the tile, scaled down
- * step by step only as far as it needs (never below 60%; past that, safe centring shows the top of the demo).
- * Trigger-only demos (menus, overlays) show their open state from `THUMBS`.
+ * One live component on a section page, with no box around it. Hover (or focus inside) shows a soft fill and a chip
+ * with its name that opens its page with the sliders; a click on its empty space does the same. The component itself
+ * stays fully interactive. On touch screens the chip always shows.
  */
-function FitPreview({ children }: { children: React.ReactNode }) {
-  const box = React.useRef<HTMLDivElement>(null);
-  const stage = React.useRef<HTMLDivElement>(null);
-  const [step, setStep] = React.useState(0);
-  const scale = FIT_STEPS[step];
+export function Spot({ item, className, children }: { item: Item; className?: string; children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const href = useHref(itemPath(item));
+  return (
+    <div
+      data-spot={item.name}
+      onClick={(e) => {
+        const t = e.target as Element;
+        if (!e.currentTarget.contains(t) || t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
+        navigate(href);
+      }}
+      className={cn(
+        "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-fill/40 focus-within:bg-fill/40 sm:px-6",
+        className,
+      )}
+    >
+      <SLink
+        to={itemPath(item)}
+        className="absolute left-3 top-3 inline-flex h-7 items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-hover hover:text-ink group-hover/spot:opacity-100 group-focus-within/spot:opacity-100 [@media(hover:none)]:opacity-100 sm:left-5"
+      >
+        <Sliders size={14} />
+        {item.title}
+      </SLink>
+      <div className="flex min-h-16 min-w-0 flex-1 items-center justify-center-safe">{children}</div>
+    </div>
+  );
+}
+
+/** How many of 12 columns a component takes on the Components page (default 4), so the page reads like a bento. */
+const SPAN: Record<string, 3 | 6 | 8 | 12> = {
+  ...Object.fromEntries(["badge", "avatar", "thumb", "kbd", "switch", "checkbox", "radio", "tooltip", "popover", "copy-chip", "quantity-stepper", "dialog", "sheet", "toast", "marketplace-mark", "progress-ring", "empty-state", "button"].map((n) => [n, 3])),
+  ...Object.fromEntries(
+    ["corner-shape", "scrollbar", "save-bar", "alert", "attention-list", "bar-chart", "comment-thread", "command-palette", "date-range-picker", "fee-row", "diff", "column-menu", "timeline", "shop-picker", "hover-card", "notification-bell", "bottom-nav", "sparkline", "field", "tabs", "skeleton", "card", "steps", "menu", "split-button", "dropzone", "context-menu", "status"].map((n) => [n, 6]),
+  ),
+  ...Object.fromEntries(["table", "toolbar", "sidebar", "calendar-month", "kanban-card", "metric-card", "inline-edit"].map((n) => [n, 8])),
+};
+const SPAN_CLASS = { 3: "lg:col-span-3", 4: "lg:col-span-4", 6: "md:col-span-2 lg:col-span-6", 8: "md:col-span-2 lg:col-span-8", 12: "md:col-span-2 lg:col-span-12" } as const;
+
+/**
+ * One cell of the packed grid: it spans as many 4 px rows as its spot is tall (measured), so spots of different
+ * heights pack tightly like a bento instead of leaving empty rows.
+ */
+function Cell({ className, children }: { className?: string; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [rows, setRows] = React.useState(40);
   React.useLayoutEffect(() => {
-    const b = box.current;
-    const s = stage.current;
-    if (!b || !s) return;
-    // Fits when nothing spills out of the tile and no inner table or list has to scroll sideways.
-    const inner = () =>
-      [...s.querySelectorAll<HTMLElement>("*")].every((el) => {
-        if (el.scrollWidth <= el.clientWidth + 1) return true;
-        const o = getComputedStyle(el).overflowX;
-        return o !== "auto" && o !== "scroll";
-      });
-    const fits = () => s.scrollWidth <= s.clientWidth + 1 && s.scrollHeight * scale <= b.clientHeight + 1 && inner();
-    if (!fits() && step < FIT_STEPS.length - 1) setStep(step + 1);
-  }, [step, scale]);
-  React.useEffect(() => {
-    const b = box.current;
-    if (!b) return;
-    let w = b.clientWidth;
-    const ro = new ResizeObserver(() => {
-      if (b.clientWidth !== w) {
-        w = b.clientWidth;
-        setStep(0);
-      }
-    });
-    ro.observe(b);
+    const el = ref.current?.firstElementChild as HTMLElement | null;
+    if (!el) return;
+    const set = () => setRows(Math.ceil((el.getBoundingClientRect().height + 8) / 4));
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
     return () => ro.disconnect();
   }, []);
   return (
-    <div ref={box} data-fit={scale} className="pointer-events-none relative h-44 overflow-hidden" inert>
-      <div
-        ref={stage}
-        className="absolute left-0 top-0 flex min-h-full origin-top-left items-center-safe justify-center-safe overflow-hidden p-5"
-        style={{ width: `${100 / scale}%`, minHeight: `${100 / scale}%`, transform: `scale(${scale})` }}
-      >
-        {children}
-      </div>
+    <div ref={ref} className={cn("min-w-0 self-start", className)} style={{ gridRowEnd: `span ${rows}` }}>
+      {children}
     </div>
   );
 }
 
-/** The component grid: every tile is a live, scaled-down preview that opens its gallery page. */
-export function GalleryGrid({ items, className }: { items: Item[]; className?: string }) {
-  const [config] = useConfig();
+/** A section's groups: a small heading each, then its components live, packed in a 12-column grid. */
+export function SpotGroups({ groups, render, span }: { groups: { title: string; items: Item[] }[]; render: (i: Item) => React.ReactNode; span: (i: Item) => 3 | 4 | 6 | 8 | 12 }) {
   return (
-    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3", className)}>
-      {items.map((i) => {
-        const demo = DEMOS[i.name];
-        return (
-          <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
-            <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
-              <FitPreview>{THUMBS[i.name] ? THUMBS[i.name]() : demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}</FitPreview>
-              <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
-            </Card>
-          </SLink>
-        );
-      })}
+    <div className="grid gap-10">
+      {groups.map((g) => (
+        <section key={g.title} aria-label={g.title || undefined} data-group={g.title}>
+          {g.title ? <h2 className="mb-2 px-1 text-title font-semibold text-ink">{g.title}</h2> : null}
+          <div className="-mx-1 grid grid-flow-row-dense auto-rows-[4px] grid-cols-1 gap-x-2 md:grid-cols-2 lg:grid-cols-12">
+            {g.items.map((i) => (
+              <Cell key={i.name} className={SPAN_CLASS[span(i)]}>
+                <Spot item={i}>{render(i)}</Spot>
+              </Cell>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
 
+/** The Components page: every component live, grouped by category. */
 export function GalleryIndex() {
   const [q, setQ] = React.useState("");
-  const list = ITEMS.filter((i) => i.title.toLowerCase().includes(q.toLowerCase()));
+  const [config] = useConfig();
+  const match = (i: Item) => i.title.toLowerCase().includes(q.toLowerCase()) || i.name.includes(q.toLowerCase());
+  const groups = GROUPS.map((g) => ({ title: g, items: COMPONENT_ITEMS.filter((i) => i.group === g && match(i)) })).filter((g) => g.items.length);
   return (
-    <GalleryLayout>
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <h1 className="mr-auto text-heading font-semibold">Gallery</h1>
+    <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <h1 className="mr-auto text-heading font-semibold">Components</h1>
         <Search value={q} onValueChange={setQ} placeholder="Find a component" />
       </div>
-      {list.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
-      <GalleryGrid items={list} />
-    </GalleryLayout>
+      {groups.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
+      <SpotGroups
+        groups={groups}
+        span={(i) => SPAN[i.name] ?? 4}
+        render={(i) => {
+          const demo = DEMOS[i.name];
+          return demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null;
+        }}
+      />
+    </main>
   );
 }
 
@@ -213,24 +253,11 @@ export function installCommand(name: string, c: Config) {
   return `npx shadcn@latest add "${SITE}/r/${name}.json${q ? `?${q}` : ""}"`;
 }
 
-export function GalleryItem() {
-  const { name = "" } = useParams();
-  const item = findItem(name);
-  const demo = DEMOS[name];
-  const [global] = useConfig();
-  const [params] = useSearchParams();
-  const [overrides, setOverrides] = React.useState<Partial<Config>>({});
-  const [props, setProps] = React.useState<Props>(() => defaults(demo, params));
-  const [source, setSource] = React.useState("");
-  const merged = React.useMemo(() => ({ ...global, ...overrides, theme: global.theme }), [global, overrides]);
-
-  React.useEffect(() => {
-    setOverrides({});
-    setProps(defaults(DEMOS[name], new URLSearchParams(window.location.search)));
-  }, [name]);
-
-  // Portalled overlays (menus, popovers, dialogs) render in <body>, so the overrides
-  // go on <body> and the site chrome in #root keeps the global tokens.
+/**
+ * Per-page overrides: portalled overlays (menus, popovers, dialogs) render in <body>, so the overrides go on <body>
+ * and the site chrome in #root keeps the global tokens. Cleanup removes both.
+ */
+export function useBodyTokens(merged: Config, global: Config) {
   React.useLayoutEffect(() => {
     const root = document.getElementById("root")!;
     applyTokens(document.body, merged);
@@ -242,13 +269,25 @@ export function GalleryItem() {
       }
     };
   }, [merged, global]);
+}
+
+export function GalleryItem() {
+  const { name = "" } = useParams();
+  const item = findItem(name);
+  const demo = DEMOS[name];
+  const [global] = useConfig();
+  const [params] = useSearchParams();
+  const [overrides, setOverrides] = React.useState<Partial<Config>>({});
+  const [props, setProps] = React.useState<Props>(() => defaults(demo, params));
+  const source = useSource(item);
+  const merged = React.useMemo(() => ({ ...global, ...overrides, theme: global.theme }), [global, overrides]);
 
   React.useEffect(() => {
-    const file = item?.files[0];
-    const load = file ? sources[`../components/ui/${file}`] : undefined;
-    if (load) void load().then(setSource);
-    else setSource("");
-  }, [item]);
+    setOverrides({});
+    setProps(defaults(DEMOS[name], new URLSearchParams(window.location.search)));
+  }, [name]);
+
+  useBodyTokens(merged, global);
 
   if (!item || !demo) {
     return (

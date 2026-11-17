@@ -1,6 +1,6 @@
 import * as React from "react";
-import { NavLink, Outlet, ScrollRestoration, useNavigate } from "react-router";
-import { Box, Download, Grid, Home, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
+import { NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from "react-router";
+import { Box, Cpu, Download, Grid, Home, Image, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
@@ -8,22 +8,50 @@ import { Popover } from "@/components/ui/popover";
 import { Toaster } from "@/components/ui/toast";
 import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
 import { Shortcut } from "@/components/ui/kbd";
-import { GROUPS, ITEMS } from "@/lib/registry";
+import { GROUPS, ITEMS, itemPath, type Group } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
 import { Wordmark } from "./logo";
 
-function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
+/** The nav tabs, in order. Components first: the site starts with them. */
+export const TABS = [
+  { to: "/components", label: "Components" },
+  { to: "/ai", label: "AI" },
+  { to: "/backgrounds", label: "Backgrounds" },
+  { to: "/examples", label: "Examples" },
+  { to: "/export", label: "Export" },
+];
+
+function NavItem({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
   return (
     <NavLink
       to={q ? `${to}?${q}` : to}
-      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "text-ink-muted hover:text-ink", isActive && "bg-fill text-ink")}
+      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "bg-fill text-ink", className)}
     >
       {children}
     </NavLink>
+  );
+}
+
+/** The tab row under the header on phones and tablets. It scrolls sideways when it doesn't fit, never the page. */
+function PhoneTabs() {
+  const ref = React.useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    const active = ref.current?.querySelector<HTMLElement>("a[aria-current=page]");
+    if (active && ref.current) ref.current.scrollTo({ left: Math.max(0, active.offsetLeft - 16), behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
+  return (
+    <nav ref={ref} aria-label="Sections" className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] sm:px-6 lg:hidden [&::-webkit-scrollbar]:hidden">
+      {TABS.map((t) => (
+        <NavItem key={t.to} to={t.to} className="px-2.5">
+          {t.label}
+        </NavItem>
+      ))}
+    </nav>
   );
 }
 
@@ -85,14 +113,16 @@ function HeaderSearch() {
         label: "Pages",
         items: [
           { id: "home", label: "Home", icon: Home, onSelect: () => go("/") },
-          { id: "gallery", label: "Gallery", icon: Grid, onSelect: () => go("/gallery") },
+          { id: "components", label: "Components", icon: Grid, onSelect: () => go("/components") },
+          { id: "ai", label: "AI", icon: Cpu, onSelect: () => go("/ai") },
+          { id: "backgrounds", label: "Backgrounds", icon: Image, onSelect: () => go("/backgrounds") },
           { id: "examples", label: "Examples", icon: Layout, onSelect: () => go("/examples/dashboard") },
           { id: "export", label: "Export", icon: Download, onSelect: () => go("/export") },
         ],
       },
-      ...GROUPS.map((g) => ({
+      ...[...GROUPS, "AI", "Backgrounds"].map((g) => ({
         label: g,
-        items: ITEMS.filter((i) => i.group === g).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(`/gallery/${i.name}`) })),
+        items: ITEMS.filter((i) => i.group === (g as Group)).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(itemPath(i)) })),
       })),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,10 +153,12 @@ export function SiteHeader() {
         <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
           <Wordmark />
         </SLink>
-        <nav className="flex items-center gap-1 max-md:hidden">
-          <NavItem to="/gallery">Gallery</NavItem>
-          <NavItem to="/examples">Examples</NavItem>
-          <NavItem to="/export">Export</NavItem>
+        <nav aria-label="Sections" className="flex items-center gap-1 max-lg:hidden">
+          {TABS.map((t) => (
+            <NavItem key={t.to} to={t.to}>
+              {t.label}
+            </NavItem>
+          ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
           <HeaderSearch />
@@ -134,12 +166,23 @@ export function SiteHeader() {
           <ThemeButton />
         </div>
       </div>
-      <nav className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-1 px-4 sm:px-6 md:hidden">
-        <NavItem to="/gallery">Gallery</NavItem>
-        <NavItem to="/examples">Examples</NavItem>
-        <NavItem to="/export">Export</NavItem>
-      </nav>
+      <PhoneTabs />
     </header>
+  );
+}
+
+/** One quiet line at the bottom of every page. */
+export function SiteFooter() {
+  return (
+    <footer className="mx-auto w-full max-w-[1280px] px-4 pb-10 pt-16 sm:px-6">
+      <p className="px-1 text-small text-ink-muted">
+        Curated by{" "}
+        <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="rounded-small text-ink-muted transition-colors duration-[160ms] hover:text-ink">
+          Joshua Dirga
+        </a>{" "}
+        · 2026
+      </p>
+    </footer>
   );
 }
 
@@ -410,7 +453,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
           if (mode.current === "pinned" && e.relatedTarget && !inside(e.relatedTarget, panelRef.current, flapRef.current)) hide();
         }}
         className="fixed inset-y-0 left-0 z-50 p-3 pr-0 will-change-transform"
-        style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 8px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
+        style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 64px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
       >
         <div
           className="flex h-full flex-col bg-surface text-ink shadow-dialog"
@@ -452,9 +495,12 @@ export function SiteLayout() {
       <ScrollRestoration />
       <CustomizeFlap pageRef={pageRef} />
       <div className="overflow-x-clip">
-        <div ref={pageRef} data-page>
+        <div ref={pageRef} data-page className="flex min-h-dvh flex-col md:pl-[clamp(0px,calc(12px-(100vw-1280px)/2),12px)]">
           <SiteHeader />
-          <Outlet />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <SiteFooter />
         </div>
       </div>
       <Toaster />
