@@ -534,7 +534,7 @@ export const DEMOS: Record<string, Demo> = {
   "metric-card": {
     stage: "page",
     controls: [
-      { key: "variant", type: "select", label: "Variant", options: ["tile", "scale", "compact"], labels: ["A · Tile", "B · Scale", "C · Compact"], default: "tile" },
+      { key: "variant", type: "select", label: "Variant", options: ["tile", "scale", "compact", "hero"], labels: ["A · Tile", "B · Scale", "C · Compact", "D · Hero"], default: "tile" },
       { key: "primary", type: "toggle", label: "Primary", default: true },
       { key: "delta", type: "toggle", label: "Change", default: true },
       { key: "loading", type: "toggle", label: "Loading", default: false },
@@ -542,6 +542,12 @@ export const DEMOS: Record<string, Demo> = {
     render: (p) => {
       const v = p.variant as MetricVariant;
       const l = !!p.loading;
+      if (v === "hero")
+        return (
+          <Card className="w-[380px] max-w-full">
+            <MetricCard variant="hero" loading={l} primary={!!p.primary} label="Sales this month" unit="Rp" value={1124600000} delta={p.delta ? { value: "9,7%", direction: "up" } : undefined} />
+          </Card>
+        );
       return (
         <div className="flex max-w-3xl flex-wrap justify-center gap-4">
           <MetricCard variant={v} loading={l} primary={!!p.primary} label="Sales today" unit="Rp" value={48240000} delta={p.delta ? { value: "9,7%", direction: "up" } : undefined} />
@@ -553,7 +559,9 @@ export const DEMOS: Record<string, Demo> = {
       );
     },
     usage: (p) =>
-      `<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""}${p.primary ? " primary" : ""} label="Sales today" unit="Rp" value={48240000}${p.delta ? ` delta={{ value: "9,7%", direction: "up" }}` : ""} />\n<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""} label="Cancelled" value={4} />  // one or two digits: the short treatment`,
+      p.variant === "hero"
+        ? `<Card>\n  <MetricCard variant="hero"${p.primary ? " primary" : ""} label="Sales this month" unit="Rp" value={1124600000}${p.delta ? ` delta={{ value: "9,7%", direction: "up" }}` : ""} />\n  <BarChart data={days} />\n</Card>`
+        : `<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""}${p.primary ? " primary" : ""} label="Sales today" unit="Rp" value={48240000}${p.delta ? ` delta={{ value: "9,7%", direction: "up" }}` : ""} />\n<MetricCard${p.variant !== "tile" ? ` variant="${p.variant}"` : ""} label="Cancelled" value={4} />  // one or two digits: the short treatment`,
   },
   table: {
     stage: "page",

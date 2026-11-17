@@ -6,9 +6,9 @@ import { Bento } from "./bento";
 
 function Hero() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-14 sm:px-6 lg:pb-20 lg:pt-24">
-      <h1 className="text-[clamp(32px,3.8vw,48px)] font-semibold leading-[1.1] tracking-[-0.025em] text-ink">just some random ui styling</h1>
-      <div className="mt-8">
+    <section className="mx-auto w-full max-w-[1280px] px-4 pb-16 pt-10 sm:px-6 lg:pb-24 lg:pt-16">
+      <h1 className="max-w-[11ch] text-[length:clamp(72px,13.2vw,220px)] font-semibold leading-[0.88] tracking-[-0.055em] text-ink">just some random ui styling</h1>
+      <div className="mt-10 lg:mt-14">
         <Button variant="primary" asChild>
           <SLink to="/gallery">
             Explore gallery

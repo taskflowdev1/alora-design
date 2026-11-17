@@ -1,6 +1,6 @@
 import * as React from "react";
 import { NavLink, Outlet, ScrollRestoration, useNavigate } from "react-router";
-import { Box, Download, Grid, Home, Layout, Moon, Search as SearchIcon, Sliders, Sun } from "react-feather";
+import { Box, Download, Grid, Home, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Shortcut } from "@/components/ui/kbd";
 import { GROUPS, ITEMS } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
-import { ALL_FIELDS, ConfigPanel, resetPatch } from "./config-panel";
+import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
 
 export function Wordmark({ className }: { className?: string }) {
   return <span className={cn("whitespace-nowrap text-[15px] font-semibold tracking-[-0.01em] text-ink", className)}>Alora Design</span>;
@@ -30,14 +30,15 @@ function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   );
 }
 
-export function CustomizeButton({ label = true }: { label?: boolean }) {
+/** Phones and small tablets: the header button and its popover. From md up the left flap replaces it. */
+export function CustomizeButton({ label = true, className }: { label?: boolean; className?: string }) {
   const [config, setConfig] = useConfig();
   return (
     <Popover
       align="end"
       className="w-72 p-pad"
       trigger={
-        <Button variant="secondary" icon={!label} aria-label="Customize">
+        <Button variant="secondary" icon={!label} aria-label="Customize" className={className}>
           <Sliders />
           {label ? <span className="max-sm:hidden">Customize</span> : null}
         </Button>
@@ -118,7 +119,7 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
           <HeaderSearch />
-          <CustomizeButton />
+          <CustomizeButton className="md:hidden" />
           <ThemeButton />
         </div>
       </div>
@@ -131,13 +132,228 @@ export function SiteHeader() {
   );
 }
 
+/* ------------------------------------------------------------ customize flap */
+
+const PANEL_MIN = 344;
+const CONTENT_MAX = 1280;
+/** Narrower than this and the page would be squeezed, so the panel lies over it instead of pushing. */
+const PAGE_MIN = 960;
+const FLAP_MIN = 768;
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+const SLIDE_MS = 300;
+
+/** The panel takes all the room left of the 1280 px page (at least PANEL_MIN), so the page sits flush right. */
+const panelWidth = (vw: number) => Math.max(PANEL_MIN, vw - CONTENT_MAX);
+const inside = (t: EventTarget | null, ...els: (HTMLElement | null)[]) =>
+  t instanceof Node && (els.some((el) => el?.contains(t)) || !!(t instanceof Element && t.closest("[data-radix-popper-content-wrapper]")));
+
+function useViewportWidth() {
+  const [vw, setVw] = React.useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
+  React.useEffect(() => {
+    const on = () => setVw(window.innerWidth);
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  return vw;
+}
+
+/**
+ * A slim tab on the left edge. Hover opens the panel, which pushes the whole page (header included) right by
+ * its width. The page wrapper only translates while it moves: its final width is set once, at the start, and a
+ * transform carries it from where it was (FLIP), so nothing reflows frame by frame.
+ * Mouse: opens on hover, closes on leave after a short grace (not while a slider is held, not while the pointer
+ * is in a popover opened from the panel). Tap, click or keyboard focus: toggles and stays until Esc, X, a tap
+ * outside, or focus leaving.
+ */
+function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | null> }) {
+  const [config, setConfig] = useConfig();
+  const vw = useViewportWidth();
+  const enabled = vw >= FLAP_MIN;
+  const W = panelWidth(vw);
+  const push = vw - W >= PAGE_MIN;
+  const [open, setOpenState] = React.useState(false);
+  const mode = React.useRef<"hover" | "pinned">("hover");
+  const pressed = React.useRef(false);
+  const enterT = React.useRef<number>(undefined);
+  const leaveT = React.useRef<number>(undefined);
+  const flapRef = React.useRef<HTMLButtonElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const openRef = React.useRef(open);
+  openRef.current = open;
+
+  const clear = () => (window.clearTimeout(enterT.current), window.clearTimeout(leaveT.current), (leaveT.current = undefined));
+  const show = React.useCallback((m: "hover" | "pinned") => {
+    window.clearTimeout(enterT.current);
+    window.clearTimeout(leaveT.current);
+    leaveT.current = undefined;
+    mode.current = m;
+    setOpenState(true);
+  }, []);
+  const hide = React.useCallback(() => {
+    window.clearTimeout(enterT.current);
+    window.clearTimeout(leaveT.current);
+    leaveT.current = undefined;
+    setOpenState(false);
+  }, []);
+  const closeSoon = React.useCallback(() => {
+    if (!openRef.current || mode.current !== "hover" || pressed.current || leaveT.current !== undefined) return;
+    leaveT.current = window.setTimeout(() => {
+      leaveT.current = undefined;
+      if (!pressed.current) setOpenState(false);
+    }, 260);
+  }, []);
+
+  React.useEffect(() => {
+    if (!enabled) hide();
+  }, [enabled, hide]);
+
+  // Mouse anywhere: over the flap, the panel or one of its popovers keeps it; elsewhere starts the grace timer.
+  React.useEffect(() => {
+    const over = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" || !openRef.current) return;
+      if (inside(e.target, panelRef.current, flapRef.current)) {
+        window.clearTimeout(leaveT.current);
+        leaveT.current = undefined;
+      } else closeSoon();
+    };
+    const out = (e: PointerEvent) => {
+      // Leaving the window entirely.
+      if (e.pointerType === "mouse" && !e.relatedTarget && openRef.current) closeSoon();
+    };
+    const down = (e: PointerEvent) => {
+      if (inside(e.target, panelRef.current)) pressed.current = true;
+      else if (openRef.current && mode.current === "pinned" && !inside(e.target, flapRef.current)) hide();
+    };
+    const up = (e: PointerEvent) => {
+      if (!pressed.current) return;
+      pressed.current = false;
+      const at = document.elementFromPoint(e.clientX, e.clientY);
+      if (e.pointerType === "mouse" && !inside(at, panelRef.current, flapRef.current)) closeSoon();
+    };
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || !openRef.current) return;
+      // A popover or menu inside the panel closes first.
+      if (document.querySelector("[data-radix-popper-content-wrapper]")) return;
+      const had = panelRef.current?.contains(document.activeElement);
+      hide();
+      if (had) flapRef.current?.focus({ preventScroll: true });
+    };
+    document.addEventListener("pointerover", over);
+    document.addEventListener("pointerout", out);
+    document.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointerup", up, true);
+    document.addEventListener("keydown", key);
+    return () => {
+      document.removeEventListener("pointerover", over);
+      document.removeEventListener("pointerout", out);
+      document.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointerup", up, true);
+      document.removeEventListener("keydown", key);
+    };
+  }, [closeSoon, hide]);
+  React.useEffect(() => clear, []);
+
+  // Push the page: set the final margin once, then slide from where it was.
+  const wasOpen = React.useRef(false);
+  React.useLayoutEffect(() => {
+    const el = pageRef.current;
+    if (!el) return;
+    const target = open && push ? `${W}px` : "";
+    const toggled = wasOpen.current !== open;
+    wasOpen.current = open;
+    if (el.style.marginLeft === target) return;
+    const probe = el.querySelector<HTMLElement>("header > div");
+    const x0 = probe?.getBoundingClientRect().left ?? 0;
+    el.getAnimations().forEach((a) => a.cancel());
+    el.style.marginLeft = target;
+    const x1 = probe?.getBoundingClientRect().left ?? 0;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (toggled && !still && Math.abs(x0 - x1) > 0.5) el.animate([{ transform: `translateX(${x0 - x1}px)` }, { transform: "translateX(0)" }], { duration: SLIDE_MS, easing: EASE });
+  }, [open, push, W, pageRef]);
+
+  if (!enabled) return null;
+  return (
+    <>
+      <button
+        ref={flapRef}
+        type="button"
+        aria-label="Customize"
+        aria-expanded={open}
+        aria-controls="customize-panel"
+        data-customize-flap
+        onPointerEnter={(e) => {
+          if (e.pointerType !== "mouse" || openRef.current) return;
+          window.clearTimeout(enterT.current);
+          enterT.current = window.setTimeout(() => show("hover"), 80);
+        }}
+        onPointerLeave={() => window.clearTimeout(enterT.current)}
+        onClick={() => (openRef.current && mode.current === "pinned" ? hide() : show("pinned"))}
+        onFocus={(e) => {
+          if (e.currentTarget.matches(":focus-visible") && !openRef.current) show("pinned");
+        }}
+        className={cn(
+          "fixed left-1 top-1/2 z-40 flex w-5 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 rounded-full bg-surface py-3 text-ink-muted shadow-card",
+          "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-hover hover:text-ink",
+          open && "pointer-events-none opacity-0",
+        )}
+      >
+        <Sliders size={14} className="rotate-90" />
+        <span className="text-small font-medium [writing-mode:vertical-rl] rotate-180">Customize</span>
+      </button>
+      <div
+        ref={panelRef}
+        id="customize-panel"
+        role="dialog"
+        aria-label="Customize"
+        aria-modal={false}
+        inert={!open}
+        data-customize-panel
+        data-state={open ? "open" : "closed"}
+        onBlur={(e) => {
+          if (mode.current === "pinned" && e.relatedTarget && !inside(e.relatedTarget, panelRef.current, flapRef.current)) hide();
+        }}
+        className="fixed inset-y-0 left-0 z-50 p-3 pr-0 will-change-transform"
+        style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 8px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
+      >
+        <div
+          className="flex h-full flex-col bg-surface text-ink shadow-dialog"
+          style={{ borderRadius: "calc(var(--ad-radius-sheet) + min(var(--ad-radius-sheet), var(--ad-nest) * 2))" }}
+        >
+          <div className="flex min-h-control shrink-0 items-center justify-between gap-2 px-pad pt-3 pb-2">
+            <h2 className="text-title font-semibold">Customize</h2>
+            <div className="-mr-1 flex items-center gap-1">
+              <Tooltip content="Reset">
+                <Button variant="ghost" icon aria-label="Reset" onClick={() => setConfig(resetPatch(ALL_FIELDS))}>
+                  <RotateCcw />
+                </Button>
+              </Tooltip>
+              <Button variant="ghost" icon aria-label="Close" onClick={hide}>
+                <X />
+              </Button>
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-[calc(var(--ad-nest)*2)] pb-[calc(var(--ad-nest)*2)]">
+            <ConfigGroups value={config} onChange={setConfig} />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function SiteLayout() {
+  const pageRef = React.useRef<HTMLDivElement>(null);
   return (
     <TooltipProvider>
       <ConfigTokens />
       <ScrollRestoration />
-      <SiteHeader />
-      <Outlet />
+      <CustomizeFlap pageRef={pageRef} />
+      <div className="overflow-x-clip">
+        <div ref={pageRef} data-page>
+          <SiteHeader />
+          <Outlet />
+        </div>
+      </div>
       <Toaster />
     </TooltipProvider>
   );

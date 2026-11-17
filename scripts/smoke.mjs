@@ -41,6 +41,21 @@ for (const [path, text] of [
   check(await page.getByText(text, { exact: true }).first().isVisible(), `${path} shows "${text}"`);
 }
 
+// Customize flap: hover opens the left panel and pushes the page flush right; leaving closes it.
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+await page.mouse.move(700, 450);
+await page.locator("[data-customize-flap]").hover();
+await sleep(800);
+const pushed = await page.evaluate(() => {
+  const p = document.querySelector("[data-customize-panel]");
+  const h = document.querySelector("header > div").getBoundingClientRect();
+  return { state: p?.getAttribute("data-state"), panel: Math.round(p.getBoundingClientRect().right), left: Math.round(h.left), right: Math.round(h.right), vw: innerWidth };
+});
+check(pushed.state === "open" && pushed.left === pushed.panel && pushed.right === pushed.vw, `flap opens and pushes the page (${JSON.stringify(pushed)})`);
+await page.mouse.move(1000, 450, { steps: 4 });
+await sleep(800);
+check((await page.locator("[data-customize-panel]").getAttribute("data-state")) === "closed", "flap closes on leave");
+
 // Landing: one bento of components in use; no tile grid, no corner demo, nothing wider than a phone
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({

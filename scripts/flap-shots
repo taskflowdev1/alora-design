@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Build, then capture the v3.2 review (hero, Sales card, customize flap; before = live site) into output/review-v3.2/.
+# Run through the job queue.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+[ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null
+npx vite build --logLevel warn
+BEFORE_BASE="${BEFORE_BASE-https://design.alorawork.com}" node scripts/flap-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/flap-shots.log"

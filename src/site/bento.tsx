@@ -395,9 +395,10 @@ function SalesCard({ className }: { className?: string }) {
   const [loading, kick] = useBusy();
   const s = SALES[range];
   return (
-    <Card inset="nest" className={cn("flex min-w-0 flex-col gap-nest", className)}>
-      <MetricCard primary loading={loading} label={s.label} unit="Rp" value={s.value} delta={{ value: s.delta, direction: s.up ? "up" : "down" }} className="w-full rounded-control shadow-none" />
-      <div className="flex items-center justify-between gap-3 px-2 pt-2">
+    <Card className={cn("flex min-w-0 flex-col gap-4", className)}>
+      <MetricCard variant="hero" primary loading={loading} label={s.label} unit="Rp" value={s.value} delta={{ value: s.delta, direction: s.up ? "up" : "down" }} />
+      <BarChart data={s.chart} current={s.current} labelEvery={s.every} height={96} loading={loading} aria-label={s.label} />
+      <div className="flex items-center justify-between gap-3">
         <Segmented
           aria-label="Range"
           value={range}
@@ -410,7 +411,7 @@ function SalesCard({ className }: { className?: string }) {
         />
         <span className="flex items-center gap-2.5 text-body">
           <span className="text-ink-muted">Orders</span>
-          <span className="font-semibold tabular-nums">
+          <span className="min-w-[5ch] text-right font-semibold tabular-nums">
             <LoadingText loading={loading}>{s.orders.toLocaleString("id-ID")}</LoadingText>
           </span>
           <Loading loading={loading}>
@@ -418,7 +419,6 @@ function SalesCard({ className }: { className?: string }) {
           </Loading>
         </span>
       </div>
-      <BarChart data={s.chart} current={s.current} labelEvery={s.every} height={104} loading={loading} className="mt-2 px-2 pb-1" aria-label={s.label} />
     </Card>
   );
 }

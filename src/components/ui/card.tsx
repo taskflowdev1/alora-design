@@ -34,7 +34,7 @@ export function CardHeader({ title, action, className }: { title: React.ReactNod
   );
 }
 
-export type MetricVariant = "tile" | "scale" | "compact";
+export type MetricVariant = "tile" | "scale" | "compact" | "hero";
 
 export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   label: React.ReactNode;
@@ -52,6 +52,8 @@ export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    * - "tile" (default): a short value sits big in a soft square tile beside its label; a long value stays on one line with a muted unit.
    * - "scale": a short value grows to fill the card's height; a long value mutes its trailing zero groups.
    * - "compact": a short value is a round count beside the label; a long value is shortened ("Rp 48,2 jt") with the exact value on hover.
+   * - "hero": the one figure that leads a card. No surface of its own (put it in a Card); the number is sized to the
+   *   card's width (the longest value you show must fit), the unit small and grey, the change a soft pill beside the label.
    */
   variant?: MetricVariant;
   /** Force the short or long treatment. By default: two digits or fewer is short. */
@@ -96,8 +98,39 @@ function Delta({ delta, primary }: { delta: NonNullable<MetricCardProps["delta"]
 
 /** As wide as its number needs, never stretched. Short and long numbers each get their own treatment. */
 export function MetricCard({ label, value, unit, delta, primary, interactive, variant = "tile", short, loading, className, style, ...props }: MetricCardProps) {
-  const isShortValue = short ?? isShort(value);
   const text = typeof value === "number" ? groups(value) : value;
+  if (variant === "hero") {
+    return (
+      <div className={cn("@container grid min-w-0 gap-1", className)} style={style} {...props}>
+        <div className="flex min-h-6 items-center justify-between gap-3">
+          <span className="truncate text-body text-ink-muted">{label}</span>
+          {delta ? (
+            <span
+              data-shape="round"
+              aria-busy={loading || undefined}
+              className={cn(
+                "inline-flex h-6 items-center gap-0.5 whitespace-nowrap rounded-full px-bubble-sm text-small font-medium tabular-nums",
+                loading
+                  ? "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-ink/8 text-transparent"
+                  : primary && delta.direction === "up"
+                    ? "bg-brand-soft text-brand-soft-ink"
+                    : "bg-fill text-ink",
+              )}
+            >
+              {delta.direction === "up" ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+              {delta.value}
+            </span>
+          ) : null}
+        </div>
+        {/* One size for every value in the card (sized to its width), so switching values never moves anything. */}
+        <span className="block whitespace-nowrap text-[length:clamp(30px,15cqi,72px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
+          {unit ? <span className="mr-[0.14em] inline-block translate-y-[0.12em] align-top text-[length:0.36em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
+          <Pulse loading={loading}>{text}</Pulse>
+        </span>
+      </div>
+    );
+  }
+  const isShortValue = short ?? isShort(value);
   const muted = primary ? "text-on-ink/70" : "text-ink-muted";
   const labelEl = <span className={cn("whitespace-nowrap text-body", muted)}>{label}</span>;
   const unitEl = unit ? <span className={cn("mr-1 text-title font-medium", muted)}>{unit}</span> : null;

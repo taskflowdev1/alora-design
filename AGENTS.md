@@ -24,7 +24,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `smoke.mjs`, `shots` + `shots.mjs`, `check-endpoints`.
+- `scripts/`: `verify`, `smoke.mjs`, `shots` + `shots.mjs`, `landing-shots`, `flap-shots`, `check-endpoints`.
 
 ## Run, test, verify
 
@@ -40,6 +40,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - Landing review (v3): `./scripts/landing-shots` through the queue (port 5198, ~0.6 GB): `output/review-v3/`,
   full page + first two viewports, phone, one crop per bento card (B1…B19), skeletons, E1, gallery index, and
   `checks.json` (phone overflow, borders, hover shifts, thumbnail fill).
+- Flap/hero/Sales review (v3.2): `./scripts/flap-shots` through the queue (port 5199, ~0.7 GB, ~1 min): before (live
+  site, `BEFORE_BASE`) and after, dark and light, `output/review-v3.2/` + `checks.json` (push geometry, hover/drag/Esc,
+  Sales card size per range) and a webm of the flap.
 - Endpoints on a deployment: `./scripts/check-endpoints [base-url]` (curl, quick, inline is fine).
 - Playwright uses `playwright-core` 1.65 with the cached `chromium_headless_shell-1254`; no download.
 
@@ -77,6 +80,10 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `--ad-bubble-x-sm` (24 px pills, copy chips, reactions); Tailwind `px-bubble` / `px-bubble-sm`.
 - Metric card: one or two digits get the short treatment (variant "tile", default; "scale" and "compact"
   exist as B/C). Every metric card is the same height so mixed rows line up.
+- Customize (md and up) is the left flap in `layout.tsx`: hover opens a panel as wide as the room left of the 1280 px
+  page (min 344 px) and pushes the page wrapper (`[data-page]`) flush right. The margin is set once and a WAAPI
+  transform slides it (FLIP), so text rewraps once at the start, never per frame. Below md the header Customize
+  popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing.
 - The site header is sticky and shared by every page (same box; shots and smoke check it). Examples sit in
   the same 1280 px container. Ctrl/Cmd+K opens the command palette over pages and components.
 

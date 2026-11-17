@@ -10,7 +10,7 @@ Shots: `output/review-v3/` (gitignored; `./scripts/landing-shots`), `index.md` t
 
 ## Where each component is (B = bento card)
 - B1 Orders: card, toolbar, search, shop picker (marketplace marks), period stepper (tooltip), popover (filter with checkboxes), column menu, chips, table + bottom bar, status dots, difference, hover card (customer), context menu (right click a row), menu (… with submenu), split button, side pane (click a row: steps, copy chip, fee rows, timeline), empty state when nothing matches.
-- B2 Sales: metric card (tile, primary), segmented Today/Week/Month, sparkline, bar chart, skeleton on switch.
+- B2 Sales: metric card (hero, primary: big number, delta pill), segmented Today/Week/Month, sparkline, bar chart, skeleton on switch.
 - B3 Command palette, open, with keyboard shortcuts (kbd).
 - B4 Sidebar (dark) with workspace menu, counts, account menu, notification bell.
 - B5 Packing board: kanban columns and cards (thumb, tag, avatar group, due).
@@ -77,3 +77,11 @@ Shots: `output/review-v2/` (gitignored). `index.md` is the review page (letters,
 ## Placeholders (all invented)
 - Brand "Rimba", shops Kemang, Senopati, Dago, Darmo, Rimba Official / Outlet (Shopee), Rimba Live (TikTok), Rimba Tokopedia.
 - Products, prices, 1.240 orders, 38 cancellations with reasons and fee differences, 6 promotions, team of 5 with activity, comments, notifications, calendar events. "Now" pinned to 16 Nov 2026, 14:20.
+
+## v3.2 (hero, Sales card, customize flap), 2026-11-16
+- Lines/borders: none added. Panel groups are soft cards; radii concentric (groups = sheet, panel = sheet + 2 nest gaps, 0 in Square).
+- One font; accent only on the Sales delta pill when up and the chart's current bar. Down delta is grey.
+- No captions: panel has a title, group titles and labelled controls only.
+- Layout shift: Sales card 292 px for today/week/month and loading (checks.json). Flap push measured flush: panel right = page left = 344, page right = 1440, no horizontal scroll (landing, gallery, examples).
+- Behaviour: hover opens, slider drag outside keeps it open, leave closes after 260 ms, keyboard focus opens, Esc and X close, tap pins.
+- Not checked on real devices: iPad touch and Safari/Firefox corner-shape fallback for the panel.
