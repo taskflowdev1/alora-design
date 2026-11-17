@@ -7,7 +7,7 @@ const merge = extendTailwindMerge({
     theme: {
       radius: ["control", "item", "card", "sheet", "small"],
       text: ["small", "body", "title", "heading", "number"],
-      spacing: ["control", "item", "row", "pad", "nest"],
+      spacing: ["control", "item", "row", "pad", "nest", "bubble", "bubble-sm"],
       shadow: ["card", "raised", "dialog"],
     },
   },

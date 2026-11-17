@@ -21,6 +21,7 @@
   --color-danger: var(--ad-danger);
   --color-danger-soft: var(--ad-danger-soft);
   --color-success: var(--ad-success);
+  --color-success-soft: var(--ad-success-soft);
   --color-scroll: var(--ad-scroll);
   --color-overlay: var(--ad-overlay);
   --color-chart-1: var(--ad-chart-1);
@@ -53,6 +54,8 @@
   --spacing-row: var(--ad-row-h);
   --spacing-pad: var(--ad-pad);
   --spacing-nest: var(--ad-nest);
+  --spacing-bubble: var(--ad-bubble-x);
+  --spacing-bubble-sm: var(--ad-bubble-x-sm);
   --text-small: var(--ad-text-small);
   --text-small--line-height: 1.4;
   --text-body: var(--ad-text-body);

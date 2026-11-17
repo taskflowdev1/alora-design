@@ -32,11 +32,11 @@ export const DEFAULTS: Config = {
   smoothing: 2,
   padding: 16,
   height: 36,
-  accent: "#3c6fe0",
-  tone: "cool",
+  accent: "#dc467d",
+  tone: "neutral",
   shadow: 50,
   font: 13,
-  theme: "light",
+  theme: "dark",
 };
 
 export const LIMITS = {
@@ -153,6 +153,9 @@ function grey(tone: Tone, l: number, scale = 1) {
   return oklchToHex({ l, c: t.c * scale, h: t.h });
 }
 
+/** Dark greys keep only a hint of a cool or warm tone, so dark stays near-black; neutral is exactly grey. */
+const DARK_TINT = 0.35;
+
 const rgba = (hex: string, a: number) => {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${Math.round(a * 1000) / 1000})`;
@@ -175,23 +178,23 @@ function themeColors(c: Config, dark: boolean) {
   const t = c.tone;
   const acc = hexToOklch(c.accent);
   const shades = accentShades(c.accent);
-  const g = (l: number, s = 1) => grey(t, l, s);
+  const g = (l: number, s = 1) => grey(t, l, dark ? s * DARK_TINT : s);
   const ink = dark ? g(0.95, 0.4) : g(0.21, 1.4);
-  const brand = dark ? oklchToHex({ l: Math.max(acc.l, 0.66), c: acc.c * 0.82, h: acc.h }) : c.accent;
+  const brand = dark ? oklchToHex({ l: Math.max(acc.l, 0.64), c: acc.c * 0.9, h: acc.h }) : c.accent;
   const brandHover = dark
-    ? oklchToHex({ l: Math.max(acc.l, 0.66) + 0.05, c: acc.c * 0.82, h: acc.h })
+    ? oklchToHex({ l: Math.max(acc.l, 0.64) + 0.05, c: acc.c * 0.9, h: acc.h })
     : oklchToHex({ l: acc.l - 0.05, c: acc.c, h: acc.h });
   const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : g(0.18, 1.4);
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
-  const sideL = dark ? 0.135 : 0.2;
+  const sideL = dark ? 0.12 : 0.2;
   return {
-    page: dark ? g(0.17, 0.8) : g(0.985, 0.35),
-    surface: dark ? g(0.21, 0.8) : "#ffffff",
-    raised: dark ? g(0.235, 0.8) : "#ffffff",
-    fill: dark ? g(0.255, 0.8) : g(0.958, 0.6),
-    "fill-hover": dark ? g(0.3, 0.8) : g(0.928, 0.7),
-    "fill-strong": dark ? g(0.36, 0.8) : g(0.885, 0.8),
+    page: dark ? g(0.155, 0.8) : g(0.985, 0.35),
+    surface: dark ? g(0.2, 0.8) : "#ffffff",
+    raised: dark ? g(0.23, 0.8) : "#ffffff",
+    fill: dark ? g(0.25, 0.8) : g(0.958, 0.6),
+    "fill-hover": dark ? g(0.295, 0.8) : g(0.928, 0.7),
+    "fill-strong": dark ? g(0.355, 0.8) : g(0.885, 0.8),
     ink,
     "ink-muted": dark ? g(0.72, 0.6) : g(0.5, 1.2),
     "ink-faint": dark ? g(0.56, 0.6) : g(0.66, 1),
@@ -201,11 +204,12 @@ function themeColors(c: Config, dark: boolean) {
     brand,
     "brand-hover": brandHover,
     "brand-ink": brandInk,
-    "brand-soft": dark ? oklchToHex({ l: 0.3, c: acc.c * 0.35, h: acc.h }) : shades[0],
-    "brand-soft-ink": dark ? oklchToHex({ l: 0.84, c: acc.c * 0.6, h: acc.h }) : shades[6],
+    "brand-soft": dark ? oklchToHex({ l: 0.29, c: acc.c * 0.3, h: acc.h }) : shades[0],
+    "brand-soft-ink": dark ? oklchToHex({ l: 0.85, c: acc.c * 0.55, h: acc.h }) : shades[6],
     danger: dark ? "#e8867c" : "#c2493d",
-    "danger-soft": dark ? "#3a2523" : "#fbeeec",
+    "danger-soft": dark ? "#33201e" : "#fbeeec",
     success: dark ? "#7cc59a" : "#2f8a57",
+    "success-soft": dark ? "#1c2a21" : "#eaf5ee",
     scroll: dark ? rgba("#ffffff", 0.16) : rgba(ink, 0.18),
     overlay: dark ? rgba("#000000", 0.5) : rgba(g(0.2, 1), 0.28),
     "chart-1": chart[0],
@@ -214,9 +218,9 @@ function themeColors(c: Config, dark: boolean) {
     "chart-4": chart[3],
     "chart-5": chart[4],
     side: g(sideL, 1.2),
-    "side-raised": g(sideL + 0.045, 1.2),
-    "side-fill": g(sideL + 0.055, 1.2),
-    "side-fill-hover": g(sideL + 0.09, 1.2),
+    "side-raised": g(sideL + 0.06, 1.2),
+    "side-fill": g(sideL + 0.06, 1.2),
+    "side-fill-hover": g(sideL + 0.1, 1.2),
     "side-ink": g(0.93, 0.4),
     "side-muted": g(0.68, 0.6),
     "shadow-card": sh.card,
@@ -255,6 +259,8 @@ export function tokens(c: Config) {
     "--ad-item-h": px(c.height - 4),
     "--ad-row-h": px(c.height),
     "--ad-pad": px(c.padding),
+    "--ad-bubble-x": px(Math.round(c.padding * 0.75)),
+    "--ad-bubble-x-sm": px(Math.round(c.padding / 2)),
     "--ad-nest": px(r.gap),
     "--ad-corner": cornerValue(c),
     "--ad-ease": "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -290,12 +296,14 @@ const block = (sel: string, map: TokenMap, indent = "") =>
     .map(([k, v]) => `${indent}  ${k}: ${v};`)
     .join("\n")}\n${indent}}`;
 
+/** The default theme's colours sit on :root; the other theme on a class (.dark or .light). */
 export function tokensCss(c: Config): string {
   const t = tokens(c);
+  const dark = c.theme === "dark";
   return [
-    `/* Alora Design tokens. Settings: ${serializeConfig(c) || "defaults"} */`,
-    block(":root", { ...t.common, ...t.radius, ...t.light }),
-    block(".dark", t.dark),
+    `/* Alora Design tokens. Settings: ${serializeConfig(c) || "defaults"}. Default theme: ${c.theme}; add class "${dark ? "light" : "dark"}" for the other. */`,
+    block(":root", { ...t.common, ...t.radius, ...(dark ? t.dark : t.light) }),
+    block(dark ? ".light" : ".dark", dark ? t.light : t.dark),
     `@supports (corner-shape: squircle) {\n${block(":root", t.radiusShaped, "  ")}\n}`,
   ].join("\n\n");
 }
@@ -306,6 +314,7 @@ export function tokensJson(c: Config) {
   return {
     settings: c,
     query: serializeConfig(c),
+    defaultTheme: c.theme,
     common: strip(t.common),
     radius: { fallback: strip(t.radius), cornerShape: strip(t.radiusShaped) },
     light: strip(t.light),

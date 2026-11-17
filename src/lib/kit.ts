@@ -61,12 +61,16 @@ export const query = (c: Config) => {
 
 /* ---------------------------------------------------------------- tailwind */
 
+/** `dark:` matches the dark theme: inside .dark when light is the default, outside .light when dark is. */
+export const darkVariant = (c: Config) =>
+  c.theme === "dark" ? `@custom-variant dark (&:not(:where(.light, .light *)));` : `@custom-variant dark (&:where(.dark, .dark *));`;
+
 /** One file to paste into a Tailwind v4 project: tokens, theme mapping, base rules. */
 export function tailwindCss(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) {
   return [
     `/* Alora Design for Tailwind v4. ${SITE}/export${query(c)} */`,
     `@import "tailwindcss";`,
-    `@custom-variant dark (&:where(.dark, .dark *));`,
+    darkVariant(c),
     "",
     a.themeCss.trim(),
     "",
@@ -87,19 +91,23 @@ export function registryUrl(name: string, c: Config) {
 
 export function themeItem(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) {
   const t = tokens(c);
+  const dark = c.theme === "dark";
   const base = cssToObject(a.baseCss);
   const layered: CssObject = {};
   const outside: CssObject = {};
   for (const [k, v] of Object.entries(base)) (k.startsWith("@") ? outside : layered)[k] = v;
+  // shadcn writes cssVars.light to :root and cssVars.dark to .dark. With dark as the default,
+  // :root carries the dark colours and a .light class carries the light ones.
+  if (dark) layered[".light"] = t.light;
   return {
     $schema: SCHEMA,
     name: "theme",
     type: "registry:style",
     title: "Alora Design theme",
-    description: `Tokens and base rules. Settings: ${serializeConfig(c) || "defaults"}`,
+    description: `Tokens and base rules. Settings: ${serializeConfig(c) || "defaults"}. Default theme: ${c.theme}.`,
     cssVars: {
       theme: themeVars(a.themeCss),
-      light: strip({ ...t.common, ...t.radius, ...t.light }),
+      light: strip({ ...t.common, ...t.radius, ...(dark ? t.dark : t.light) }),
       dark: strip(t.dark),
     },
     css: {
@@ -154,7 +162,7 @@ export function kitMarkdown(c: Config) {
   const rs = radii(c, true);
   const type = typeScale(c);
   const q = query(c);
-  const light = t.light;
+  const light = c.theme === "dark" ? t.dark : t.light;
   const lines: string[] = [];
   const row = (...cells: (string | number)[]) => lines.push(`| ${cells.join(" | ")} |`);
 
@@ -197,11 +205,11 @@ export function kitMarkdown(c: Config) {
   lines.push(`## Type`, "");
   lines.push(`One system sans stack, tabular figures, a plain "1". Sizes: small ${type.small}, body ${type.body}, title ${type.title}, heading ${type.heading}, big number ${type.number} (px). Headings weight 600. Labels grey, regular weight.`, "");
 
-  lines.push(`## Colour (light)`, "");
+  lines.push(`## Colour (${c.theme}, the default theme)`, "");
   row("Token", "Value", "Use");
   row("---", "---", "---");
   const use: Record<string, string> = {
-    page: "page background (off-white)",
+    page: c.theme === "dark" ? "page background (neutral near-black)" : "page background (off-white)",
     surface: "cards",
     fill: "controls at rest, soft rows",
     "fill-hover": "hover, focus and selected (one tint, no rings)",
@@ -233,7 +241,11 @@ export function kitMarkdown(c: Config) {
     "Empty state = one 40 px Feather icon (1.5 stroke) + a short title. Nothing else.",
     "Icons: Feather, 1.75 stroke, 16 px beside body text, same colour as the text, no containers.",
     "Toasts sit at the far right and never cover actions (they rise above save bars and move left of side panes).",
-    "Light theme by default (off-white page, white cards, soft shadow); dark theme is very dark grey, not black. The sidebar is dark in both.",
+    `${c.theme === "dark" ? "Dark" : "Light"} theme by default. Dark is a neutral near-black with no blue tint; light is an off-white page with white cards on a soft shadow. The other theme is a class away (.${c.theme === "dark" ? "light" : "dark"}). The sidebar is dark in both.`,
+    "Every pill, chip, filter bubble and segment shares one padding scale (`--ad-bubble-x`, `--ad-bubble-x-sm`).",
+    "Triggers (date, select) size to their value; they are not stretched.",
+    "A one-line alert centres icon, text and action on one line; a multi-line alert keeps the icon on the first line.",
+    "Metric numbers: one or two digits sit in a soft tile beside the label; long values stay on one line with a muted unit.",
   ].forEach((rule) => lines.push(`- ${rule}`));
   lines.push("");
 
