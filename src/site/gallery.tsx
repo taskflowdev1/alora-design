@@ -94,6 +94,57 @@ function defaults(demo?: Demo, params?: URLSearchParams): Props {
   );
 }
 
+const FIT_STEPS = [1, 0.85, 0.72, 0.6, 0.5, 0.42];
+
+/**
+ * A live preview as large as it can be: full size when the demo fits the tile, scaled down
+ * step by step only as far as it needs. Small controls never shrink to a speck in an empty tile.
+ */
+function FitPreview({ children }: { children: React.ReactNode }) {
+  const box = React.useRef<HTMLDivElement>(null);
+  const stage = React.useRef<HTMLDivElement>(null);
+  const [step, setStep] = React.useState(0);
+  const scale = FIT_STEPS[step];
+  React.useLayoutEffect(() => {
+    const b = box.current;
+    const s = stage.current;
+    if (!b || !s) return;
+    // Fits when nothing spills out of the tile and no inner table or list has to scroll sideways.
+    const inner = () =>
+      [...s.querySelectorAll<HTMLElement>("*")].every((el) => {
+        if (el.scrollWidth <= el.clientWidth + 1) return true;
+        const o = getComputedStyle(el).overflowX;
+        return o !== "auto" && o !== "scroll";
+      });
+    const fits = () => s.scrollWidth <= s.clientWidth + 1 && s.scrollHeight * scale <= b.clientHeight + 1 && inner();
+    if (!fits() && step < FIT_STEPS.length - 1) setStep(step + 1);
+  }, [step, scale]);
+  React.useEffect(() => {
+    const b = box.current;
+    if (!b) return;
+    let w = b.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (b.clientWidth !== w) {
+        w = b.clientWidth;
+        setStep(0);
+      }
+    });
+    ro.observe(b);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={box} data-fit={scale} className="pointer-events-none relative h-44 overflow-hidden" inert>
+      <div
+        ref={stage}
+        className="absolute left-0 top-0 flex min-h-full origin-top-left items-center justify-center overflow-hidden p-5"
+        style={{ width: `${100 / scale}%`, minHeight: `${100 / scale}%`, transform: `scale(${scale})` }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /** The component grid: every tile is a live, scaled-down preview that opens its gallery page. */
 export function GalleryGrid({ items, className }: { items: Item[]; className?: string }) {
   const [config] = useConfig();
@@ -104,11 +155,7 @@ export function GalleryGrid({ items, className }: { items: Item[]; className?: s
         return (
           <SLink key={i.name} to={`/gallery/${i.name}`} className="group block rounded-card">
             <Card inset="none" interactive className="flex h-full flex-col overflow-hidden">
-              <div className="pointer-events-none relative h-44 overflow-hidden" inert>
-                <div className="absolute left-0 top-0 flex h-[166.6%] w-[166.6%] origin-top-left scale-[0.6] items-center justify-center p-6">
-                  {demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : null}
-                </div>
-              </div>
+              <FitPreview>{demo ? <DemoRender demo={demo} p={defaults(demo)} config={config} /> : demo}</FitPreview>
               <div className="flex h-11 items-center px-pad text-body font-medium">{i.title}</div>
             </Card>
           </SLink>
