@@ -18,8 +18,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `src/styles/base.css`: corner-shape, scrollbar, no focus rings, keyframes. Both ship in exports.
 - `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style). 41 core
   components plus 28 niche ERP parts (group "Niche": command palette, date range, fee rows, shop picker…).
-- `src/site/`: landing (plain hero, the gallery grid, the niche spotlight, the corner demo at the bottom),
-  gallery (`demos.tsx` + `demos-niche.tsx` = one demo per component), examples (7 pages: dashboard, orders,
+- `src/site/`: landing (plain hero, then `bento.tsx`: every component in use inside 19 real ERP cards of
+  varied sizes, no per-component labels; `?loading=1` holds its skeletons), gallery (`demos.tsx` + `demos-niche.tsx` = one demo per component), examples (7 pages: dashboard, orders,
   products, promotions, cancellations, team, settings), export. `layout.tsx` holds the one site header.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
@@ -37,6 +37,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `output/review-v2/` (gitignored): PNGs lettered L/G/N/M/E/F/X/S, `shots.md`, `checks.json`; `index.md` is
   written by hand for Joshua (before/after pairs use `before/`, v1 crops). `ONLY=<regex>` limits the shots.
   v1 shots stay in `output/review/`.
+- Landing review (v3): `./scripts/landing-shots` through the queue (port 5198, ~0.6 GB): `output/review-v3/`,
+  full page + first two viewports, phone, one crop per bento card (B1…B19), skeletons, E1, gallery index, and
+  `checks.json` (phone overflow, borders, hover shifts, thumbnail fill).
 - Endpoints on a deployment: `./scripts/check-endpoints [base-url]` (curl, quick, inline is fine).
 - Playwright uses `playwright-core` 1.65 with the cached `chromium_headless_shell-1254`; no download.
 
@@ -61,6 +64,9 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   Square mode zeroes every radius; circles (`rounded-full`, `data-shape="round"`) always stay round.
 - Gallery per-component overrides are applied to `<body>` (portalled menus/popovers live there) while
   `#root` keeps the global tokens. Cleanup removes both.
+- Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
+  a step above the page, so it still stands out.
+- Gallery thumbnails render full size when the demo fits the tile and step down only as far as needed (`FitPreview`).
 - Menu is custom (not Radix DropdownMenu) to get a debounced safe triangle; see the header comment in
   `menu.tsx`. `showSafeArea` draws it.
 - Toasts read `data-toast-avoid` elements to stay clear of save bars and side panes.
