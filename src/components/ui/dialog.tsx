@@ -41,7 +41,7 @@ export function Dialog({ open, onOpenChange, trigger, title, children, footer, c
             </D.Close>
           </div>
           {children}
-          {footer ? <div className="flex flex-wrap justify-end gap-2">{footer}</div> : null}
+          {footer ? <div className="flex flex-wrap justify-end gap-gap">{footer}</div> : null}
         </D.Content>
       </D.Portal>
     </D.Root>

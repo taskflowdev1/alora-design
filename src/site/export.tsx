@@ -95,7 +95,7 @@ export function ExportPage() {
           </Card>
           <Card className="grid gap-3">
             <CardHeader title="Files" />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-gap">
               <Button onClick={() => download("tokens.css", "text/css", tokensCss(config))}>
                 <Download />
                 tokens.css

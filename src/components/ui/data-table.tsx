@@ -79,7 +79,7 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
   return (
     <div className={cn("grid min-w-0 grid-cols-1 gap-2", className)}>
       {search || toolbar || columns.length > 2 ? (
-        <div className="flex min-w-0 flex-wrap items-center gap-2 px-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-gap px-1">
           {search ? (
             <Input
               icon={SearchIcon}

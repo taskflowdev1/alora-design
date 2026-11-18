@@ -13,6 +13,8 @@ export interface MessageScrollerProps {
 /**
  * A conversation's scroll area: it starts at the latest message, follows new ones while you're at the bottom, and
  * stays put when you've scrolled up to read, showing a "Latest" button instead. Short threads sit at the bottom.
+ * The scrollbar gets its own lane past the content's right edge: the scroll box reaches 12 px (at most the card
+ * padding) into the parent's padding and pads itself back, so no bar, overlay (macOS) or classic, sits on a message.
  */
 export function MessageScroller({ children, watch, className }: MessageScrollerProps) {
   const box = React.useRef<HTMLDivElement>(null);
@@ -33,7 +35,7 @@ export function MessageScroller({ children, watch, className }: MessageScrollerP
           pinned.current = atEnd;
           setAway(!atEnd);
         }}
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        className="-me-[min(12px,var(--ad-pad))] flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pe-[min(12px,var(--ad-pad))]"
       >
         <div className="mt-auto grid gap-5 py-1">{children}</div>
       </div>

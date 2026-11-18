@@ -212,8 +212,8 @@ function OrdersCard({ className }: { className?: string }) {
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
 
   return (
-    <Card inset="nest" className={cn("flex min-w-0 flex-col gap-nest", className)}>
-      <div className="flex min-h-control flex-wrap items-center gap-2 px-2 pt-2">
+    <Card inset="nest" className={cn("flex min-w-0 flex-col gap-gap", className)}>
+      <div className="flex min-h-control flex-wrap items-center gap-gap px-2 pt-2">
         <h3 className="mr-auto text-title font-semibold">Orders</h3>
         <Menu
           align="end"
@@ -398,7 +398,7 @@ function SalesCard({ className }: { className?: string }) {
     <Card className={cn("flex min-w-0 flex-col gap-4", className)}>
       <MetricCard variant="hero" primary loading={loading} label={s.label} unit="Rp" value={s.value} delta={{ value: s.delta, direction: s.up ? "up" : "down" }} />
       <BarChart data={s.chart} current={s.current} labelEvery={s.every} height={96} loading={loading} aria-label={s.label} />
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-gap">
         <Segmented
           aria-label="Range"
           value={range}
@@ -952,7 +952,7 @@ function ProductsCard({ className }: { className?: string }) {
   return (
     <Card inset="nest" className={cn("min-w-0", className)}>
       <Tabs defaultValue="all">
-        <div className="flex min-h-control flex-wrap items-center justify-between gap-2 px-2 pt-2">
+        <div className="flex min-h-control flex-wrap items-center justify-between gap-gap px-2 pt-2">
           <h3 className="text-title font-semibold">Products</h3>
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
@@ -1116,7 +1116,7 @@ function ByShopCard({ className }: { className?: string }) {
   ];
   return (
     <Card inset="nest" className={cn("flex min-w-0 flex-col gap-nest", className)}>
-      <div className="flex min-h-control flex-wrap items-center justify-between gap-2 px-2 pt-2">
+      <div className="flex min-h-control flex-wrap items-center justify-between gap-gap px-2 pt-2">
         <h3 className="text-title font-semibold">By shop</h3>
         <DateRangePicker value={range} onValueChange={(r) => (setRange(r), kick())} today={NOW} />
       </div>

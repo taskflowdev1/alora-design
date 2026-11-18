@@ -62,6 +62,7 @@
   --spacing-row: var(--ad-row-h);
   --spacing-pad: var(--ad-pad);
   --spacing-nest: var(--ad-nest);
+  --spacing-gap: var(--ad-gap);
   --spacing-bubble: var(--ad-bubble-x);
   --spacing-bubble-sm: var(--ad-bubble-x-sm);
   --text-small: var(--ad-text-small);

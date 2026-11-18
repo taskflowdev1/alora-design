@@ -194,7 +194,7 @@ function OrdersActionsTile({ className }: { className?: string }) {
   const [sel, setSel] = React.useState<string[]>([rows[1].id, rows[3].id]);
   return (
     <Tile className={className}>
-      <div className="flex min-h-control flex-wrap items-center gap-2 px-2 pt-1">
+      <div className="flex min-h-control flex-wrap items-center gap-gap px-2 pt-1">
         <h3 className="mr-auto text-title font-semibold">Orders</h3>
         <Menu
           align="end"
@@ -253,9 +253,9 @@ function OrdersActionsTile({ className }: { className?: string }) {
           );
         })}
       </div>
-      <div className="mt-auto flex flex-wrap items-center gap-2 rounded-item bg-fill p-nest pl-3">
+      <div className="mt-auto flex flex-wrap items-center gap-gap rounded-item bg-fill p-nest pl-3">
         <span className="mr-auto text-body tabular-nums">{sel.length} selected</span>
-        <Mark name="button" className="flex flex-wrap items-center gap-2">
+        <Mark name="button" className="flex flex-wrap items-center gap-gap">
           <Button variant="ghost" onClick={() => setSel([])}>
             Clear
           </Button>
@@ -410,11 +410,11 @@ function FindTile({ className }: { className?: string }) {
           <TabsContent value="done" />
         </Tabs>
       </Mark>
-      <div className="grid gap-2 px-2">
+      <div className="grid gap-gap px-2">
         <Mark name="search">
           <Search value={q} onValueChange={setQ} placeholder="Order or product" className="w-full" />
         </Mark>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-gap">
           <Mark name="select">
             <Select aria-label="Shop" prefix="Shop" value={shop} onValueChange={setShop} options={SHOPS.slice(0, 4).map((s) => ({ value: s, label: s }))} />
           </Mark>
@@ -422,7 +422,7 @@ function FindTile({ className }: { className?: string }) {
             <MultiSelect aria-label="Status" value={st} onValueChange={setSt} placeholder="Status" options={["Paid", "Packed", "Shipped", "Unpaid"].map((s) => ({ value: s, label: s }))} />
           </Mark>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-gap">
           <Mark name="period-stepper">
             <PeriodStepper value={d} period={range === "month" ? "month" : range === "day" ? "day" : "week"} onValueChange={setD} max={NOW} />
           </Mark>
@@ -507,7 +507,7 @@ function TableTile({ className }: { className?: string }) {
   const rows = ORDERS.filter((o) => chip === "all" || o.status === chip).slice(0, 6);
   return (
     <Tile className={className}>
-      <div className="flex min-h-control flex-wrap items-center gap-2 px-2 pt-1">
+      <div className="flex min-h-control flex-wrap items-center gap-gap px-2 pt-1">
         <h3 className="mr-auto text-title font-semibold">Orders</h3>
         <Mark name="status" className="flex flex-wrap items-center gap-1">
           {[
@@ -698,7 +698,7 @@ function DialogTile({ className }: { className?: string }) {
             <Field label="Reason">
               <Select value={reason} onValueChange={setReason} options={[{ value: "stock", label: "Out of stock" }, { value: "buyer", label: "Buyer asked" }]} className="w-full" />
             </Field>
-            <div className="flex flex-wrap justify-end gap-2">
+            <div className="flex flex-wrap justify-end gap-gap">
               <Button variant="ghost">Keep order</Button>
               <Button variant="primary" onClick={() => toast("Order cancelled")}>
                 Cancel order
@@ -819,7 +819,7 @@ function ToastTile({ className }: { className?: string }) {
         <ToastView>Changes saved</ToastView>
         <ToastView tone="neutral">Copied RMB-24817</ToastView>
       </Mark>
-      <div className="mt-auto flex flex-wrap gap-2 px-1">
+      <div className="mt-auto flex flex-wrap gap-gap px-1">
         <Button variant="primary" onClick={() => toast("Changes saved")}>
           Save
         </Button>
@@ -953,7 +953,7 @@ function PayoutsTile({ className }: { className?: string }) {
           <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} />
         </Mark>
       </div>
-      <div className="flex flex-wrap items-center gap-2 px-2">
+      <div className="flex flex-wrap items-center gap-gap px-2">
         <Mark name="shop-picker">
           <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={setShops} />
         </Mark>
@@ -1214,7 +1214,7 @@ function ProductTile({ className }: { className?: string }) {
       <Mark name="tag-input">
         <TagInput aria-label="Tags" value={tags} onValueChange={setTags} suggestions={["Rotan", "Kayu jati", "Bambu", "Best seller"]} />
       </Mark>
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 px-1">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-gap px-1">
         <Mark name="currency-input">
           <CurrencyInput aria-label="Price" value={price} onValueChange={setPrice} className="w-40" />
         </Mark>
@@ -1448,7 +1448,7 @@ export function ComponentBento({ query }: { query: string }) {
   };
   const groups = GROUPS.map((g) => ({ g, tiles: TILES[g].filter((t) => t.items.some(match)) })).filter((x) => x.tiles.length);
   return (
-    <div className="grid gap-10" data-components={COMPONENT_ITEMS.map((i) => i.name).join(",")}>
+    <div className="grid gap-10" data-components={COMPONENT_ITEMS.filter((i) => i.showcase !== false).map((i) => i.name).join(",")}>
       {groups.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
       {groups.map(({ g, tiles }) => (
         <section key={g} aria-label={g} data-group={g} className="grid gap-3">

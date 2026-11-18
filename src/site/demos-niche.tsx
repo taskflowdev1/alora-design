@@ -500,7 +500,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
   },
   "copy-chip": {
     render: () => (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-gap">
         <CopyChip value="RMB-24817" />
         <CopyChip value="JNE 0123 4567 8910">Resi JNE 0123 4567 8910</CopyChip>
         <CopyChip value="RMB-GL-014" />

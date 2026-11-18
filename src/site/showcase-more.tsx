@@ -56,7 +56,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Collapsible } from "@/components/ui/collapsible";
 import { Carousel } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { H3, InlineCode, List, Muted, Num, P } from "@/components/ui/typography";
 import { Resizable } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bubble, Message } from "@/components/ui/message";
@@ -374,7 +373,7 @@ function PayoutAccountTile({ className }: { className?: string }) {
           </InputGroup>
         </Mark>
       </div>
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-gap">
         <span className="text-body text-ink-muted">Statement</span>
         <Mark name="button-group">
           <ButtonGroup aria-label="Statement format">
@@ -454,7 +453,7 @@ function ProductPhotosTile({ className }: { className?: string }) {
     <Tile inset="pad" className={className}>
       <h3 className="truncate text-title font-semibold">Gelas kopi tanah liat</h3>
       <Mark name="carousel" className="min-w-0">
-        <Carousel aria-label="Product photos" perView={2} gap={8}>
+        <Carousel aria-label="Product photos" perView={3} gap={8}>
           {tints.map((c, i) =>
             i === 0 ? (
               <Mark key={i} name="aspect-ratio">
@@ -505,27 +504,6 @@ function SuppliersTile({ className }: { className?: string }) {
   );
 }
 
-function NoteTile({ className }: { className?: string }) {
-  return (
-    <Tile inset="pad" className={className}>
-      <Mark name="typography" className="grid gap-2.5">
-        <H3>Stock count, Saturday</H3>
-        <P>We close the Kemang shop at 18:00 and count before 21:00. Scan each shelf once; the app adds them up.</P>
-        <div className="flex items-baseline gap-2">
-          <Num>1.284</Num>
-          <Muted>items to count</Muted>
-        </div>
-        <List>
-          <li>Start with the clay shelf</li>
-          <li>
-            Damaged goes under <InlineCode>RMB-RUSAK</InlineCode>
-          </li>
-        </List>
-      </Mark>
-    </Tile>
-  );
-}
-
 /* ------------------------------------------------------------ Overlays */
 
 function ConfirmTile({ className }: { className?: string }) {
@@ -538,7 +516,7 @@ function ConfirmTile({ className }: { className?: string }) {
           <div role="alertdialog" aria-label="Cancel 3 orders?" className="absolute inset-x-3 top-1/2 mx-auto grid max-w-[340px] -translate-y-1/2 gap-3 rounded-sheet bg-surface p-pad shadow-dialog">
             <span className="pt-1 text-title font-semibold">Cancel 3 orders?</span>
             <span className="text-body leading-relaxed text-ink-muted">Buyers get their money back today and the stock returns to Kemang.</span>
-            <div className="mt-2 flex flex-wrap justify-end gap-2">
+            <div className="mt-2 flex flex-wrap justify-end gap-gap">
               <Button variant="ghost" onClick={say("Kept")}>
                 Keep
               </Button>
@@ -731,9 +709,8 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
   Display: [
     { items: ["data-table"], render: () => <OrdersTableTile className={S[8]} /> },
     { items: ["accordion"], render: () => <HelpTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-    { items: ["carousel", "aspect-ratio"], render: () => <ProductPhotosTile className={S[4]} /> },
-    { items: ["item", "collapsible"], render: () => <SuppliersTile className={S[4]} /> },
-    { items: ["typography"], render: () => <NoteTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
+    { items: ["carousel", "aspect-ratio"], render: () => <ProductPhotosTile className={S[6]} /> },
+    { items: ["item", "collapsible"], render: () => <SuppliersTile className={S[6]} /> },
   ],
   Overlays: [
     { items: ["alert-dialog"], render: () => <ConfirmTile className={S[6]} /> },

@@ -178,7 +178,7 @@ export const DEMOS: Record<string, Demo> = {
           {p.icon ? <Plus /> : null}
           Add order
         </Button>
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-gap">
           <Button variant="primary" size={p.size as never}>
             Save
           </Button>

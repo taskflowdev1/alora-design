@@ -327,6 +327,7 @@ export function tokens(c: Config) {
     "--ad-bubble-x": px(Math.round(c.padding * 0.75)),
     "--ad-bubble-x-sm": px(Math.round(c.padding / 2)),
     "--ad-nest": px(r.gap),
+    "--ad-gap": px(Math.round(c.padding / 2)),
     "--ad-corner": cornerValue(c),
     "--ad-ease": "cubic-bezier(0.22, 1, 0.36, 1)",
     "--ad-dur": "220ms",

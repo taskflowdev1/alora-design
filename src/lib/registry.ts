@@ -30,6 +30,8 @@ export interface Item {
   preview?: Record<string, number | string | boolean>;
   /** AI and Backgrounds only: how the site shows it ("inline" alone, "composer" around a message box, "field" behind a new-chat screen). */
   stage?: "inline" | "composer" | "field";
+  /** false: kept off the landing and the Components overview (no tile shows it in real use); its page and install stay. */
+  showcase?: false;
 }
 
 const RADIX = "radix-ui";
@@ -86,7 +88,7 @@ export const ITEMS: Item[] = [
   { name: "collapsible", title: "Collapsible", group: "Display", files: ["collapsible.tsx"], deps: [RADIX] },
   { name: "carousel", title: "Carousel", group: "Display", files: ["carousel.tsx"], registryDeps: ["button"] },
   { name: "aspect-ratio", title: "Aspect ratio", group: "Display", files: ["aspect-ratio.tsx"], deps: [RADIX] },
-  { name: "typography", title: "Typography", group: "Display", files: ["typography.tsx"] },
+  { name: "typography", title: "Typography", group: "Display", files: ["typography.tsx"], showcase: false },
 
   // Charts: one system (series colours, ticks, tooltip, legend in chart.tsx). The bar chart is in Display.
   { name: "chart", title: "Chart parts", group: "Charts", files: ["chart.tsx"] },

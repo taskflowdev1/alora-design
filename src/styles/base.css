@@ -1,8 +1,14 @@
 /* Alora Design base rules. Corner shape, one scrollbar style, no focus rings. */
 *, ::before, ::after {
   corner-shape: var(--ad-corner);
-  scrollbar-width: thin;
-  scrollbar-color: var(--ad-scroll) transparent;
+}
+/* In the base layer, so a utility on one element (a carousel's [scrollbar-width:none]) still wins. Unlayered, this
+   rule beat every Tailwind utility and the carousel showed a bar it meant to hide. */
+@layer base {
+  *, ::before, ::after {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ad-scroll) transparent;
+  }
 }
 .rounded-full, [data-shape="round"] {
   corner-shape: round;

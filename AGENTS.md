@@ -46,6 +46,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
   (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
+- v5.4 review shots: `./scripts/review-v5.4-shots` (before = the live site or `BEFORE=<url>`, classic scrollbars) into
+  `output/review-v5.4/` (A toolbar tile, B carousel, C Chat band, D right edge 1440/1720, E/G Display, F Sales row).
 - v5 review shots: `./scripts/review-v5-shots [before] [ONLY]` (before = the live site into `before/`) into
   `output/review-v5/` (letters A AI, F footer, H wordmark, T on/off states, N new components, X overflow).
 - Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min; `ONLY="C|W"` ~2 min): lettered PNGs + two webm videos +
@@ -83,7 +85,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   a step above the page, so it still stands out.
 - Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
-- /components is a bento like the landing (12 columns, 16 px gaps): per category, tiles that compose its components
+- /components is a bento like the landing (12 columns, `gap-4` = 13 px gaps): per category, tiles that compose its components
   in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
   sliders; a click on its empty space does too. Every component appears exactly once (smoke checks against the
   registry); a new component needs a place in a tile in `TILES`. Overlays are drawn open in place. /ai uses `TileSpot`
@@ -98,6 +100,17 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - shadcn install: every component depends on `/r/theme.json?<settings>` (cssVars + base css) and
   `/r/ad.json` (utils). shadcn also adds harmless `--color-ad-*` aliases to `@theme inline`.
 
+- Spacing: Tailwind's numeric steps are rem on a 13 px root (`gap-2` = 6.5 px). Controls side by side, wrapped or stacked use
+  `gap-gap` (`--ad-gap`, half the card padding, 8 px by default) in both axes (Toolbar, header/action rows, the Orders
+  card's rows); never `gap-nest` between control rows (Joshua, v5.4: "spacing here").
+- Scrollbars (Joshua, v5.4): nothing sits under one. The global thin-scrollbar rule lives in `@layer base` so a utility
+  (`[scrollbar-width:none]` on the carousel track) wins; unlayered it beat every utility. A scroll area whose content runs
+  edge to edge gives the bar a lane (MessageScroller: `-me/pe-[min(12px,var(--ad-pad))]`). Page widths come from
+  `clientWidth` / `100cqw` (the page wrapper's parent is a size container), never `innerWidth` / `100vw`, which count the
+  bar. Smoke runs a second Chromium with classic scrollbars (`ignoreDefaultArgs: ["--hide-scrollbars"]`) and checks /,
+  /components, /ai and /components/select at 1440 and 1720, flap closed, open and closed again.
+- `showcase: false` on a registry item keeps it off the landing and the Components overview (Typography: no tile reads
+  as the component in real use); its page and install stay, and the coverage checks skip it.
 - One padding scale for bubbles: `--ad-bubble-x` (pills at control height, chips, segments, tabs) and
   `--ad-bubble-x-sm` (24 px pills, copy chips, reactions); Tailwind `px-bubble` / `px-bubble-sm`.
 - Metric card: one or two digits get the short treatment (variant "tile", default; "scale" and "compact"

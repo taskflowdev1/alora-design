@@ -82,7 +82,7 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
         </div>
       )}
       {error ? <p className="-mt-2 text-body text-danger">{q.type === "text" ? "Answer this to go on" : "Pick one to go on"}</p> : null}
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-gap">
         {i > 0 ? (
           <Button variant="ghost" className="mr-auto" onClick={() => (setI(i - 1), setError(false))}>
             Back

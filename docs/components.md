@@ -1748,7 +1748,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/message-scroller.json"
 
 Files: `src/components/ui/message-scroller.tsx`. Installs too: `button`.
 
-`MessageScroller`: A conversation's scroll area: it starts at the latest message, follows new ones while you're at the bottom, and stays put when you've scrolled up to read, showing a "Latest" button instead. Short threads sit at the bottom.
+`MessageScroller`: A conversation's scroll area: it starts at the latest message, follows new ones while you're at the bottom, and stays put when you've scrolled up to read, showing a "Latest" button instead. Short threads sit at the bottom. The scrollbar gets its own lane past the content's right edge: the scroll box reaches 12 px (at most the card padding) into the parent's padding and pads itself back, so no bar, overlay (macOS) or classic, sits on a message.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

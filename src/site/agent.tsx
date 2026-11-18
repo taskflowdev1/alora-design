@@ -88,7 +88,7 @@ export function ThreadCard({ title = CHATS[0].label, className }: { title?: stri
   return (
     <Card data-thread className={cn("flex min-h-0 min-w-0 flex-col gap-3", className)}>
       <CardHeader title={title} />
-      <div ref={scroller} className="-mx-2 flex min-h-0 flex-1 flex-col overflow-y-auto px-2">
+      <div ref={scroller} className="-ms-2 -me-3 flex min-h-0 flex-1 flex-col overflow-y-auto ps-2 pe-3">
         {/* Turns pair up: a question sits close to its answer, and exchanges get more room between them. */}
         <div className={cn(COLUMN, "mt-auto grid gap-6 pt-1")}>
           {EXCHANGES.map((t) => (

@@ -95,7 +95,12 @@ export function themeItem(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) {
   const base = cssToObject(a.baseCss);
   const layered: CssObject = {};
   const outside: CssObject = {};
-  for (const [k, v] of Object.entries(base)) (k.startsWith("@") ? outside : layered)[k] = v;
+  const into = (o: CssObject, k: string, v: string | CssObject) => (o[k] = typeof v === "object" && typeof o[k] === "object" ? { ...o[k], ...v } : v);
+  for (const [k, v] of Object.entries(base)) {
+    // base.css's own "@layer base" block joins the rest: shadcn puts every base rule in that layer anyway.
+    if (k === "@layer base" && typeof v === "object") for (const [k2, v2] of Object.entries(v)) into(layered, k2, v2);
+    else into(k.startsWith("@") ? outside : layered, k, v);
+  }
   // shadcn writes cssVars.light to :root and cssVars.dark to .dark. With dark as the default,
   // :root carries the dark colours and a .light class carries the light ones.
   if (dark) layered[".light"] = t.light;
@@ -243,6 +248,8 @@ export function kitMarkdown(c: Config) {
     "Status = small dot centred on the text. A soft pill only for the one status that needs attention.",
     "Tables: dense rows, no row lines, sticky header that never overlaps, columns sized to data, one-line cells, bottom bar with count + pager (50 per page). Whole-row click opens a side pane.",
     "Toolbars: every control one height, one centre line. Popovers from one toolbar never stack.",
+    "Controls side by side, wrapped or stacked keep one gap, `--ad-gap` (half the card padding; `gap-gap`), in both axes. They never touch.",
+    "Nothing sits under a scrollbar: a scroll area whose content runs edge to edge gives the bar its own lane (see MessageScroller).",
     "Dropdowns are always the custom Select; never the native select look. Language picker = flag + EN/ID/CN.",
     "Dates read \"7 Nov 2026\" or relative (\"Today, 14:05\"). Money reads \"Rp 12.400.000\".",
     "Empty state = one 40 px Feather icon (1.5 stroke) + a short title. Nothing else.",

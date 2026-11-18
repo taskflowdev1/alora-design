@@ -6,7 +6,7 @@ import { PopoverGroup } from "@/components/ui/popover";
 export function Toolbar({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <PopoverGroup>
-      <div role="toolbar" className={cn("flex min-h-control flex-wrap items-center gap-2", className)}>
+      <div role="toolbar" className={cn("flex min-h-control flex-wrap items-center gap-gap", className)}>
         {children}
       </div>
     </PopoverGroup>

@@ -57,7 +57,7 @@ await sleep(800);
 const pushed = await page.evaluate(() => {
   const p = document.querySelector("[data-customize-panel]");
   const h = document.querySelector("header > div").getBoundingClientRect();
-  return { state: p?.getAttribute("data-state"), panel: Math.round(p.getBoundingClientRect().right), left: Math.round(h.left), right: Math.round(h.right), vw: innerWidth };
+  return { state: p?.getAttribute("data-state"), panel: Math.round(p.getBoundingClientRect().right), left: Math.round(h.left), right: Math.round(h.right), vw: document.documentElement.clientWidth };
 });
 check(pushed.state === "open" && pushed.left === pushed.panel && pushed.right === pushed.vw, `flap opens and pushes the page (${JSON.stringify(pushed)})`);
 await page.mouse.move(1000, 450, { steps: 4 });
@@ -357,9 +357,10 @@ check(errors.length === before, `new component pages throw nothing (${errors.sli
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landingMore = await page.evaluate((names) => {
   const band = document.querySelector("[data-landing=more]");
-  return { missing: names.filter((n) => band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
+  // Typography has no tile (Joshua, v5.4: "what is this remove."): its page stays, the landing and overview skip it.
+  return { typography: band?.querySelectorAll('[data-spot="typography"]').length, missing: names.filter((n) => n !== "typography" && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
 }, MORE);
-check(landingMore.missing.length === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
+check(landingMore.missing.length === 0 && landingMore.typography === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
 // Line chart: hovering shows one tooltip with every series.
 await page.goto(BASE + "/components/line-chart", { waitUntil: "networkidle" });
 const svg = page.locator("[data-stage] figure svg").first();
@@ -399,6 +400,75 @@ for (const size of ["default", "lg"]) {
     check(n > 0 && states.some((s) => s.on) && states.some((s) => !s.on) && bad.length === 0, `switch ${size} f=${f}: thumb insets equal, whole px (${seen})`);
   }
 }
+
+// Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
+// keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open (Joshua, v5.4:
+// "overlapping scrollbar again"), and the right margin equals the left. Inner scroll areas: a carousel's track shows no
+// bar, and the message scroller's bar sits in its own lane, clear of every message.
+const classic = await chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"] });
+const cpage = await classic.newPage({ viewport: { width: 1440, height: 900 } });
+const edges = () =>
+  cpage.evaluate(() => {
+    const cw = document.documentElement.clientWidth;
+    const inner = document.querySelector("header > div");
+    const ib = inner.getBoundingClientRect();
+    const cs = getComputedStyle(inner);
+    const gutter = parseFloat(cs.paddingRight);
+    const left = ib.left + parseFloat(cs.paddingLeft);
+    const right = ib.right - gutter;
+    const panel = document.querySelector("[data-customize-panel][data-state=open]")?.getBoundingClientRect().right ?? 0;
+    const over = [];
+    for (const el of document.querySelectorAll("[data-page] *")) {
+      const b = el.getBoundingClientRect();
+      if (b.width === 0 || b.height === 0 || b.right <= right + 0.5) continue;
+      const st = getComputedStyle(el);
+      if (st.visibility === "hidden" || st.opacity === "0") continue;
+      // Page-wide bands (the sticky header's background, main) span the page; their content is checked on its own.
+      if (b.left <= document.querySelector("[data-page]").getBoundingClientRect().left + 0.5 && b.right >= cw - 0.5) continue;
+      // A glow drawn behind its box (z-index -1) is light, not content.
+      if (st.position === "absolute" && st.zIndex === "-1") continue;
+      // A transparent wrapper whose padding keeps its content inside the gutter is fine (the page sections).
+      const painted = st.backgroundColor !== "rgba(0, 0, 0, 0)" || st.boxShadow !== "none" || !el.children.length;
+      if (!painted && b.right - parseFloat(st.paddingRight) <= right + 0.5) continue;
+      // Clipped by a scroll area or an overflow-hidden box inside the page: whatever pokes out is not painted.
+      let p = el.parentElement;
+      let clipped = false;
+      for (; p && !p.matches("[data-page]"); p = p.parentElement) {
+        const ps = getComputedStyle(p);
+        if (ps.overflowX !== "visible" && b.right > p.getBoundingClientRect().right + 0.5) clipped = true;
+      }
+      if (!clipped) over.push(`${el.tagName.toLowerCase()}${el.dataset.spot ? `[${el.dataset.spot}]` : ""} ${Math.round(b.right)} "${(el.textContent || "").trim().slice(0, 24)}"`);
+    }
+    return { cw, bar: innerWidth - cw, gutter, left: Math.round(left - panel), right: Math.round(cw - right), over: over.slice(0, 6) };
+  });
+for (const w of [1440, 1720]) {
+  await cpage.setViewportSize({ width: w, height: 900 });
+  for (const path of ["/", "/components", "/ai", "/components/select"]) {
+    await cpage.goto(BASE + path, { waitUntil: "networkidle" });
+    await cpage.mouse.move(w / 2, 450);
+    await sleep(300);
+    const shut = await edges();
+    check(shut.bar > 0 && shut.over.length === 0 && Math.abs(shut.left - shut.right) <= 1, `classic scrollbar ${w} ${path}, flap closed: nothing past the gutter, margins equal (${JSON.stringify(shut)})`);
+    await cpage.locator("[data-customize-flap]").hover();
+    await sleep(800);
+    const open = await edges();
+    check(open.over.length === 0 && open.right === Math.round(open.gutter), `classic scrollbar ${w} ${path}, flap open: nothing past the gutter (${JSON.stringify(open)})`);
+    await cpage.mouse.move(w - 100, 450, { steps: 4 });
+    await sleep(900);
+    const after = await edges();
+    check(after.over.length === 0 && Math.abs(after.left - after.right) <= 1, `classic scrollbar ${w} ${path}, after closing: margins equal (${JSON.stringify(after)})`);
+  }
+}
+await cpage.setViewportSize({ width: 1440, height: 900 });
+await cpage.goto(BASE + "/", { waitUntil: "networkidle" });
+const inner = await cpage.evaluate(() => {
+  const track = document.querySelector("[aria-roledescription=carousel] > div");
+  const box = document.querySelector("[data-spot=message-scroller] .overflow-y-auto");
+  const content = box.firstElementChild.getBoundingClientRect();
+  return { carouselBar: track.offsetHeight - track.clientHeight, lane: Math.round(box.getBoundingClientRect().left + box.clientWidth - content.right), card: Math.round(box.closest(".rounded-card, [class*=rounded-card]").getBoundingClientRect().right - box.getBoundingClientRect().right) };
+});
+check(inner.carouselBar === 0 && inner.lane >= 8 && inner.card >= 0, `inner scroll areas: no carousel bar, message bar in its own lane (${JSON.stringify(inner)})`);
+await classic.close();
 
 await browser.close();
 server.kill("SIGTERM");

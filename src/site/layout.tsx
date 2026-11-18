@@ -293,12 +293,16 @@ export function useEdgeFade(listRef: React.RefObject<HTMLElement | null>, on = t
   }, [listRef, on]);
 }
 
+/** The page's width without the vertical scrollbar (innerWidth and 100vw count it, so a classic bar ate the margin). */
 function useViewportWidth() {
-  const [vw, setVw] = React.useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
+  const [vw, setVw] = React.useState(() => (typeof document === "undefined" ? 1440 : document.documentElement.clientWidth));
   React.useEffect(() => {
-    const on = () => setVw(window.innerWidth);
+    const root = document.documentElement;
+    const on = () => setVw(root.clientWidth);
+    const ro = new ResizeObserver(on);
+    ro.observe(root);
     window.addEventListener("resize", on);
-    return () => window.removeEventListener("resize", on);
+    return () => (ro.disconnect(), window.removeEventListener("resize", on));
   }, []);
   return vw;
 }
@@ -503,8 +507,9 @@ export function SiteLayout() {
       <ConfigTokens />
       <ScrollRestoration />
       <CustomizeFlap pageRef={pageRef} />
-      <div className="overflow-x-clip">
-        <div ref={pageRef} data-page className="flex min-h-dvh flex-col md:pl-[clamp(0px,calc(12px-(100vw-1280px)/2),12px)]">
+      {/* A size container, so the page measures against its own width (100cqw), never 100vw with the scrollbar in it. */}
+      <div className="overflow-x-clip [container-type:inline-size]">
+        <div ref={pageRef} data-page className="flex min-h-dvh flex-col md:pl-[clamp(0px,calc(12px-(100cqw-1280px)/2),12px)]">
           <SiteHeader />
           <div className="flex-1">
             <Outlet />
