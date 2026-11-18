@@ -414,9 +414,6 @@ function SalesCard({ className }: { className?: string }) {
           <span className="min-w-[5ch] text-right font-semibold tabular-nums">
             <LoadingText loading={loading}>{s.orders.toLocaleString("id-ID")}</LoadingText>
           </span>
-          <Loading loading={loading}>
-            <Sparkline data={SPARK} width={56} height={22} aria-label="Orders, last 12 periods" />
-          </Loading>
         </span>
       </div>
     </Card>

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds the working tree and shoots it next to the live site)
+# v5.5 review shots into output/review-v5.5/: before (the live site) | after (this tree): the Sales card, both themes.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+OUT="${OUT:-output/review-v5.5}"
+WORK="${TMPDIR:-/tmp}/review-v55"
+rm -rf "$WORK" && mkdir -p "$WORK" "$OUT"
+npx vite build --logLevel warn --outDir "$WORK/dist" --emptyOutDir
+DIST="$WORK/dist" OUT="$OUT" node scripts/review-v5.5-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/review-v55-shots.log"
