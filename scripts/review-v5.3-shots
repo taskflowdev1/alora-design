@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds three local versions and shoots them headless)
+# v5.3 review shots into output/review-v5.3/: original (e449e2c), v5.2 (770273e) and the working tree, side by side;
+# switch close-ups with measured insets; the grey swatch sheet (before = 770273e); the 6- vs 5-step preview.
+# Older versions come from `git archive` tarballs in .review-src/; a synced (Mac) job has no .git, so make them first:
+# `mkdir -p .review-src && for v in e449e2c 770273e; do git archive $v -o .review-src/$v.tar; done` (never commit them).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+ROOT="$PWD"
+OUT="${OUT:-output/review-v5.3}"
+WORK="${TMPDIR:-/tmp}/review-v53"
+rm -rf "$WORK" && mkdir -p "$WORK" "$OUT"
+npx vite build --logLevel warn --outDir "$WORK/dist-new" --emptyOutDir
+mkdir -p .review-src
+for v in e449e2c 770273e; do
+  if [ ! -f ".review-src/$v.tar" ]; then
+    git archive "$v" -o ".review-src/$v.tar" 2>/dev/null || { echo "missing .review-src/$v.tar"; exit 1; }
+  fi
+  mkdir -p "$WORK/src-$v" && tar -xf ".review-src/$v.tar" -C "$WORK/src-$v"
+  ln -s "$ROOT/node_modules" "$WORK/src-$v/node_modules"
+  (cd "$WORK/src-$v" && npx vite build --logLevel warn --outDir "$WORK/dist-$v" --emptyOutDir)
+done
+node scripts/greys.mjs --inventory --root "$WORK/src-770273e" > "$OUT/greys-before.json"
+node scripts/greys.mjs --inventory > "$OUT/greys-after.json"
+node scripts/greys.mjs --sheet "$OUT/greys-before.json" "$OUT/greys-after.json" "$OUT/greys.html" --before-label "v5.2, 770273e"
+WORK="$WORK" OUT="$OUT" node scripts/review-v5.3-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/review-v53-shots.log"
