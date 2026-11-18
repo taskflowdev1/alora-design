@@ -57,31 +57,27 @@ export function useCycle<T>(list: T[], ms: number, ref: React.RefObject<HTMLElem
   return list[i];
 }
 
-/** Earlier turns in the running chat, so the thread fills a real chat-app height. */
-const TURNS: { from: "me" | "agent"; text: string; wide?: boolean }[] = [
-  { from: "me", text: "Did the Shopee payout land?", wide: true },
-  { from: "agent", text: "Yes, Rp 12.400.000 at 09:12. TikTok's Rp 4.180.000 is due tomorrow.", wide: true },
-  { from: "me", text: "How did Rimba Kemang do yesterday?" },
-  { from: "agent", text: "42 orders for Rp 8.960.000, up 12% on the Sunday before. Taplak meja tenun ikat sold out by 15:00." },
-  { from: "me", text: "Restock it from Dago?" },
-  { from: "agent", text: "Dago has 9 left. I moved 6 to Kemang and kept 3 for Dago's open orders." },
-  { from: "me", text: "Which orders are late this week?" },
+/** Earlier exchanges in the running chat (question, answer), so the thread fills a real chat-app height. */
+const EXCHANGES: { me: string; agent: string; wide?: boolean }[] = [
+  { me: "Any returns today?", agent: "Two, both at Senopati: a cracked mug and a taplak in the wrong size. Both refunds are queued.", wide: true },
+  { me: "Did the Shopee payout land?", agent: "Yes, Rp 12.400.000 at 09:12. TikTok's Rp 4.180.000 is due tomorrow.", wide: true },
+  { me: "How did Rimba Kemang do yesterday?", agent: "42 orders for Rp 8.960.000, up 12% on the Sunday before. Taplak meja tenun ikat sold out by 15:00." },
+  { me: "Restock it from Dago?", agent: "Dago has 9 left. I moved 6 to Kemang and kept 3 for Dago's open orders." },
 ];
 
-/** `wide`: only from lg, where the thread has its fixed height to fill; phones start one exchange later. */
-function Bubble({ from, wide, children }: { from: "me" | "agent"; wide?: boolean; children: React.ReactNode }) {
-  return from === "me" ? (
-    <div className={cn("ml-auto w-fit max-w-[80%] rounded-card bg-fill px-3.5 py-2 text-body text-ink", wide && "max-lg:hidden")}>{children}</div>
-  ) : (
-    <p className={cn("max-w-[92%] text-body leading-relaxed text-ink", wide && "max-lg:hidden")}>{children}</p>
-  );
+/** The user's turn: a soft bubble on the right, sized to its text. */
+function Mine({ children }: { children: React.ReactNode }) {
+  return <div className="ml-auto w-fit max-w-[80%] rounded-card bg-fill px-3.5 py-2 text-body text-ink">{children}</div>;
 }
+
+/** The conversation column: centred and capped so lines stay readable in a wide thread. */
+const COLUMN = "mx-auto w-full max-w-[720px]";
 
 /**
  * A thread: earlier turns, the answer so far, the live run line, then the working message box pinned to the bottom.
  * From lg the card has a fixed chat-app height and the turns scroll above the box, starting at the latest.
  */
-export function ThreadCard({ className }: { className?: string }) {
+export function ThreadCard({ title = CHATS[0].label, className }: { title?: string; className?: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const scroller = React.useRef<HTMLDivElement>(null);
   const step = useCycle(STEPS, 2400, ref);
@@ -90,24 +86,30 @@ export function ThreadCard({ className }: { className?: string }) {
     if (el) el.scrollTop = el.scrollHeight;
   }, []);
   return (
-    <Card data-thread className={cn("flex min-h-0 min-w-0 flex-col gap-4", className)}>
+    <Card data-thread className={cn("flex min-h-0 min-w-0 flex-col gap-3", className)}>
+      <CardHeader title={title} />
       <div ref={scroller} className="-mx-2 flex min-h-0 flex-1 flex-col overflow-y-auto px-2">
-        <div className="mt-auto grid gap-5 pt-1">
-          {TURNS.map((t, i) => (
-            <Bubble key={i} from={t.from} wide={t.wide}>
-              {t.text}
-            </Bubble>
+        {/* Turns pair up: a question sits close to its answer, and exchanges get more room between them. */}
+        <div className={cn(COLUMN, "mt-auto grid gap-6 pt-1")}>
+          {EXCHANGES.map((t) => (
+            <div key={t.me} className={cn("grid gap-3", t.wide && "max-lg:hidden")}>
+              <Mine>{t.me}</Mine>
+              <p className="max-w-[92%] text-body leading-relaxed text-ink">{t.agent}</p>
+            </div>
           ))}
-          <div className="grid gap-2 text-body leading-relaxed text-ink">
-            <p>Seven orders are past their ship-by date, five of them at Rimba Kemang. Two are waiting on stock for Gelas kopi tanah liat.</p>
-            <p className="text-ink-muted">Checking whether the other two have a courier booked.</p>
-          </div>
-          <div ref={ref}>
-            <RunStatus text={step} />
+          <div className="grid gap-3">
+            <Mine>Which orders are late this week?</Mine>
+            <div className="grid gap-1.5 text-body leading-relaxed text-ink">
+              <p>Seven orders are past their ship-by date, five of them at Rimba Kemang. Two are waiting on stock for Gelas kopi tanah liat.</p>
+              <p className="text-ink-muted">Checking whether the other two have a courier booked.</p>
+            </div>
+            <div ref={ref} className="pt-1">
+              <RunStatus text={step} />
+            </div>
           </div>
         </div>
       </div>
-      <ComposerGlow working halo={16}>
+      <ComposerGlow working halo={16} className={COLUMN}>
         <Composer working placeholder="Reply" />
       </ComposerGlow>
     </Card>
@@ -136,8 +138,7 @@ const CHATS = [
 const PHONE_CHATS = 5;
 
 /** The chat list, the app's sidebar: a running chat shows the orbs where its time would be. */
-export function ChatsCard({ className }: { className?: string }) {
-  const [active, setActive] = React.useState(0);
+export function ChatsCard({ active, onActive, className }: { active: number; onActive: (i: number) => void; className?: string }) {
   return (
     <Card data-chats className={cn("flex min-h-0 min-w-0 flex-col gap-2", className)}>
       <CardHeader
@@ -153,11 +154,11 @@ export function ChatsCard({ className }: { className?: string }) {
           <button
             key={c.label}
             type="button"
-            onClick={() => setActive(i)}
+            onClick={() => onActive(i)}
             className={cn(
               "flex h-item shrink-0 cursor-pointer items-center gap-3 rounded-control px-2.5 text-left text-body transition-colors duration-[160ms] ease-ad",
               i >= PHONE_CHATS && "max-lg:hidden",
-              i === active ? "bg-fill-hover text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+              i === active ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
             )}
           >
             <span className="min-w-0 flex-1 truncate">{c.label}</span>
@@ -181,10 +182,11 @@ export function ChatsCard({ className }: { className?: string }) {
  * thread takes the rest. Below lg they stack.
  */
 export function AgentApp({ className }: { className?: string }) {
+  const [active, setActive] = React.useState(0);
   return (
     <div data-agent-app className={cn("grid grid-cols-1 gap-4 lg:h-[580px] lg:grid-cols-[fit-content(280px)_minmax(0,1fr)]", className)}>
-      <ChatsCard className="lg:min-w-[240px]" />
-      <ThreadCard />
+      <ChatsCard active={active} onActive={setActive} className="lg:min-w-[240px]" />
+      <ThreadCard title={CHATS[active].label} />
     </div>
   );
 }

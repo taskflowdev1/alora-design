@@ -122,7 +122,7 @@ export const ITEMS: Item[] = [
     export: "ThinkingOrbs",
     kind: "Loaders",
     stage: "inline",
-    preview: { size: 72 },
+    preview: { size: 52 },
     params: [
       { key: "size", label: "Size", type: "range", min: 14, max: 120, default: 22, unit: "px" },
       { key: "count", label: "Orbs", type: "range", min: 2, max: 8, default: 3 },

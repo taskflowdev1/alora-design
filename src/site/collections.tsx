@@ -120,7 +120,7 @@ function ParamControl({ p, value, onChange }: { p: Param; value: number | string
 }
 
 /** AI page tiles: loaders small, the composer wide, so the row packs to twelve columns like the landing bento. */
-const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-4", "composer-glow": "md:col-span-2 lg:col-span-5" };
+const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-3", "composer-glow": "sm:col-span-2 lg:col-span-6" };
 
 /** The AI or Backgrounds page: every item live, under its small kind heading; each opens its sliders. */
 export function CollectionIndex({ section }: { section: Exclude<Section, "components"> }) {
@@ -132,9 +132,9 @@ export function CollectionIndex({ section }: { section: Exclude<Section, "compon
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
       <h1 className="mb-6 text-heading font-semibold">{SECTION_TITLE[section]}</h1>
       {section === "ai" ? (
-        <div data-group="AI" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+        <div data-group="AI" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
           {items.map((i) => (
-            <TileSpot key={i.name} item={i} className={AI_SPAN[i.name] ?? "lg:col-span-4"}>
+            <TileSpot key={i.name} item={i} className={cn("min-h-[144px] sm:min-h-[168px] lg:min-h-[188px]", AI_SPAN[i.name] ?? "lg:col-span-4")}>
               <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />
             </TileSpot>
           ))}
