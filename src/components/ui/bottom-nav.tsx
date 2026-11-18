@@ -28,7 +28,7 @@ export function BottomNavItem({
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex min-w-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control py-1.5 text-[11px] transition-[background-color,color,transform] duration-[160ms] ease-ad active:scale-95",
-        active ? "bg-side-fill-hover text-side-ink" : "text-side-muted",
+        active ? "bg-side-fill-strong text-side-ink" : "text-side-muted",
       )}
     >
       <Icon size={18} />

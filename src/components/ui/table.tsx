@@ -49,7 +49,7 @@ export function TRow({ selected, onActivate, className, ...props }: TRowProps) {
         "group/row h-row [&>td:first-child]:rounded-l-item [&>td:last-child]:rounded-r-item",
         "[&>td]:transition-colors [&>td]:duration-[160ms]",
         onActivate && "cursor-pointer",
-        selected ? "[&>td]:bg-fill-hover" : "hover:[&>td]:bg-fill focus-visible:[&>td]:bg-fill",
+        selected ? "[&>td]:bg-fill-strong" : "hover:[&>td]:bg-fill focus-visible:[&>td]:bg-fill",
         className,
       )}
       {...props}

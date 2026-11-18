@@ -27,7 +27,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
   const pill = (mine: boolean) =>
     cn(
       "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-95",
-      mine ? "bg-fill-hover text-ink" : "bg-fill text-ink-muted hover:bg-fill-hover",
+      mine ? "bg-on text-on-ink" : "bg-fill text-ink-muted hover:bg-fill-hover",
     );
   return (
     <div className="flex flex-wrap items-center gap-1">

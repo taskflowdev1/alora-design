@@ -107,7 +107,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                 }}
                 className={cn(
                   "flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body transition-colors duration-[160ms]",
-                  preset?.key === p.key ? "bg-fill-hover text-ink" : "text-ink hover:bg-fill",
+                  preset?.key === p.key ? "bg-fill-strong text-ink" : "text-ink hover:bg-fill",
                 )}
               >
                 {p.label}

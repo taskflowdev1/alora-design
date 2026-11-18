@@ -46,7 +46,7 @@ function GallerySidebar({ groups }: { groups: Group[] }) {
               className={({ isActive }) =>
                 cn(
                   "flex h-item items-center rounded-control px-2.5 text-body transition-colors duration-[160ms]",
-                  isActive ? "bg-fill-hover text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+                  isActive ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
                 )
               }
             >

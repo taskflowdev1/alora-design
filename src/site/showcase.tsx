@@ -288,7 +288,7 @@ function OrdersActionsTile({ className }: { className?: string }) {
         {rows.map((o) => {
           const on = sel.includes(o.id);
           return (
-            <label key={o.id} className={cn("flex h-row cursor-pointer items-center gap-3 rounded-item px-2 text-body", on ? "bg-fill" : "hover:bg-fill")}>
+            <label key={o.id} className={cn("flex h-row cursor-pointer items-center gap-3 rounded-item px-2 text-body", on ? "bg-fill-strong" : "hover:bg-fill")}>
               <Checkbox aria-label={o.id} checked={on} onCheckedChange={(v) => setSel(v ? [...sel, o.id] : sel.filter((x) => x !== o.id))} />
               <span className="w-24 shrink-0">{o.id}</span>
               <span className="min-w-0 flex-1 truncate">{o.items}</span>

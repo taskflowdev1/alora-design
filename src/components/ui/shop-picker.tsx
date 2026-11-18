@@ -34,7 +34,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   const quickBtn = (active: boolean) =>
     cn(
       "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[160ms] ease-ad active:scale-[0.96]",
-      active ? "bg-fill-hover text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+      active ? "bg-on text-on-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
     );
 
   return (

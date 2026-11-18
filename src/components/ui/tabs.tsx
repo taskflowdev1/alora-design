@@ -31,7 +31,7 @@ export function TabsList({ className, children, ...props }: React.ComponentProps
       {box ? (
         <span
           aria-hidden
-          className={cn("absolute inset-y-0 left-0 rounded-control bg-fill", ready && "transition-[transform,width] duration-[220ms] ease-ad")}
+          className={cn("absolute inset-y-0 left-0 rounded-control bg-on", ready && "transition-[transform,width] duration-[220ms] ease-ad")}
           style={{ width: box.w, transform: `translateX(${box.x}px)` }}
         />
       ) : null}
@@ -45,7 +45,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
     <T.Trigger
       className={cn(
         "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body font-medium transition-[color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
-        "text-ink-muted hover:text-ink focus-visible:text-ink data-[state=active]:text-ink",
+        "text-ink-muted data-[state=inactive]:hover:text-ink data-[state=inactive]:focus-visible:text-ink data-[state=active]:text-on-ink",
         className,
       )}
       {...props}

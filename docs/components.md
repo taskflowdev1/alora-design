@@ -372,7 +372,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/segmented.json"
 
 Files: `src/components/ui/segmented.tsx`.
 
-`Segmented`: Track at the control radius; the sliding pill sits one nest gap inside it, concentric.
+`Segmented`: Track at the control radius; the sliding solid-ink pill sits one nest gap inside it, concentric.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -418,7 +418,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/switch.json"
 
 Files: `src/components/ui/switch.tsx`.
 
-`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset.
+`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset. On = solid ink track with an on-ink thumb, so it reads in both themes (never white on white).
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1275,7 +1275,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/toggle-group.json"
 
 Files: `src/components/ui/toggle-group.tsx`.
 
-`ToggleGroup`: Several on/off choices in one track, like a segmented control that allows more than one. Pressed items get the raised pill; the track and pills are concentric.
+`ToggleGroup`: Several on/off choices in one track, like a segmented control that allows more than one. Pressed items get a solid ink pill (on / on-ink), clear against the track in both themes; track and pills are concentric.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

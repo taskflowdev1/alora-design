@@ -226,6 +226,7 @@ function themeColors(c: Config, dark: boolean) {
     "side-raised": g(sideL + 0.06, 1.2),
     "side-fill": g(sideL + 0.06, 1.2),
     "side-fill-hover": g(sideL + 0.1, 1.2),
+    "side-fill-strong": g(sideL + 0.17, 1.2),
     "side-ink": g(0.93, 0.4),
     "side-muted": g(0.68, 0.6),
     "shadow-card": sh.card,
