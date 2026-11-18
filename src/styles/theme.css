@@ -29,6 +29,11 @@
   --color-chart-3: var(--ad-chart-3);
   --color-chart-4: var(--ad-chart-4);
   --color-chart-5: var(--ad-chart-5);
+  --color-series-1: var(--ad-series-1);
+  --color-series-2: var(--ad-series-2);
+  --color-series-3: var(--ad-series-3);
+  --color-series-4: var(--ad-series-4);
+  --color-series-5: var(--ad-series-5);
   --color-side: var(--ad-side);
   --color-side-raised: var(--ad-side-raised);
   --color-side-fill: var(--ad-side-fill);

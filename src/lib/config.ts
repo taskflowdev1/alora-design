@@ -191,6 +191,11 @@ function themeColors(c: Config, dark: boolean) {
   const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : g(0.18, 1.4);
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
+  // Series colours for multi-series charts: one accent hue, lightness steps far enough apart that neighbours read as
+  // different marks (about 0.2 L between series 1-2 and 1-3), validated against the card surface in each theme.
+  const seriesL = dark ? [0.66, 0.86, 0.5, 0.77, 0.58] : [0.58, 0.78, 0.4, 0.69, 0.49];
+  const seriesC = dark ? [0.95, 0.6, 0.9, 0.75, 0.9] : [1, 0.65, 0.8, 0.85, 0.95];
+  const series = seriesL.map((l, i) => oklchToHex({ l, c: acc.c * seriesC[i], h: acc.h }));
   // Dark sidebar in both themes; in dark mode it sits a step above the page (like a card) so it still stands out.
   const sideL = 0.2;
   return {
@@ -222,6 +227,11 @@ function themeColors(c: Config, dark: boolean) {
     "chart-3": chart[2],
     "chart-4": chart[3],
     "chart-5": chart[4],
+    "series-1": series[0],
+    "series-2": series[1],
+    "series-3": series[2],
+    "series-4": series[3],
+    "series-5": series[4],
     side: g(sideL, 1.2),
     "side-raised": g(sideL + 0.06, 1.2),
     "side-fill": g(sideL + 0.06, 1.2),
