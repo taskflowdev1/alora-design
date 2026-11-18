@@ -476,7 +476,7 @@ function ShellCard({ className }: { className?: string }) {
       <Menu
         tone="dark"
         trigger={
-          <button type="button" className="flex h-control w-full cursor-pointer items-center justify-between gap-2 rounded-control bg-side-fill px-2.5 text-body hover:bg-side-fill-hover">
+          <button type="button" className="flex h-control w-full cursor-pointer items-center justify-between gap-2 rounded-control bg-side-fill px-2.5 text-body hover:bg-side-fill-strong">
             <span className="truncate">Rimba · All shops</span>
             <ChevronDown size={16} className="shrink-0 text-side-muted" />
           </button>
@@ -512,7 +512,7 @@ function ShellCard({ className }: { className?: string }) {
           side="top"
           trigger={
             <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
-              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-hover text-side-ink" />
+              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
           }
         >

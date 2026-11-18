@@ -51,7 +51,7 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
                   {c.label}
                 </a>
               )}
-              {!last ? <ChevronRight size={14} aria-hidden className="shrink-0 text-ink-faint" /> : null}
+              {!last ? <ChevronRight size={14} aria-hidden className="shrink-0 text-ink-muted" /> : null}
             </li>
           );
         })}

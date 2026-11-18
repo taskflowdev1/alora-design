@@ -12,7 +12,7 @@ export function Radio({ label, className, ...props }: React.ComponentProps<typeo
     <label htmlFor={id} className={cn("inline-flex cursor-pointer select-none items-center gap-2 text-body text-ink", className)}>
       <R.Item
         id={id}
-        className="grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-full bg-fill-strong transition-[background-color,transform] duration-[220ms] ease-ad hover:bg-fill-hover active:scale-90 data-[state=checked]:bg-on"
+        className="grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-full bg-fill-strong transition-[background-color,transform] duration-[220ms] ease-ad active:scale-90 data-[state=checked]:bg-on"
         {...props}
       >
         <R.Indicator className="block size-1.5 rounded-full bg-on-ink" />

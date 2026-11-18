@@ -43,7 +43,7 @@ export function InlineEdit({ value, onSave, display, validate, align = "left", i
 
   if (draft != null) {
     return (
-      <span className={cn(box, error ? "bg-danger-soft" : "bg-fill-hover")} title={error ?? undefined}>
+      <span className={cn(box, error ? "bg-danger-soft" : "bg-fill")} title={error ?? undefined}>
         <input
           ref={input}
           value={draft}
@@ -75,7 +75,7 @@ export function InlineEdit({ value, onSave, display, validate, align = "left", i
       className={cn(box, "group w-full cursor-text tabular-nums hover:bg-fill focus-visible:bg-fill")}
     >
       <span className="flex-1 whitespace-nowrap">{display ? display(value) : value}</span>
-      <Edit2 size={14} className="shrink-0 text-ink-faint opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-visible:opacity-100" />
+      <Edit2 size={14} className="shrink-0 text-ink-muted opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-visible:opacity-100" />
     </button>
   );
 }

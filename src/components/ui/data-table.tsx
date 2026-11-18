@@ -44,7 +44,7 @@ export interface DataTableProps<T> {
   className?: string;
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill-hover text-transparent";
+const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-transparent";
 
 /**
  * The full table: search, filters and the column menu in one row of equal-height controls; sortable headers; a

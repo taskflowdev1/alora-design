@@ -18,8 +18,8 @@ const hold = (label: React.ReactNode) => (
 );
 
 /**
- * Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a hairline edge
- * and a small drop) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
+ * Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a soft drop, no
+ * edge or ring) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
  */
 export function Segmented<T extends string>({ value, onValueChange, options, className, ...aria }: SegmentedProps<T>) {
   const refs = React.useRef<(HTMLButtonElement | null)[]>([]);

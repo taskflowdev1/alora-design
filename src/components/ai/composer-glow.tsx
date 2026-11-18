@@ -97,7 +97,7 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
           e.preventDefault();
           send();
         }}
-        className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-faint max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
+        className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-muted max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
       />
       {working && empty ? (
         <Button icon aria-label="Stop" onClick={onStop}>

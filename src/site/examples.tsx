@@ -123,7 +123,7 @@ function AppSidebar({ page }: { page: Page }) {
       <Menu
         tone="dark"
         trigger={
-          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink transition-[background-color,transform] duration-[160ms] hover:bg-side-fill-hover active:scale-[0.98]">
+          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink transition-[background-color,transform] duration-[160ms] hover:bg-side-fill-strong active:scale-[0.98]">
             <span className="min-w-0 flex-1 truncate font-medium">Rimba · {shop}</span>
             <ChevronDown size={16} className="shrink-0 text-side-muted" />
           </button>
@@ -156,7 +156,7 @@ function AppSidebar({ page }: { page: Page }) {
           side="top"
           trigger={
             <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
-              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-hover text-side-ink" />
+              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
           }
         >

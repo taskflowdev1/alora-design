@@ -61,7 +61,7 @@ export function Combobox({
             <span className="min-w-0 truncate">{current.label}</span>
           </>
         ) : (
-          <span className="truncate text-ink-faint">{placeholder}</span>
+          <span className="truncate text-ink-muted">{placeholder}</span>
         )}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
@@ -76,7 +76,7 @@ export function Combobox({
           }}
           className={cn(dropdownSurface, "w-[max(240px,var(--radix-popover-trigger-width))]")}
         >
-          <label className="mb-1 flex h-item items-center gap-2 rounded-control bg-fill px-2.5 focus-within:bg-fill-hover">
+          <label className="mb-1 flex h-item items-center gap-2 rounded-control bg-fill px-2.5 focus-within:bg-fill-strong">
             <Search size={16} className="shrink-0 text-ink-muted" />
             <input
               ref={inputRef}
@@ -91,7 +91,7 @@ export function Combobox({
                 nav.setActive(0);
               }}
               onKeyDown={(e) => nav.onKeyDown(e, false)}
-              className="h-full w-full min-w-0 bg-transparent text-body text-ink outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
+              className="h-full w-full min-w-0 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
             />
           </label>
           <div className="max-h-[min(280px,calc(var(--radix-popover-content-available-height)-48px))] overflow-auto">

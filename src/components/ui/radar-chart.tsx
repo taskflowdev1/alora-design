@@ -41,11 +41,11 @@ export function RadarChart({ data, series, size = 240, rings = 4, fill = 0.14, f
         {width > 0 ? (
           <svg width={w} height={size} role="img" aria-label={aria["aria-label"]} className="block overflow-visible" onPointerLeave={() => setHover(null)}>
             {Array.from({ length: rings }, (_, r) => (
-              <polygon key={r} points={poly(data.map(() => (max * (r + 1)) / rings))} fill="none" stroke="var(--ad-fill-hover)" strokeWidth={1} />
+              <polygon key={r} points={poly(data.map(() => (max * (r + 1)) / rings))} fill="none" stroke="var(--ad-fill)" strokeWidth={1} />
             ))}
             {data.map((_, i) => {
               const [x, y] = pt(i, max);
-              return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--ad-fill-hover)" strokeWidth={1} />;
+              return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--ad-fill)" strokeWidth={1} />;
             })}
             {series.map((s, si) => (
               <polygon key={s.key} points={poly(data.map((d) => Number(d[s.key]) || 0))} fill={seriesColor(si)} fillOpacity={fill} stroke={seriesColor(si)} strokeWidth={2} strokeLinejoin="round" />

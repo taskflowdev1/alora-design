@@ -493,7 +493,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/segmented.json"
 
 Files: `src/components/ui/segmented.tsx`.
 
-`Segmented`: Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a hairline edge and a small drop) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
+`Segmented`: Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a soft drop, no edge or ring) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

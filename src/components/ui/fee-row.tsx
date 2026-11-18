@@ -40,7 +40,7 @@ export function FeeRow({ payer, market = "shopee", label, amount, unit = "Rp", s
         {PAYER[payer]}
       </span>
       <span className="min-w-0 flex-1 truncate text-ink">{label}</span>
-      <span className={cn("shrink-0 tabular-nums", amount > 0 ? "text-success" : amount < 0 ? "text-danger" : "text-ink-faint")}>
+      <span className={cn("shrink-0 tabular-nums", amount > 0 ? "text-success" : amount < 0 ? "text-danger" : "text-ink-muted")}>
         {amount > 0 ? "+" : amount < 0 ? "−" : ""}
         {unit} {Math.abs(Math.round(amount)).toLocaleString("id-ID")}
       </span>

@@ -60,7 +60,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
             if (e.key === "Backspace" && !text && value.length) onValueChange(value.slice(0, -1));
           }}
           onBlur={() => text && add(text)}
-          className="h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] min-w-24 flex-1 bg-transparent pl-1.5 text-ink outline-none placeholder:text-ink-faint"
+          className="h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] min-w-24 flex-1 bg-transparent pl-1.5 text-ink outline-none placeholder:text-ink-muted"
         />
       </div>
       {hits.length ? (

@@ -87,7 +87,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
                   aria-label={`Slide ${i + 1}`}
                   aria-current={i === index || undefined}
                   onClick={() => go(i)}
-                  className={cn("h-1.5 cursor-pointer rounded-full transition-[width,background-color] duration-[220ms] ease-ad", i === index ? "w-5 bg-on" : "w-1.5 bg-fill-strong hover:bg-ink-faint")}
+                  className={cn("h-1.5 cursor-pointer rounded-full transition-[width,background-color] duration-[220ms] ease-ad", i === index ? "w-5 bg-on" : "w-1.5 bg-fill-strong hover:bg-ink-muted")}
                 />
               ))}
             </div>

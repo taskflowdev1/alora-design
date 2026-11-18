@@ -122,7 +122,7 @@ function CommandPanel({
         e.preventDefault();
       }}
     >
-      <label className="flex h-[calc(var(--ad-control-h)+8px)] items-center gap-2.5 rounded-control bg-fill px-3 text-body focus-within:bg-fill-hover">
+      <label className="flex h-[calc(var(--ad-control-h)+8px)] items-center gap-2.5 rounded-control bg-fill px-3 text-body focus-within:bg-fill-strong">
         <SearchIcon size={16} className="shrink-0 text-ink-muted" />
         <input
           autoFocus={autoFocus}
@@ -134,7 +134,7 @@ function CommandPanel({
           aria-expanded
           aria-controls={`${uid}-list`}
           aria-activedescendant={flat[active] ? `${uid}-${flat[active].id}` : undefined}
-          className="h-full w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-faint"
+          className="h-full w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
       <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56vh)]")}>

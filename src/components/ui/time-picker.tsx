@@ -41,7 +41,7 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger className={cn(triggerClass, "tabular-nums", className)}>
         <Clock size={16} className="shrink-0 text-ink-muted" />
-        {value ? <span>{value}</span> : <span className="text-ink-faint">{placeholder}</span>}
+        {value ? <span>{value}</span> : <span className="text-ink-muted">{placeholder}</span>}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>

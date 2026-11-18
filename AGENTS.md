@@ -110,14 +110,15 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - Footer: the credit "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com) at body size. Inner pages:
   one line on the content edge. Landing: the closing card is the only footer (wordmark + Explore, then tabs + credit).
 - Selected states follow the shadcn/Radix/Apple norm (Joshua rejected solid-ink pills in v5): in a track (segmented,
-  toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track`; on a plain
+  toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track` (a soft drop only: never an edge, outline or ring); on a plain
   surface (tabs, chips, shop-picker All/Only, toggle, pagination) the grey `fill-strong` pill. Active text is ink and
   medium, inactive muted and regular; `.ad-hold` keeps the width when the weight changes. The track is `fill` (the
   original lightness). Switch: neutral, never the accent: `switch-on` = ink in light, `ink-muted` in dark, off =
-  `fill-strong`, white thumb. Tune these tokens in `config.ts`, not per component. `.ad-on-dark` remaps them for the
-  dark sidebar. Review: `./scripts/review-v5.2-shots` (original, v5.1 and new side by side, plus the grey sheet).
-- Greys (Joshua, v5.1): one ramp of eight per theme (`GREY_STEPS`/`greyRamp`/`GREY_ROLES` in `config.ts`, table in the
-  README). Role tokens map to a step; never add a grey, an alpha on a grey token (`bg-fill/40`), `color-mix` on one, a
+  `fill-strong`, white thumb, sized in whole px (2 px inset all round; smoke asserts equal insets). Tune these tokens in `config.ts`, not per component. `.ad-on-dark` remaps them for the
+  dark sidebar. Review: `./scripts/review-v5.3-shots` (original, v5.2 and new side by side, switch insets, grey sheet, 6 vs 5 steps).
+- Greys (Joshua, v5.1, v5.2): one ramp of six per theme (page, surface, fill, fill-strong, ink-muted, ink) (`GREY_STEPS`/`greyRamp`/`GREY_ROLES` in `config.ts`, table in the
+  README). The dark islands take the dark ramp in both themes, so both themes together use 12 greys. Hover on a surface is
+  `fill`, on a fill `fill-strong`. Role tokens map to a step; never add a grey, an alpha on a grey token (`bg-fill/40`), `color-mix` on one, a
   palette grey (`text-white`, `bg-black/5`) or a raw hex. `scripts/greys.mjs --check` (in verify) enforces it; image
   content or an accent choice gets `grey-ok` on its line. `--inventory` / `--sheet` make the before/after swatch sheet.
 - The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora

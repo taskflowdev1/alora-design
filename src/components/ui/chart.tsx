@@ -185,9 +185,9 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
           >
             {ticks.map((t) => (
               <g key={t}>
-                {grid ? <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--ad-fill-hover)" strokeWidth={1} shapeRendering="crispEdges" /> : null}
+                {grid ? <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--ad-fill)" strokeWidth={1} shapeRendering="crispEdges" /> : null}
                 {axis ? (
-                  <text x={pad.l - 10} y={y(t)} dy="0.32em" textAnchor="end" className="fill-ink-faint text-[11px] tabular-nums">
+                  <text x={pad.l - 10} y={y(t)} dy="0.32em" textAnchor="end" className="fill-ink-muted text-[11px] tabular-nums">
                     {format(t)}
                   </text>
                 ) : null}
@@ -195,7 +195,7 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             ))}
             {data.map((d, i) =>
               i % every === 0 || (i === last && last % every > every / 2) ? (
-                <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === last ? "end" : "middle"} className="fill-ink-faint text-[11px]">
+                <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === last ? "end" : "middle"} className="fill-ink-muted text-[11px]">
                   {d.label}
                 </text>
               ) : null,

@@ -30,7 +30,7 @@ export function CodeBlock({ code, title, lineNumbers, maxHeight = 420, onCopy, c
           {lineNumbers
             ? lines.map((l, i) => (
                 <React.Fragment key={i}>
-                  <span aria-hidden className="select-none text-right tabular-nums text-ink-faint">
+                  <span aria-hidden className="select-none text-right tabular-nums text-ink-muted">
                     {i + 1}
                   </span>
                   <span>{l || " "}</span>

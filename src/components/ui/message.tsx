@@ -67,7 +67,7 @@ export function Message({ from, time, mine, actions, children, className }: Mess
       <div className="grid min-w-0 gap-1">
         <div className="flex min-w-0 items-baseline gap-2 text-body">
           <span className="truncate font-medium text-ink">{from.name}</span>
-          {time != null ? <span className="shrink-0 text-small text-ink-faint">{time}</span> : null}
+          {time != null ? <span className="shrink-0 text-small text-ink-muted">{time}</span> : null}
         </div>
         <div className="text-body leading-relaxed text-ink [&_p+p]:mt-2">{children}</div>
         {actions ? <div className="-ml-1.5 flex gap-0.5 opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-within:opacity-100">{actions}</div> : null}

@@ -168,7 +168,7 @@ export function ChatsCard({ active, onActive, className }: { active: number; onA
                 <span className="sr-only">Still running</span>
               </>
             ) : (
-              <span className="shrink-0 text-small text-ink-faint">{c.time}</span>
+              <span className="shrink-0 text-small text-ink-muted">{c.time}</span>
             )}
           </button>
         ))}

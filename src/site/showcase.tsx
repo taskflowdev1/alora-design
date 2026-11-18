@@ -294,7 +294,7 @@ function MenuOpenTile({ className }: { className?: string }) {
       <Head
         title="RMB-24817"
         action={
-          <Menu align="end" trigger={<Button className="bg-fill-hover">Actions</Button>}>
+          <Menu align="end" trigger={<Button className="bg-fill-strong">Actions</Button>}>
             <MenuItem icon={Edit2} shortcut="E">
               Edit
             </MenuItem>
@@ -755,7 +755,7 @@ function PopoverTile({ className }: { className?: string }) {
   return (
     <Tile className={className}>
       <Mark name="popover" className="grid justify-items-start gap-1.5 px-1">
-        <Popover trigger={<Button className="bg-fill-hover">Filter</Button>}>
+        <Popover trigger={<Button className="bg-fill-strong">Filter</Button>}>
           <div className="grid w-56 gap-2.5">
             <CheckboxField label="Unpaid" defaultChecked />
             <CheckboxField label="To pack" defaultChecked />
@@ -788,7 +788,7 @@ function TooltipTile({ className }: { className?: string }) {
             Print packing slip
           </span>
           <Tooltip content="Print packing slip">
-            <Button icon className="bg-fill-hover" aria-label="Print packing slip" onClick={say("Printing")}>
+            <Button icon className="bg-fill-strong" aria-label="Print packing slip" onClick={say("Printing")}>
               <Printer />
             </Button>
           </Tooltip>
@@ -860,7 +860,7 @@ function DesktopShellTile({ className }: { className?: string }) {
             </SidebarItem>
           </SidebarSection>
           <div className="mt-auto flex items-center px-1 pt-4">
-            <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-hover text-side-ink" />
+            <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
           </div>
         </Sidebar>
       </Mark>

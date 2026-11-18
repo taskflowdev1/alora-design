@@ -40,7 +40,7 @@ export function InlineCode({ className, ...p }: React.HTMLAttributes<HTMLElement
 /** A list with soft dots, not bullets of a different colour. */
 export function List({ className, ...p }: React.HTMLAttributes<HTMLUListElement>) {
   return (
-  <ul className={cn("grid gap-1.5 text-body text-ink [&>li]:relative [&>li]:pl-4 [&>li]:before:absolute [&>li]:before:left-1 [&>li]:before:top-[0.62em] [&>li]:before:size-1 [&>li]:before:rounded-full [&>li]:before:bg-ink-faint", className)} {...p} />
+  <ul className={cn("grid gap-1.5 text-body text-ink [&>li]:relative [&>li]:pl-4 [&>li]:before:absolute [&>li]:before:left-1 [&>li]:before:top-[0.62em] [&>li]:before:size-1 [&>li]:before:rounded-full [&>li]:before:bg-ink-muted", className)} {...p} />
   );
 }
 /** A quote on a soft card (no rule down its side). */

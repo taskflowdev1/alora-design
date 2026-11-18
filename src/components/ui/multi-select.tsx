@@ -39,7 +39,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
           }
         }}
       >
-        {chosen.length === 0 ? <span className="truncate text-ink-faint">{placeholder}</span> : null}
+        {chosen.length === 0 ? <span className="truncate text-ink-muted">{placeholder}</span> : null}
         <span className="flex min-w-0 items-center gap-1">
           {shown.map((o) => (
             <span

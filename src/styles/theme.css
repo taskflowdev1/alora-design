@@ -5,11 +5,9 @@
   --color-surface: var(--ad-surface);
   --color-raised: var(--ad-raised);
   --color-fill: var(--ad-fill);
-  --color-fill-hover: var(--ad-fill-hover);
   --color-fill-strong: var(--ad-fill-strong);
   --color-ink: var(--ad-ink);
   --color-ink-muted: var(--ad-ink-muted);
-  --color-ink-faint: var(--ad-ink-faint);
   --color-on: var(--ad-on);
   --color-on-ink: var(--ad-on-ink);
   --color-thumb: var(--ad-thumb);
@@ -41,7 +39,6 @@
   --color-side: var(--ad-side);
   --color-side-raised: var(--ad-side-raised);
   --color-side-fill: var(--ad-side-fill);
-  --color-side-fill-hover: var(--ad-side-fill-hover);
   --color-side-fill-strong: var(--ad-side-fill-strong);
   --color-side-ink: var(--ad-side-ink);
   --color-side-muted: var(--ad-side-muted);

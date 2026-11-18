@@ -442,7 +442,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
         }}
         className={cn(
           "fixed left-1 top-1/2 z-40 flex w-5 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 rounded-full bg-surface py-3 text-ink-muted shadow-card",
-          "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-hover hover:text-ink",
+          "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-strong hover:text-ink",
           open && "pointer-events-none opacity-0",
         )}
       >

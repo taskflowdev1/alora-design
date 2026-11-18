@@ -152,7 +152,7 @@ export const DEMOS: Record<string, Demo> = {
         <div className="h-48 overflow-auto rounded-card bg-fill p-nest">
           <div className="grid w-[720px] gap-px">
             {ORDERS.slice(0, 18).map((o) => (
-              <div key={o.id} className="flex h-row items-center gap-6 rounded-item px-2.5 text-body hover:bg-fill-hover">
+              <div key={o.id} className="flex h-row items-center gap-6 rounded-item px-2.5 text-body hover:bg-fill-strong">
                 <span className="w-24">{o.id}</span>
                 <span className="w-32 text-ink-muted">{smartTime(o.at)}</span>
                 <span className="w-56 truncate">{o.items}</span>
@@ -893,7 +893,7 @@ export const DEMOS: Record<string, Demo> = {
               side="top"
               trigger={
                 <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
-                  <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-hover text-side-ink" />
+                  <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
                 </button>
               }
             >

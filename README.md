@@ -56,10 +56,12 @@ every radius; circles (avatars, dots) always stay round.
 
 ### Greys
 
-One ramp of eight greys per theme, and every neutral in the library is one of them: page and surface, three fills
-(rest, hover one step up, selected one step more), three text greys. Role tokens (`track`, `sel`, `raised`, `on`,
+One ramp of six greys per theme, and every neutral in the library is one of them: page and surface, two fills (`fill`
+at rest and for hover on a surface; `fill-strong` for hover on a fill, selected, pressed and the off switch), and two
+text greys (`ink-muted` for secondary text and placeholders, `ink`). Role tokens (`track`, `sel`, `raised`, `on`,
 `switch-on`…) are names for a step, never a new grey. The greys setting (`g`) tints the whole ramp. The sidebar, save
-bar and bottom nav are a dark island in both themes and take the dark ramp (`side-*`). Shadows and the dialog scrim are
+bar and bottom nav are a dark island in both themes and take the dark ramp exactly (`side-*`), so both themes together
+use 12 greys. Shadows and the dialog scrim are
 black or ink at an alpha, so they darken what is under them rather than add a grey. The only other neutral is the white
 thumb of the switch and slider. `node scripts/greys.mjs --check` (in `scripts/verify`) fails on a raw grey, a palette
 grey (`bg-black/5`, `text-white`…), an alpha or `color-mix` on a grey token, or a token that is off the ramp.
@@ -70,9 +72,7 @@ grey (`bg-black/5`, `text-white`…), an alpha or `color-mix` on a grey token, o
 | `page` | `#fafafa` | `#0c0c0c` |
 | `surface` | `#ffffff` | `#161616` |
 | `fill` | `#f1f1f1` | `#222222` |
-| `fill-hover` | `#e7e7e7` | `#2c2c2c` |
 | `fill-strong` | `#d9d9d9` | `#444444` |
-| `ink-faint` | `#929292` | `#747474` |
 | `ink-muted` | `#636363` | `#a4a4a4` |
 | `ink` | `#181818` | `#eeeeee` |
 

@@ -16,7 +16,7 @@ export interface BarChartProps {
   "aria-label"?: string;
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill-hover";
+const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill";
 
 /** Slim bars in shades of the one accent, one shared bar radius. No gridlines, no axes. */
 export function BarChart({ data, height = 140, current, labelEvery = 1, loading, className, ...aria }: BarChartProps) {

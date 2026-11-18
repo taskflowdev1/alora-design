@@ -18,7 +18,7 @@ export interface DiffProps {
 /** A difference: green or red only when there is one. No difference is plain grey. */
 export function Diff({ value, unit, format = (n) => Math.round(n).toLocaleString("id-ID"), tolerance = 0, zero = "—", className }: DiffProps) {
   const none = Math.abs(value) <= tolerance;
-  if (none) return <span className={cn("tabular-nums text-ink-faint", className)}>{zero}</span>;
+  if (none) return <span className={cn("tabular-nums text-ink-muted", className)}>{zero}</span>;
   const up = value > 0;
   return (
     <span className={cn("whitespace-nowrap font-medium tabular-nums", up ? "text-success" : "text-danger", className)}>

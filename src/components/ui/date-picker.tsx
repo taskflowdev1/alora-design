@@ -23,7 +23,7 @@ export function DatePicker({ value, onValueChange, placeholder = "Pick a date", 
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger className={cn(triggerClass, className)}>
         <CalendarIcon size={16} className="shrink-0 text-ink-muted" />
-        {value ? <span className="truncate">{smart ? formatSmartDate(value, today) : formatDate(value)}</span> : <span className="text-ink-faint">{placeholder}</span>}
+        {value ? <span className="truncate">{smart ? formatSmartDate(value, today) : formatDate(value)}</span> : <span className="text-ink-muted">{placeholder}</span>}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>

@@ -41,12 +41,12 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
         }}
         className={cn(
           "grid place-items-center gap-2 rounded-card px-pad py-6 text-center transition-[background-color,transform] duration-[220ms] ease-ad",
-          over ? "scale-[1.01] bg-fill-hover" : "bg-fill",
+          over ? "scale-[1.01] bg-fill-strong" : "bg-fill",
         )}
       >
         <UploadCloud size={24} className="text-ink-muted [--ad-icon-stroke:1.5]" />
         <span className="text-body font-medium text-ink">{title}</span>
-        <Button size="sm" variant="secondary" className="mt-1 bg-surface hover:bg-fill-hover" onClick={() => input.current?.click()}>
+        <Button size="sm" variant="secondary" className="mt-1 bg-surface hover:bg-fill-strong" onClick={() => input.current?.click()}>
           Browse
         </Button>
         <input

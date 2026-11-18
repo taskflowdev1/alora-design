@@ -21,7 +21,7 @@ export const dropdownSurface = cn(
 
 export const triggerClass = cn(
   "inline-flex h-control min-w-0 cursor-pointer select-none items-center gap-2 rounded-control bg-fill pl-3 pr-2 text-body text-ink",
-  "transition-[transform,background-color] duration-[220ms] ease-ad hover:bg-fill-hover focus-visible:bg-fill-hover data-[state=open]:bg-fill-hover active:scale-[0.98]",
+  "transition-[transform,background-color] duration-[220ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.98]",
   "disabled:pointer-events-none disabled:opacity-45",
 );
 
@@ -183,7 +183,7 @@ export function Select({
             <span className="min-w-0 truncate">{current.label}</span>
           </>
         ) : (
-          <span className="min-w-0 truncate text-ink-faint">{placeholder}</span>
+          <span className="min-w-0 truncate text-ink-muted">{placeholder}</span>
         )}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>

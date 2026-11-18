@@ -13,7 +13,7 @@ export type StatusTone = "default" | "muted" | "attention";
 
 const dot: Record<StatusTone, string> = {
   default: "bg-ink",
-  muted: "bg-ink-faint",
+  muted: "bg-ink-muted",
   attention: "bg-brand",
 };
 
@@ -80,7 +80,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
           type="button"
           aria-label="Remove"
           onClick={onRemove}
-          className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[220ms] ease-ad hover:bg-fill-hover active:scale-90"
+          className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[220ms] ease-ad hover:bg-fill-strong active:scale-90"
         >
           <X size={14} />
         </button>

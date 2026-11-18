@@ -166,10 +166,11 @@ const rgba = (hex: string, a: number) => {
 };
 
 /**
- * The grey ramp: eight named steps per theme, and every neutral token is one of them. Hover is one step up from fill,
- * selected one more. The tone setting (`g`) tints every step; dark keeps only a hint of it.
+ * The grey ramp: six named steps per theme, and every neutral token is one of them. Hover on a surface is fill, hover
+ * on a fill is fill-strong; selected on a plain surface is fill-strong. The tone setting (`g`) tints every step; dark
+ * keeps only a hint of it.
  */
-export const GREY_STEPS = ["page", "surface", "fill", "fill-hover", "fill-strong", "ink-faint", "ink-muted", "ink"] as const;
+export const GREY_STEPS = ["page", "surface", "fill", "fill-strong", "ink-muted", "ink"] as const;
 export type GreyStep = (typeof GREY_STEPS)[number];
 
 export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
@@ -179,9 +180,7 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
         page: g(0.155, 0.8),
         surface: g(0.2, 0.8),
         fill: g(0.252, 0.8),
-        "fill-hover": g(0.295, 0.8),
         "fill-strong": g(0.385, 0.8),
-        "ink-faint": g(0.56, 0.6),
         "ink-muted": g(0.72, 0.6),
         ink: g(0.95, 0.4),
       }
@@ -189,9 +188,7 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
         page: g(0.985, 0.35),
         surface: "#ffffff",
         fill: g(0.958, 0.6),
-        "fill-hover": g(0.928, 0.7),
         "fill-strong": g(0.885, 0.8),
-        "ink-faint": g(0.66, 1),
         "ink-muted": g(0.5, 1.2),
         ink: g(0.21, 1.4),
       };
@@ -220,14 +217,15 @@ function shadows(strength: number, dark: boolean, ink: string) {
   const base = dark ? "#000000" : ink;
   const k = dark ? 2.2 : 1;
   const s = (a: number) => rgba(base, Math.min(0.6, a * m * k));
-  // Selected pill (segmented, toggle group, chips in a field): a hairline edge that follows the radius, plus a small
-  // drop. The edge stays at shadow 0 so the pill still reads; in dark it is a dark rim around a lighter pill.
-  const edge = dark ? `0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06)` : `0 0 0 1px ${rgba(ink, 0.07)}`;
-  // Switch and slider thumbs: a small drop that stays at shadow 0, so a white thumb never melts into a light track.
-  const thumb = dark ? `0 1px 2px rgba(0, 0, 0, 0.4)` : `0 1px 2px ${rgba(ink, 0.2)}, 0 0 0 0.5px ${rgba(ink, 0.08)}`;
-  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none", sel: edge, thumb };
+  // Selected pill (segmented, toggle group, chips in a field): a soft drop only, never an edge or ring (Joshua, v5.2).
+  // A faint drop stays at shadow 0 so the pill still reads.
+  const sel0 = dark ? `0 1px 2px rgba(0, 0, 0, 0.3)` : `0 1px 2px ${rgba(ink, 0.06)}`;
+  // Switch and slider thumbs: an even halo with no y offset, so the thumb sits centred in its track.
+  // It stays at shadow 0, so a white thumb never melts into a light track.
+  const thumb = dark ? `0 0 2px rgba(0, 0, 0, 0.45)` : `0 0 1px ${rgba(ink, 0.22)}, 0 0 3px ${rgba(ink, 0.1)}`;
+  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none", sel: sel0, thumb };
   return {
-    sel: `${edge}, 0 1px 2px ${s(0.1)}, 0 2px 6px ${s(0.06)}`,
+    sel: `0 1px 2px ${s(0.08)}, 0 2px 8px ${s(0.06)}`,
     card: `0 1px 2px ${s(0.04)}, 0 2px 10px ${s(0.035)}`,
     raised: `0 2px 6px ${s(0.06)}, 0 10px 28px ${s(0.1)}`,
     dialog: `0 6px 14px ${s(0.08)}, 0 28px 60px ${s(0.18)}`,
@@ -284,7 +282,6 @@ function themeColors(c: Config, dark: boolean) {
     side: island.surface,
     "side-raised": island.fill,
     "side-fill": island.fill,
-    "side-fill-hover": island["fill-hover"],
     "side-fill-strong": island["fill-strong"],
     "side-ink": island.ink,
     "side-muted": island["ink-muted"],

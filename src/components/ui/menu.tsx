@@ -282,7 +282,7 @@ export function MenuItem({ icon: Icon, children, shortcut, onSelect, disabled }:
     >
       {Icon ? <Icon size={16} className="shrink-0 text-ink-muted" /> : null}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {shortcut ? <span className="pl-4 text-small text-ink-faint">{shortcut}</span> : null}
+      {shortcut ? <span className="pl-4 text-small text-ink-muted">{shortcut}</span> : null}
     </div>
   );
 }

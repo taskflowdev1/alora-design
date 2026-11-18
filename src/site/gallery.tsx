@@ -135,7 +135,7 @@ export function Spot({ item, className, children }: { item: Item; className?: st
     >
       <SLink
         to={itemPath(item)}
-        className="absolute left-3 top-3 inline-flex h-7 items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-hover hover:text-ink group-hover/spot:opacity-100 group-focus-within/spot:opacity-100 [@media(hover:none)]:opacity-100 sm:left-5"
+        className="absolute left-3 top-3 inline-flex h-7 items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink group-hover/spot:opacity-100 group-focus-within/spot:opacity-100 [@media(hover:none)]:opacity-100 sm:left-5"
       >
         <Sliders size={14} />
         {item.title}
@@ -165,7 +165,7 @@ export function TileSpot({ item, className, children }: { item: Item; className?
     >
       <SLink
         to={itemPath(item)}
-        className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill-hover hover:text-ink"
+        className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink"
       >
         <Sliders size={14} />
         {item.title}

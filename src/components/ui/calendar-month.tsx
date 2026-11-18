@@ -74,7 +74,7 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                 data-shape="round"
                 className={cn(
                   "mb-0.5 grid size-6 place-items-center rounded-full text-small tabular-nums",
-                  isToday ? "bg-on font-semibold text-on-ink" : inMonth ? "text-ink" : "text-ink-faint",
+                  isToday ? "bg-on font-semibold text-on-ink" : inMonth ? "text-ink" : "text-ink-muted",
                 )}
               >
                 {d.getDate()}
@@ -87,10 +87,10 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                   onClick={() => onEventClick?.(e)}
                   className={cn(
                     "flex h-6 min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
-                    e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-hover",
+                    e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong",
                   )}
                 >
-                  <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-faint")} />
+                  <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
                   <span className="truncate">{e.title}</span>
                 </button>
               ))}

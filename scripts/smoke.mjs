@@ -369,6 +369,37 @@ await sleep(200);
 const tip = await page.locator("[data-stage] [role=status]").first().innerText().catch(() => "");
 check(/This fortnight/.test(tip) && /The one before/.test(tip), `line chart crosshair tooltip lists both series (${JSON.stringify(tip)})`);
 
+// Switch: the thumb sits centred. Its inset from the track is equal (±0.5 px) on top, bottom, left (off) and right
+// (on), and every size and inset is a whole pixel so the paint snaps the same on each side. Both sizes, two font sizes
+// (the root font is the body size, so rem-based sizes would land on fractions).
+for (const size of ["default", "lg"]) {
+  for (const f of [13, 15]) {
+    await page.goto(`${BASE}/components/switch?size=${size}&f=${f}`, { waitUntil: "networkidle" });
+    const sw = page.locator("[data-stage] button[role=switch]");
+    const n = await sw.count();
+    const measure = () =>
+      sw.evaluateAll((els) =>
+        els.map((e) => {
+          const r = e.getBoundingClientRect();
+          const t = e.firstElementChild.getBoundingClientRect();
+          const on = e.dataset.state === "checked";
+          return { on, w: r.width, h: r.height, d: t.width, top: t.top - r.top, bottom: r.bottom - t.bottom, side: on ? r.right - t.right : t.left - r.left };
+        }),
+      );
+    const states = await measure();
+    for (let i = 0; i < n; i++) await sw.nth(i).click();
+    await sleep(400);
+    states.push(...(await measure()));
+    const bad = states.filter((s) => {
+      const ins = [s.top, s.bottom, s.side];
+      const whole = [s.w, s.h, s.d, ...ins].every((v) => Math.abs(v - Math.round(v)) < 0.02);
+      return Math.max(...ins) - Math.min(...ins) > 0.5 || !whole;
+    });
+    const seen = [...new Set(states.map((s) => `${s.on ? "on" : "off"} ${s.top}/${s.bottom}/${s.side}`))].join(", ");
+    check(n > 0 && states.some((s) => s.on) && states.some((s) => !s.on) && bad.length === 0, `switch ${size} f=${f}: thumb insets equal, whole px (${seen})`);
+  }
+}
+
 await browser.close();
 server.kill("SIGTERM");
 console.log(failures.length ? `SMOKE FAIL (${failures.length})` : "SMOKE PASS");

@@ -52,7 +52,7 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
           caret.current = before;
           onValueChange(digits ? Math.min(Number(digits), 999_999_999_999) : null);
         }}
-        className="h-full w-full min-w-0 bg-transparent text-right tabular-nums text-ink outline-none placeholder:text-ink-faint"
+        className="h-full w-full min-w-0 bg-transparent text-right tabular-nums text-ink outline-none placeholder:text-ink-muted"
       />
     </label>
   );

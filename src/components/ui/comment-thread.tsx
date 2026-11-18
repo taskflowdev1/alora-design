@@ -27,7 +27,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
   const pill = (mine: boolean) =>
     cn(
       "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[160ms] ease-ad active:scale-95",
-      mine ? "bg-sel text-ink shadow-sel" : "bg-fill text-ink-muted hover:bg-fill-hover",
+      mine ? "bg-sel text-ink shadow-sel" : "bg-fill text-ink-muted hover:bg-fill-strong",
     );
   return (
     <div className="flex flex-wrap items-center gap-1">
@@ -101,7 +101,7 @@ export function CommentThread({ comments, me, onReact, onReply, className }: Com
       {onReply ? (
         <div className="grid grid-cols-[32px_minmax(0,1fr)] gap-x-2.5">
           <Avatar name={me} />
-          <div className="flex items-end gap-2 rounded-card bg-fill p-nest pl-3 focus-within:bg-fill-hover">
+          <div className="flex items-end gap-2 rounded-card bg-fill p-nest pl-3 focus-within:bg-fill-strong">
             <textarea
               rows={1}
               value={text}
@@ -111,7 +111,7 @@ export function CommentThread({ comments, me, onReact, onReply, className }: Com
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
               }}
-              className="max-h-32 min-h-item flex-1 resize-none bg-transparent py-1.5 text-body leading-5 text-ink outline-none [field-sizing:content] placeholder:text-ink-faint"
+              className="max-h-32 min-h-item flex-1 resize-none bg-transparent py-1.5 text-body leading-5 text-ink outline-none [field-sizing:content] placeholder:text-ink-muted"
             />
             <Button variant="primary" size="sm" onClick={send} disabled={!text.trim()}>
               Send

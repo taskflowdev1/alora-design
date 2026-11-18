@@ -2,10 +2,12 @@ import * as React from "react";
 import { Switch as S } from "radix-ui";
 import { cn } from "@/lib/ad";
 
+// Whole pixels, not rem steps: the root font is the body size (13 px by default), so rem sizes land on fractions
+// (a 1.625 px inset) and the thumb snaps off centre. Inset 2 px on every side; travel = track - thumb - 2 x inset.
 const sizes = {
-  default: { root: "h-5 w-9", thumb: "size-4 data-[state=checked]:translate-x-4" },
+  default: { root: "h-[20px] w-[36px]", thumb: "size-[16px] data-[state=checked]:translate-x-[16px]" },
   /** Beside 36 px controls in settings rows. */
-  lg: { root: "h-6 w-11", thumb: "size-5 data-[state=checked]:translate-x-5" },
+  lg: { root: "h-[24px] w-[44px]", thumb: "size-[20px] data-[state=checked]:translate-x-[20px]" },
 };
 
 /**
@@ -17,8 +19,8 @@ export function Switch({ size = "default", className, ...props }: React.Componen
   return (
     <S.Root
       className={cn(
-        "group inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-[background-color,transform] duration-[220ms] ease-ad active:scale-95",
-        "bg-fill-strong data-[state=unchecked]:hover:bg-fill-hover data-[state=checked]:bg-switch-on disabled:pointer-events-none disabled:opacity-45",
+        "group inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] transition-[background-color,transform] duration-[220ms] ease-ad active:scale-95",
+        "bg-fill-strong data-[state=checked]:bg-switch-on disabled:pointer-events-none disabled:opacity-45",
         sizes[size].root,
         className,
       )}

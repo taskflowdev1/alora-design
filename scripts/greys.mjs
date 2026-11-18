@@ -1,7 +1,7 @@
 // The grey ramp: check and inventory.
 //   node scripts/greys.mjs --check                 fail on a grey outside the ramp (scripts/verify runs it)
 //   node scripts/greys.mjs --inventory [--root D]  JSON: every grey a checkout renders, per theme, with counts and files
-//   node scripts/greys.mjs --sheet BEFORE.json AFTER.json OUT.html   before/after swatch sheet
+//   node scripts/greys.mjs --sheet BEFORE.json AFTER.json OUT.html [--before-label L]   before/after swatch sheet
 // The ramp lives in src/lib/config.ts (GREY_STEPS, greyRamp, GREY_ROLES). Outside the token definitions, code may use a
 // grey only through a token class or var(--ad-*) with no alpha. A line (or the line before it) with "grey-ok" is image
 // content or an accent choice, not a UI grey; brand marks and flags (BRAND_ART) keep their own colours.
@@ -104,14 +104,14 @@ const isNeutral = (lib, rgb) => lib.hexToOklch(toHex(rgb)).c < 0.03;
 async function check() {
   const lib = await loadLib(ROOT);
   const fail = [];
-  // 1. The ramp: at most 8 steps per theme, steps at least 2.5% lightness apart, every grey token on a step, for
+  // 1. The ramp: at most 6 steps per theme, steps at least 2.5% lightness apart, every grey token on a step, for
   //    every tone and both themes.
   if (!lib.greyRamp) fail.push("src/lib/config.ts: no greyRamp (the grey ramp is missing)");
   for (const tone of lib.greyRamp ? ["neutral", "cool", "warm"] : []) {
     for (const theme of ["light", "dark"]) {
       const ramp = lib.greyRamp(tone, theme === "dark");
       const steps = Object.values(ramp);
-      if (new Set(steps).size > 8) fail.push(`${tone}/${theme}: ${new Set(steps).size} ramp steps (max 8)`);
+      if (new Set(steps).size > 6) fail.push(`${tone}/${theme}: ${new Set(steps).size} ramp steps (max 6)`);
       // Near-duplicates: neighbours closer than 2.5% lightness. Page and surface are the one deliberate close pair (an
       // off-white page under white cards; a near-black page under a card a step up).
       const ls = Object.entries(ramp).map(([k, h]) => [k, lib.hexToOklch(h).l]).sort((a, b) => a[1] - b[1]);
@@ -249,7 +249,7 @@ function sheet(beforeFile, afterFile, outFile) {
     return `<section class=${th} style="background:${dark ? "#0c0c0c" : "#fafafa"};color:${dark ? "#eee" : "#181818"}">
       <h1>${th}: ${before[th].length} greys before → ${after[th].length} after</h1>
       <h2>Final ramp (${th})</h2>${ramp(after.ramp[th], th)}
-      <div class=cols><div><h2>Before (v5.1, 549ea4c): ${before[th].length}</h2>${table(before[th])}</div>
+      <div class=cols><div><h2>Before (${esc(opt("--before-label") || "before")}): ${before[th].length}</h2>${table(before[th])}</div>
       <div><h2>After: ${after[th].length}</h2>${table(after[th])}</div></div></section>`;
   };
   const html = `<!doctype html><meta charset=utf-8><title>Grey ramp</title><style>

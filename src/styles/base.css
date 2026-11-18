@@ -40,7 +40,6 @@ html {
   --ad-surface: var(--ad-side-raised);
   --ad-raised: var(--ad-side-raised);
   --ad-fill: var(--ad-side-fill);
-  --ad-fill-hover: var(--ad-side-fill-hover);
   --ad-fill-strong: var(--ad-side-fill-strong);
   --ad-on: var(--ad-side-ink);
   --ad-on-ink: var(--ad-side);
@@ -49,7 +48,6 @@ html {
   --ad-switch-on: var(--ad-side-muted);
   --ad-ink: var(--ad-side-ink);
   --ad-ink-muted: var(--ad-side-muted);
-  --ad-ink-faint: var(--ad-side-muted);
   --ad-scroll: var(--ad-side-scroll);
   color: var(--ad-ink);
 }

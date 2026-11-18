@@ -46,7 +46,7 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
         {numbers
           ? pageList(page, pageCount).map((n, i) =>
               n === "gap" ? (
-                <span key={`g${i}`} aria-hidden className="grid h-item w-6 place-items-center text-body text-ink-faint">
+                <span key={`g${i}`} aria-hidden className="grid h-item w-6 place-items-center text-body text-ink-muted">
                   …
                 </span>
               ) : (
