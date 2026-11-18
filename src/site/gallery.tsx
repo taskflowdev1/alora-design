@@ -1,10 +1,9 @@
 import * as React from "react";
 import { NavLink, useNavigate, useParams, useSearchParams } from "react-router";
-import { Check, Copy, Search as SearchIcon, Sliders } from "react-feather";
+import { Search as SearchIcon, Sliders } from "react-feather";
 import { cn } from "@/lib/ad";
 import { inlineTokens, serializeConfig, type Config } from "@/lib/config";
 import { GROUPS, ITEMS, SITE, findItem, itemPath, type Group, type Item } from "@/lib/registry";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search } from "@/components/ui/search";
 import { Select } from "@/components/ui/select";
@@ -12,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from "@/components/ui/toast";
+import { CodeBlock as UICodeBlock } from "@/components/ui/code-block";
 import { applyTokens, SLink, TokenScope, shapedSupported, useConfig, useHref } from "./config";
 import { COMPONENT_FIELDS, ConfigPanel } from "./config-panel";
 import { DEMOS, type Demo, type Props } from "./demos";
@@ -236,30 +236,9 @@ export function GalleryIndex() {
   );
 }
 
+/** The library's CodeBlock, with the site's "Copied" toast. */
 export function CodeBlock({ code, className }: { code: string; className?: string }) {
-  const [copied, setCopied] = React.useState(false);
-  return (
-    <div className={cn("relative rounded-card bg-fill", className)}>
-      <pre className="max-h-[420px] overflow-auto p-pad pr-14 font-mono text-[12.5px] leading-relaxed text-ink">
-        <code>{code}</code>
-      </pre>
-      <Button
-        variant="ghost"
-        icon
-        size="sm"
-        aria-label="Copy code"
-        className="absolute right-nest top-nest"
-        onClick={() => {
-          void navigator.clipboard?.writeText(code);
-          setCopied(true);
-          toast("Copied", "neutral");
-          window.setTimeout(() => setCopied(false), 1400);
-        }}
-      >
-        {copied ? <Check /> : <Copy />}
-      </Button>
-    </div>
-  );
+  return <UICodeBlock code={code} className={className} onCopy={() => toast("Copied", "neutral")} />;
 }
 
 export function installCommand(name: string, c: Config) {
