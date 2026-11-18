@@ -5,7 +5,7 @@ import { SLink } from "./config";
 import { Wordmark } from "./logo";
 import { Bento } from "./bento";
 import { AgentApp, NewChat } from "./agent";
-import { TABS } from "./layout";
+import { Credit, TABS } from "./layout";
 
 function Hero() {
   return (
@@ -62,21 +62,13 @@ function BackgroundsBand() {
   );
 }
 
+/** The landing's footer: the wordmark and the way in on one line, the tabs and the credit on the next. */
 function Closing() {
   return (
-    <section className="mx-auto mt-24 w-full max-w-[1280px] px-4 sm:px-6">
-      <div className="flex flex-col gap-8 rounded-sheet bg-surface p-pad shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div className="grid gap-4">
-          <Wordmark height={24} />
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 text-body text-ink-muted">
-            {TABS.map((t) => (
-              <SLink key={t.to} to={t.to} className="hover:text-ink">
-                {t.label}
-              </SLink>
-            ))}
-          </nav>
-        </div>
-        <div>
+    <footer data-landing="footer" className="mx-auto mb-12 mt-24 w-full max-w-[1280px] px-4 sm:px-6">
+      <div className="grid gap-8 rounded-sheet bg-surface p-6 shadow-card sm:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-5">
+          <Wordmark height={22} />
           <Button variant="primary" asChild>
             <SLink to="/components">
               Explore components
@@ -84,8 +76,18 @@ function Closing() {
             </SLink>
           </Button>
         </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-baseline sm:justify-between">
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2 text-body text-ink-muted">
+            {TABS.map((t) => (
+              <SLink key={t.to} to={t.to} className="rounded-small transition-colors duration-[160ms] hover:text-ink">
+                {t.label}
+              </SLink>
+            ))}
+          </nav>
+          <Credit />
+        </div>
       </div>
-    </section>
+    </footer>
   );
 }
 

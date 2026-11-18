@@ -265,14 +265,16 @@ for (let i = 0; i < 10; i++) await page.keyboard.press("ArrowRight");
 const orbBox = await page.evaluate(() => Math.round(document.querySelector("[data-stage] canvas").parentElement.getBoundingClientRect().width));
 check(orbBox === 32, `orb size slider resizes the orbs (${orbBox} px)`);
 
-// Footer: one quiet credit line on every page
+// Footer: the credit on every page (the landing's closing card carries it), body size, one footer per page
 for (const path of ["/", "/components", "/ai", "/export"]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   const f = await page.evaluate(() => {
-    const el = document.querySelector("footer");
-    return { text: el?.innerText.trim(), href: el?.querySelector("a")?.getAttribute("href") };
+    const footers = document.querySelectorAll("footer");
+    const credit = [...(footers[0]?.querySelectorAll("p") ?? [])].find((p) => p.textContent.includes("Curated by"));
+    const body = getComputedStyle(document.documentElement).getPropertyValue("--ad-text-body").trim();
+    return { count: footers.length, text: credit?.innerText.trim(), href: credit?.querySelector("a")?.getAttribute("href"), size: credit && getComputedStyle(credit).fontSize, body };
   });
-  check(f.text === "Curated by Joshua Dirga · 2026" && f.href === "https://joshuadirga.com", `${path} footer credit (${JSON.stringify(f)})`);
+  check(f.count === 1 && f.text === "Curated by Joshua Dirga · 2026" && f.href === "https://joshuadirga.com" && f.size === f.body, `${path} footer credit (${JSON.stringify(f)})`);
 }
 
 // The customize tab never covers the page at tablet width

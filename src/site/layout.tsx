@@ -29,7 +29,7 @@ function NavItem({ to, children, className }: { to: string; children: React.Reac
   return (
     <NavLink
       to={q ? `${to}?${q}` : to}
-      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "bg-fill text-ink", className)}
+      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "bg-fill-strong text-ink", className)}
     >
       {children}
     </NavLink>
@@ -171,17 +171,26 @@ export function SiteHeader() {
   );
 }
 
-/** One quiet line at the bottom of every page. */
-export function SiteFooter() {
+/** "Curated by Joshua Dirga · 2026", his name linking to his site. Body size, like the rest of the page. */
+export function Credit({ className }: { className?: string }) {
   return (
-    <footer className="mx-auto w-full max-w-[1280px] px-4 pb-10 pt-16 sm:px-6">
-      <p className="px-1 text-small text-ink-muted">
-        Curated by{" "}
-        <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="rounded-small text-ink-muted transition-colors duration-[160ms] hover:text-ink">
-          Joshua Dirga
-        </a>{" "}
-        · 2026
-      </p>
+    <p className={cn("text-body text-ink-muted", className)}>
+      Curated by{" "}
+      <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="rounded-small text-ink transition-colors duration-[160ms] hover:text-ink-muted">
+        Joshua Dirga
+      </a>{" "}
+      · 2026
+    </p>
+  );
+}
+
+/** One quiet line at the bottom of every page, on the page's left edge. The landing ends with its closing card instead. */
+export function SiteFooter() {
+  const { pathname } = useLocation();
+  if (pathname === "/") return null;
+  return (
+    <footer className="mx-auto w-full max-w-[1280px] px-4 pb-12 pt-20 sm:px-6">
+      <Credit />
     </footer>
   );
 }
