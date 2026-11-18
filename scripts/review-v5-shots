@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers or the live site)
+# v5 review shots into output/review-v5/. BASE=<url> shoots a deployed site (PREFIX=before/ for the before set);
+# without BASE it builds and shoots a local preview. ONLY=<regex> limits by letter. Run through the job queue.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+# `before` = shoot the live site into before/; an optional second argument is ONLY.
+if [ "${1:-}" = before ]; then export BASE=https://design.alorawork.com PREFIX=before/; fi
+if [ -n "${2:-}" ]; then export ONLY="$2"; fi
+if [ -z "${BASE:-}" ]; then npx vite build --logLevel warn; fi
+node scripts/review-v5-shots.mjs 2>&1 | tee "${TMPDIR:-/tmp}/review-v5-shots.log"
