@@ -319,31 +319,78 @@ function ReceiptEditorTile({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ Inputs */
 
+const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
+
+/** A playable one-time code: the WhatsApp message fills it (or type it), a wrong code turns red, resend counts down. */
 function TillSignInTile({ className }: { className?: string }) {
-  const [code, setCode] = React.useState("4821");
-  const [float, setFloat] = React.useState("500.000");
+  const [sent, setSent] = React.useState("482193");
+  const [code, setCode] = React.useState("");
+  const [state, setState] = React.useState<"idle" | "checking" | "wrong" | "open">("idle");
+  const [wait, setWait] = React.useState(30);
+  const timer = React.useRef<number>(undefined);
+  React.useEffect(() => {
+    if (!wait) return;
+    const t = window.setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [wait]);
+  React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  const check = (v: string) => {
+    setState("checking");
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setState(v === sent ? "open" : "wrong"), 500);
+  };
+  const resend = () => {
+    window.clearTimeout(timer.current);
+    setSent(newCode());
+    setCode("");
+    setState("idle");
+    setWait(30);
+  };
   return (
     <Tile inset="pad" className={className}>
-      <h3 className="text-title font-semibold">Open the Kemang till</h3>
+      <div className="flex items-center justify-between gap-gap">
+        <h3 className="text-title font-semibold">Open the Kemang till</h3>
+        {state === "open" ? (
+          <Button size="sm" variant="ghost" onClick={resend}>
+            Start over
+          </Button>
+        ) : (
+          <Button size="sm" variant="ghost" disabled={wait > 0} onClick={resend} className="tabular-nums">
+            {wait > 0 ? `Resend in 0:${String(wait).padStart(2, "0")}` : "Resend code"}
+          </Button>
+        )}
+      </div>
       <div className="grid gap-2">
         <Mark name="label" className="w-fit">
           <Label htmlFor="till-code">Code from WhatsApp</Label>
         </Mark>
         <Mark name="input-otp" className="w-fit max-w-full">
-          <InputOTP aria-label="Code from WhatsApp" value={code} onValueChange={setCode} onComplete={() => toast("Till opened")} />
+          <InputOTP
+            aria-label="Code from WhatsApp"
+            value={code}
+            invalid={state === "wrong"}
+            onValueChange={(v) => (setCode(v), state !== "checking" && setState("idle"))}
+            onComplete={check}
+          />
         </Mark>
+        <div aria-live="polite" className="flex h-item items-center text-body">
+          {state === "checking" ? <span className="text-ink-muted">Checking</span> : null}
+          {state === "wrong" ? <span className="text-danger">Wrong code</span> : null}
+          {state === "open" ? <Status tone="attention">Till open</Status> : null}
+        </div>
       </div>
-      <div className="grid gap-2">
-        <span className="text-body text-ink-muted">Cash in the drawer</span>
-        <InputGroup start="Rp">
-          <input aria-label="Cash in the drawer" inputMode="numeric" value={float} onChange={(e) => setFloat(e.target.value)} className="tabular-nums" />
-        </InputGroup>
-      </div>
-      <div className="mt-auto flex justify-end pt-2">
-        <Button variant="primary" disabled={code.length < 6} onClick={() => toast("Till opened")}>
-          Open till
-        </Button>
-      </div>
+      <button
+        type="button"
+        aria-label={`Fill the code from WhatsApp, ${sent}`}
+        disabled={state === "open" || state === "checking"}
+        onClick={() => (setCode(sent), check(sent))}
+        className="mt-auto grid gap-0.5 rounded-control bg-fill px-3 py-2.5 text-left transition-colors duration-[160ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong disabled:opacity-45"
+      >
+        <span className="text-small text-ink-muted">WhatsApp</span>
+        <span className="text-body text-ink">
+          Your Kemang till code is <span className="font-semibold tabular-nums">{sent.slice(0, 3)} {sent.slice(3)}</span>
+        </span>
+      </button>
     </Tile>
   );
 }
