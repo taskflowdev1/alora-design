@@ -493,7 +493,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/segmented.json"
 
 Files: `src/components/ui/segmented.tsx`.
 
-`Segmented`: Track at the control radius; the sliding solid-ink pill sits one nest gap inside it, concentric.
+`Segmented`: Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a hairline edge and a small drop) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -513,7 +513,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/tabs.json"
 
 Files: `src/components/ui/tabs.tsx`.
 
-`Tabs`: Tabs: no track and no underline. A soft fill slides behind the active tab.
+`Tabs`: Tabs: no track and no underline. A grey pill (fill-strong) slides behind the active tab; its label turns ink and medium.
 
 Also takes the native props of the element it renders.
 
@@ -539,7 +539,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/switch.json"
 
 Files: `src/components/ui/switch.tsx`.
 
-`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset. On = solid ink track with an on-ink thumb, so it reads in both themes (never white on white).
+`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset. On = the accent track (switch-on) with the white thumb, in both themes, as Apple, Radix and Material 3 do; off = fill-strong.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -557,7 +557,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/toggle.json"
 
 Files: `src/components/ui/toggle.tsx`.
 
-`Toggle`: One on/off button (Bold, Pin, Show archived). Off is ghost; on is solid ink, so the state reads at a glance in both themes. Same radius and heights as Button.
+`Toggle`: One on/off button (Bold, Pin, Show archived). Off is ghost and muted; on is the grey pill (fill-strong) in ink, the same treatment as a selected chip or tab. Same radius and heights as Button.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -842,7 +842,7 @@ Files: `src/components/ui/status.tsx`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `selected` | `boolean` |  | A pressed filter chip shows the soft fill; nothing else changes. |
+| `selected` | `boolean` |  | A pressed filter chip shows the grey pill (fill-strong) with its label in ink and medium; nothing moves. |
 | `onClick` | `(() => void)` |  |  |
 | `onRemove` | `(() => void)` |  | Shows an × that calls this. |
 | `size` | `"default" \| "sm"` | `"default"` |  |
@@ -1410,7 +1410,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/pagination.json"
 
 Files: `src/components/ui/pagination.tsx`. Installs too: `button`.
 
-`Pagination`: The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a solid ink pill; the others are ghost buttons at the same size; arrows say where they go.
+`Pagination`: The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a grey pill (fill-strong) in ink; the others are ghost buttons at the same size; arrows say where they go.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2094,7 +2094,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/toggle-group.json"
 
 Files: `src/components/ui/toggle-group.tsx`.
 
-`ToggleGroup`: Several on/off choices in one track, like a segmented control that allows more than one. Pressed items get a solid ink pill (on / on-ink), clear against the track in both themes; track and pills are concentric.
+`ToggleGroup`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

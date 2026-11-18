@@ -30,13 +30,13 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
         className={cn(fieldBoxClass(), "h-auto min-h-control cursor-text flex-wrap gap-1 py-nest pl-nest")}
       >
         {value.map((t) => (
-          <span key={t} className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-on pl-bubble-sm pr-1 text-body text-on-ink">
+          <span key={t} className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-sel pl-bubble-sm pr-1 text-body text-ink shadow-sel">
             <span className="max-w-40 truncate">{t}</span>
             <button
               type="button"
               aria-label={`Remove ${t}`}
               onClick={(e) => (e.stopPropagation(), onValueChange(value.filter((x) => x !== t)))}
-              className="grid size-5 cursor-pointer place-items-center rounded-small text-on-ink/70 transition-[background-color,color,transform] duration-[160ms] hover:bg-on-ink/15 hover:text-on-ink active:scale-90"
+              className="grid size-5 cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[160ms] hover:bg-fill hover:text-ink active:scale-90"
             >
               <X size={12} />
             </button>

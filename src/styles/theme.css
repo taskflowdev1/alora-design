@@ -13,6 +13,10 @@
   --color-on: var(--ad-on);
   --color-on-ink: var(--ad-on-ink);
   --color-thumb: var(--ad-thumb);
+  --color-track: var(--ad-track);
+  --color-sel: var(--ad-sel);
+  --color-switch-on: var(--ad-switch-on);
+  --color-switch-thumb: var(--ad-switch-thumb);
   --color-brand: var(--ad-brand);
   --color-brand-hover: var(--ad-brand-hover);
   --color-brand-ink: var(--ad-brand-ink);
@@ -73,6 +77,7 @@
   --text-number: var(--ad-text-number);
   --text-number--line-height: 1.15;
   --shadow-card: var(--ad-shadow-card);
+  --shadow-sel: var(--ad-shadow-sel);
   --shadow-raised: var(--ad-shadow-raised);
   --shadow-dialog: var(--ad-shadow-dialog);
   --ease-ad: var(--ad-ease);

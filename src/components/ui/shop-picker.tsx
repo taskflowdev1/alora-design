@@ -21,6 +21,14 @@ export interface ShopPickerProps {
   className?: string;
 }
 
+/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
+const hold = (label: React.ReactNode) => (
+  <span className="ad-hold">
+    <span aria-hidden>{label}</span>
+    <span>{label}</span>
+  </span>
+);
+
 /** Shops with their marketplace marks, plus one-click "Only Shopee" / "Only TikTok". */
 export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "tiktok"], className }: ShopPickerProps) {
   const all = value.length === shops.length;
@@ -34,7 +42,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   const quickBtn = (active: boolean) =>
     cn(
       "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[160ms] ease-ad active:scale-[0.96]",
-      active ? "bg-on text-on-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+      active ? "bg-fill-strong font-medium text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
     );
 
   return (
@@ -52,7 +60,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
         <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-80")}>
           <div className="flex flex-wrap gap-1 pb-nest">
             <button type="button" className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>
-              All
+              {hold("All")}
             </button>
             {quick.map((m) => (
               <button
@@ -61,8 +69,12 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
                 className={quickBtn(only === m)}
                 onClick={() => onValueChange(shops.filter((s) => s.market === m).map((s) => s.id))}
               >
-                <MarketMark market={m} size={14} />
-                Only {marketLabel(m).replace(" Shop", "")}
+                {hold(
+                  <>
+                    <MarketMark market={m} size={14} />
+                    Only {marketLabel(m).replace(" Shop", "")}
+                  </>,
+                )}
               </button>
             ))}
           </div>

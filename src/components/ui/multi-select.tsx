@@ -44,7 +44,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
           {shown.map((o) => (
             <span
               key={o.value}
-              className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-on pl-bubble-sm pr-1 text-body text-on-ink"
+              className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-sel pl-bubble-sm pr-1 text-body text-ink shadow-sel"
             >
               <span className="max-w-28 truncate">{o.label}</span>
               <span
@@ -59,7 +59,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
                   e.stopPropagation();
                   toggle(o.value);
                 }}
-                className="grid size-5 place-items-center rounded-small text-on-ink/70 transition-[background-color,color,transform] duration-[220ms] ease-ad hover:bg-on-ink/15 hover:text-on-ink active:scale-90"
+                className="grid size-5 place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[220ms] ease-ad hover:bg-fill hover:text-ink active:scale-90"
               >
                 <X size={12} />
               </span>

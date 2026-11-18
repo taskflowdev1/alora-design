@@ -9,7 +9,18 @@ export interface SegmentedProps<T extends string> {
   "aria-label"?: string;
 }
 
-/** Track at the control radius; the sliding solid-ink pill sits one nest gap inside it, concentric. */
+/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
+const hold = (label: React.ReactNode) => (
+  <span className="ad-hold">
+    <span aria-hidden>{label}</span>
+    <span>{label}</span>
+  </span>
+);
+
+/**
+ * Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a hairline edge
+ * and a small drop) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
+ */
 export function Segmented<T extends string>({ value, onValueChange, options, className, ...aria }: SegmentedProps<T>) {
   const refs = React.useRef<(HTMLButtonElement | null)[]>([]);
   const [pill, setPill] = React.useState<{ x: number; w: number } | null>(null);
@@ -40,7 +51,7 @@ export function Segmented<T extends string>({ value, onValueChange, options, cla
     <div
       role="radiogroup"
       aria-label={aria["aria-label"]}
-      className={cn("relative inline-flex h-control shrink-0 items-stretch rounded-control bg-fill p-nest", className)}
+      className={cn("relative inline-flex h-control shrink-0 items-stretch rounded-control bg-track p-nest", className)}
       onKeyDown={(e) => {
         const dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
         if (dir) {
@@ -53,7 +64,7 @@ export function Segmented<T extends string>({ value, onValueChange, options, cla
         <span
           aria-hidden
           className={cn(
-            "absolute bottom-nest top-nest left-0 rounded-item bg-on",
+            "absolute bottom-nest top-nest left-0 rounded-item bg-sel shadow-sel",
             animate.current && "transition-[transform,width] duration-[220ms] ease-ad",
           )}
           style={{ width: pill.w, transform: `translateX(${pill.x}px)` }}
@@ -73,10 +84,10 @@ export function Segmented<T extends string>({ value, onValueChange, options, cla
           onClick={() => onValueChange(o.value)}
           className={cn(
             "relative z-10 inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
-            o.value === value ? "text-on-ink" : "text-ink-muted hover:text-ink",
+            o.value === value ? "font-medium text-ink" : "text-ink-muted hover:text-ink",
           )}
         >
-          {o.label}
+          {hold(o.label)}
         </button>
       ))}
     </div>

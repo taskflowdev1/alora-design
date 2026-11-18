@@ -24,7 +24,7 @@ export function pageList(page: number, count: number): (number | "gap")[] {
 
 /**
  * The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a
- * solid ink pill; the others are ghost buttons at the same size; arrows say where they go.
+ * grey pill (fill-strong) in ink; the others are ghost buttons at the same size; arrows say where they go.
  */
 export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50, numbers = true, className }: PaginationProps) {
   const go = (p: number) => onPageChange(Math.min(pageCount, Math.max(1, p)));
@@ -57,7 +57,7 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
                   onClick={() => go(n)}
                   className={cn(
                     "grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-95",
-                    n === page ? "bg-on text-on-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+                    n === page ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
                   )}
                 >
                   {n}

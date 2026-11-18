@@ -109,9 +109,12 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   gets up to 12 px of left padding so the edge tab never covers content (smoke checks it at 768).
 - Footer: the credit "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com) at body size. Inner pages:
   one line on the content edge. Landing: the closing card is the only footer (wordmark + Explore, then tabs + credit).
-- On, selected and pressed states are solid ink (`bg-on text-on-ink`: segmented, tabs, toggle group, chips, toggle,
-  pagination) or the switch's on-ink thumb; selected rows use `fill-strong` (a step above hover). Never a white pill on
-  light grey. `.ad-on-dark` remaps `on`/`on-ink` for the dark sidebar.
+- Selected states follow the shadcn/Radix/Apple norm (Joshua rejected solid-ink pills in v5): in a track (segmented,
+  toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track`; on a plain
+  surface (tabs, chips, shop-picker All/Only, toggle, pagination) the grey `fill-strong` pill. Active text is ink and
+  medium, inactive muted and regular; `.ad-hold` keeps the width when the weight changes. Switch on = `switch-on`
+  (accent) with a white thumb in both themes. Tune these tokens in `config.ts`, not per component. `.ad-on-dark`
+  remaps them for the dark sidebar. Review: `./scripts/review-v5.1-shots` (three versions side by side).
 - The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
   wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor, 16 px in the header) + a muted "design" whose d
   reaches alora's x-height (same width as the mark); the

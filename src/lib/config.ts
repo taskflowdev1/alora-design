@@ -170,8 +170,12 @@ function shadows(strength: number, dark: boolean, ink: string) {
   const base = dark ? "#000000" : ink;
   const k = dark ? 2.2 : 1;
   const s = (a: number) => rgba(base, Math.min(0.6, a * m * k));
-  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none" };
+  // Selected pill (segmented, toggle group, chips in a field): a hairline edge that follows the radius, plus a small
+  // drop. The edge stays at shadow 0 so the pill still reads; in dark it is a dark rim around a lighter pill.
+  const edge = dark ? `0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06)` : `0 0 0 1px ${rgba(ink, 0.07)}`;
+  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none", sel: edge };
   return {
+    sel: `${edge}, 0 1px 2px ${s(0.1)}, 0 2px 6px ${s(0.06)}`,
     card: `0 1px 2px ${s(0.04)}, 0 2px 10px ${s(0.035)}`,
     raised: `0 2px 6px ${s(0.06)}, 0 10px 28px ${s(0.1)}`,
     dialog: `0 6px 14px ${s(0.08)}, 0 28px 60px ${s(0.18)}`,
@@ -211,6 +215,13 @@ function themeColors(c: Config, dark: boolean) {
     on: dark ? g(0.93, 0.4) : g(0.25, 1.4),
     "on-ink": dark ? g(0.18, 1) : "#ffffff",
     thumb: "#ffffff",
+    // Raised-pill selection (the shadcn / Radix / Apple norm): a deeper grey track, a white pill in light and a lighter
+    // grey pill in dark, with shadow-sel. Selected items on a plain surface (tabs, chips) use fill-strong instead.
+    track: dark ? g(0.265, 0.8) : g(0.935, 0.7),
+    sel: dark ? g(0.415, 0.8) : "#ffffff",
+    // Switch on: accent track, the thumb stays white in both themes (Apple, Radix, Material 3).
+    "switch-on": brand,
+    "switch-thumb": "#ffffff",
     brand,
     "brand-hover": brandHover,
     "brand-ink": brandInk,
@@ -240,6 +251,7 @@ function themeColors(c: Config, dark: boolean) {
     "side-ink": g(0.93, 0.4),
     "side-muted": g(0.68, 0.6),
     "shadow-card": sh.card,
+    "shadow-sel": sh.sel,
     "shadow-raised": sh.raised,
     "shadow-dialog": sh.dialog,
   };

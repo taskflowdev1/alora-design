@@ -52,8 +52,16 @@ export function Pill({ tone = "attention", dot: d, children, className }: PillPr
   );
 }
 
+/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
+const hold = (label: React.ReactNode) => (
+  <span className="ad-hold">
+    <span aria-hidden>{label}</span>
+    <span>{label}</span>
+  </span>
+);
+
 export interface ChipProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> {
-  /** A pressed filter chip shows the soft fill; nothing else changes. */
+  /** A pressed filter chip shows the grey pill (fill-strong) with its label in ink and medium; nothing moves. */
   selected?: boolean;
   onClick?: () => void;
   /** Shows an × that calls this. */
@@ -87,12 +95,12 @@ export function Chip({ selected, onRemove, size = "default", className, children
       className={cn(
         "inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
         height,
-        selected ? "bg-on text-on-ink" : "bg-fill/0 text-ink-muted hover:bg-fill hover:text-ink",
+        selected ? "bg-fill-strong font-medium text-ink" : "bg-fill/0 text-ink-muted hover:bg-fill hover:text-ink",
         className,
       )}
       {...props}
     >
-      {children}
+      {hold(children)}
     </button>
   );
 }

@@ -12,8 +12,17 @@ export interface ToggleGroupProps {
 
 /**
  * Several on/off choices in one track, like a segmented control that allows more than one.
- * Pressed items get a solid ink pill (on / on-ink), clear against the track in both themes; track and pills are concentric.
+ * Pressed items get the raised pill (sel + shadow-sel) on the grey track, in ink and medium; the rest stay muted and
+ * regular. Track and pills are concentric.
  */
+/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
+const hold = (label: React.ReactNode) => (
+  <span className="ad-hold">
+    <span aria-hidden>{label}</span>
+    <span>{label}</span>
+  </span>
+);
+
 export function ToggleGroup({ value, onValueChange, options, className, ...aria }: ToggleGroupProps) {
   return (
     <T.Root
@@ -21,7 +30,7 @@ export function ToggleGroup({ value, onValueChange, options, className, ...aria 
       value={value}
       onValueChange={onValueChange}
       aria-label={aria["aria-label"]}
-      className={cn("inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-fill p-nest", className)}
+      className={cn("inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-track p-nest", className)}
     >
       {options.map((o) => (
         <T.Item
@@ -29,11 +38,11 @@ export function ToggleGroup({ value, onValueChange, options, className, ...aria 
           value={o.value}
           aria-label={o["aria-label"]}
           className={cn(
-            "inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
-            "text-ink-muted data-[state=off]:hover:text-ink data-[state=on]:bg-on data-[state=on]:text-on-ink",
+            "inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
+            "text-ink-muted data-[state=off]:hover:text-ink data-[state=on]:bg-sel data-[state=on]:font-medium data-[state=on]:text-ink data-[state=on]:shadow-sel",
           )}
         >
-          {o.label}
+          {hold(o.label)}
         </T.Item>
       ))}
     </T.Root>
