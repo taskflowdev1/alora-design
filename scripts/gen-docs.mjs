@@ -14,7 +14,7 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
 // The pure lib modules, transpiled to a temp folder so their data (DEFAULTS, LIMITS, ITEMS) can be imported.
 const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ad-docs-"));
 for (const f of ["config", "color", "registry"]) writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(read(`src/lib/${f}.ts`), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
-const { DEFAULTS, LIMITS } = await import(pathToFileURL(join(tmp, "config.js")).href);
+const { DEFAULTS, LIMITS, GREY_STEPS, GREY_ROLES, greyRamp } = await import(pathToFileURL(join(tmp, "config.js")).href);
 const { ITEMS, GROUPS, SITE, itemPath } = await import(pathToFileURL(join(tmp, "registry.js")).href);
 rmSync(tmp, { recursive: true, force: true });
 
@@ -173,8 +173,19 @@ const splice = (text, tag, body) => {
   if (!re.test(text)) throw new Error(`README.md is missing the <!-- ${tag}:start --> / <!-- ${tag}:end --> markers`);
   return text.replace(re, `$1\n${body}\n$2`);
 };
+/* ------------------------------------------------------------ grey ramp */
+
+// The grey ramp (config.ts): every step per theme at the default (neutral) greys, then the role tokens and their step.
+function greysTable() {
+  const light = greyRamp("neutral", false);
+  const dark = greyRamp("neutral", true);
+  const rows = ["| Step | Light | Dark |", "| --- | --- | --- |", ...GREY_STEPS.map((s) => `| \`${s}\` | \`${light[s]}\` | \`${dark[s]}\` |`)];
+  const roles = ["| Role token | Light | Dark | Use |", "| --- | --- | --- | --- |", ...Object.entries(GREY_ROLES).map(([k, r]) => `| \`${k}\` | ${r.light} | ${r.dark} | ${cell(r.use)} |`)];
+  return [...rows, "", ...roles].join("\n");
+}
+
 const readme = read("README.md");
-const nextReadme = splice(splice(readme, "settings", settingsTable()), "components", componentTable());
+const nextReadme = splice(splice(splice(readme, "settings", settingsTable()), "greys", greysTable()), "components", componentTable());
 const nextDoc = componentsDoc();
 let current = "";
 try {

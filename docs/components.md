@@ -539,7 +539,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/switch.json"
 
 Files: `src/components/ui/switch.tsx`.
 
-`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset. On = the accent track (switch-on) with the white thumb, in both themes, as Apple, Radix and Material 3 do; off = fill-strong.
+`Switch`: Toggle: a circular thumb inside a pill track. The shapes match: track radius = thumb radius + inset. Neutral, never the accent: on = switch-on (ink in light, a light grey in dark), off = fill-strong, and the thumb stays white in both themes. All three are steps of the grey ramp.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

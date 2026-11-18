@@ -33,7 +33,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
 - `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables + `docs/components.md`), `review-shots`, `shots`,
-  `check-endpoints`, `env.sh`.
+  `check-endpoints`, `env.sh`, `greys.mjs` (grey ramp check and inventory).
 
 ## Run, test, verify
 
@@ -112,9 +112,14 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - Selected states follow the shadcn/Radix/Apple norm (Joshua rejected solid-ink pills in v5): in a track (segmented,
   toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track`; on a plain
   surface (tabs, chips, shop-picker All/Only, toggle, pagination) the grey `fill-strong` pill. Active text is ink and
-  medium, inactive muted and regular; `.ad-hold` keeps the width when the weight changes. Switch on = `switch-on`
-  (accent) with a white thumb in both themes. Tune these tokens in `config.ts`, not per component. `.ad-on-dark`
-  remaps them for the dark sidebar. Review: `./scripts/review-v5.1-shots` (three versions side by side).
+  medium, inactive muted and regular; `.ad-hold` keeps the width when the weight changes. The track is `fill` (the
+  original lightness). Switch: neutral, never the accent: `switch-on` = ink in light, `ink-muted` in dark, off =
+  `fill-strong`, white thumb. Tune these tokens in `config.ts`, not per component. `.ad-on-dark` remaps them for the
+  dark sidebar. Review: `./scripts/review-v5.2-shots` (original, v5.1 and new side by side, plus the grey sheet).
+- Greys (Joshua, v5.1): one ramp of eight per theme (`GREY_STEPS`/`greyRamp`/`GREY_ROLES` in `config.ts`, table in the
+  README). Role tokens map to a step; never add a grey, an alpha on a grey token (`bg-fill/40`), `color-mix` on one, a
+  palette grey (`text-white`, `bg-black/5`) or a raw hex. `scripts/greys.mjs --check` (in verify) enforces it; image
+  content or an accent choice gets `grey-ok` on its line. `--inventory` / `--sheet` make the before/after swatch sheet.
 - The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
   wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor, 16 px in the header) + a muted "design" whose d
   reaches alora's x-height (same width as the mark); the

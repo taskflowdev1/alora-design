@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Typecheck, lint, docs drift (README + docs/components.md), build, headless smoke on its own port. Cheapest first; stops at the first failure.
+# Typecheck, lint, docs drift (README + docs/components.md), grey ramp, build, headless smoke on its own port. Cheapest first; stops at the first failure.
 # Heavy: run through the job queue (see AGENTS.md).
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -9,6 +9,7 @@ step() { echo "== $1"; }
 step typecheck; npx tsc -p tsconfig.json --noEmit
 step lint; npx eslint .
 step docs; node scripts/gen-docs.mjs --check
+step greys; node scripts/greys.mjs --check
 step build; npx vite build --logLevel warn
 step smoke; node scripts/smoke.mjs
 echo "VERIFY PASS"

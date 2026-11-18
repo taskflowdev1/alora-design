@@ -54,6 +54,41 @@ One config drives every component through `--ad-*` CSS variables. In a URL it is
 Radii nest: control radius R, nest gap G = round(R/3), card = R + G, item = R − G, sheet = R + padding. Square zeroes
 every radius; circles (avatars, dots) always stay round.
 
+### Greys
+
+One ramp of eight greys per theme, and every neutral in the library is one of them: page and surface, three fills
+(rest, hover one step up, selected one step more), three text greys. Role tokens (`track`, `sel`, `raised`, `on`,
+`switch-on`…) are names for a step, never a new grey. The greys setting (`g`) tints the whole ramp. The sidebar, save
+bar and bottom nav are a dark island in both themes and take the dark ramp (`side-*`). Shadows and the dialog scrim are
+black or ink at an alpha, so they darken what is under them rather than add a grey. The only other neutral is the white
+thumb of the switch and slider. `node scripts/greys.mjs --check` (in `scripts/verify`) fails on a raw grey, a palette
+grey (`bg-black/5`, `text-white`…), an alpha or `color-mix` on a grey token, or a token that is off the ramp.
+
+<!-- greys:start -->
+| Step | Light | Dark |
+| --- | --- | --- |
+| `page` | `#fafafa` | `#0c0c0c` |
+| `surface` | `#ffffff` | `#161616` |
+| `fill` | `#f1f1f1` | `#222222` |
+| `fill-hover` | `#e7e7e7` | `#2c2c2c` |
+| `fill-strong` | `#d9d9d9` | `#444444` |
+| `ink-faint` | `#929292` | `#747474` |
+| `ink-muted` | `#636363` | `#a4a4a4` |
+| `ink` | `#181818` | `#eeeeee` |
+
+| Role token | Light | Dark | Use |
+| --- | --- | --- | --- |
+| `raised` | surface | surface | menus and popovers (they lift by shadow) |
+| `track` | fill | fill | segmented and toggle-group track, chips in a field |
+| `sel` | surface | fill-strong | the raised pill in a track |
+| `on` | ink | ink | ink surfaces: tooltips, toasts, checked boxes, progress |
+| `on-ink` | surface | surface | text and marks on ink surfaces |
+| `scroll` | fill-strong | fill-strong | scrollbar thumb |
+| `switch-on` | ink | ink-muted | switch on: neutral, never the accent (off is fill-strong) |
+| `thumb` | white | white | switch and slider thumb |
+| `switch-thumb` | white | white | switch thumb |
+<!-- greys:end -->
+
 ## Components
 
 Every component, its install name and its props (types and notes in [docs/components.md](docs/components.md)).
