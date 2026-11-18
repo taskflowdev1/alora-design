@@ -346,7 +346,7 @@ check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
 // The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
 // every one of them live exactly once in its category bands.
-const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "native-select", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block"];
+const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block"];
 const before = errors.length;
 for (const name of MORE) {
   await page.goto(`${BASE}/components/${name}`, { waitUntil: "networkidle" });

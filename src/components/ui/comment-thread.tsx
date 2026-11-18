@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Smile } from "react-feather";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/ad";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,10 +35,12 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
       {reactions
         .filter((r) => r.by.length)
         .map((r) => (
-          <button key={r.emoji} type="button" title={r.by.join(", ")} className={pill(r.by.includes(me))} onClick={() => onReact(r.emoji)}>
-            <span className="text-[13px] leading-none">{r.emoji}</span>
-            {r.by.length}
-          </button>
+          <Tooltip key={r.emoji} content={r.by.join(", ")}>
+            <button type="button" className={pill(r.by.includes(me))} onClick={() => onReact(r.emoji)}>
+              <span className="text-[13px] leading-none">{r.emoji}</span>
+              {r.by.length}
+            </button>
+          </Tooltip>
         ))}
       <Popover
         trigger={

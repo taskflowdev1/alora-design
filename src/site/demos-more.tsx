@@ -25,7 +25,6 @@ import { InputGroup } from "@/components/ui/input-group";
 import { InputOTP } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { NativeSelect } from "@/components/ui/native-select";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
 import { Item, ItemList } from "@/components/ui/item";
@@ -299,15 +298,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
       );
     },
     usage: (p) => `<Label htmlFor="receipts"${p.required ? " required" : ""}>Print receipts</Label>\n<Switch id="receipts" … />`,
-  },
-  "native-select": {
-    render: () => (
-      <NativeSelect aria-label="Bank" defaultValue="bca" className="w-64">
-        <option value="bca">BCA · 0123 4567 89</option>
-        <option value="mandiri">Mandiri · 1300 0123 4567</option>
-      </NativeSelect>
-    ),
-    usage: () => `// Phones and long forms; elsewhere use Select.\n<NativeSelect value={bank} onChange={(e) => setBank(e.target.value)}>\n  <option value="bca">BCA</option>\n</NativeSelect>`,
   },
   calendar: {
     controls: [{ key: "past", type: "toggle", label: "Past days", default: false }],

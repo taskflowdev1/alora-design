@@ -48,7 +48,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { InputGroup } from "@/components/ui/input-group";
 import { InputOTP } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
-import { NativeSelect } from "@/components/ui/native-select";
+import { Select } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable, type DataColumn } from "@/components/ui/data-table";
 import { Item, ItemList } from "@/components/ui/item";
@@ -404,13 +404,17 @@ function PayoutAccountTile({ className }: { className?: string }) {
       <h3 className="text-title font-semibold">Payouts</h3>
       <div className="grid gap-1.5">
         <span className="text-body text-ink-muted">Bank</span>
-        <Mark name="native-select">
-          <NativeSelect aria-label="Bank" value={bank} onChange={(e) => setBank(e.target.value)} className="w-full">
-            <option value="bca">BCA · 0123 4567 89</option>
-            <option value="mandiri">Mandiri · 1300 0123 4567</option>
-            <option value="bni">BNI · 0987 6543 21</option>
-          </NativeSelect>
-        </Mark>
+        <Select
+          aria-label="Bank"
+          value={bank}
+          onValueChange={setBank}
+          className="w-full"
+          options={[
+            { value: "bca", label: "BCA · 0123 4567 89" },
+            { value: "mandiri", label: "Mandiri · 1300 0123 4567" },
+            { value: "bni", label: "BNI · 0987 6543 21" },
+          ]}
+        />
       </div>
       <div className="grid gap-1.5">
         <span className="text-body text-ink-muted">Pay out when over</span>
@@ -750,7 +754,7 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
   ],
   Inputs: [
     { items: ["label", "input-otp"], render: () => <TillSignInTile className={S[4]} /> },
-    { items: ["native-select", "input-group", "button-group"], render: () => <PayoutAccountTile className={S[4]} /> },
+    { items: ["input-group", "button-group"], render: () => <PayoutAccountTile className={S[4]} /> },
     { items: ["calendar"], render: () => <PickupDateTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
   ],
   Display: [

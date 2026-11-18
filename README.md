@@ -124,7 +124,6 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Search](https://design.alorawork.com/components/search) | `search` | `Search` | `value`, `onValueChange`, `invalid`, `wrapperClassName` |
 | [Field](https://design.alorawork.com/components/field) | `field` | `Field` | `label`, `error`, `layout="stack"`, `className`, `children`, `htmlFor` |
 | [Select](https://design.alorawork.com/components/select) | `select` | `OptionList`, `Select` | `id`, `options`, `active`, `setActive`, `isSelected`, `onPick`, `multiple`, `empty`, `className`, `value`, `onValueChange`, `placeholder="Select"`, `prefix`, `disabled`, `contentClassName`, `align="start"`, `aria-label`, `renderValue` |
-| [Native select](https://design.alorawork.com/components/native-select) | `native-select` | `NativeSelect` | none |
 | [Multi-select](https://design.alorawork.com/components/multi-select) | `multi-select` | `MultiSelect` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `maxChips=2`, `className`, `aria-label` |
 | [Combobox](https://design.alorawork.com/components/combobox) | `combobox` | `Combobox` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `searchPlaceholder="Search"`, `empty="No match"`, `className`, `aria-label` |
 | [Calendar](https://design.alorawork.com/components/calendar) | `calendar` | `Calendar` | `value`, `onValueChange`, `today=new Date()`, `min`, `autoFocus`, `className` |

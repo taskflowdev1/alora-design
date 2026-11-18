@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn, MONTHS } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 
@@ -80,19 +81,19 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                 {d.getDate()}
               </span>
               {list.slice(0, max).map((e) => (
-                <button
-                  key={e.id}
-                  type="button"
-                  title={`${e.title}, ${d.getDate()} ${MONTHS[d.getMonth()]}`}
-                  onClick={() => onEventClick?.(e)}
-                  className={cn(
-                    "flex h-6 min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
-                    e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong",
-                  )}
-                >
-                  <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
-                  <span className="truncate">{e.title}</span>
-                </button>
+                <Tooltip key={e.id} content={`${e.title}, ${d.getDate()} ${MONTHS[d.getMonth()]}`}>
+                  <button
+                    type="button"
+                    onClick={() => onEventClick?.(e)}
+                    className={cn(
+                      "flex h-6 min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
+                      e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong",
+                    )}
+                  >
+                    <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
+                    <span className="truncate">{e.title}</span>
+                  </button>
+                </Tooltip>
               ))}
               {list.length > max ? <span className="px-1.5 text-small text-ink-muted">+{list.length - max} more</span> : null}
             </div>

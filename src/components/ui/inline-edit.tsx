@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Edit2 } from "react-feather";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/ad";
 
 export interface InlineEditProps {
@@ -43,28 +44,30 @@ export function InlineEdit({ value, onSave, display, validate, align = "left", i
 
   if (draft != null) {
     return (
-      <span className={cn(box, error ? "bg-danger-soft" : "bg-fill")} title={error ?? undefined}>
-        <input
-          ref={input}
-          value={draft}
-          inputMode={inputMode}
-          aria-label={aria["aria-label"]}
-          aria-invalid={!!error || undefined}
-          onChange={(e) => (setDraft(e.target.value), setError(null))}
-          onBlur={save}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            e.stopPropagation();
-            if (e.key === "Enter") save();
-            if (e.key === "Escape") {
-              setDraft(null);
-              setError(null);
-            }
-          }}
-          className={cn("w-full min-w-0 bg-transparent tabular-nums text-ink outline-none", align === "right" && "text-right")}
-        />
-        <span className="size-3.5 shrink-0" />
-      </span>
+      <Tooltip content={error} open={!!error}>
+        <span className={cn(box, error ? "bg-danger-soft" : "bg-fill")}>
+          <input
+            ref={input}
+            value={draft}
+            inputMode={inputMode}
+            aria-label={aria["aria-label"]}
+            aria-invalid={!!error || undefined}
+            onChange={(e) => (setDraft(e.target.value), setError(null))}
+            onBlur={save}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter") save();
+              if (e.key === "Escape") {
+                setDraft(null);
+                setError(null);
+              }
+            }}
+            className={cn("w-full min-w-0 bg-transparent tabular-nums text-ink outline-none", align === "right" && "text-right")}
+          />
+          <span className="size-3.5 shrink-0" />
+        </span>
+      </Tooltip>
     );
   }
   return (

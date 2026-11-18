@@ -343,20 +343,6 @@ Files: `src/components/ui/select.tsx`.
 | `aria-label` | `string` |  |  |
 | `renderValue` | `((option: Option \| undefined) => ReactNode)` |  | Custom trigger content; defaults to icon + label. |
 
-### Native select
-
-<a id="native-select"></a>Page: https://design.alorawork.com/components/native-select
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/native-select.json"
-```
-
-Files: `src/components/ui/native-select.tsx`. Installs too: `select`.
-
-`NativeSelect`: The browser's own <select>, dressed exactly like our Select trigger. Closed, the two look the same; open, the phone shows its own wheel or sheet. Use it for long forms on phones; everywhere else use Select (custom list, search, keyboard type-ahead).
-
-Also takes the native props of the element it renders.
-
 ### Multi-select
 
 <a id="multi-select"></a>Page: https://design.alorawork.com/components/multi-select
@@ -1356,7 +1342,7 @@ Files: `src/components/ui/radial-chart.tsx`. Installs too: `chart`.
 npx shadcn@latest add "https://design.alorawork.com/r/breadcrumb.json"
 ```
 
-Files: `src/components/ui/breadcrumb.tsx`.
+Files: `src/components/ui/breadcrumb.tsx`. Installs too: `tooltip`.
 
 `Breadcrumb`: Where you are: earlier levels are muted links with the hover fill, the current page is ink and not a link. Feather chevrons between, never slashes; long paths collapse in the middle; labels truncate instead of wrapping.
 
@@ -2194,7 +2180,7 @@ Files: `src/components/ui/column-menu.tsx`. Installs too: `button`, `checkbox`, 
 npx shadcn@latest add "https://design.alorawork.com/r/inline-edit.json"
 ```
 
-Files: `src/components/ui/inline-edit.tsx`.
+Files: `src/components/ui/inline-edit.tsx`. Installs too: `tooltip`.
 
 `InlineEdit`: A table cell you can edit in place. Hover shows a soft fill and a pencil (its space is always reserved, so nothing moves). Click or Enter edits; Enter saves, Esc cancels.
 
@@ -2339,7 +2325,7 @@ Files: `src/components/ui/timeline.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/comment-thread.json"
 ```
 
-Files: `src/components/ui/comment-thread.tsx`. Installs too: `avatar`, `button`, `popover`.
+Files: `src/components/ui/comment-thread.tsx`. Installs too: `avatar`, `button`, `popover`, `tooltip`.
 
 `CommentThread`: Comments as soft bubbles beside a circle avatar, reactions under each, a reply box at the bottom.
 
@@ -2472,7 +2458,7 @@ Files: `src/components/ui/kanban-card.tsx`. Installs too: `avatar-group`, `badge
 npx shadcn@latest add "https://design.alorawork.com/r/calendar-month.json"
 ```
 
-Files: `src/components/ui/calendar-month.tsx`. Installs too: `button`.
+Files: `src/components/ui/calendar-month.tsx`. Installs too: `button`, `tooltip`.
 
 `CalendarMonth`: A month on one screen. Days are soft cells (no grid lines); events are small soft fills with a dot, never a heavy coloured left border.
 
