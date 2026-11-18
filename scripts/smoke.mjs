@@ -357,10 +357,12 @@ check(errors.length === before, `new component pages throw nothing (${errors.sli
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landingMore = await page.evaluate((names) => {
   const band = document.querySelector("[data-landing=more]");
-  // Typography has no tile (Joshua, v5.4: "what is this remove."): its page stays, the landing and overview skip it.
-  return { typography: band?.querySelectorAll('[data-spot="typography"]').length, missing: names.filter((n) => n !== "typography" && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
+  // No tile for these (Joshua, v5.4 typography: "what is this remove."; v5.8 panes: "remove panes section"): their
+  // pages stay, the landing and overview skip them.
+  const hidden = ["typography", "resizable", "scroll-area"];
+  return { hidden: hidden.reduce((n, h) => n + (band?.querySelectorAll(`[data-spot="${h}"]`).length ?? 0), 0), missing: names.filter((n) => !hidden.includes(n) && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
 }, MORE);
-check(landingMore.missing.length === 0 && landingMore.typography === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
+check(landingMore.missing.length === 0 && landingMore.hidden === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
 // Line chart: hovering shows one tooltip with every series.
 await page.goto(BASE + "/components/line-chart", { waitUntil: "networkidle" });
 const svg = page.locator("[data-stage] figure svg").first();

@@ -56,8 +56,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Collapsible } from "@/components/ui/collapsible";
 import { Carousel } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Resizable } from "@/components/ui/resizable";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bubble, Message } from "@/components/ui/message";
 import { MessageScroller } from "@/components/ui/message-scroller";
 import { Marker } from "@/components/ui/marker";
@@ -617,44 +615,6 @@ function DrawerTile({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ Layout */
-
-function SplitTile({ className }: { className?: string }) {
-  const [open, setOpen] = React.useState(ORDERS[0].id);
-  const o = ORDERS.find((x) => x.id === open) ?? ORDERS[0];
-  return (
-    <Tile className={className}>
-      <Mark name="resizable" className="flex h-[264px] min-w-0">
-        <Resizable defaultSize={46} min={30} max={70} className="h-full w-full">
-          <Mark name="scroll-area" className="h-full">
-            <ScrollArea className="h-full">
-              <div className="grid gap-px pr-2">
-                {ORDERS.slice(0, 18).map((x) => (
-                  <button key={x.id} type="button" onClick={() => setOpen(x.id)} className={cn("flex h-row cursor-pointer items-center gap-3 rounded-item px-2 text-left text-body", x.id === open ? "bg-fill-strong" : "hover:bg-fill")}>
-                    <span className="w-24 shrink-0 whitespace-nowrap tabular-nums">{x.id}</span>
-                    <span className="min-w-0 flex-1 truncate text-ink-muted">{x.items}</span>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </Mark>
-          <div className="grid h-full content-start gap-3 rounded-item bg-fill p-pad">
-            <div className="flex items-center justify-between gap-2">
-              <span className="truncate text-title font-semibold tabular-nums">{o.id}</span>
-              <Status tone={STATUS_TONE[o.status] ?? "default"}>{o.status}</Status>
-            </div>
-            <span className="truncate text-body">{o.items}</span>
-            <span className="text-body text-ink-muted">
-              {o.shop} · {o.customer} · {smartTime(o.at)}
-            </span>
-            <span className="text-number font-semibold tabular-nums">{formatRp(o.total)}</span>
-          </div>
-        </Resizable>
-      </Mark>
-    </Tile>
-  );
-}
-
 /* ------------------------------------------------------------ Chat */
 
 function AgentChatTile({ className }: { className?: string }) {
@@ -767,7 +727,6 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
     { items: ["alert-dialog"], render: () => <ConfirmTile className={S[6]} /> },
     { items: ["drawer"], render: () => <DrawerTile className={S[6]} /> },
   ],
-  Layout: [{ items: ["resizable", "scroll-area"], render: () => <SplitTile className={S[12]} /> }],
   Chat: [
     { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: () => <AgentChatTile className={S[8]} /> },
     { items: ["questionnaire"], render: () => <BeforeRestockTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
@@ -775,8 +734,8 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
 };
 
 /** The order the landing shows the new bands in. */
-const LANDING_GROUPS: Group[] = ["Charts", "Navigation", "Inputs", "Display", "Overlays", "Layout", "Chat"];
-const BAND_TITLE: Partial<Record<Group, string>> = { Inputs: "More inputs", Display: "More display", Overlays: "More overlays", Layout: "Panes" };
+const LANDING_GROUPS: Group[] = ["Charts", "Navigation", "Inputs", "Display", "Overlays", "Chat"];
+const BAND_TITLE: Partial<Record<Group, string>> = { Inputs: "More inputs", Display: "More display", Overlays: "More overlays" };
 
 /** On the landing: the shadcn-parity components live, one band per category, the same tiles as the Components page. */
 export function MoreBento() {

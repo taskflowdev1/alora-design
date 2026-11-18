@@ -112,8 +112,8 @@ export const ITEMS: Item[] = [
 
   { name: "sidebar", title: "Sidebar", group: "Layout", files: ["sidebar.tsx"], deps: [RADIX] },
   { name: "bottom-nav", title: "Bottom nav", group: "Layout", files: ["bottom-nav.tsx"] },
-  { name: "resizable", title: "Resizable panes", group: "Layout", files: ["resizable.tsx"] },
-  { name: "scroll-area", title: "Scroll area", group: "Layout", files: ["scroll-area.tsx"], deps: [RADIX] },
+  { name: "resizable", title: "Resizable panes", group: "Layout", files: ["resizable.tsx"], showcase: false },
+  { name: "scroll-area", title: "Scroll area", group: "Layout", files: ["scroll-area.tsx"], deps: [RADIX], showcase: false },
 
   // Chat: the parts of a conversation UI (the AI section holds the loaders and the composer).
   { name: "message", title: "Message and bubble", group: "Chat", files: ["message.tsx"], registryDeps: ["avatar"] },
