@@ -5,7 +5,6 @@
  * chip with its name that opens its page with the sliders; a click on its empty space does the same.
  */
 import * as React from "react";
-import { useNavigate } from "react-router";
 import {
   Archive,
   Box,
@@ -25,7 +24,6 @@ import {
   Settings,
   Share2,
   ShoppingBag,
-  Sliders,
   Tag,
   Trash2,
   Truck,
@@ -36,7 +34,7 @@ import {
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
-import { COMPONENT_ITEMS, GROUPS, findItem, itemPath, type Group } from "@/lib/registry";
+import { COMPONENT_ITEMS, GROUPS, findItem, type Group } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, MetricCard } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,57 +98,12 @@ import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
 import { CalendarMonth, type CalendarEvent } from "@/components/ui/calendar-month";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
-import { SLink, shapedSupported, useConfig, useHref } from "./config";
+import { shapedSupported, useConfig } from "./config";
 import { DAILY, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SHOPS, SPARK, TEAM, smartTime, type Order } from "./data";
 import { CommentsDemo } from "./demos-niche";
+import { BackPage, Head, Mark, S, Tile, frame, stack, type TileDef } from "./mark";
+import { MORE_TILES } from "./showcase-more";
 
-/* ------------------------------------------------------------ the mark around each component */
-
-const INTERACTIVE =
-  "a,button,input,textarea,select,label,[role=button],[role=combobox],[role=slider],[role=switch],[role=checkbox],[role=radio],[role=tab],[role=option],[role=menuitem],[role=row],[contenteditable=true]";
-
-/**
- * One component inside a tile. Hover (only the innermost mark) shows a soft fill and its name chip just above it; the
- * chip opens the component's page with the sliders, and so does a click on the mark's empty space. The component
- * itself stays fully interactive. The mark pads itself by as much as it pulls out, so it never moves the layout.
- */
-function Mark({ name, className, children }: { name: string; className?: string; children: React.ReactNode }) {
-  const item = findItem(name);
-  const navigate = useNavigate();
-  const href = useHref(item ? itemPath(item) : "/components");
-  if (!item) return <>{children}</>;
-  return (
-    <div
-      data-spot={name}
-      onClick={(e) => {
-        const t = e.target as Element;
-        if (t.closest("[data-spot]") !== e.currentTarget || t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
-        navigate(href);
-      }}
-      className={cn("ad-mark -m-1.5 min-w-0 cursor-pointer p-1.5", className)}
-    >
-      <SLink to={itemPath(item)} className="ad-mark-chip">
-        <Sliders size={14} />
-        {item.title}
-      </SLink>
-      {children}
-    </div>
-  );
-}
-
-/** A tile: a soft surface on the grid. `inset="nest"` for rows and tables (concentric), otherwise content padding. */
-function Tile({ className, inset = "nest", children }: { className?: string; inset?: "pad" | "nest" | "none"; children: React.ReactNode }) {
-  return (
-    <Card inset={inset} className={cn("flex min-w-0 flex-col gap-3", className)}>
-      {children}
-    </Card>
-  );
-}
-
-/** Title row inside a nest-inset tile, on the rows' inset. */
-const Head = ({ title, action }: { title: React.ReactNode; action?: React.ReactNode }) => <CardHeader title={title} action={action} className="px-2 pt-1" />;
-
-const stack = "grid min-w-0 grid-cols-1 content-stretch gap-4 [&>*:last-child]:h-full";
 const say = (m: string) => () => toast(m, "neutral");
 
 /* ------------------------------------------------------------ Foundations */
@@ -727,23 +680,6 @@ function EmptyLoadingStack({ className }: { className?: string }) {
 /* ------------------------------------------------------------ Overlays, opened in place */
 
 /** A small page behind an overlay: a few order rows, dimmed by the overlay that sits on it. */
-function BackPage({ rows = 6 }: { rows?: number }) {
-  return (
-    <div aria-hidden className="grid gap-px p-3">
-      <div className="mb-2 flex h-control items-center px-2 text-title font-semibold">Orders</div>
-      {ORDERS.slice(0, rows).map((o) => (
-        <div key={o.id} className="flex h-row items-center gap-4 rounded-item px-2 text-body">
-          <span className="w-24 shrink-0">{o.id}</span>
-          <span className="min-w-0 flex-1 truncate text-ink-muted">{o.items}</span>
-          <span className="tabular-nums">{formatRp(o.total)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const frame = "relative min-h-[300px] flex-1 overflow-hidden rounded-item bg-page [transform:translateZ(0)]";
-
 function DialogTile({ className }: { className?: string }) {
   const [reason, setReason] = React.useState("stock");
   return (
@@ -1440,24 +1376,7 @@ function ShipmentTile({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ the page */
 
-interface TileDef {
-  /** The components marked in it (for search and the coverage check). */
-  items: string[];
-  render: (config: Config) => React.ReactNode;
-}
-
-/** Spans per breakpoint: phone one column, tablet two, desktop twelve. */
-const S = {
-  3: "lg:col-span-3",
-  4: "lg:col-span-4",
-  5: "lg:col-span-5",
-  6: "lg:col-span-6",
-  7: "md:col-span-2 lg:col-span-7",
-  8: "md:col-span-2 lg:col-span-8",
-  12: "md:col-span-2 lg:col-span-12",
-} as const;
-
-const TILES: Record<Group, TileDef[]> = {
+const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat">, TileDef[]> = {
   Foundations: [
     { items: ["corner-shape"], render: (c) => <CornerTile config={c} className={S[8]} /> },
     { items: ["scrollbar"], render: () => <ScrollTile className={S[4]} /> },
@@ -1512,6 +1431,9 @@ const TILES: Record<Group, TileDef[]> = {
   AI: [],
   Backgrounds: [],
 };
+
+/** Each category's tiles: the originals, then the shadcn-parity ones (showcase-more.tsx). */
+const TILES = Object.fromEntries(GROUPS.map((g) => [g, [...((BASE_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? []), ...(MORE_TILES[g] ?? [])]])) as Record<Group, TileDef[]>;
 
 /** Every component's name, once, from the tiles (the coverage check compares it with the registry). */
 export const SHOWN = Object.values(TILES).flatMap((ts) => ts.flatMap((t) => t.items));

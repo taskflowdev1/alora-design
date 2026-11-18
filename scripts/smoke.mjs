@@ -117,7 +117,7 @@ const landing = await page.evaluate(() => ({
   sand: document.querySelectorAll("[data-landing=backgrounds] [data-sand-field]").length,
 }));
 check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
-check(landing.order.join() === "bento,ai,backgrounds" && landing.orbs > 0 && landing.sand === 1, `landing: components first, then AI and Backgrounds live (${JSON.stringify(landing)})`);
+check(landing.order.join() === "bento,more,ai,backgrounds,footer" && landing.orbs > 0 && landing.sand === 1, `landing: components first (original bento, then the category bands), then AI, Backgrounds, the closing footer (${JSON.stringify(landing)})`);
 // AI band: the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
 // attach | text | send: both buttons one size, one inset on every side, a single text line centred on the buttons, and
 // the radius is the button radius plus that inset (concentric). Three lines grow the box upward, buttons stay at the bottom.
@@ -346,5 +346,30 @@ check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
 await browser.close();
 server.kill("SIGTERM");
+// The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
+// every one of them live exactly once in its category bands.
+const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "native-select", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block"];
+const before = errors.length;
+for (const name of MORE) {
+  await page.goto(`${BASE}/components/${name}`, { waitUntil: "networkidle" });
+  const r = await page.evaluate(() => ({ h1: document.querySelector("main h1, h1")?.textContent, stage: !!document.querySelector("[data-stage]")?.children.length }));
+  check(!!r.h1 && r.stage && !/No component/.test(r.h1), `/components/${name} renders (${r.h1})`);
+}
+check(errors.length === before, `new component pages throw nothing (${errors.slice(before, before + 3).join(" | ")})`);
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+const landingMore = await page.evaluate((names) => {
+  const band = document.querySelector("[data-landing=more]");
+  return { missing: names.filter((n) => band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
+}, MORE);
+check(landingMore.missing.length === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
+// Line chart: hovering shows one tooltip with every series.
+await page.goto(BASE + "/components/line-chart", { waitUntil: "networkidle" });
+const svg = page.locator("[data-stage] figure svg").first();
+const sb = await svg.boundingBox();
+await page.mouse.move(sb.x + sb.width * 0.6, sb.y + sb.height / 2);
+await sleep(200);
+const tip = await page.locator("[data-stage] [role=status]").first().innerText().catch(() => "");
+check(/This fortnight/.test(tip) && /The one before/.test(tip), `line chart crosshair tooltip lists both series (${JSON.stringify(tip)})`);
+
 console.log(failures.length ? `SMOKE FAIL (${failures.length})` : "SMOKE PASS");
 process.exit(failures.length ? 1 : 0);

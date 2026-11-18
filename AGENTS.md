@@ -16,11 +16,15 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 - `src/lib/ad.ts`: `cn()` (tailwind-merge that knows our token names) and date/money formatters.
 - `src/styles/theme.css`: Tailwind v4 `@theme inline` mapping (`bg-fill`, `rounded-card`, `h-control`...).
   `src/styles/base.css`: corner-shape, scrollbar, no focus rings, keyframes. Both ship in exports.
-- `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style). 41 core
-  components plus 28 niche ERP parts (group "Niche"). `src/components/ai/` (Thinking orbs, Run status, Composer
+- `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style): core components,
+  the shadcn-parity set (charts on `chart.tsx`, navigation, chat parts, data table…) and niche ERP parts (group "Niche").
+  Every shadcn component has ours except Separator (no dividing lines) and Direction (an RTL provider); Spinner maps
+  to Thinking orbs (no spinners). `src/components/ai/` (Thinking orbs, Run status, Composer
   glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
-- `src/site/`: landing (hero, `bento.tsx` = every component in 19 real ERP cards, then the AI and Backgrounds bands),
-  Components page (`showcase.tsx`: every component live in category bento tiles; `gallery.tsx` = page shell + detail
+- `src/site/`: landing (hero, `bento.tsx` = the original components in 19 real ERP cards, `MoreBento` from
+  `showcase-more.tsx` = the shadcn-parity tiles in category bands, then the AI and Backgrounds bands, then the closing
+  card that is the landing's footer), Components page (`showcase.tsx`: every component live in category bento tiles,
+  its own `BASE_TILES` plus `MORE_TILES`; `mark.tsx` = the shared Mark, Tile, spans; `demos-more.tsx` = the new demos; `gallery.tsx` = page shell + detail
   pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
   they sit in; `AgentApp` = chat sidebar left (fit-content, 240–280 px), thread takes the rest, 580 px tall from lg). The message box
   (`Composer`) ships in `composer-glow.tsx`: one row attach | text | send, one control size, inset = half the card padding,
@@ -42,6 +46,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
   (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
+- v5 review shots: `./scripts/review-v5-shots [before] [ONLY]` (before = the live site into `before/`) into
+  `output/review-v5/` (letters A AI, F footer, H wordmark, T on/off states, N new components, X overflow).
 - Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min; `ONLY="C|W"` ~2 min): lettered PNGs + two webm videos +
   `checks.json` (no horizontal scroll at 360–1440 in both themes, flap clearance, orbs drawing/pausing, reduced
   motion, sand field reacting) in `output/review-v4.3/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
@@ -101,9 +107,14 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   transform slides it (FLIP), so text rewraps once at the start, never per frame. Below md the header Customize
   popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing. Below 1304 px the page wrapper
   gets up to 12 px of left padding so the edge tab never covers content (smoke checks it at 768).
-- Footer: one muted line on every page, "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com).
+- Footer: the credit "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com) at body size. Inner pages:
+  one line on the content edge. Landing: the closing card is the only footer (wordmark + Explore, then tabs + credit).
+- On, selected and pressed states are solid ink (`bg-on text-on-ink`: segmented, tabs, toggle group, chips, toggle,
+  pagination) or the switch's on-ink thumb; selected rows use `fill-strong` (a step above hover). Never a white pill on
+  light grey. `.ad-on-dark` remaps `on`/`on-ink` for the dark sidebar.
 - The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
-  wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor) + a muted "design" on its baseline; the
+  wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor, 16 px in the header) + a muted "design" whose d
+  reaches alora's x-height (same width as the mark); the
   favicon is the traced mark. The customize panel and phone popover are their own scroll areas (`useOwnScroll`). Examples sit in
   the same 1280 px container. Ctrl/Cmd+K opens the command palette over pages and components.
 

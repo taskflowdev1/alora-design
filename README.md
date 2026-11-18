@@ -75,23 +75,31 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Menu](https://design.alorawork.com/components/menu) | `menu` | `Menu`, `MenuItem`, `MenuLabel`, `MenuGroup`, `MenuSub` | `trigger`, `children`, `align="start"`, `side="bottom"`, `tone="light"`, `showSafeArea`, `open`, `onOpenChange`, `className`, `icon`, `shortcut`, `onSelect`, `disabled`, `label` |
 | [Toolbar](https://design.alorawork.com/components/toolbar) | `toolbar` | `Toolbar`, `ToolbarSpacer`, `PageHeader` | `className`, `children`, `title` |
 | [Save bar](https://design.alorawork.com/components/save-bar) | `save-bar` | `SaveBar` | `open`, `onSave`, `onDiscard`, `saving`, `label="Unsaved changes"`, `inline`, `className` |
+| [Button group](https://design.alorawork.com/components/button-group) | `button-group` | `ButtonGroup` | none |
 
 ### Inputs
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
-| [Input](https://design.alorawork.com/components/input) | `input` | `Input`, `Textarea` | `icon`, `end`, `invalid`, `wrapperClassName` |
+| [Input](https://design.alorawork.com/components/input) | `input` | `Input` | `icon`, `end`, `invalid`, `wrapperClassName` |
+| [Textarea](https://design.alorawork.com/components/textarea) | `textarea` | `Textarea` | `invalid` |
+| [Input group](https://design.alorawork.com/components/input-group) | `input-group` | `InputGroup` | `start`, `end`, `invalid`, `className`, `children` |
+| [One-time code](https://design.alorawork.com/components/input-otp) | `input-otp` | `InputOTP` | `value`, `onValueChange`, `length=6`, `group=3`, `onComplete`, `invalid`, `disabled`, `className`, `aria-label` |
+| [Label](https://design.alorawork.com/components/label) | `label` | `Label` | `required` |
 | [Search](https://design.alorawork.com/components/search) | `search` | `Search` | `value`, `onValueChange`, `invalid`, `wrapperClassName` |
 | [Field](https://design.alorawork.com/components/field) | `field` | `Field` | `label`, `error`, `layout="stack"`, `className`, `children`, `htmlFor` |
 | [Select](https://design.alorawork.com/components/select) | `select` | `OptionList`, `Select` | `id`, `options`, `active`, `setActive`, `isSelected`, `onPick`, `multiple`, `empty`, `className`, `value`, `onValueChange`, `placeholder="Select"`, `prefix`, `disabled`, `contentClassName`, `align="start"`, `aria-label`, `renderValue` |
+| [Native select](https://design.alorawork.com/components/native-select) | `native-select` | `NativeSelect` | none |
 | [Multi-select](https://design.alorawork.com/components/multi-select) | `multi-select` | `MultiSelect` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `maxChips=2`, `className`, `aria-label` |
 | [Combobox](https://design.alorawork.com/components/combobox) | `combobox` | `Combobox` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `searchPlaceholder="Search"`, `empty="No match"`, `className`, `aria-label` |
+| [Calendar](https://design.alorawork.com/components/calendar) | `calendar` | `Calendar` | `value`, `onValueChange`, `today=new Date()`, `min`, `autoFocus`, `className` |
 | [Date picker](https://design.alorawork.com/components/date-picker) | `date-picker` | `DatePicker` | `value`, `onValueChange`, `placeholder="Pick a date"`, `smart=true`, `today=new Date()`, `className` |
 | [Period stepper](https://design.alorawork.com/components/period-stepper) | `period-stepper` | `PeriodStepper` | `value`, `period`, `onValueChange`, `max`, `className` |
 | [Language picker](https://design.alorawork.com/components/language-picker) | `language-picker` | `LanguagePicker` | `value`, `onValueChange`, `languages=LANGUAGES`, `className` |
 | [Segmented control](https://design.alorawork.com/components/segmented) | `segmented` | `Segmented` | `value`, `onValueChange`, `options`, `className`, `aria-label` |
 | [Tabs](https://design.alorawork.com/components/tabs) | `tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | none |
 | [Toggle](https://design.alorawork.com/components/switch) | `switch` | `Switch` | `size="default"` |
+| [Toggle button](https://design.alorawork.com/components/toggle) | `toggle` | `Toggle` | `size="default"`, `icon` |
 | [Checkbox](https://design.alorawork.com/components/checkbox) | `checkbox` | `Checkbox`, `CheckboxField` | `label` |
 | [Radio](https://design.alorawork.com/components/radio) | `radio` | `RadioGroup`, `Radio` | `label` |
 | [Slider](https://design.alorawork.com/components/slider) | `slider` | `Slider` | `value`, `onValueChange`, `min`, `max`, `step=1`, `label`, `display`, `className` |
@@ -113,6 +121,33 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Progress](https://design.alorawork.com/components/progress) | `progress` | `Progress` | `value`, `max=100`, `className`, `aria-label` |
 | [Empty state](https://design.alorawork.com/components/empty-state) | `empty-state` | `EmptyState` | `icon`, `title`, `className` |
 | [Skeleton](https://design.alorawork.com/components/skeleton) | `skeleton` | `Skeleton`, `Loading`, `LoadingText` | `loading`, `children`, `className` |
+| [Data table](https://design.alorawork.com/components/data-table) | `data-table` | `DataTable` | `rows`, `columns`, `rowKey`, `selected`, `onSelectedChange`, `onRowClick`, `pageSize=50`, `search=true`, `toolbar`, `loading`, `className` |
+| [Item](https://design.alorawork.com/components/item) | `item` | `Item`, `ItemList` | `media`, `title`, `description`, `end`, `variant="plain"`, `asChild` |
+| [Accordion](https://design.alorawork.com/components/accordion) | `accordion` | `Accordion` | `items`, `type="single"`, `defaultValue`, `cards`, `className` |
+| [Collapsible](https://design.alorawork.com/components/collapsible) | `collapsible` | `Collapsible` | `title`, `meta` |
+| [Carousel](https://design.alorawork.com/components/carousel) | `carousel` | `Carousel` | `children`, `perView=1`, `gap=12`, `arrows=true`, `dots=true`, `className`, `aria-label` |
+| [Aspect ratio](https://design.alorawork.com/components/aspect-ratio) | `aspect-ratio` | `AspectRatio` | none |
+| [Typography](https://design.alorawork.com/components/typography) | `typography` | `H1`, `H2`, `H3`, `H4`, `P`, `Muted`, `Small`, `Num`, `InlineCode`, `List`, `Quote` | none |
+
+### Charts
+
+| Component | Install name | Exports | Props (`=default`) |
+| --- | --- | --- | --- |
+| [Chart parts](https://design.alorawork.com/components/chart) | `chart` | `ChartTooltip`, `ChartLegend`, `CartesianChart` | `title`, `rows`, `style`, `className`, `items`, `data`, `series`, `kind="line"`, `height=200`, `curve="smooth"`, `grid=true`, `axis=true`, `dots=false`, `stacked=false`, `fill=0.14`, `labelEvery=0`, `legend=true`, `format=formatShort`, `aria-label` |
+| [Line chart](https://design.alorawork.com/components/line-chart) | `line-chart` | `LineChart` | `data`, `legend`, `height`, `className`, `aria-label`, `grid`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format` |
+| [Area chart](https://design.alorawork.com/components/area-chart) | `area-chart` | `AreaChart` | `data`, `legend`, `height`, `className`, `aria-label`, `fill`, `grid`, `stacked`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format` |
+| [Pie and donut](https://design.alorawork.com/components/pie-chart) | `pie-chart` | `PieChart` | `data`, `size=168`, `thickness=0.32`, `center`, `legend="side"`, `format=formatShort`, `className`, `aria-label` |
+| [Radar chart](https://design.alorawork.com/components/radar-chart) | `radar-chart` | `RadarChart` | `data`, `series`, `size=240`, `rings=4`, `fill=0.14`, `format=formatShort`, `className`, `aria-label` |
+| [Radial chart](https://design.alorawork.com/components/radial-chart) | `radial-chart` | `RadialChart` | `data`, `size=168`, `thickness=10`, `gap=6`, `sweep=270`, `center`, `className`, `aria-label` |
+
+### Navigation
+
+| Component | Install name | Exports | Props (`=default`) |
+| --- | --- | --- | --- |
+| [Breadcrumb](https://design.alorawork.com/components/breadcrumb) | `breadcrumb` | `Breadcrumb` | `items`, `max=4`, `className` |
+| [Navigation menu](https://design.alorawork.com/components/navigation-menu) | `navigation-menu` | `NavigationMenu` | `items`, `className` |
+| [Menubar](https://design.alorawork.com/components/menubar) | `menubar` | `Menubar` | `menus`, `className` |
+| [Pagination](https://design.alorawork.com/components/pagination) | `pagination` | `Pagination` | `page`, `pageCount`, `onPageChange`, `total`, `pageSize=50`, `numbers=true`, `className` |
 
 ### Overlays
 
@@ -123,6 +158,8 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Popover](https://design.alorawork.com/components/popover) | `popover` | `PopoverGroup`, `Popover` | `children`, `trigger`, `align="start"`, `side="bottom"`, `open`, `onOpenChange`, `className`, `tone` |
 | [Tooltip](https://design.alorawork.com/components/tooltip) | `tooltip` | `TooltipProvider`, `Tooltip` | `children`, `content`, `side="top"`, `open` |
 | [Toast](https://design.alorawork.com/components/toast) | `toast` | `Toaster`, `ToastView` | `tone="success"`, `children`, `className` |
+| [Alert dialog](https://design.alorawork.com/components/alert-dialog) | `alert-dialog` | `AlertDialog` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `action`, `onAction`, `cancel="Keep"`, `className` |
+| [Drawer](https://design.alorawork.com/components/drawer) | `drawer` | `Drawer` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `footer`, `className` |
 
 ### Layout
 
@@ -130,6 +167,20 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | --- | --- | --- | --- |
 | [Sidebar](https://design.alorawork.com/components/sidebar) | `sidebar` | `Sidebar`, `SidebarSection`, `SidebarItem` | `className`, `children`, `label`, `icon`, `active`, `count`, `asChild`, `onClick` |
 | [Bottom nav](https://design.alorawork.com/components/bottom-nav) | `bottom-nav` | `BottomNav`, `BottomNavItem`, `Fab` | `children`, `className`, `icon`, `label`, `active`, `onClick` |
+| [Resizable panes](https://design.alorawork.com/components/resizable) | `resizable` | `Resizable` | `children`, `direction="horizontal"`, `defaultSize=50`, `min=20`, `max=80`, `onResize`, `className` |
+| [Scroll area](https://design.alorawork.com/components/scroll-area) | `scroll-area` | `ScrollArea` | `orientation="vertical"` |
+
+### Chat
+
+| Component | Install name | Exports | Props (`=default`) |
+| --- | --- | --- | --- |
+| [Message and bubble](https://design.alorawork.com/components/message) | `message` | `Bubble`, `BubbleGroup`, `Message` | `variant="soft"`, `align="start"`, `reactions`, `from`, `time`, `mine`, `actions`, `children`, `className` |
+| [Message scroller](https://design.alorawork.com/components/message-scroller) | `message-scroller` | `MessageScroller` | `children`, `watch`, `className` |
+| [Marker](https://design.alorawork.com/components/marker) | `marker` | `Marker` | `icon`, `variant="note"`, `live` |
+| [Trace](https://design.alorawork.com/components/trace) | `trace` | `Trace` | `steps`, `className` |
+| [Attachment](https://design.alorawork.com/components/attachment) | `attachment` | `Attachment`, `AttachmentGroup` | `name`, `meta`, `kind="file"`, `src`, `state="done"`, `progress=0`, `onRemove`, `onOpen`, `size="default"`, `className` |
+| [Questionnaire](https://design.alorawork.com/components/questionnaire) | `questionnaire` | `Questionnaire` | `questions`, `onSubmit`, `skippable=true`, `submitLabel="Send answers"`, `className` |
+| [Code block](https://design.alorawork.com/components/code-block) | `code-block` | `CodeBlock` | `code`, `title`, `lineNumbers`, `maxHeight=420`, `onCopy`, `className` |
 
 ### Niche ERP parts
 

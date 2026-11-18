@@ -144,6 +144,20 @@ Files: `src/components/ui/save-bar.tsx`. Installs too: `button`.
 | `inline` | `boolean` |  | Inside a card: in the flow right after the content, full width, label on the rows' inset. |
 | `className` | `string` |  |  |
 
+### Button group
+
+<a id="button-group"></a>Page: https://design.alorawork.com/components/button-group
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/button-group.json"
+```
+
+Files: `src/components/ui/button-group.tsx`. Installs too: `button`.
+
+`ButtonGroup`: Related buttons as one control: they share one soft track and sit one nest gap inside it, so the corners stay concentric (track radius = button radius + gap). No dividers between them. Put secondary or ghost Buttons inside.
+
+Also takes the native props of the element it renders.
+
 ## Inputs
 
 ### Input
@@ -167,11 +181,83 @@ Files: `src/components/ui/input.tsx`.
 
 Also takes the native props of the element it renders.
 
+### Textarea
+
+<a id="textarea"></a>Page: https://design.alorawork.com/components/textarea
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/textarea.json"
+```
+
+Files: `src/components/ui/input.tsx`.
+
 `Textarea`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `invalid` | `boolean` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Input group
+
+<a id="input-group"></a>Page: https://design.alorawork.com/components/input-group
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/input-group.json"
+```
+
+Files: `src/components/ui/input-group.tsx`. Installs too: `input`.
+
+`InputGroup`: An input with things attached inside the same soft field: units, prefixes, icons, a button. One field, one fill, one focus tint; nothing outlined. The child is a bare <input> (or textarea) that takes the rest.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `start` | `ReactNode` |  | Before the value: an icon, a unit ("Rp"), a prefix ("https://"). Muted. |
+| `end` | `ReactNode` |  | After the value: a unit, a kbd hint or a small button (it sits one nest gap in, concentric). |
+| `invalid` | `boolean` |  |  |
+| `className` | `string` |  |  |
+| `children` (required) | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
+
+### One-time code
+
+<a id="input-otp"></a>Page: https://design.alorawork.com/components/input-otp
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/input-otp.json"
+```
+
+Files: `src/components/ui/input-otp.tsx`.
+
+`InputOTP`: A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `length` | `number` | `6` |  |
+| `group` | `number` | `3` | Split the boxes into groups with a gap (3 = 123 456). 0 keeps one row. |
+| `onComplete` | `((value: string) => void)` |  | Called once every box is filled. |
+| `invalid` | `boolean` |  |  |
+| `disabled` | `boolean` |  |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Label
+
+<a id="label"></a>Page: https://design.alorawork.com/components/label
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/label.json"
+```
+
+Files: `src/components/ui/label.tsx`.
+
+`Label`: The one label style: body size, grey, regular weight, right next to its control. `required` adds a quiet dot, not a red star. Field uses the same look; use Label on its own beside a checkbox, switch or custom control.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `required` | `boolean` |  |  |
 
 Also takes the native props of the element it renders.
 
@@ -212,7 +298,7 @@ Files: `src/components/ui/field.tsx`.
 | --- | --- | --- | --- |
 | `label` (required) | `ReactNode` |  |  |
 | `error` | `ReactNode` |  | Validation message. No help text: make the field clear instead. |
-| `layout` | `"stack" \| "row"` | `"stack"` | "stack" puts the label above; "row" puts it beside the control. |
+| `layout` | `"row" \| "stack"` | `"stack"` | "stack" puts the label above; "row" puts it beside the control. |
 | `className` | `string` |  |  |
 | `children` (required) | `ReactNode` |  |  |
 | `htmlFor` | `string` |  |  |
@@ -256,6 +342,20 @@ Files: `src/components/ui/select.tsx`.
 | `align` | `"start" \| "center" \| "end"` | `"start"` |  |
 | `aria-label` | `string` |  |  |
 | `renderValue` | `((option: Option \| undefined) => ReactNode)` |  | Custom trigger content; defaults to icon + label. |
+
+### Native select
+
+<a id="native-select"></a>Page: https://design.alorawork.com/components/native-select
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/native-select.json"
+```
+
+Files: `src/components/ui/native-select.tsx`. Installs too: `select`.
+
+`NativeSelect`: The browser's own <select>, dressed exactly like our Select trigger. Closed, the two look the same; open, the phone shows its own wheel or sheet. Use it for long forms on phones; everywhere else use Select (custom list, search, keyboard type-ahead).
+
+Also takes the native props of the element it renders.
 
 ### Multi-select
 
@@ -302,6 +402,27 @@ Files: `src/components/ui/combobox.tsx`. Installs too: `select`.
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
+### Calendar
+
+<a id="calendar"></a>Page: https://design.alorawork.com/components/calendar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/calendar.json"
+```
+
+Files: `src/components/ui/calendar.tsx`. Installs too: `button`.
+
+`Calendar`: A month grid on its own: weeks start Monday, the chosen day is solid ink, arrow keys move by day and week, Enter picks. Labels read "7 Nov 2026". The date picker opens this in a popover.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `Date \| null` |  |  |
+| `onValueChange` (required) | `(date: Date) => void` |  |  |
+| `today` | `Date` | `new Date()` | Pin "today" (for demos and tests). Today's number is bold. |
+| `min` | `Date` |  | Days before this can't be picked. |
+| `autoFocus` | `boolean` |  | Move keyboard focus onto the grid when it mounts (inside a popover). |
+| `className` | `string` |  |  |
+
 ### Date picker
 
 <a id="date-picker"></a>Page: https://design.alorawork.com/components/date-picker
@@ -310,9 +431,9 @@ Files: `src/components/ui/combobox.tsx`. Installs too: `select`.
 npx shadcn@latest add "https://design.alorawork.com/r/date-picker.json"
 ```
 
-Files: `src/components/ui/date-picker.tsx`. Installs too: `button`, `select`.
+Files: `src/components/ui/date-picker.tsx`. Installs too: `calendar`, `select`.
 
-`DatePicker`: Dates read "7 Nov 2026" when shown and when chosen. Never 07/11/2026.
+`DatePicker`: Dates read "7 Nov 2026" when shown and when chosen. Never 07/11/2026. The month grid is the Calendar.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -423,6 +544,25 @@ Files: `src/components/ui/switch.tsx`.
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `size` | `"default" \| "lg"` | `"default"` |  |
+
+Also takes the native props of the element it renders.
+
+### Toggle button
+
+<a id="toggle"></a>Page: https://design.alorawork.com/components/toggle
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/toggle.json"
+```
+
+Files: `src/components/ui/toggle.tsx`.
+
+`Toggle`: One on/off button (Bold, Pin, Show archived). Off is ghost; on is solid ink, so the state reads at a glance in both themes. Same radius and heights as Button.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `size` | `"default" \| "sm"` | `"default"` |  |
+| `icon` | `boolean` |  | Square, icon only. Give it an aria-label. |
 
 Also takes the native props of the element it renders.
 
@@ -851,6 +991,437 @@ Also takes the native props of the element it renders.
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
+### Data table
+
+<a id="data-table"></a>Page: https://design.alorawork.com/components/data-table
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/data-table.json"
+```
+
+Files: `src/components/ui/data-table.tsx`. Installs too: `checkbox`, `column-menu`, `input`, `pagination`, `table`.
+
+`DataTable`: The full table: search, filters and the column menu in one row of equal-height controls; sortable headers; a checkbox column; whole-row click; the standard bottom bar (count + pages, 50 a page). Built on Table, so rows have no lines, the header is sticky, cells stay on one line and money columns are tabular.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rows` (required) | `T[]` |  |  |
+| `columns` (required) | `DataColumn<T>[]` |  |  |
+| `rowKey` (required) | `(row: T) => string` |  |  |
+| `selected` | `string[]` |  | Checkbox column; the selection is yours to hold. |
+| `onSelectedChange` | `((keys: string[]) => void)` |  |  |
+| `onRowClick` | `((row: T) => void)` |  | Whole-row click (opens the side pane). |
+| `pageSize` | `number` | `50` | Rows per page; the standard bar shows the count and pages. |
+| `search` | `boolean` | `true` | A search box over every column's value. |
+| `toolbar` | `ReactNode` |  | Extra toolbar controls (filters), left of the column menu. |
+| `loading` | `boolean` |  | Header and body with the same boxes, pulsing (filters swap rows for this, never a spinner). |
+| `className` | `string` |  |  |
+
+### Item
+
+<a id="item"></a>Page: https://design.alorawork.com/components/item
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/item.json"
+```
+
+Files: `src/components/ui/item.tsx`.
+
+`Item`: The generic list row: media, title (and at most one short line), something on the right. Rows separate by space, never lines; long text truncates cleanly. Build lists, menus of records and settings rows from it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `media` | `ReactNode` |  | A thumb, avatar or bare 16 px icon on the left. |
+| `title` (required) | `ReactNode` |  |  |
+| `description` | `ReactNode` |  | One short line under the title, only when it's needed (a SKU, an email). |
+| `end` | `ReactNode` |  | On the right: a value, a status, a button or a chevron. |
+| `variant` | `"plain" \| "soft"` | `"plain"` | "soft" gives the row its own soft card (lists that need attention). |
+| `asChild` | `boolean` |  | The whole row is a link or button: hover fill, one target. |
+
+Also takes the native props of the element it renders.
+
+`ItemList`: A list of items with a 1 px breathing gap (no lines).
+
+Also takes the native props of the element it renders.
+
+### Accordion
+
+<a id="accordion"></a>Page: https://design.alorawork.com/components/accordion
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/accordion.json"
+```
+
+Files: `src/components/ui/accordion.tsx`. Installs too: `collapsible`.
+
+`Accordion`: Stacked sections that open in place (FAQ, settings groups). No lines between items: rows separate by space, or each item is its own soft card. The open item's title stays ink; the chevron turns.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `AccordionItemDef[]` |  |  |
+| `type` | `"multiple" \| "single"` | `"single"` | "single" keeps one open at a time; "multiple" lets several stay open. |
+| `defaultValue` | `string[]` |  |  |
+| `cards` | `boolean` |  | Each item on its own soft card (a gap between) instead of rows on one surface. |
+| `className` | `string` |  |  |
+
+### Collapsible
+
+<a id="collapsible"></a>Page: https://design.alorawork.com/components/collapsible
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/collapsible.json"
+```
+
+Files: `src/components/ui/collapsible.tsx`.
+
+`Collapsible`: One section that opens and closes in place. The trigger row gets the hover fill; the body slides open (height eases out). For detail people rarely need, never for a data table (show tables as sections).
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `ReactNode` |  | The row that opens it: whole row is the target, the chevron turns. |
+| `meta` | `ReactNode` |  | Something on the right of the row, before the chevron (a count, a status). |
+
+Also takes the native props of the element it renders.
+
+### Carousel
+
+<a id="carousel"></a>Page: https://design.alorawork.com/components/carousel
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/carousel.json"
+```
+
+Files: `src/components/ui/carousel.tsx`. Installs too: `button`.
+
+`Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode[]` |  |  |
+| `perView` | `number` | `1` | Slides visible at once from sm up (phones always show one and a peek of the next). |
+| `gap` | `number` | `12` | Gap between slides in px. |
+| `arrows` | `boolean` | `true` | Show the previous/next buttons. |
+| `dots` | `boolean` | `true` | Show the dots. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Aspect ratio
+
+<a id="aspect-ratio"></a>Page: https://design.alorawork.com/components/aspect-ratio
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/aspect-ratio.json"
+```
+
+Files: `src/components/ui/aspect-ratio.tsx`.
+
+`AspectRatio`: Holds media at a fixed shape (16/9, 4/3, 1) while its width follows the layout, so nothing jumps as images load. The box is rounded at the card radius and clips its content; while empty it shows the soft fill.
+
+Also takes the native props of the element it renders.
+
+### Typography
+
+<a id="typography"></a>Page: https://design.alorawork.com/components/typography
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/typography.json"
+```
+
+Files: `src/components/ui/typography.tsx`.
+
+`H1`
+
+Also takes the native props of the element it renders.
+
+`H2`
+
+Also takes the native props of the element it renders.
+
+`H3`
+
+Also takes the native props of the element it renders.
+
+`H4`
+
+Also takes the native props of the element it renders.
+
+`P`
+
+Also takes the native props of the element it renders.
+
+`Muted`: Secondary text and labels: grey, regular weight.
+
+Also takes the native props of the element it renders.
+
+`Small`
+
+Also takes the native props of the element it renders.
+
+`Num`: The one big number style: bold, number size, tabular.
+
+Also takes the native props of the element it renders.
+
+`InlineCode`: Inline code: the only place the mono face appears outside code blocks.
+
+Also takes the native props of the element it renders.
+
+`List`: A list with soft dots, not bullets of a different colour.
+
+Also takes the native props of the element it renders.
+
+`Quote`: A quote on a soft card (no rule down its side).
+
+Also takes the native props of the element it renders.
+
+## Charts
+
+### Chart parts
+
+<a id="chart"></a>Page: https://design.alorawork.com/components/chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/chart.json"
+```
+
+Files: `src/components/ui/chart.tsx`.
+
+`ChartTooltip`: The one tooltip: a small solid-ink card with a title and one row per series (colour key, label, value).
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `ReactNode` |  |  |
+| `rows` (required) | `{ color?: string \| undefined; label: ReactNode; value: ReactNode; }[]` |  |  |
+| `style` | `CSSProperties` |  |  |
+| `className` | `string` |  |  |
+
+`ChartLegend`: Legend: a colour dot beside each name; the text stays in ink, never the series colour. Present from two series up.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `{ label: ReactNode; color: string; value?: ReactNode; }[]` |  |  |
+| `className` | `string` |  |  |
+
+`CartesianChart`: Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks and gridlines, a crosshair with one tooltip for every series on hover or arrow keys, and a legend from two series up.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `Datum[]` |  |  |
+| `series` (required) | `Series[]` |  |  |
+| `kind` | `"area" \| "line"` | `"line"` |  |
+| `height` | `number` | `200` |  |
+| `curve` | `"smooth" \| "linear"` | `"smooth"` | Smooth curves (monotone, never overshooting) or straight segments. |
+| `grid` | `boolean` | `true` | Faint horizontal gridlines at the ticks. |
+| `axis` | `boolean` | `true` | Value ticks on the left. |
+| `dots` | `boolean` | `false` | Dots at every point (the last point always gets one). |
+| `stacked` | `boolean` | `false` | Area only: stack the series on top of each other. |
+| `fill` | `number` | `0.14` | Area only: wash strength, 0 to 0.4. |
+| `labelEvery` | `number` | `0` | Label every nth x value. 0 = pick from the width. |
+| `legend` | `boolean` | `true` | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `format` | `((n: number) => string)` | `formatShort` |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Line chart
+
+<a id="line-chart"></a>Page: https://design.alorawork.com/components/line-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/line-chart.json"
+```
+
+Files: `src/components/ui/line-chart.tsx`. Installs too: `chart`.
+
+`LineChart`: Change over time: 2 px lines in accent shades, an end dot, round clean ticks on one axis, a crosshair tooltip that lists every series, and a legend from two series up. Arrow keys move the crosshair.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `Datum[]` |  |  |
+| `legend` | `boolean` |  | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `height` | `number` |  |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. |
+| `series` (required) | `Series[]` |  |  |
+| `curve` | `"smooth" \| "linear"` |  | Smooth curves (monotone, never overshooting) or straight segments. |
+| `axis` | `boolean` |  | Value ticks on the left. |
+| `dots` | `boolean` |  | Dots at every point (the last point always gets one). |
+| `labelEvery` | `number` |  | Label every nth x value. 0 = pick from the width. |
+| `format` | `((n: number) => string)` |  |  |
+
+### Area chart
+
+<a id="area-chart"></a>Page: https://design.alorawork.com/components/area-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/area-chart.json"
+```
+
+Files: `src/components/ui/area-chart.tsx`. Installs too: `chart`.
+
+`AreaChart`: A line chart with a soft wash under each line (about 14%, never a solid block). `stacked` piles the series up to show a total and its parts. Same axis, tooltip and legend as the line chart.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `Datum[]` |  |  |
+| `legend` | `boolean` |  | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `height` | `number` |  |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+| `fill` | `number` |  | Area only: wash strength, 0 to 0.4. |
+| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. |
+| `stacked` | `boolean` |  | Area only: stack the series on top of each other. |
+| `series` (required) | `Series[]` |  |  |
+| `curve` | `"smooth" \| "linear"` |  | Smooth curves (monotone, never overshooting) or straight segments. |
+| `axis` | `boolean` |  | Value ticks on the left. |
+| `dots` | `boolean` |  | Dots at every point (the last point always gets one). |
+| `labelEvery` | `number` |  | Label every nth x value. 0 = pick from the width. |
+| `format` | `((n: number) => string)` |  |  |
+
+### Pie and donut
+
+<a id="pie-chart"></a>Page: https://design.alorawork.com/components/pie-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/pie-chart.json"
+```
+
+Files: `src/components/ui/pie-chart.tsx`. Installs too: `chart`.
+
+`PieChart`: Parts of one whole, five at most (fold the rest into "Other"). Slices in accent shades, largest first from 12 o'clock, a 2 px surface gap between them, the legend carries names and shares (text never wears the slice colour). Hover or focus a slice for its amount.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `PieSlice[]` |  |  |
+| `size` | `number` | `168` | Outer size in px. |
+| `thickness` | `number` | `0.32` | Ring thickness as a share of the radius: 1 = a full pie, about 0.3 = a donut. |
+| `center` | `ReactNode` |  | The total (or any figure) in the middle of a donut. |
+| `legend` | `"bottom" \| "none" \| "side"` | `"side"` | Legend beside (wide) or under the chart. |
+| `format` | `((n: number) => string)` | `formatShort` |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Radar chart
+
+<a id="radar-chart"></a>Page: https://design.alorawork.com/components/radar-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/radar-chart.json"
+```
+
+Files: `src/components/ui/radar-chart.tsx`. Installs too: `chart`.
+
+`RadarChart`: Several measures of a few things at once (shops across speed, rating, returns…). Five to eight spokes, two or three series. A faint web, 2 px outlines with a soft wash, dots with a surface ring; hover a spoke for every series' value.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `Datum[]` |  | One row per spoke (`label`), one number per series. |
+| `series` (required) | `Series[]` |  |  |
+| `size` | `number` | `240` | Height in px; the web fills the width up to this. |
+| `rings` | `number` | `4` | Rings in the web (faint, never dashed). |
+| `fill` | `number` | `0.14` | Polygon wash, 0 to 0.4. |
+| `format` | `((n: number) => string)` | `formatShort` |  |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Radial chart
+
+<a id="radial-chart"></a>Page: https://design.alorawork.com/components/radial-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/radial-chart.json"
+```
+
+Files: `src/components/ui/radial-chart.tsx`. Installs too: `chart`.
+
+`RadialChart`: Progress toward goals as rings (target per shop, a quota). Round-capped arcs in accent shades on a soft track of the same width, outer ring first; the legend lists each ring's share. One ring with a big figure in the middle is the gauge.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `data` (required) | `RadialBar[]` |  |  |
+| `size` | `number` | `168` |  |
+| `thickness` | `number` | `10` | Ring thickness in px. |
+| `gap` | `number` | `6` | Gap between rings in px. |
+| `sweep` | `number` | `270` | How far round a full ring goes: 360 = full circle, 270 = an open gauge. |
+| `center` | `ReactNode` |  | In the middle (one ring: its figure). |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+## Navigation
+
+### Breadcrumb
+
+<a id="breadcrumb"></a>Page: https://design.alorawork.com/components/breadcrumb
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/breadcrumb.json"
+```
+
+Files: `src/components/ui/breadcrumb.tsx`.
+
+`Breadcrumb`: Where you are: earlier levels are muted links with the hover fill, the current page is ink and not a link. Feather chevrons between, never slashes; long paths collapse in the middle; labels truncate instead of wrapping.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `Crumb[]` |  |  |
+| `max` | `number` | `4` | Past this many, the middle collapses into "…" (the first and the last two stay). |
+| `className` | `string` |  |  |
+
+### Navigation menu
+
+<a id="navigation-menu"></a>Page: https://design.alorawork.com/components/navigation-menu
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/navigation-menu.json"
+```
+
+Files: `src/components/ui/navigation-menu.tsx`. Installs too: `button`.
+
+`NavigationMenu`: A site or app top nav whose items can open a panel of links. Icon + label in the panel, the active page as a fill-strong row; the panel is one raised card that morphs between items instead of jumping. Hover menus also open on click and keyboard.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `NavigationMenuItemDef[]` |  |  |
+| `className` | `string` |  |  |
+
+### Menubar
+
+<a id="menubar"></a>Page: https://design.alorawork.com/components/menubar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/menubar.json"
+```
+
+Files: `src/components/ui/menubar.tsx`. Installs too: `button`, `menu`.
+
+`Menubar`: A desktop-app menu row (File, Edit, View). Click opens a menu; while one is open, moving across the row opens its neighbour, and arrow keys move between them. The open trigger keeps the hover fill. Built on Menu.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `menus` (required) | `MenubarMenu[]` |  |  |
+| `className` | `string` |  |  |
+
+### Pagination
+
+<a id="pagination"></a>Page: https://design.alorawork.com/components/pagination
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/pagination.json"
+```
+
+Files: `src/components/ui/pagination.tsx`. Installs too: `button`.
+
+`Pagination`: The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a solid ink pill; the others are ghost buttons at the same size; arrows say where they go.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `page` (required) | `number` |  | 1-based. |
+| `pageCount` (required) | `number` |  |  |
+| `onPageChange` (required) | `(page: number) => void` |  |  |
+| `total` | `number` |  | Total rows and page size: shows "51–100 of 1.284" on the left (the standard table bar). |
+| `pageSize` | `number` | `50` |  |
+| `numbers` | `boolean` | `true` | Page numbers between the arrows (off = arrows only, for tight spots and phones). |
+| `className` | `string` |  |  |
+
 ## Overlays
 
 ### Dialog
@@ -972,6 +1543,52 @@ Files: `src/components/ui/toast.tsx`.
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
+### Alert dialog
+
+<a id="alert-dialog"></a>Page: https://design.alorawork.com/components/alert-dialog
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/alert-dialog.json"
+```
+
+Files: `src/components/ui/alert-dialog.tsx`. Installs too: `button`, `dialog`.
+
+`AlertDialog`: A confirm that must be answered: no close button, Escape or the way out cancels, focus starts on the way out. The action is a solid ink button (not red: negatives stay quiet), buttons bottom right, concentric with the dialog.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` |  |  |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `trigger` | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
+| `title` (required) | `ReactNode` |  | The question, plainly: "Cancel 3 orders?" |
+| `children` | `ReactNode` |  | One sentence on what happens, only if the title can't say it. |
+| `action` (required) | `ReactNode` |  | The action's label: says what it does ("Cancel orders"), never "OK". |
+| `onAction` (required) | `() => void` |  |  |
+| `cancel` | `ReactNode` | `"Keep"` | Label of the way out. |
+| `className` | `string` |  |  |
+
+### Drawer
+
+<a id="drawer"></a>Page: https://design.alorawork.com/components/drawer
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/drawer.json"
+```
+
+Files: `src/components/ui/drawer.tsx`. Installs too: `dialog`.
+
+`Drawer`: The phone's bottom sheet: it floats with a margin and full rounding (never glued to the edge), slides up, and drags down to close (grab the handle or the title row; past 80 px or a quick flick it closes). Desktop uses Sheet or Dialog.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` |  |  |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `trigger` | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
+| `title` (required) | `ReactNode` |  |  |
+| `children` | `ReactNode` |  |  |
+| `footer` | `ReactNode` |  | Buttons at the bottom, full width on phones. |
+| `className` | `string` |  |  |
+
 ## Layout
 
 ### Sidebar
@@ -1043,6 +1660,208 @@ Files: `src/components/ui/bottom-nav.tsx`.
 | `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; }>` |  |  |
 | `label` (required) | `string` |  |  |
 | `onClick` | `(() => void)` |  |  |
+
+### Resizable panes
+
+<a id="resizable"></a>Page: https://design.alorawork.com/components/resizable
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/resizable.json"
+```
+
+Files: `src/components/ui/resizable.tsx`.
+
+`Resizable`: Two panes with a handle between them: drag it, or focus it and use the arrow keys (Home/End jump to the limits). The handle is a small grip in the gap, not a line; it shows the hover fill while you hold it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `[ReactNode, ReactNode]` |  | Two panes, left/right (or top/bottom). |
+| `direction` | `"horizontal" \| "vertical"` | `"horizontal"` |  |
+| `defaultSize` | `number` | `50` | First pane's share, 0 to 100. |
+| `min` | `number` | `20` |  |
+| `max` | `number` | `80` |  |
+| `onResize` | `((size: number) => void)` |  |  |
+| `className` | `string` |  |  |
+
+### Scroll area
+
+<a id="scroll-area"></a>Page: https://design.alorawork.com/components/scroll-area
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/scroll-area.json"
+```
+
+Files: `src/components/ui/scroll-area.tsx`.
+
+`ScrollArea`: A scroll box with the one scrollbar style (thin, soft thumb, no track) on every platform, vertical and sideways. Wheel inside it never scrolls the page past its end (overscroll contained).
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `orientation` | `"horizontal" \| "vertical" \| "both"` | `"vertical"` |  |
+
+Also takes the native props of the element it renders.
+
+## Chat
+
+### Message and bubble
+
+<a id="message"></a>Page: https://design.alorawork.com/components/message
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/message.json"
+```
+
+Files: `src/components/ui/message.tsx`. Installs too: `avatar`.
+
+`Bubble`: A chat bubble sized to its text: card radius, bubble padding, no border, no tail.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `variant` | `"soft" \| "ink" \| "quote"` | `"soft"` | "soft" (the default, your own turns), "ink" (solid, for emphasis), "quote" (a replied-to message, quieter). |
+| `align` | `"start" \| "end"` | `"start"` |  |
+| `reactions` | `ReactNode` |  | Emoji reactions under it (one of the two places emoji belong). |
+
+Also takes the native props of the element it renders.
+
+`BubbleGroup`: Same-sender bubbles stack 4 px apart; groups sit further apart than bubbles inside them.
+
+Also takes the native props of the element it renders.
+
+`Message`: One turn in a conversation. People get a round avatar and name (T3 Code style: name and time on one line, no caption stack); the agent's text sits on the surface without a bubble; your own turns are right-aligned bubbles.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `from` (required) | `{ name: string; avatar?: string \| undefined; agent?: boolean \| undefined; }` |  | Who wrote it: a person (avatar circle + name) or the agent (no bubble, text on the surface). |
+| `time` | `ReactNode` |  | "Today, 14:05". Beside the name, muted. |
+| `mine` | `boolean` |  | Your own message sits right in a soft bubble with no name. |
+| `actions` | `ReactNode` |  | A row of small actions under it (copy, retry); quiet until hovered. |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+### Message scroller
+
+<a id="message-scroller"></a>Page: https://design.alorawork.com/components/message-scroller
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/message-scroller.json"
+```
+
+Files: `src/components/ui/message-scroller.tsx`. Installs too: `button`.
+
+`MessageScroller`: A conversation's scroll area: it starts at the latest message, follows new ones while you're at the bottom, and stays put when you've scrolled up to read, showing a "Latest" button instead. Short threads sit at the bottom.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `watch` | `unknown` |  | Change this when a message arrives (its count or id): pinned to the bottom, the list follows it. |
+| `className` | `string` |  |  |
+
+### Marker
+
+<a id="marker"></a>Page: https://design.alorawork.com/components/marker
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/marker.json"
+```
+
+Files: `src/components/ui/marker.tsx`.
+
+`Marker`: A quiet note inside a conversation: what the agent did, or where the day changed. Muted, small, icon-led.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `icon` | `ComponentType<{ size?: string \| number \| undefined; className?: string \| undefined; }>` |  | A bare 16 px Feather icon before the text. |
+| `variant` | `"label" \| "note" \| "soft"` | `"note"` | "note": an inline status line in the conversation ("Changed the courier to JNE"). "soft": the same on its own soft card, for something worth a second look. "label": a centred chip marking a point in the thread ("Today"); space on both sides, never a rule. |
+| `live` | `boolean` |  | Still happening: it's announced politely as it changes. |
+
+Also takes the native props of the element it renders.
+
+### Trace
+
+<a id="trace"></a>Page: https://design.alorawork.com/components/trace
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/trace.json"
+```
+
+Files: `src/components/ui/trace.tsx`.
+
+`Trace`: What an agent did, step by step (reasoning, tool calls, sources): a glyph per step on a quiet rail of spacing, the running step pulsing, the time on the right. Steps with detail open in place. Plain words; ids and payloads stay in the detail, closed by default.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `steps` (required) | `TraceStep[]` |  |  |
+| `className` | `string` |  |  |
+
+### Attachment
+
+<a id="attachment"></a>Page: https://design.alorawork.com/components/attachment
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/attachment.json"
+```
+
+Files: `src/components/ui/attachment.tsx`. Installs too: `button`, `progress`.
+
+`Attachment`: A file on a soft card: preview or icon, the name (it truncates cleanly), one muted line, a remove button. Uploading shows a slim bar in place of the meta; an error says so in words, quietly.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` (required) | `string` |  |  |
+| `meta` | `ReactNode` |  | "PDF · 240 KB". |
+| `kind` | `"image" \| "doc" \| "file"` | `"file"` |  |
+| `src` | `string` |  | A preview image (kind "image"). |
+| `state` | `"done" \| "uploading" \| "error"` | `"done"` |  |
+| `progress` | `number` | `0` | 0 to 100 while uploading. |
+| `onRemove` | `(() => void)` |  |  |
+| `onOpen` | `(() => void)` |  | Opens the file (whole card is the target). |
+| `size` | `"default" \| "sm"` | `"default"` | "sm" for the strip above a composer. |
+| `className` | `string` |  |  |
+
+`AttachmentGroup`: Attachments in a row that scrolls sideways inside itself (above a composer, under a message).
+
+Also takes the native props of the element it renders.
+
+### Questionnaire
+
+<a id="questionnaire"></a>Page: https://design.alorawork.com/components/questionnaire
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/questionnaire.json"
+```
+
+Files: `src/components/ui/questionnaire.tsx`. Installs too: `button`, `input`.
+
+`Questionnaire`: Questions one at a time (an agent asking before it acts, a setup flow). Choices are whole-row soft cards; the chosen one turns solid ink with a check. A slim segmented progress on top, Back and Next at the bottom right, Enter goes on. Required questions say so only when you try to skip them.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `questions` (required) | `Question[]` |  |  |
+| `onSubmit` (required) | `(answers: Answers) => void` |  |  |
+| `skippable` | `boolean` | `true` | Allow skipping optional questions. |
+| `submitLabel` | `string` | `"Send answers"` |  |
+| `className` | `string` |  |  |
+
+### Code block
+
+<a id="code-block"></a>Page: https://design.alorawork.com/components/code-block
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/code-block.json"
+```
+
+Files: `src/components/ui/code-block.tsx`. Installs too: `button`.
+
+`CodeBlock`: Code on a soft card in the mono face (the one place a second face appears). A copy button sits in the corner one nest gap in, concentric; it flips to a check for a moment. Long lines scroll sideways inside, never the page.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `code` (required) | `string` |  |  |
+| `title` | `ReactNode` |  | A file name or language over the code, on the same soft card. |
+| `lineNumbers` | `boolean` |  | Line numbers in the faint ink. |
+| `maxHeight` | `number` | `420` | Taller code scrolls inside. |
+| `onCopy` | `((code: string) => void)` |  |  |
+| `className` | `string` |  |  |
 
 ## Niche ERP parts
 

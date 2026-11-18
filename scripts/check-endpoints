@@ -19,6 +19,11 @@ probe "/r/thinking-orbs.json" "application/json" "export function ThinkingOrbs"
 probe "/r/run-status.json" "application/json" "/r/thinking-orbs.json"
 probe "/r/sand-field.json" "application/json" "export function SandField"
 probe "/api/kit" "text/markdown" "/ai/thinking-orbs"
+probe "/r/line-chart.json" "application/json" "/r/chart.json"
+probe "/r/chart.json" "application/json" "export function CartesianChart"
+probe "/r/data-table.json" "application/json" "/r/pagination.json"
+probe "/r/questionnaire.json" "application/json" "export function Questionnaire"
+probe "/components/line-chart" "text/html" '<div id="root">'
 probe "/components/button?r=16" "text/html" '<div id="root">'
 probe "/ai/thinking-orbs" "text/html" '<div id="root">'
 rm -f /tmp/ad-probe.$$

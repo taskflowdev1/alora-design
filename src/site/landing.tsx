@@ -4,6 +4,7 @@ import { SandField } from "@/components/backgrounds/sand-field";
 import { SLink } from "./config";
 import { Wordmark } from "./logo";
 import { Bento } from "./bento";
+import { MoreBento } from "./showcase-more";
 import { AgentApp, NewChat } from "./agent";
 import { Credit, TABS } from "./layout";
 
@@ -96,6 +97,7 @@ export function Landing() {
     <main>
       <Hero />
       <Bento />
+      <MoreBento />
       <AiBand />
       <BackgroundsBand />
       <Closing />

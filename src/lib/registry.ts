@@ -1,7 +1,7 @@
 // Every item on the site: drives the Components, AI and Backgrounds pages, the shadcn registry (/r/<name>.json),
 // /api/kit and the README tables (scripts/gen-docs.mjs). Pure data: the API imports it.
 
-export type Group = "Actions" | "Inputs" | "Display" | "Overlays" | "Layout" | "Foundations" | "Niche" | "AI" | "Backgrounds";
+export type Group = "Actions" | "Inputs" | "Display" | "Charts" | "Navigation" | "Overlays" | "Layout" | "Chat" | "Foundations" | "Niche" | "AI" | "Backgrounds";
 /** The site section (nav tab) an item lives in. */
 export type Section = "components" | "ai" | "backgrounds";
 
@@ -42,19 +42,27 @@ export const ITEMS: Item[] = [
   { name: "menu", title: "Menu", group: "Actions", files: ["menu.tsx"], deps: [RADIX, "@floating-ui/react-dom"] },
   { name: "toolbar", title: "Toolbar", group: "Actions", files: ["toolbar.tsx"], registryDeps: ["popover"] },
   { name: "save-bar", title: "Save bar", group: "Actions", files: ["save-bar.tsx"], registryDeps: ["button"] },
+  { name: "button-group", title: "Button group", group: "Actions", files: ["button-group.tsx"], registryDeps: ["button"] },
 
   { name: "input", title: "Input", group: "Inputs", files: ["input.tsx"] },
+  { name: "textarea", title: "Textarea", group: "Inputs", files: ["input.tsx"] },
+  { name: "input-group", title: "Input group", group: "Inputs", files: ["input-group.tsx"], registryDeps: ["input"] },
+  { name: "input-otp", title: "One-time code", group: "Inputs", files: ["input-otp.tsx"] },
+  { name: "label", title: "Label", group: "Inputs", files: ["label.tsx"], deps: [RADIX] },
   { name: "search", title: "Search", group: "Inputs", files: ["search.tsx"], registryDeps: ["input"] },
   { name: "field", title: "Field", group: "Inputs", files: ["field.tsx"] },
   { name: "select", title: "Select", group: "Inputs", files: ["select.tsx"], deps: [RADIX] },
+  { name: "native-select", title: "Native select", group: "Inputs", files: ["native-select.tsx"], registryDeps: ["select"] },
   { name: "multi-select", title: "Multi-select", group: "Inputs", files: ["multi-select.tsx"], deps: [RADIX], registryDeps: ["select"] },
   { name: "combobox", title: "Combobox", group: "Inputs", files: ["combobox.tsx"], deps: [RADIX], registryDeps: ["select"] },
-  { name: "date-picker", title: "Date picker", group: "Inputs", files: ["date-picker.tsx"], deps: [RADIX], registryDeps: ["button", "select"] },
+  { name: "calendar", title: "Calendar", group: "Inputs", files: ["calendar.tsx"], registryDeps: ["button"] },
+  { name: "date-picker", title: "Date picker", group: "Inputs", files: ["date-picker.tsx"], deps: [RADIX], registryDeps: ["calendar", "select"] },
   { name: "period-stepper", title: "Period stepper", group: "Inputs", files: ["period-stepper.tsx"], registryDeps: ["button", "tooltip"] },
   { name: "language-picker", title: "Language picker", group: "Inputs", files: ["language-picker.tsx"], registryDeps: ["select"] },
   { name: "segmented", title: "Segmented control", group: "Inputs", files: ["segmented.tsx"] },
   { name: "tabs", title: "Tabs", group: "Inputs", files: ["tabs.tsx"], deps: [RADIX] },
   { name: "switch", title: "Toggle", group: "Inputs", files: ["switch.tsx"], deps: [RADIX] },
+  { name: "toggle", title: "Toggle button", group: "Inputs", files: ["toggle.tsx"], deps: [RADIX] },
   { name: "checkbox", title: "Checkbox", group: "Inputs", files: ["checkbox.tsx"], deps: [RADIX] },
   { name: "radio", title: "Radio", group: "Inputs", files: ["radio.tsx"], deps: [RADIX] },
   { name: "slider", title: "Slider", group: "Inputs", files: ["slider.tsx"], deps: [RADIX] },
@@ -72,15 +80,48 @@ export const ITEMS: Item[] = [
   { name: "progress", title: "Progress", group: "Display", files: ["progress.tsx"] },
   { name: "empty-state", title: "Empty state", group: "Display", files: ["empty-state.tsx"] },
   { name: "skeleton", title: "Skeleton", group: "Display", files: ["skeleton.tsx"] },
+  { name: "data-table", title: "Data table", group: "Display", files: ["data-table.tsx"], registryDeps: ["checkbox", "column-menu", "input", "pagination", "table"] },
+  { name: "item", title: "Item", group: "Display", files: ["item.tsx"], deps: [RADIX] },
+  { name: "accordion", title: "Accordion", group: "Display", files: ["accordion.tsx"], deps: [RADIX], registryDeps: ["collapsible"] },
+  { name: "collapsible", title: "Collapsible", group: "Display", files: ["collapsible.tsx"], deps: [RADIX] },
+  { name: "carousel", title: "Carousel", group: "Display", files: ["carousel.tsx"], registryDeps: ["button"] },
+  { name: "aspect-ratio", title: "Aspect ratio", group: "Display", files: ["aspect-ratio.tsx"], deps: [RADIX] },
+  { name: "typography", title: "Typography", group: "Display", files: ["typography.tsx"] },
+
+  // Charts: one system (series colours, ticks, tooltip, legend in chart.tsx). The bar chart is in Display.
+  { name: "chart", title: "Chart parts", group: "Charts", files: ["chart.tsx"] },
+  { name: "line-chart", title: "Line chart", group: "Charts", files: ["line-chart.tsx"], registryDeps: ["chart"] },
+  { name: "area-chart", title: "Area chart", group: "Charts", files: ["area-chart.tsx"], registryDeps: ["chart"] },
+  { name: "pie-chart", title: "Pie and donut", group: "Charts", files: ["pie-chart.tsx"], registryDeps: ["chart"] },
+  { name: "radar-chart", title: "Radar chart", group: "Charts", files: ["radar-chart.tsx"], registryDeps: ["chart"] },
+  { name: "radial-chart", title: "Radial chart", group: "Charts", files: ["radial-chart.tsx"], registryDeps: ["chart"] },
+
+  { name: "breadcrumb", title: "Breadcrumb", group: "Navigation", files: ["breadcrumb.tsx"] },
+  { name: "navigation-menu", title: "Navigation menu", group: "Navigation", files: ["navigation-menu.tsx"], deps: [RADIX], registryDeps: ["button"] },
+  { name: "menubar", title: "Menubar", group: "Navigation", files: ["menubar.tsx"], registryDeps: ["button", "menu"] },
+  { name: "pagination", title: "Pagination", group: "Navigation", files: ["pagination.tsx"], registryDeps: ["button"] },
 
   { name: "dialog", title: "Dialog", group: "Overlays", files: ["dialog.tsx"], deps: [RADIX], registryDeps: ["button"] },
   { name: "sheet", title: "Side pane", group: "Overlays", files: ["sheet.tsx"], deps: [RADIX], registryDeps: ["button", "dialog"] },
   { name: "popover", title: "Popover", group: "Overlays", files: ["popover.tsx"], deps: [RADIX] },
   { name: "tooltip", title: "Tooltip", group: "Overlays", files: ["tooltip.tsx"], deps: [RADIX] },
   { name: "toast", title: "Toast", group: "Overlays", files: ["toast.tsx"] },
+  { name: "alert-dialog", title: "Alert dialog", group: "Overlays", files: ["alert-dialog.tsx"], deps: [RADIX], registryDeps: ["button", "dialog"] },
+  { name: "drawer", title: "Drawer", group: "Overlays", files: ["drawer.tsx"], deps: [RADIX], registryDeps: ["dialog"] },
 
   { name: "sidebar", title: "Sidebar", group: "Layout", files: ["sidebar.tsx"], deps: [RADIX] },
   { name: "bottom-nav", title: "Bottom nav", group: "Layout", files: ["bottom-nav.tsx"] },
+  { name: "resizable", title: "Resizable panes", group: "Layout", files: ["resizable.tsx"] },
+  { name: "scroll-area", title: "Scroll area", group: "Layout", files: ["scroll-area.tsx"], deps: [RADIX] },
+
+  // Chat: the parts of a conversation UI (the AI section holds the loaders and the composer).
+  { name: "message", title: "Message and bubble", group: "Chat", files: ["message.tsx"], registryDeps: ["avatar"] },
+  { name: "message-scroller", title: "Message scroller", group: "Chat", files: ["message-scroller.tsx"], registryDeps: ["button"] },
+  { name: "marker", title: "Marker", group: "Chat", files: ["marker.tsx"] },
+  { name: "trace", title: "Trace", group: "Chat", files: ["trace.tsx"], deps: [RADIX] },
+  { name: "attachment", title: "Attachment", group: "Chat", files: ["attachment.tsx"], registryDeps: ["button", "progress"] },
+  { name: "questionnaire", title: "Questionnaire", group: "Chat", files: ["questionnaire.tsx"], registryDeps: ["button", "input"] },
+  { name: "code-block", title: "Code block", group: "Chat", files: ["code-block.tsx"], registryDeps: ["button"] },
 
   // Niche ERP parts: the spotlight on the landing page.
   { name: "command-palette", title: "Command palette", group: "Niche", files: ["command-palette.tsx"], deps: [RADIX], registryDeps: ["dialog", "kbd"] },
@@ -193,7 +234,7 @@ export const ITEMS: Item[] = [
   },
 ];
 
-export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Overlays", "Layout", "Niche"];
+export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
 export const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
   { id: "components", title: "Components", path: "/components", groups: GROUPS },
