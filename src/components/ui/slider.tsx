@@ -39,7 +39,7 @@ export function Slider({ value, onValueChange, min, max, step = 1, label, displa
         </S.Track>
         <S.Thumb
           aria-label={label}
-          className="block size-4 rounded-full bg-thumb shadow-[0_1px_3px_rgba(0,0,0,0.25),0_0_0_0.5px_rgba(0,0,0,0.08)] transition-transform duration-[160ms] ease-ad active:scale-95"
+          className="block size-4 rounded-full bg-thumb shadow-thumb transition-transform duration-[160ms] ease-ad active:scale-95"
         />
       </S.Root>
     </div>

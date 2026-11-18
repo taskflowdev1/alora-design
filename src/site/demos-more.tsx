@@ -51,7 +51,9 @@ import { BY_CHANNEL, BY_HOUR, CHANNELS, ORDER_COLUMNS, SALES_14, SALES_SERIES, S
 
 const say = (m: string) => () => toast(m, "neutral");
 const chartCard = "w-full max-w-2xl";
-const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2", "#c2b0a4"];
+// Photo stand-ins: fixed colours in both themes, like a real photo, with a soft dark icon. grey-ok: image content.
+const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2", "#c2b0a4"]; // grey-ok
+const photoIcon = "text-black/30"; // grey-ok
 
 export const MORE_DEMOS: Record<string, Demo> = {
   /* ---------------------------------------------------------- charts */
@@ -432,7 +434,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
         {tints.map((c, i) => (
           <AspectRatio key={i} ratio={4 / 3}>
             <div className="grid size-full place-items-center" style={{ background: c }}>
-              <Package size={28} className="text-black/30" />
+              <Package size={28} className={photoIcon} />
             </div>
           </AspectRatio>
         ))}
@@ -447,7 +449,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
       return (
         <AspectRatio ratio={a / (b || 1)} className="w-80">
           <div className="grid size-full place-items-center" style={{ background: tints[0] }}>
-            <Package size={28} className="text-black/30" />
+            <Package size={28} className={photoIcon} />
           </div>
         </AspectRatio>
       );

@@ -45,6 +45,7 @@
   --color-side-fill-strong: var(--ad-side-fill-strong);
   --color-side-ink: var(--ad-side-ink);
   --color-side-muted: var(--ad-side-muted);
+  --color-side-scroll: var(--ad-side-scroll);
   --color-brand-1: var(--ad-brand-1);
   --color-brand-2: var(--ad-brand-2);
   --color-brand-3: var(--ad-brand-3);
@@ -80,5 +81,6 @@
   --shadow-sel: var(--ad-shadow-sel);
   --shadow-raised: var(--ad-shadow-raised);
   --shadow-dialog: var(--ad-shadow-dialog);
+  --shadow-thumb: var(--ad-shadow-thumb);
   --ease-ad: var(--ad-ease);
 }

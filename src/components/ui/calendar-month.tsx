@@ -69,7 +69,7 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
           const inMonth = d.getMonth() === month.getMonth();
           const isToday = key(d) === key(today);
           return (
-            <div key={key(d)} className={cn("grid min-h-24 min-w-0 content-start gap-0.5 rounded-control p-1", inMonth ? "bg-fill" : "bg-fill/40")}>
+            <div key={key(d)} className={cn("grid min-h-24 min-w-0 content-start gap-0.5 rounded-control p-1", inMonth && "bg-fill")}>
               <span
                 data-shape="round"
                 className={cn(

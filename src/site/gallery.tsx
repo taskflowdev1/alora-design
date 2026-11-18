@@ -129,7 +129,7 @@ export function Spot({ item, className, children }: { item: Item; className?: st
         navigate(href);
       }}
       className={cn(
-        "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-fill/40 focus-within:bg-fill/40 sm:px-6",
+        "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-surface focus-within:bg-surface sm:px-6",
         className,
       )}
     >

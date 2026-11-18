@@ -66,7 +66,7 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
 /** A board column: a soft lane with its title and count, cards stacked with even gaps. */
 export function KanbanColumn({ title, count, children, className }: { title: React.ReactNode; count?: number; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("grid min-w-64 content-start gap-2 rounded-card bg-fill/60 p-nest", className)}>
+    <section className={cn("grid min-w-64 content-start gap-2 rounded-card bg-fill p-nest", className)}>
       <header className="flex h-item items-center justify-between gap-2 px-2">
         <h3 className="truncate text-body font-semibold">{title}</h3>
         {count != null ? <Badge className="bg-surface">{count}</Badge> : null}

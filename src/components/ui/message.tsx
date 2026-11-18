@@ -19,7 +19,7 @@ export function Bubble({ variant = "soft", align = "start", reactions, className
           "w-fit rounded-card px-3.5 py-2 text-body leading-relaxed",
           variant === "soft" && "bg-fill text-ink",
           variant === "ink" && "bg-on text-on-ink",
-          variant === "quote" && "bg-fill/60 text-ink-muted",
+          variant === "quote" && "bg-fill text-ink-muted",
           className,
         )}
         {...props}

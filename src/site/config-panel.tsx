@@ -7,7 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export const SWATCHES = ["#dc467d", "#3c6fe0", "#5b5bd6", "#7c4ddb", "#0f8a8a", "#2f8a57", "#d9622b", "#3f4450"];
+// Accent choices, not UI greys (the last is a slate accent). grey-ok
+export const SWATCHES = ["#dc467d", "#3c6fe0", "#5b5bd6", "#7c4ddb", "#0f8a8a", "#2f8a57", "#d9622b", "#3f4450"]; // grey-ok
 
 export type Field = keyof Config;
 export const ALL_FIELDS: Field[] = ["corner", "smoothing", "radius", "padding", "height", "accent", "tone", "shadow", "font", "theme"];
@@ -104,7 +105,7 @@ function AccentControl({ value, onChange, large }: ControlProps & { large?: bool
             aria-pressed={value.accent === s}
             onClick={() => onChange({ accent: s })}
             data-shape="round"
-            className={cn("grid cursor-pointer place-items-center rounded-full text-white transition-transform duration-[160ms] ease-ad active:scale-95", large ? "size-7" : "size-6")}
+            className={cn("grid cursor-pointer place-items-center rounded-full text-thumb transition-transform duration-[160ms] ease-ad active:scale-95", large ? "size-7" : "size-6")}
             style={{ background: s }}
           >
             {value.accent === s ? <Check size={14} /> : null}

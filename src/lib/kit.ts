@@ -1,7 +1,7 @@
 // Export generators shared by the site (/export) and the API (/api/kit, /r/*.json, /tokens.*).
 // Pure: callers pass the CSS files and component sources in.
 
-import { cornerValue, radii, serializeConfig, tokens, tokensCss, typeScale, type Config } from "./config.js";
+import { cornerValue, GREY_ROLES, radii, serializeConfig, tokens, tokensCss, typeScale, type Config } from "./config.js";
 import { ITEMS, REGISTRY_ITEMS, SITE, itemPath, sourceKey, type Item } from "./registry.js";
 
 export interface Assets {
@@ -211,16 +211,24 @@ export function kitMarkdown(c: Config) {
   row("---", "---", "---");
   const use: Record<string, string> = {
     page: c.theme === "dark" ? "page background (neutral near-black)" : "page background (off-white)",
-    surface: "cards",
-    fill: "controls at rest, soft rows",
-    "fill-hover": "hover, focus and selected (one tint, no rings)",
-    ink: "text",
+    surface: "cards, menus, popovers, dialogs",
+    fill: "controls at rest, soft rows, segmented track",
+    "fill-hover": "hover and focus (one step up), skeletons",
+    "fill-strong": "selected on a plain surface (one step more), switch off, scrollbar",
+    "ink-faint": "placeholders, shortcuts, timestamps",
     "ink-muted": "labels",
+    ink: "text, ink surfaces (tooltips, toasts), switch on in light",
     brand: "primary or key action buttons only",
     "brand-soft": "the one attention pill",
-    side: "dark sidebar (both themes)",
+    side: "dark sidebar, save bar, bottom nav (both themes)",
   };
   for (const [k, u] of Object.entries(use)) row(`\`--ad-${k}\``, light[`--ad-${k}`] ?? "", u);
+  lines.push(
+    "",
+    "page to ink are the whole grey ramp for this theme: never add another grey, an alpha on a grey token or a raw hex. " +
+      `Role tokens map to a step: ${Object.entries(GREY_ROLES).map(([k, r]) => `\`${k}\` = ${c.theme === "dark" ? r.dark : r.light}`).join(", ")}. ` +
+      "The sidebar, save bar and bottom nav are a dark island in both themes (`side-*` = the dark ramp). Accent only on primary or key actions.",
+  );
   lines.push("", `Chart shades: ${[1, 2, 3, 4, 5].map((i) => light[`--ad-chart-${i}`]).join(", ")}.`, "");
 
   lines.push(`## Rules`, "");

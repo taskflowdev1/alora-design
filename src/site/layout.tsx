@@ -148,7 +148,7 @@ function HeaderSearch() {
 /** One header for every page: same position, width and height on landing, gallery, examples and export. */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 bg-page/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-page">
       <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
         <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
           <Wordmark />

@@ -448,7 +448,8 @@ function HelpTile({ className }: { className?: string }) {
 }
 
 function ProductPhotosTile({ className }: { className?: string }) {
-  const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2"];
+  const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2"]; // grey-ok: photo stand-ins (image content)
+  const photoIcon = "text-black/30"; // grey-ok: icon on a photo stand-in
   return (
     <Tile inset="pad" className={className}>
       <h3 className="truncate text-title font-semibold">Gelas kopi tanah liat</h3>
@@ -459,14 +460,14 @@ function ProductPhotosTile({ className }: { className?: string }) {
               <Mark key={i} name="aspect-ratio">
                 <AspectRatio ratio={1}>
                   <div className="grid size-full place-items-center" style={{ background: c }}>
-                    <Package size={28} className="text-black/30" />
+                    <Package size={28} className={photoIcon} />
                   </div>
                 </AspectRatio>
               </Mark>
             ) : (
               <AspectRatio key={i} ratio={1}>
                 <div className="grid size-full place-items-center" style={{ background: c }}>
-                  <Package size={28} className="text-black/30" />
+                  <Package size={28} className={photoIcon} />
                 </div>
               </AspectRatio>
             ),
@@ -541,7 +542,7 @@ function ConfirmTile({ className }: { className?: string }) {
               <Button variant="ghost" onClick={say("Kept")}>
                 Keep
               </Button>
-              <Button className="bg-on text-on-ink hover:bg-on/90" onClick={() => toast("3 orders cancelled")}>
+              <Button className="bg-on text-on-ink hover:bg-on" onClick={() => toast("3 orders cancelled")}>
                 Cancel orders
               </Button>
             </div>

@@ -95,7 +95,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
       className={cn(
         "inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
         height,
-        selected ? "bg-fill-strong font-medium text-ink" : "bg-fill/0 text-ink-muted hover:bg-fill hover:text-ink",
+        selected ? "bg-fill-strong font-medium text-ink" : "bg-transparent text-ink-muted hover:bg-fill hover:text-ink",
         className,
       )}
       {...props}

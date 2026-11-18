@@ -46,10 +46,11 @@ html {
   --ad-on-ink: var(--ad-side);
   --ad-track: var(--ad-side-fill);
   --ad-sel: var(--ad-side-fill-strong);
+  --ad-switch-on: var(--ad-side-muted);
   --ad-ink: var(--ad-side-ink);
   --ad-ink-muted: var(--ad-side-muted);
   --ad-ink-faint: var(--ad-side-muted);
-  --ad-scroll: rgba(255, 255, 255, 0.16);
+  --ad-scroll: var(--ad-side-scroll);
   color: var(--ad-ink);
 }
 /* Weight step without a width change: the label is laid out twice in one grid cell, the hidden copy at the active

@@ -84,12 +84,12 @@ function isShort(value: number | string) {
 
 function Pulse({ loading, children }: { loading?: boolean; children: React.ReactNode }) {
   if (!loading) return <>{children}</>;
-  return <span className="animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-ink/8 text-transparent [box-decoration-break:clone] select-none">{children}</span>;
+  return <span className="animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill-hover text-transparent [box-decoration-break:clone] select-none">{children}</span>;
 }
 
 function Delta({ delta, primary }: { delta: NonNullable<MetricCardProps["delta"]>; primary?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-0.5 whitespace-nowrap text-body tabular-nums", primary ? "text-on-ink/70" : "text-ink-muted")}>
+    <span className={cn("inline-flex items-center gap-0.5 whitespace-nowrap text-body tabular-nums", primary ? "text-ink-faint" : "text-ink-muted")}>
       {delta.direction === "up" ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
       {delta.value}
     </span>
@@ -111,7 +111,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
               className={cn(
                 "inline-flex h-6 items-center gap-0.5 whitespace-nowrap rounded-full px-bubble-sm text-small font-medium tabular-nums",
                 loading
-                  ? "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-ink/8 text-transparent"
+                  ? "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill-hover text-transparent"
                   : primary && delta.direction === "up"
                     ? "bg-brand-soft text-brand-soft-ink"
                     : "bg-fill text-ink",
@@ -131,7 +131,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
     );
   }
   const isShortValue = short ?? isShort(value);
-  const muted = primary ? "text-on-ink/70" : "text-ink-muted";
+  const muted = primary ? "text-ink-faint" : "text-ink-muted";
   const labelEl = <span className={cn("whitespace-nowrap text-body", muted)}>{label}</span>;
   const unitEl = unit ? <span className={cn("mr-1 text-title font-medium", muted)}>{unit}</span> : null;
   const shell = (inner: React.ReactNode, cls?: string) => (
@@ -141,7 +141,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
       style={{ ...style, ["--ad-metric-h" as string]: METRIC_H }}
       className={cn(
         "inline-flex h-[var(--ad-metric-h)] w-fit shrink-0",
-        primary && "bg-on text-on-ink [--ad-ink:var(--ad-on-ink)] [--ad-fill:color-mix(in_oklab,var(--ad-on-ink)_12%,transparent)]",
+        primary && "bg-on text-on-ink [--ad-ink:var(--ad-on-ink)] [--ad-fill:var(--ad-ink-muted)] [--ad-fill-hover:var(--ad-ink-muted)]",
         cls,
         className,
       )}

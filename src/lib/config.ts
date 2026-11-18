@@ -165,6 +165,56 @@ const rgba = (hex: string, a: number) => {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${Math.round(a * 1000) / 1000})`;
 };
 
+/**
+ * The grey ramp: eight named steps per theme, and every neutral token is one of them. Hover is one step up from fill,
+ * selected one more. The tone setting (`g`) tints every step; dark keeps only a hint of it.
+ */
+export const GREY_STEPS = ["page", "surface", "fill", "fill-hover", "fill-strong", "ink-faint", "ink-muted", "ink"] as const;
+export type GreyStep = (typeof GREY_STEPS)[number];
+
+export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
+  const g = (l: number, s: number) => grey(tone, l, dark ? s * DARK_TINT : s);
+  return dark
+    ? {
+        page: g(0.155, 0.8),
+        surface: g(0.2, 0.8),
+        fill: g(0.252, 0.8),
+        "fill-hover": g(0.295, 0.8),
+        "fill-strong": g(0.385, 0.8),
+        "ink-faint": g(0.56, 0.6),
+        "ink-muted": g(0.72, 0.6),
+        ink: g(0.95, 0.4),
+      }
+    : {
+        page: g(0.985, 0.35),
+        surface: "#ffffff",
+        fill: g(0.958, 0.6),
+        "fill-hover": g(0.928, 0.7),
+        "fill-strong": g(0.885, 0.8),
+        "ink-faint": g(0.66, 1),
+        "ink-muted": g(0.5, 1.2),
+        ink: g(0.21, 1.4),
+      };
+}
+
+/**
+ * Role tokens and the ramp step each one takes. They name a use, never a new grey. "white" is the switch and slider
+ * thumb (white in both themes; in light it is also the surface). Islands (sidebar, save bar, bottom nav) take the dark
+ * ramp in both themes (the side-* tokens).
+ */
+export const GREY_ROLES: Record<string, { light: GreyStep | "white"; dark: GreyStep | "white"; use: string }> = {
+  raised: { light: "surface", dark: "surface", use: "menus and popovers (they lift by shadow)" },
+  track: { light: "fill", dark: "fill", use: "segmented and toggle-group track, chips in a field" },
+  sel: { light: "surface", dark: "fill-strong", use: "the raised pill in a track" },
+  on: { light: "ink", dark: "ink", use: "ink surfaces: tooltips, toasts, checked boxes, progress" },
+  "on-ink": { light: "surface", dark: "surface", use: "text and marks on ink surfaces" },
+  scroll: { light: "fill-strong", dark: "fill-strong", use: "scrollbar thumb" },
+  "switch-on": { light: "ink", dark: "ink-muted", use: "switch on: neutral, never the accent (off is fill-strong)" },
+  thumb: { light: "white", dark: "white", use: "switch and slider thumb" },
+  "switch-thumb": { light: "white", dark: "white", use: "switch thumb" },
+};
+
+/** Shadows are black (dark) or ink (light) at an alpha: they darken what is under them and are not ramp greys. */
 function shadows(strength: number, dark: boolean, ink: string) {
   const m = strength / 50;
   const base = dark ? "#000000" : ink;
@@ -173,26 +223,31 @@ function shadows(strength: number, dark: boolean, ink: string) {
   // Selected pill (segmented, toggle group, chips in a field): a hairline edge that follows the radius, plus a small
   // drop. The edge stays at shadow 0 so the pill still reads; in dark it is a dark rim around a lighter pill.
   const edge = dark ? `0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06)` : `0 0 0 1px ${rgba(ink, 0.07)}`;
-  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none", sel: edge };
+  // Switch and slider thumbs: a small drop that stays at shadow 0, so a white thumb never melts into a light track.
+  const thumb = dark ? `0 1px 2px rgba(0, 0, 0, 0.4)` : `0 1px 2px ${rgba(ink, 0.2)}, 0 0 0 0.5px ${rgba(ink, 0.08)}`;
+  if (strength === 0) return { card: "none", raised: `0 0 0 0 transparent`, dialog: "none", sel: edge, thumb };
   return {
     sel: `${edge}, 0 1px 2px ${s(0.1)}, 0 2px 6px ${s(0.06)}`,
     card: `0 1px 2px ${s(0.04)}, 0 2px 10px ${s(0.035)}`,
     raised: `0 2px 6px ${s(0.06)}, 0 10px 28px ${s(0.1)}`,
     dialog: `0 6px 14px ${s(0.08)}, 0 28px 60px ${s(0.18)}`,
+    thumb,
   };
 }
 
 function themeColors(c: Config, dark: boolean) {
-  const t = c.tone;
   const acc = hexToOklch(c.accent);
   const shades = accentShades(c.accent);
-  const g = (l: number, s = 1) => grey(t, l, dark ? s * DARK_TINT : s);
-  const ink = dark ? g(0.95, 0.4) : g(0.21, 1.4);
+  const ramp = greyRamp(c.tone, dark);
+  const island = greyRamp(c.tone, true);
+  const step = (s: GreyStep | "white") => (s === "white" ? "#ffffff" : ramp[s]);
+  const roles = Object.fromEntries(Object.entries(GREY_ROLES).map(([k, r]) => [k, step(dark ? r.dark : r.light)]));
+  const ink = ramp.ink;
   const brand = dark ? oklchToHex({ l: Math.max(acc.l, 0.64), c: acc.c * 0.9, h: acc.h }) : c.accent;
   const brandHover = dark
     ? oklchToHex({ l: Math.max(acc.l, 0.64) + 0.05, c: acc.c * 0.9, h: acc.h })
     : oklchToHex({ l: acc.l - 0.05, c: acc.c, h: acc.h });
-  const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : g(0.18, 1.4);
+  const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : greyRamp(c.tone, false).ink;
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
   // Series colours for multi-series charts: one accent hue, lightness steps far enough apart that neighbours read as
@@ -200,28 +255,9 @@ function themeColors(c: Config, dark: boolean) {
   const seriesL = dark ? [0.66, 0.86, 0.5, 0.77, 0.58] : [0.58, 0.78, 0.4, 0.69, 0.49];
   const seriesC = dark ? [0.95, 0.6, 0.9, 0.75, 0.9] : [1, 0.65, 0.8, 0.85, 0.95];
   const series = seriesL.map((l, i) => oklchToHex({ l, c: acc.c * seriesC[i], h: acc.h }));
-  // Dark sidebar in both themes; in dark mode it sits a step above the page (like a card) so it still stands out.
-  const sideL = 0.2;
   return {
-    page: dark ? g(0.155, 0.8) : g(0.985, 0.35),
-    surface: dark ? g(0.2, 0.8) : "#ffffff",
-    raised: dark ? g(0.23, 0.8) : "#ffffff",
-    fill: dark ? g(0.25, 0.8) : g(0.958, 0.6),
-    "fill-hover": dark ? g(0.295, 0.8) : g(0.928, 0.7),
-    "fill-strong": dark ? g(0.355, 0.8) : g(0.885, 0.8),
-    ink,
-    "ink-muted": dark ? g(0.72, 0.6) : g(0.5, 1.2),
-    "ink-faint": dark ? g(0.56, 0.6) : g(0.66, 1),
-    on: dark ? g(0.93, 0.4) : g(0.25, 1.4),
-    "on-ink": dark ? g(0.18, 1) : "#ffffff",
-    thumb: "#ffffff",
-    // Raised-pill selection (the shadcn / Radix / Apple norm): a deeper grey track, a white pill in light and a lighter
-    // grey pill in dark, with shadow-sel. Selected items on a plain surface (tabs, chips) use fill-strong instead.
-    track: dark ? g(0.265, 0.8) : g(0.935, 0.7),
-    sel: dark ? g(0.415, 0.8) : "#ffffff",
-    // Switch on: accent track, the thumb stays white in both themes (Apple, Radix, Material 3).
-    "switch-on": brand,
-    "switch-thumb": "#ffffff",
+    ...ramp,
+    ...roles,
     brand,
     "brand-hover": brandHover,
     "brand-ink": brandInk,
@@ -231,8 +267,8 @@ function themeColors(c: Config, dark: boolean) {
     "danger-soft": dark ? "#33201e" : "#fbeeec",
     success: dark ? "#7cc59a" : "#2f8a57",
     "success-soft": dark ? "#1c2a21" : "#eaf5ee",
-    scroll: dark ? rgba("#ffffff", 0.16) : rgba(ink, 0.18),
-    overlay: dark ? rgba("#000000", 0.5) : rgba(g(0.2, 1), 0.28),
+    // The dialog scrim: a see-through layer over the page, not a grey of its own.
+    overlay: dark ? rgba("#000000", 0.5) : rgba(ink, 0.28),
     "chart-1": chart[0],
     "chart-2": chart[1],
     "chart-3": chart[2],
@@ -243,17 +279,21 @@ function themeColors(c: Config, dark: boolean) {
     "series-3": series[2],
     "series-4": series[3],
     "series-5": series[4],
-    side: g(sideL, 1.2),
-    "side-raised": g(sideL + 0.06, 1.2),
-    "side-fill": g(sideL + 0.06, 1.2),
-    "side-fill-hover": g(sideL + 0.1, 1.2),
-    "side-fill-strong": g(sideL + 0.17, 1.2),
-    "side-ink": g(0.93, 0.4),
-    "side-muted": g(0.68, 0.6),
+    // Dark islands in both themes (sidebar, save bar, bottom nav) take the dark ramp. In dark mode the island sits at
+    // card level, a step above the page, so it still stands out.
+    side: island.surface,
+    "side-raised": island.fill,
+    "side-fill": island.fill,
+    "side-fill-hover": island["fill-hover"],
+    "side-fill-strong": island["fill-strong"],
+    "side-ink": island.ink,
+    "side-muted": island["ink-muted"],
+    "side-scroll": island["fill-strong"],
     "shadow-card": sh.card,
     "shadow-sel": sh.sel,
     "shadow-raised": sh.raised,
     "shadow-dialog": sh.dialog,
+    "shadow-thumb": sh.thumb,
   };
 }
 
