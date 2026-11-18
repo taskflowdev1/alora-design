@@ -89,7 +89,7 @@ function Pulse({ loading, children }: { loading?: boolean; children: React.React
 
 function Delta({ delta, primary }: { delta: NonNullable<MetricCardProps["delta"]>; primary?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-0.5 whitespace-nowrap text-body tabular-nums", primary ? "text-on-ink/70" : "text-ink-muted")}>
+    <span className={cn("inline-flex items-center gap-0.5 whitespace-nowrap text-body tabular-nums", primary ? "text-brand-soft-ink/70" : "text-ink-muted")}>
       {delta.direction === "up" ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
       {delta.value}
     </span>
@@ -131,7 +131,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
     );
   }
   const isShortValue = short ?? isShort(value);
-  const muted = primary ? "text-on-ink/70" : "text-ink-muted";
+  const muted = primary ? "text-brand-soft-ink/70" : "text-ink-muted";
   const labelEl = <span className={cn("whitespace-nowrap text-body", muted)}>{label}</span>;
   const unitEl = unit ? <span className={cn("mr-1 text-title font-medium", muted)}>{unit}</span> : null;
   const shell = (inner: React.ReactNode, cls?: string) => (
@@ -141,7 +141,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
       style={{ ...style, ["--ad-metric-h" as string]: METRIC_H }}
       className={cn(
         "inline-flex h-[var(--ad-metric-h)] w-fit shrink-0",
-        primary && "bg-on text-on-ink [--ad-ink:var(--ad-on-ink)] [--ad-fill:color-mix(in_oklab,var(--ad-on-ink)_12%,transparent)]",
+        primary && "bg-brand-soft text-brand-soft-ink [--ad-ink:var(--ad-brand-soft-ink)] [--ad-fill:color-mix(in_oklab,var(--ad-brand-soft-ink)_12%,transparent)]",
         cls,
         className,
       )}

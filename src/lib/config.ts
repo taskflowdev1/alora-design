@@ -200,7 +200,8 @@ function themeColors(c: Config, dark: boolean) {
   const seriesL = dark ? [0.66, 0.86, 0.5, 0.77, 0.58] : [0.58, 0.78, 0.4, 0.69, 0.49];
   const seriesC = dark ? [0.95, 0.6, 0.9, 0.75, 0.9] : [1, 0.65, 0.8, 0.85, 0.95];
   const series = seriesL.map((l, i) => oklchToHex({ l, c: acc.c * seriesC[i], h: acc.h }));
-  // Dark sidebar in both themes; in dark mode it sits a step above the page (like a card) so it still stands out.
+  // The sidebar follows the theme: a white panel in light mode (greys as in the rest of the light UI);
+  // in dark mode it sits a step above the page (like a card) so it still stands out.
   const sideL = 0.2;
   return {
     page: dark ? g(0.155, 0.8) : g(0.985, 0.35),
@@ -243,13 +244,13 @@ function themeColors(c: Config, dark: boolean) {
     "series-3": series[2],
     "series-4": series[3],
     "series-5": series[4],
-    side: g(sideL, 1.2),
-    "side-raised": g(sideL + 0.06, 1.2),
-    "side-fill": g(sideL + 0.06, 1.2),
-    "side-fill-hover": g(sideL + 0.1, 1.2),
-    "side-fill-strong": g(sideL + 0.17, 1.2),
-    "side-ink": g(0.93, 0.4),
-    "side-muted": g(0.68, 0.6),
+    side: dark ? g(sideL, 1.2) : "#ffffff",
+    "side-raised": dark ? g(sideL + 0.06, 1.2) : g(0.97, 0.5),
+    "side-fill": dark ? g(sideL + 0.06, 1.2) : g(0.958, 0.6),
+    "side-fill-hover": dark ? g(sideL + 0.1, 1.2) : g(0.928, 0.7),
+    "side-fill-strong": dark ? g(sideL + 0.17, 1.2) : g(0.885, 0.8),
+    "side-ink": dark ? g(0.93, 0.4) : ink,
+    "side-muted": dark ? g(0.68, 0.6) : g(0.5, 1.2),
     "shadow-card": sh.card,
     "shadow-sel": sh.sel,
     "shadow-raised": sh.raised,
