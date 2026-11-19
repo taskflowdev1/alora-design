@@ -166,8 +166,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-1.5">
           <HeaderSearch />
           <CustomizeButton className="md:hidden" />
-          <ThemeButton />
-          {onExamples ? <AppAccount /> : null}
+          {onExamples ? <AppAccount /> : <ThemeButton />}
         </div>
       </div>
       <PhoneTabs />
