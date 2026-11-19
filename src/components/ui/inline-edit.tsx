@@ -50,6 +50,7 @@ export function InlineEdit({ value, onSave, display, validate, align = "left", i
             ref={input}
             value={draft}
             inputMode={inputMode}
+            enterKeyHint="done"
             aria-label={aria["aria-label"]}
             aria-invalid={!!error || undefined}
             onChange={(e) => (setDraft(e.target.value), setError(null))}

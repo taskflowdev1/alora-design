@@ -95,7 +95,7 @@ export function Combobox({
                 nav.setActive(0);
               }}
               onKeyDown={(e) => nav.onKeyDown(e, false)}
-              className="h-full w-full min-w-0 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
+              className="h-full w-full min-w-0 bg-transparent text-body pointer-coarse:text-[16px] text-ink outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
             />
           </label>
           <div className="max-h-[min(280px,calc(var(--radix-popover-content-available-height)-48px))] overflow-auto">

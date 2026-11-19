@@ -22,7 +22,7 @@ export function Field({ label, error, layout = "stack", className, children, htm
       <div className="grid gap-1.5">
         {children}
         {error ? (
-          <p className="flex items-start gap-1.5 text-small text-danger">
+          <p role="alert" className="flex items-start gap-1.5 text-small text-danger">
             <span className="flex h-[1.4em] items-center">
               <AlertCircle size={14} />
             </span>

@@ -41,6 +41,7 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
       <input
         ref={ref}
         inputMode="numeric"
+        autoComplete="off"
         aria-label={aria["aria-label"]}
         aria-invalid={invalid || undefined}
         value={text}

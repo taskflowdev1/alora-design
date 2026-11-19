@@ -37,7 +37,7 @@ export function Textarea({ className, invalid, ...props }: React.TextareaHTMLAtt
     <textarea
       aria-invalid={invalid || undefined}
       className={cn(
-        "min-h-24 w-full resize-y rounded-control px-3 py-2 text-body text-ink outline-none transition-colors duration-[220ms] ease-ad placeholder:text-ink-muted",
+        "min-h-24 w-full resize-y rounded-control px-3 py-2 text-body pointer-coarse:text-[16px] text-ink outline-none transition-colors duration-[220ms] ease-ad placeholder:text-ink-muted",
         invalid ? "bg-danger-soft" : "bg-fill hover:bg-fill-strong focus:bg-fill-strong",
         className,
       )}

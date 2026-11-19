@@ -46,6 +46,8 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
           ref={input}
           value={text}
           aria-label={aria["aria-label"] ?? "Tags"}
+          autoComplete="off"
+          enterKeyHint="enter"
           placeholder={value.length ? "" : placeholder}
           onChange={(e) => (e.target.value.endsWith(",") ? add(e.target.value) : setText(e.target.value))}
           onKeyDown={(e) => {

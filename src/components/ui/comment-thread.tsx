@@ -114,7 +114,7 @@ export function CommentThread({ comments, me, onReact, onReply, className }: Com
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
               }}
-              className="max-h-32 min-h-item flex-1 resize-none bg-transparent py-1.5 text-body leading-5 text-ink outline-none [field-sizing:content] placeholder:text-ink-muted"
+              className="max-h-32 min-h-item flex-1 resize-none bg-transparent py-1.5 text-body pointer-coarse:text-[16px] leading-5 text-ink outline-none [field-sizing:content] placeholder:text-ink-muted"
             />
             <Button variant="primary" size="sm" onClick={send} disabled={!text.trim()}>
               Send

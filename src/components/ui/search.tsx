@@ -15,6 +15,9 @@ export function Search({ value, onValueChange, placeholder = "Search", className
     <Input
       ref={ref}
       type="search"
+      autoComplete="off"
+      spellCheck={false}
+      enterKeyHint="search"
       icon={SearchIcon}
       value={value}
       placeholder={placeholder}
