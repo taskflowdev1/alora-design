@@ -1329,6 +1329,7 @@ export const RULES: Rule[] = [
     title: "One fixed grey ramp",
     rule: "Greys come from one fixed ramp of six per theme: page, surface, fill, fill-strong, ink-muted, ink. Never add another grey.",
     why: "Ad-hoc greys drift and multiply until no two screens match.",
+    // Names the greys this rule forbids: grey-ok
     how: "Use the role tokens (`bg-fill`, `text-ink-muted`…). No alpha on a grey token, no `color-mix`, no palette greys like `text-white` or `bg-black/5`, no raw hex. Accent shades come from the OKLCH ramp.",
     check: "`node scripts/greys.mjs --check` passes.",
     context: "Elsewhere you'll see 8–10 neutral steps. Here six per theme is enough, and the dark sidebar uses the dark ramp in both themes.",

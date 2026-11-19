@@ -608,8 +608,9 @@ function EdgeScroller({ fade }: { fade: boolean }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, [measure]);
+  // Mask stops (alpha only, never painted): grey-ok
   const l = ends.start ? "#000" : "transparent";
-  const r = ends.end ? "#000" : "transparent";
+  const r = ends.end ? "#000" : "transparent"; // mask stop, grey-ok
   return (
     <div
       ref={ref}

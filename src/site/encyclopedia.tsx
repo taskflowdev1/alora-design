@@ -192,6 +192,7 @@ export function EncyclopediaPage() {
             <Card inset="nest">
               <Accordion
                 type="multiple"
+                className="grid-cols-1"
                 defaultValue={openRule && c.rules.some((r) => r.id === openRule) ? [openRule] : undefined}
                 items={c.rules.map((r) => ({
                   value: r.id,
@@ -239,7 +240,7 @@ export function EncyclopediaPage() {
                       <span className="font-medium text-ink">{s.name}</span>
                       <span className="text-ink-muted">{s.licence}</span>
                     </span>
-                    <span className="shrink-0 tabular-nums text-ink-muted">{n} rules</span>
+                    <span className="shrink-0 tabular-nums text-ink-muted">{n === 1 ? "1 rule" : `${n} rules`}</span>
                     <ExternalLink size={16} className="shrink-0 text-ink-muted" />
                   </a>
                 </li>
