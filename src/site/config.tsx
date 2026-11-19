@@ -5,11 +5,19 @@ import { DEFAULTS, inlineTokens, parseConfig, serializeConfig, type Config } fro
 export const shapedSupported = () => typeof CSS !== "undefined" && CSS.supports("corner-shape", "squircle");
 
 export function applyTokens(el: HTMLElement, c: Config) {
+  const root = el === document.documentElement;
+  // A theme switch turns every transition off for a frame, so colours swap at once instead of fading one by one.
+  const switching = root && el.style.colorScheme !== "" && el.style.colorScheme !== c.theme;
+  if (switching) el.classList.add("ad-theme-switch");
   const map = inlineTokens(c, shapedSupported());
   for (const [k, v] of Object.entries(map)) el.style.setProperty(k, v);
-  if (el === document.documentElement) {
+  if (root) {
     el.classList.toggle("dark", c.theme === "dark");
     el.style.colorScheme = c.theme;
+  }
+  if (switching) {
+    void getComputedStyle(el).backgroundColor;
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("ad-theme-switch")));
   }
 }
 

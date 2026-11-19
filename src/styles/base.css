@@ -1,4 +1,4 @@
-/* Alora Design base rules. Corner shape, one scrollbar style, no focus rings. */
+/* Alora Design base rules. Corner shape, one scrollbar style, no focus rings, touch and motion defaults. */
 *, ::before, ::after {
   corner-shape: var(--ad-corner);
 }
@@ -8,6 +8,27 @@
   *, ::before, ::after {
     scrollbar-width: thin;
     scrollbar-color: var(--ad-scroll) transparent;
+  }
+  /* No double-tap zoom delay on anything you press. */
+  a, button, label, summary, input, textarea, select, [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="radio"], [role="checkbox"], [role="switch"] {
+    touch-action: manipulation;
+  }
+  /* Scrolling inside an overlay never scrolls the page behind it. */
+  [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-radix-popper-content-wrapper] > *,
+  :is([role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-radix-popper-content-wrapper]) * {
+    overscroll-behavior: contain;
+  }
+  /* Link underlines clear the descenders. */
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: from-font;
+  }
+  /* Phones zoom into any field under 16 px. Touch screens get 16 px; a mouse keeps the dense size. A field with its own
+     text size utility keeps it (utilities win over this layer), so those set pointer-coarse:text-[16px] themselves. */
+  @media (pointer: coarse) {
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"]), textarea, select, [contenteditable="true"] {
+      font-size: max(16px, 1em);
+    }
   }
 }
 .rounded-full, [data-shape="round"] {
@@ -23,6 +44,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  interpolate-size: allow-keywords;
 }
 :focus, :focus-visible {
   outline: none;
@@ -81,14 +105,21 @@ html {
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
+/* Add to <html> for the frame the theme changes in (then remove), so every colour swaps at once instead of fading. */
+.ad-theme-switch, .ad-theme-switch *, .ad-theme-switch ::before, .ad-theme-switch ::after {
+  transition: none !important;
+}
+/* Overlays grow from 0.97 (never from 0) toward the trigger via transform-origin, and leave the same way. */
 @keyframes ad-in {
-  from { opacity: 0; transform: translateY(-3px) scale(0.98); }
+  from { opacity: 0; transform: scale(0.97); }
 }
 @keyframes ad-out {
-  to { opacity: 0; transform: scale(0.98); }
+  to { opacity: 0; transform: scale(0.97); }
 }
 @keyframes ad-fade-in {
   from { opacity: 0; }
@@ -104,6 +135,9 @@ html {
 }
 @keyframes ad-up {
   from { opacity: 0; transform: translateY(12px); }
+}
+@keyframes ad-down {
+  to { opacity: 0; transform: translateY(12px); }
 }
 svg[stroke="currentColor"][stroke-linecap="round"] {
   stroke-width: var(--ad-icon-stroke, 1.75);

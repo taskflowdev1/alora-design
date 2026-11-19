@@ -31,8 +31,10 @@ body {
   border-radius: calc(var(--ad-radius-control) + 6px);
   transition: background-color 220ms var(--ad-ease);
 }
-.ad-mark:hover:not(:has(.ad-mark:hover)) {
-  background-color: var(--ad-page);
+@media (hover: hover) {
+  .ad-mark:hover:not(:has(.ad-mark:hover)) {
+    background-color: var(--ad-page);
+  }
 }
 .ad-mark-chip {
   position: absolute;
@@ -56,8 +58,10 @@ body {
   transform: translateY(2px);
   transition: opacity 160ms var(--ad-ease), transform 160ms var(--ad-ease);
 }
-.ad-mark:hover:not(:has(.ad-mark:hover)) > .ad-mark-chip {
-  opacity: 1;
-  pointer-events: auto;
-  transform: none;
+@media (hover: hover) {
+  .ad-mark:hover:not(:has(.ad-mark:hover)) > .ad-mark-chip {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
 }
