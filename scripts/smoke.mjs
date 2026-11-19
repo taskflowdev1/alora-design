@@ -369,7 +369,7 @@ check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
 // The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
 // every one of them live exactly once in its category bands.
-const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block"];
+const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
 const before = errors.length;
 for (const name of MORE) {
   await page.goto(`${BASE}/components/${name}`, { waitUntil: "networkidle" });
@@ -386,6 +386,41 @@ const landingMore = await page.evaluate((names) => {
   return { hidden: hidden.reduce((n, h) => n + (band?.querySelectorAll(`[data-spot="${h}"]`).length ?? 0), 0), missing: names.filter((n) => !hidden.includes(n) && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
 }, MORE);
 check(landingMore.missing.length === 0 && landingMore.hidden === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
+// The motion set: the dial steps by key and by typing, the password flags a common one at once and a short one only
+// after leaving the field, the step form shows what is missing instead of moving on, and a table row moves the chart.
+await page.goto(BASE + "/components/number-dial", { waitUntil: "networkidle" });
+const dial = page.locator("[data-stage] [role=slider]");
+await dial.focus();
+await page.keyboard.press("ArrowRight");
+await page.keyboard.press("ArrowRight");
+const dialAfterKeys = await dial.getAttribute("aria-valuenow");
+await page.keyboard.type("42");
+await sleep(150);
+check(dialAfterKeys === "26" && (await dial.getAttribute("aria-valuenow")) === "42", `number dial: arrows step, typing sets (${dialAfterKeys}, ${await dial.getAttribute("aria-valuenow")})`);
+await page.goto(BASE + "/components/password-input", { waitUntil: "networkidle" });
+const pwField = page.locator("[data-stage] input[autocomplete=new-password]");
+await pwField.fill("kopi");
+const earlyError = await page.locator("[data-stage] [role=status]").count();
+await pwField.blur();
+const lateError = await page.locator("[data-stage] >> text=Use 8 or more characters").isVisible();
+await pwField.fill("Password1!");
+const common = await page.locator("[data-stage] >> text=This password is too common").isVisible();
+check(earlyError === 0 && lateError && common, `password: no error while typing, short after leaving, common at once (${earlyError}, ${lateError}, ${common})`);
+await page.goto(BASE + "/components/step-form", { waitUntil: "networkidle" });
+await page.click("[data-stage] button[type=submit]");
+const stayed = await page.locator("[data-stage] >> text=Choose who you’re ordering from").isVisible();
+await page.fill("#po-supplier", "Keramik Plered");
+await page.click("[data-stage] button[type=submit]");
+await sleep(400);
+check(stayed && (await page.locator("[data-stage] >> text=Piring keramik 24 cm").isVisible()), `step form: Next shows the missing field, then moves on (${stayed})`);
+await page.goto(BASE + "/components/brush", { waitUntil: "networkidle" });
+const row = page.locator("[data-stage] tbody tr").nth(2);
+await row.hover();
+await sleep(150);
+const linkedTip = await page.locator("[data-stage] [role=status]").first().innerText().catch(() => "");
+const rowDay = await row.locator("td").first().innerText();
+check(linkedTip.includes(rowDay), `linked highlight: hovering a row shows that day on the chart (${JSON.stringify(rowDay)} in ${JSON.stringify(linkedTip)})`);
+
 // Line chart: hovering shows one tooltip with every series.
 await page.goto(BASE + "/components/line-chart", { waitUntil: "networkidle" });
 const svg = page.locator("[data-stage] figure svg").first();

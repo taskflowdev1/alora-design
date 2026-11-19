@@ -624,6 +624,114 @@ Files: `src/components/ui/slider.tsx`.
 | `display` | `ReactNode` |  | Shown on the right, e.g. "12 px". |
 | `className` | `string` |  |  |
 
+### Number dial
+
+<a id="number-dial"></a>Page: https://design.alorawork.com/components/number-dial
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/number-dial.json"
+```
+
+Files: `src/components/ui/number-dial.tsx`.
+
+`RollingNumber`: A number that changes digit by digit: only the digits that changed roll, up when the value grows and down when it shrinks. Tabular figures and overflow clipping keep the width and the line still.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `number` |  |  |
+| `format` | `((n: number) => string)` | `(n) => n.toLocaleString("id-ID")` | Formats the value; each character gets its own slot, aligned from the right. Default: locale grouping. |
+| `blur` | `boolean` |  | A 2 px motion blur on the rolling digits. Showcase pages only; product screens keep it off. |
+| `className` | `string` |  |  |
+
+`NumberDial`: Pick a whole number by dragging a ruler. The whole width drags (1:1 under the pointer), a flick glides and slows to a stop, it always settles on a whole value, and the number above is the biggest thing on the card, rolling only the digit that changed. Keyboard: arrows step, Page Up/Down jump a major tick, Home/End, and typing digits sets it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `number` |  |  |
+| `onValueChange` (required) | `(value: number) => void` |  |  |
+| `min` | `number` | `0` |  |
+| `max` | `number` | `100` |  |
+| `majorEvery` | `number` | `10` | A labelled long tick every this many values. |
+| `spacing` | `number` | `9` | Pixels between two values on the ruler. |
+| `unit` | `ReactNode` |  | Muted word after the number ("days", "pcs"). |
+| `blur` | `boolean` |  | Motion blur on the rolling digits (showcase only). |
+| `onTick` | `((value: number) => void)` |  | Called once per whole value the ruler passes, for a tick sound or haptic in a showcase. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Password
+
+<a id="password-input"></a>Page: https://design.alorawork.com/components/password-input
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/password-input.json"
+```
+
+Files: `src/components/ui/password-input.tsx`. Installs too: `input`.
+
+`PasswordInput`: A new-password field that rewards early and complains late: a small ring closes around as the password gets stronger (no weak/strong label) and turns into a check when it is strong; "too common" shows the moment it matches, "too short" only once you leave the field. Reveal turns each dot into its letter in place (monospace, so nothing moves). While empty it offers a generated password in groups of four.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `minLength` | `number` | `8` |  |
+| `suggest` | `boolean` | `true` | Offer a generated password while the field is empty (new passwords only). |
+| `error` | `string` |  | An error from outside (the server, a submit); shown under the field. |
+| `submitted` | `boolean` |  | Show the length error now (after a submit), without waiting for the field to lose focus. |
+| `wrapperClassName` | `string` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Theme switch
+
+<a id="theme-switch"></a>Page: https://design.alorawork.com/components/theme-switch
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/theme-switch.json"
+```
+
+Files: `src/components/ui/theme-switch.tsx`. Installs too: `segmented`.
+
+`ThemeSwitch`: System / Light / Dark on the segmented track. Picking one spreads the new theme out from that option, so you see what caused the change; nothing else animates while it happens.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `ThemeChoice` |  |  |
+| `onValueChange` (required) | `(value: ThemeChoice) => void` |  | Called inside the transition: set the theme synchronously here (state, class or URL). |
+| `system` | `boolean` | `true` | Leave out "system" for a two-way switch. |
+| `iconOnly` | `boolean` |  | Icons only, with the names as accessible labels. |
+| `className` | `string` |  |  |
+
+### Step form
+
+<a id="step-form"></a>Page: https://design.alorawork.com/components/step-form
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/step-form.json"
+```
+
+Files: `src/components/ui/step-form.tsx`. Installs too: `button`, `steps`.
+
+`StepPanels`: Shows one panel per step. Going forward the next panel comes in from the right and the old one leaves part of the way to the left (back reverses it), and the height eases to the new panel's height instead of jumping. Focus moves into the new panel when it was inside the old one. Reduced motion: an instant swap.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `step` (required) | `number` |  | The index of the panel to show. |
+| `children` (required) | `ReactNode[]` |  | One node per step. |
+| `className` | `string` |  |  |
+
+`StepForm`: A short wizard in one card: step progress on top, the panel (sliding in the direction of travel, height easing), and Back / Next at the bottom. Next is the one accent button and stays enabled: pressing it runs the step's check, so it shows what is missing instead of being greyed out. Enter submits the current step.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `steps` (required) | `StepFormStep[]` |  |  |
+| `step` | `number` |  | Controlled step; leave out to let the form keep its own. |
+| `onStepChange` | `((step: number) => void)` |  |  |
+| `finishLabel` | `string` | `"Finish"` | The last step's button. |
+| `onFinish` (required) | `() => void` |  |  |
+| `className` | `string` |  |  |
+
 ## Display
 
 ### Card
@@ -1084,7 +1192,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/carousel.json"
 
 Files: `src/components/ui/carousel.tsx`. Installs too: `button`.
 
-`Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
+`Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse can drag it too. Pulling past either end (mouse drag or trackpad) meets resistance that grows the further you pull, then springs back keeping the release speed. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1190,6 +1298,8 @@ Files: `src/components/ui/chart.tsx`.
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `items` (required) | `{ label: ReactNode; color: string; value?: ReactNode; }[]` |  |  |
+| `active` | `number \| null` |  | Linked highlight: the item being pointed at elsewhere; the others dim. |
+| `onActiveChange` | `((index: number \| null) => void)` |  | Pointing at an item reports it, so the chart and a table can light up its series. |
 | `className` | `string` |  |  |
 
 `CartesianChart`: Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks and gridlines, a crosshair with one tooltip for every series on hover or arrow keys, and a legend from two series up.
@@ -1209,6 +1319,10 @@ Files: `src/components/ui/chart.tsx`.
 | `labelEvery` | `number` | `0` | Label every nth x value. 0 = pick from the width. |
 | `legend` | `boolean` | `true` | The legend under the chart (from two series up). Off when the card's header carries it. |
 | `format` | `((n: number) => string)` | `formatShort` |  |
+| `active` | `number \| null` |  | Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. |
+| `onActiveChange` | `((index: number \| null) => void)` |  | Hovering or arrowing to a point reports its index (null on leave), so a table can light up the matching row. |
+| `activeSeries` | `string \| null` |  | Linked highlight: the series key to emphasise; the others dim. |
+| `onActiveSeriesChange` | `((key: string \| null) => void)` |  | Hovering a line or its legend item reports its key. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -1238,6 +1352,10 @@ Files: `src/components/ui/line-chart.tsx`. Installs too: `chart`.
 | `dots` | `boolean` |  | Dots at every point (the last point always gets one). |
 | `labelEvery` | `number` |  | Label every nth x value. 0 = pick from the width. |
 | `format` | `((n: number) => string)` |  |  |
+| `active` | `number \| null` |  | Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. |
+| `onActiveChange` | `((index: number \| null) => void)` |  | Hovering or arrowing to a point reports its index (null on leave), so a table can light up the matching row. |
+| `activeSeries` | `string \| null` |  | Linked highlight: the series key to emphasise; the others dim. |
+| `onActiveSeriesChange` | `((key: string \| null) => void)` |  | Hovering a line or its legend item reports its key. |
 
 ### Area chart
 
@@ -1267,6 +1385,10 @@ Files: `src/components/ui/area-chart.tsx`. Installs too: `chart`.
 | `dots` | `boolean` |  | Dots at every point (the last point always gets one). |
 | `labelEvery` | `number` |  | Label every nth x value. 0 = pick from the width. |
 | `format` | `((n: number) => string)` |  |  |
+| `active` | `number \| null` |  | Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. |
+| `onActiveChange` | `((index: number \| null) => void)` |  | Hovering or arrowing to a point reports its index (null on leave), so a table can light up the matching row. |
+| `activeSeries` | `string \| null` |  | Linked highlight: the series key to emphasise; the others dim. |
+| `onActiveSeriesChange` | `((key: string \| null) => void)` |  | Hovering a line or its legend item reports its key. |
 
 ### Pie and donut
 
@@ -1336,6 +1458,16 @@ Files: `src/components/ui/radial-chart.tsx`. Installs too: `chart`.
 | `center` | `ReactNode` |  | In the middle (one ring: its figure). |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
+
+### Linked highlight
+
+<a id="brush"></a>Page: https://design.alorawork.com/components/brush
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/brush.json"
+```
+
+Files: `src/components/ui/brush.tsx`. Installs too: `line-chart`, `table`.
 
 ## Navigation
 
@@ -1570,7 +1702,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/drawer.json"
 
 Files: `src/components/ui/drawer.tsx`. Installs too: `dialog`.
 
-`Drawer`: The phone's bottom sheet: it floats with a margin and full rounding (never glued to the edge), slides up, and drags down to close (grab the handle or the title row; past 80 px or a quick flick it closes). Desktop uses Sheet or Dialog.
+`Drawer`: The phone's bottom sheet: it floats with a margin and full rounding (never glued to the edge), slides up, and drags down to close (grab the handle or the title row; past 80 px or a quick flick it closes, otherwise it springs back keeping the speed you let go with; dragging up meets a rubber band). Desktop uses Sheet or Dialog.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1779,11 +1911,12 @@ npx shadcn@latest add "https://design.alorawork.com/r/trace.json"
 
 Files: `src/components/ui/trace.tsx`.
 
-`Trace`: What an agent did, step by step (reasoning, tool calls, sources): a glyph per step on a quiet rail of spacing, the running step pulsing, the time on the right. Steps with detail open in place. Plain words; ids and payloads stay in the detail, closed by default.
+`Trace`: What an agent did, step by step (reasoning, tool calls, sources): a glyph per step on a quiet rail of spacing, the running step pulsing, the time on the right. Steps with detail open in place. Plain words; ids and payloads stay in the detail, closed by default. `live` (while the agent works): each new step slides in as it starts and the running one's time counts up, so the wait shows the work behind it.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `steps` (required) | `TraceStep[]` |  |  |
+| `live` | `boolean` |  |  |
 | `className` | `string` |  |  |
 
 ### Attachment
@@ -1854,6 +1987,105 @@ Files: `src/components/ui/code-block.tsx`. Installs too: `button`.
 | `lineNumbers` | `boolean` |  | Line numbers in the faint ink. |
 | `maxHeight` | `number` | `420` | Taller code scrolls inside. |
 | `onCopy` | `((code: string) => void)` |  |  |
+| `className` | `string` |  |  |
+
+### Prompt suggestions
+
+<a id="prompt-suggestions"></a>Page: https://design.alorawork.com/components/prompt-suggestions
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/prompt-suggestions.json"
+```
+
+Files: `src/components/ui/prompt-suggestions.tsx`.
+
+`PromptSuggestions`: Prompts to tap instead of an empty box: picking is easier than writing from scratch. Rows come in one after another (30 ms apart, once, on mount) and press like buttons; the arrow shows a tap sends it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `PromptSuggestion[]` |  |  |
+| `onPick` (required) | `(prompt: string) => void` |  |  |
+| `layout` | `"list" \| "chips"` | `"list"` | "list" stacks full-width rows (an empty chat); "chips" wraps them under an answer as follow-ups. |
+| `className` | `string` |  |  |
+
+### Streaming text
+
+<a id="streaming-text"></a>Page: https://design.alorawork.com/components/streaming-text
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/streaming-text.json"
+```
+
+Files: `src/components/ui/streaming-text.tsx`.
+
+`StreamingText`: An answer that writes itself without moving the page: the paragraph in progress holds room for a few lines ahead of the words, so the next line lands in space that is already there instead of pushing everything below it down, and each new chunk fades in where it lands. A small pulsing dot marks where it is writing. When it finishes, the reserve goes and the block keeps exactly the height of its text.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `text` (required) | `string` |  | The answer so far. Paragraphs are split on blank lines. |
+| `streaming` | `boolean` |  | Still arriving: the paragraph being written keeps room for `reserve` lines, so what is below never jumps. |
+| `reserve` | `number` | `3` | Lines to hold open for the paragraph in progress (and for the first one before any text arrives). |
+| `cite` | `((n: number) => ReactNode)` |  | Renders a source marker written as [n] in the text (a Citation); it appears as soon as its marker arrives. |
+| `className` | `string` |  |  |
+
+### Citation
+
+<a id="citation"></a>Page: https://design.alorawork.com/components/citation
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/citation.json"
+```
+
+Files: `src/components/ui/citation.tsx`.
+
+`Citation`: A claim's source as a small number after it. Tapping (or hovering, after a short wait) opens a card that grows out of that number, not from the middle of the screen, with the source's name, where it lives and the passage used.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `n` (required) | `number` |  |  |
+| `source` (required) | `CitationSource` |  |  |
+| `className` | `string` |  |  |
+
+### Proposed change
+
+<a id="proposed-change"></a>Page: https://design.alorawork.com/components/proposed-change
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/proposed-change.json"
+```
+
+Files: `src/components/ui/proposed-change.tsx`. Installs too: `button`.
+
+`ProposedChange`: An agent may suggest anything, but it asks before it changes your data: the exact before → after per row, then Apply (the one accent) or Not now. While applying the button keeps its width and says so; once applied the card says what happened and offers Undo instead of a second confirm.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `ReactNode` |  | A question: "Update 3 prices?" |
+| `changes` (required) | `ProposedChangeRow[]` |  |  |
+| `state` | `"pending" \| "applying" \| "applied" \| "dismissed"` | `"pending"` | "pending" asks; "applied" shows it done with Undo; "dismissed" shows it was left alone (Undo asks again). |
+| `onApply` (required) | `() => void` |  |  |
+| `onDismiss` (required) | `() => void` |  |  |
+| `onUndo` | `(() => void)` |  |  |
+| `applyLabel` | `string` | `"Apply"` |  |
+| `className` | `string` |  |  |
+
+### Reactions
+
+<a id="reactions"></a>Page: https://design.alorawork.com/components/reactions
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/reactions.json"
+```
+
+Files: `src/components/ui/reactions.tsx`. Installs too: `number-dial`.
+
+`Reactions`: Emoji reactions under a message, updated optimistically: a tap shows the result immediately (your pill rises onto the track, the count rolls only the digit that changed) and saves in the background, rolling back if the save fails. Your own reactions are the raised pill on the track; the rest sit quietly on it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` (required) | `Reaction[]` |  |  |
+| `onToggle` (required) | `(emoji: string, on: boolean) => void \| Promise<void>` |  | Save a toggle. The pill flips and its count rolls at once; if this rejects, it flips back and `onError` runs. |
+| `onError` | `((emoji: string, error: unknown) => void)` |  |  |
 | `className` | `string` |  |  |
 
 ## Niche ERP parts

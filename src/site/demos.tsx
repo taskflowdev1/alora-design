@@ -70,6 +70,7 @@ import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
 import { NICHE_DEMOS } from "./demos-niche";
 import { MORE_DEMOS } from "./demos-more";
+import { MOTION_DEMOS } from "./demos-motion";
 import { CopyChip } from "@/components/ui/copy-chip";
 import { Steps } from "@/components/ui/steps";
 import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
@@ -135,6 +136,7 @@ const orderRows = ORDERS.slice(0, 8);
 export const DEMOS: Record<string, Demo> = {
   ...NICHE_DEMOS,
   ...MORE_DEMOS,
+  ...MOTION_DEMOS,
   "corner-shape": {
     stage: "surface",
     render: (_p, config) => (

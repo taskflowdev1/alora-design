@@ -138,6 +138,10 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Checkbox](https://design.alorawork.com/components/checkbox) | `checkbox` | `Checkbox`, `CheckboxField` | `label` |
 | [Radio](https://design.alorawork.com/components/radio) | `radio` | `RadioGroup`, `Radio` | `label` |
 | [Slider](https://design.alorawork.com/components/slider) | `slider` | `Slider` | `value`, `onValueChange`, `min`, `max`, `step=1`, `label`, `display`, `className` |
+| [Number dial](https://design.alorawork.com/components/number-dial) | `number-dial` | `RollingNumber`, `NumberDial` | `value`, `format=(n) => n.toLocaleString("id-ID")`, `blur`, `className`, `onValueChange`, `min=0`, `max=100`, `majorEvery=10`, `spacing=9`, `unit`, `onTick`, `aria-label` |
+| [Password](https://design.alorawork.com/components/password-input) | `password-input` | `PasswordInput` | `value`, `onValueChange`, `minLength=8`, `suggest=true`, `error`, `submitted`, `wrapperClassName` |
+| [Theme switch](https://design.alorawork.com/components/theme-switch) | `theme-switch` | `ThemeSwitch` | `value`, `onValueChange`, `system=true`, `iconOnly`, `className` |
+| [Step form](https://design.alorawork.com/components/step-form) | `step-form` | `StepPanels`, `StepForm` | `step`, `children`, `className`, `steps`, `onStepChange`, `finishLabel="Finish"`, `onFinish` |
 
 ### Display
 
@@ -168,12 +172,13 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
-| [Chart parts](https://design.alorawork.com/components/chart) | `chart` | `ChartTooltip`, `ChartLegend`, `CartesianChart` | `title`, `rows`, `style`, `className`, `items`, `data`, `series`, `kind="line"`, `height=200`, `curve="smooth"`, `grid=true`, `axis=true`, `dots=false`, `stacked=false`, `fill=0.14`, `labelEvery=0`, `legend=true`, `format=formatShort`, `aria-label` |
-| [Line chart](https://design.alorawork.com/components/line-chart) | `line-chart` | `LineChart` | `data`, `legend`, `height`, `className`, `aria-label`, `grid`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format` |
-| [Area chart](https://design.alorawork.com/components/area-chart) | `area-chart` | `AreaChart` | `data`, `legend`, `height`, `className`, `aria-label`, `fill`, `grid`, `stacked`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format` |
+| [Chart parts](https://design.alorawork.com/components/chart) | `chart` | `ChartTooltip`, `ChartLegend`, `CartesianChart` | `title`, `rows`, `style`, `className`, `items`, `active`, `onActiveChange`, `data`, `series`, `kind="line"`, `height=200`, `curve="smooth"`, `grid=true`, `axis=true`, `dots=false`, `stacked=false`, `fill=0.14`, `labelEvery=0`, `legend=true`, `format=formatShort`, `activeSeries`, `onActiveSeriesChange`, `aria-label` |
+| [Line chart](https://design.alorawork.com/components/line-chart) | `line-chart` | `LineChart` | `data`, `legend`, `height`, `className`, `aria-label`, `grid`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format`, `active`, `onActiveChange`, `activeSeries`, `onActiveSeriesChange` |
+| [Area chart](https://design.alorawork.com/components/area-chart) | `area-chart` | `AreaChart` | `data`, `legend`, `height`, `className`, `aria-label`, `fill`, `grid`, `stacked`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format`, `active`, `onActiveChange`, `activeSeries`, `onActiveSeriesChange` |
 | [Pie and donut](https://design.alorawork.com/components/pie-chart) | `pie-chart` | `PieChart` | `data`, `size=168`, `thickness=0.32`, `center`, `legend="side"`, `format=formatShort`, `className`, `aria-label` |
 | [Radar chart](https://design.alorawork.com/components/radar-chart) | `radar-chart` | `RadarChart` | `data`, `series`, `size=240`, `rings=4`, `fill=0.14`, `format=formatShort`, `className`, `aria-label` |
 | [Radial chart](https://design.alorawork.com/components/radial-chart) | `radial-chart` | `RadialChart` | `data`, `size=168`, `thickness=10`, `gap=6`, `sweep=270`, `center`, `className`, `aria-label` |
+| [Linked highlight](https://design.alorawork.com/components/brush) | `brush` | — | none |
 
 ### Navigation
 
@@ -212,10 +217,15 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Message and bubble](https://design.alorawork.com/components/message) | `message` | `Bubble`, `BubbleGroup`, `Message` | `variant="soft"`, `align="start"`, `reactions`, `from`, `time`, `mine`, `actions`, `children`, `className` |
 | [Message scroller](https://design.alorawork.com/components/message-scroller) | `message-scroller` | `MessageScroller` | `children`, `watch`, `className` |
 | [Marker](https://design.alorawork.com/components/marker) | `marker` | `Marker` | `icon`, `variant="note"`, `live` |
-| [Trace](https://design.alorawork.com/components/trace) | `trace` | `Trace` | `steps`, `className` |
+| [Trace](https://design.alorawork.com/components/trace) | `trace` | `Trace` | `steps`, `live`, `className` |
 | [Attachment](https://design.alorawork.com/components/attachment) | `attachment` | `Attachment`, `AttachmentGroup` | `name`, `meta`, `kind="file"`, `src`, `state="done"`, `progress=0`, `onRemove`, `onOpen`, `size="default"`, `className` |
 | [Questionnaire](https://design.alorawork.com/components/questionnaire) | `questionnaire` | `Questionnaire` | `questions`, `onSubmit`, `skippable=true`, `submitLabel="Send answers"`, `className` |
 | [Code block](https://design.alorawork.com/components/code-block) | `code-block` | `CodeBlock` | `code`, `title`, `lineNumbers`, `maxHeight=420`, `onCopy`, `className` |
+| [Prompt suggestions](https://design.alorawork.com/components/prompt-suggestions) | `prompt-suggestions` | `PromptSuggestions` | `items`, `onPick`, `layout="list"`, `className` |
+| [Streaming text](https://design.alorawork.com/components/streaming-text) | `streaming-text` | `StreamingText` | `text`, `streaming`, `reserve=3`, `cite`, `className` |
+| [Citation](https://design.alorawork.com/components/citation) | `citation` | `Citation` | `n`, `source`, `className` |
+| [Proposed change](https://design.alorawork.com/components/proposed-change) | `proposed-change` | `ProposedChange` | `title`, `changes`, `state="pending"`, `onApply`, `onDismiss`, `onUndo`, `applyLabel="Apply"`, `className` |
+| [Reactions](https://design.alorawork.com/components/reactions) | `reactions` | `Reactions` | `items`, `onToggle`, `onError`, `className` |
 
 ### Niche ERP parts
 

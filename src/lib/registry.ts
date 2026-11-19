@@ -67,6 +67,10 @@ export const ITEMS: Item[] = [
   { name: "checkbox", title: "Checkbox", group: "Inputs", files: ["checkbox.tsx"], deps: [RADIX] },
   { name: "radio", title: "Radio", group: "Inputs", files: ["radio.tsx"], deps: [RADIX] },
   { name: "slider", title: "Slider", group: "Inputs", files: ["slider.tsx"], deps: [RADIX] },
+  { name: "number-dial", title: "Number dial", group: "Inputs", files: ["number-dial.tsx"] },
+  { name: "password-input", title: "Password", group: "Inputs", files: ["password-input.tsx"], registryDeps: ["input"] },
+  { name: "theme-switch", title: "Theme switch", group: "Inputs", files: ["theme-switch.tsx"], registryDeps: ["segmented"] },
+  { name: "step-form", title: "Step form", group: "Inputs", files: ["step-form.tsx"], registryDeps: ["button", "steps"] },
 
   { name: "card", title: "Card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
   { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
@@ -96,6 +100,7 @@ export const ITEMS: Item[] = [
   { name: "pie-chart", title: "Pie and donut", group: "Charts", files: ["pie-chart.tsx"], registryDeps: ["chart"] },
   { name: "radar-chart", title: "Radar chart", group: "Charts", files: ["radar-chart.tsx"], registryDeps: ["chart"] },
   { name: "radial-chart", title: "Radial chart", group: "Charts", files: ["radial-chart.tsx"], registryDeps: ["chart"] },
+  { name: "brush", title: "Linked highlight", group: "Charts", files: ["brush.tsx"], registryDeps: ["line-chart", "table"] },
 
   { name: "breadcrumb", title: "Breadcrumb", group: "Navigation", files: ["breadcrumb.tsx"], deps: [RADIX], registryDeps: ["tooltip"] },
   { name: "navigation-menu", title: "Navigation menu", group: "Navigation", files: ["navigation-menu.tsx"], deps: [RADIX], registryDeps: ["button"] },
@@ -123,6 +128,11 @@ export const ITEMS: Item[] = [
   { name: "attachment", title: "Attachment", group: "Chat", files: ["attachment.tsx"], registryDeps: ["button", "progress"] },
   { name: "questionnaire", title: "Questionnaire", group: "Chat", files: ["questionnaire.tsx"], registryDeps: ["button", "input"] },
   { name: "code-block", title: "Code block", group: "Chat", files: ["code-block.tsx"], registryDeps: ["button"] },
+  { name: "prompt-suggestions", title: "Prompt suggestions", group: "Chat", files: ["prompt-suggestions.tsx"] },
+  { name: "streaming-text", title: "Streaming text", group: "Chat", files: ["streaming-text.tsx"] },
+  { name: "citation", title: "Citation", group: "Chat", files: ["citation.tsx"], deps: [RADIX] },
+  { name: "proposed-change", title: "Proposed change", group: "Chat", files: ["proposed-change.tsx"], registryDeps: ["button"] },
+  { name: "reactions", title: "Reactions", group: "Chat", files: ["reactions.tsx"], registryDeps: ["number-dial"] },
 
   // Niche ERP parts: the spotlight on the landing page.
   { name: "command-palette", title: "Command palette", group: "Niche", files: ["command-palette.tsx"], deps: [RADIX], registryDeps: ["dialog", "kbd"] },

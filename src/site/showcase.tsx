@@ -103,6 +103,7 @@ import { DAILY, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SHOPS, SPARK, TEAM, smartTi
 import { CommentsDemo } from "./demos-niche";
 import { BackPage, Head, Mark, S, Tile, frame, stack, type TileDef } from "./mark";
 import { MORE_TILES } from "./showcase-more";
+import { MOTION_TILES } from "./showcase-motion";
 
 const say = (m: string) => () => toast(m, "neutral");
 
@@ -1433,7 +1434,9 @@ const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat">, TileD
 };
 
 /** Each category's tiles: the originals, then the shadcn-parity ones (showcase-more.tsx). */
-const TILES = Object.fromEntries(GROUPS.map((g) => [g, [...((BASE_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? []), ...(MORE_TILES[g] ?? [])]])) as Record<Group, TileDef[]>;
+const TILES = Object.fromEntries(
+  GROUPS.map((g) => [g, [...((BASE_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? []), ...(MORE_TILES[g] ?? []), ...((MOTION_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? [])]]),
+) as Record<Group, TileDef[]>;
 
 /** Every component's name, once, from the tiles (the coverage check compares it with the registry). */
 export const SHOWN = Object.values(TILES).flatMap((ts) => ts.flatMap((t) => t.items));

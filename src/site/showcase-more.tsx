@@ -57,6 +57,7 @@ import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
 import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
 import { BackPage, Head, Mark, PlainMarks, S, Tile, frame, type TileDef } from "./mark";
+import { MOTION_TILES } from "./showcase-motion";
 import { useConfig } from "./config";
 import { DAILY, NOW, ORDERS, smartTime, type Order } from "./data";
 
@@ -668,7 +669,8 @@ const BAND_TITLE: Partial<Record<Group, string>> = { Inputs: "More inputs", Disp
 /** On the landing: the shadcn-parity components live, one band per category, the same tiles as the Components page. */
 export function MoreBento() {
   const [config] = useConfig();
-  const names = Object.values(MORE_TILES).flatMap((ts) => ts!.flatMap((t) => t.items));
+  const tiles = (g: Group) => [...(MORE_TILES[g] ?? []), ...((MOTION_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? [])];
+  const names = LANDING_GROUPS.flatMap((g) => tiles(g).flatMap((t) => t.items));
   return (
     <PlainMarks.Provider value={true}>
       <section aria-label="More components" data-landing="more" data-more={names.filter((n) => findItem(n)).join(",")} className="mx-auto mt-20 grid w-full max-w-[1280px] gap-14 px-4 sm:px-6">
@@ -676,7 +678,7 @@ export function MoreBento() {
           <section key={g} aria-label={g} data-band={g} className="grid gap-4">
             <h2 className="px-1 text-title font-semibold text-ink">{BAND_TITLE[g] ?? g}</h2>
             <div className="grid grid-flow-row-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
-              {MORE_TILES[g]!.map((t) => (
+              {tiles(g).map((t) => (
                 <React.Fragment key={t.items.join()}>{t.render(config)}</React.Fragment>
               ))}
             </div>
