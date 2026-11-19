@@ -73,7 +73,7 @@ export function Resizable({ children, direction = "horizontal", defaultSize = 50
           dragging && "bg-fill",
         )}
       >
-        <span aria-hidden className={cn("rounded-full bg-fill-strong transition-colors duration-[160ms] group-hover:bg-ink-muted", dragging && "bg-ink-muted", h ? "h-8 w-1" : "h-1 w-8")} />
+        <span aria-hidden className={cn("rounded-full bg-fill-strong transition-colors duration-[160ms] group-hover:bg-ink-muted group-focus-visible:bg-ink-muted", dragging && "bg-ink-muted", h ? "h-8 w-1" : "h-1 w-8")} />
       </div>
       <div className="min-h-0 min-w-0 flex-1 overflow-hidden">{children[1]}</div>
     </div>

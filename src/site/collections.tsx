@@ -65,7 +65,7 @@ export function CollectionPreview({ item, values, tall }: { item: Item; values: 
     return (
       <div
         data-field-stage
-        className={cn("relative isolate grid w-full place-items-center overflow-hidden rounded-sheet bg-surface px-4 py-12 shadow-card", tall ? "min-h-[clamp(440px,62vh,620px)]" : "min-h-[clamp(420px,56vh,560px)]")}
+        className={cn("relative isolate grid w-full place-items-center overflow-hidden rounded-sheet bg-surface px-4 py-12 shadow-card", tall ? "min-h-[clamp(440px,62dvh,620px)]" : "min-h-[clamp(420px,56dvh,560px)]")}
       >
         <C {...values} className="rounded-[inherit] bg-surface" />
         <NewChat />

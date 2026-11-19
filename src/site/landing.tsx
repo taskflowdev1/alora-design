@@ -55,7 +55,7 @@ function BackgroundsBand() {
   return (
     <section aria-label="Backgrounds" data-landing="backgrounds" className="mx-auto mt-20 grid w-full max-w-[1280px] gap-4 px-4 sm:px-6">
       <SectionTitle to="/backgrounds">Backgrounds</SectionTitle>
-      <div data-field-stage className="relative isolate grid min-h-[clamp(440px,58vh,600px)] place-items-center overflow-hidden rounded-sheet bg-surface px-4 py-12 shadow-card">
+      <div data-field-stage className="relative isolate grid min-h-[clamp(440px,58dvh,600px)] place-items-center overflow-hidden rounded-sheet bg-surface px-4 py-12 shadow-card">
         <SandField className="rounded-[inherit] bg-surface" />
         <NewChat />
       </div>

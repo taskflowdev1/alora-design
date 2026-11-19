@@ -229,7 +229,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/input-otp.json"
 
 Files: `src/components/ui/input-otp.tsx`.
 
-`InputOTP`: A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines. Digits rise in as they're typed; status drives the checking wave, the wrong-code shake and the success pop.
+`InputOTP`: A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines. Digits rise in as they're typed; status drives the checking wave, the wrong-code shake and how a correct code lands.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -238,7 +238,8 @@ Files: `src/components/ui/input-otp.tsx`.
 | `length` | `number` | `6` |  |
 | `group` | `number` | `3` | Split the boxes into groups with a gap (3 = 123 456). 0 keeps one row. |
 | `onComplete` | `((value: string) => void)` |  | Called once every box is filled. |
-| `status` | `InputOTPStatus` | `"idle"` | idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red. success: the boxes turn soft green one after another. |
+| `status` | `InputOTPStatus` | `"idle"` | idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red. success: the boxes turn soft green one after another (see celebrate). |
+| `celebrate` | `InputOTPCelebrate` | `"join"` | success, how it lands. quiet: the boxes turn soft green one after another. join: then the gaps close into one green bar. seal: then the bar folds into a green circle and a check draws inside. |
 | `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
 | `className` | `string` |  |  |
@@ -633,7 +634,7 @@ Files: `src/components/ui/slider.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/card.json"
 ```
 
-Files: `src/components/ui/card.tsx`.
+Files: `src/components/ui/card.tsx`. Installs too: `tooltip`.
 
 `Card`
 
@@ -660,7 +661,7 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/metric-card.json"
 ```
 
-Files: `src/components/ui/card.tsx`.
+Files: `src/components/ui/card.tsx`. Installs too: `tooltip`.
 
 `MetricCard`: As wide as its number needs, never stretched. Short and long numbers each get their own treatment.
 
@@ -1498,7 +1499,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/tooltip.json"
 
 Files: `src/components/ui/tooltip.tsx`.
 
-`TooltipProvider`
+`TooltipProvider`: Put one at the app root: the first tooltip waits, then neighbours open at once (and without animating) for a moment.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1532,6 +1533,8 @@ Files: `src/components/ui/toast.tsx`.
 | `tone` | `"success" \| "neutral"` | `"success"` |  |
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
+
+Also takes the native props of the element it renders.
 
 ### Alert dialog
 

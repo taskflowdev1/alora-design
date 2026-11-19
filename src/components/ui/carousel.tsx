@@ -17,10 +17,6 @@ export interface CarouselProps {
   "aria-label"?: string;
 }
 
-/**
- * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways.
- * Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
- */
 /** Fades the cut edge of the track, only on a side with more slides to scroll to. */
 function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSProperties {
   if (!start && !end) return {};
@@ -28,6 +24,10 @@ function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSPr
   return { maskImage: mask, WebkitMaskImage: mask };
 }
 
+/**
+ * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways.
+ * Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
+ */
 export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots = true, className, ...aria }: CarouselProps) {
   const track = React.useRef<HTMLDivElement>(null);
   const [index, setIndex] = React.useState(0);
