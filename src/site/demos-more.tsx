@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 // Detail-page demos for the shadcn-parity components: each one live with its controls, plus its usage snippet.
 import * as React from "react";
-import { Bold, Box, Database, FileText, Italic, Package, RefreshCw, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
+import { Bold, Box, Copy, Database, Download, FileText, Italic, Package, Printer, RefreshCw, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +18,10 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { NavigationMenu } from "@/components/ui/navigation-menu";
 import { Menubar } from "@/components/ui/menubar";
 import { Pagination } from "@/components/ui/pagination";
+import { Segmented } from "@/components/ui/segmented";
+import { SlidingPill } from "@/components/ui/sliding-pill";
+import { Chip, ChipGroup } from "@/components/ui/status";
+import { ToggleGroup } from "@/components/ui/toggle-group";
 import { Textarea } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -345,20 +349,56 @@ export const MORE_DEMOS: Record<string, Demo> = {
     },
     usage: (p) => `<Toggle${p.label ? "" : ' icon aria-label="Bold"'} pressed={bold} onPressedChange={setBold}>\n  <Bold />${p.label ? "\n  Bold" : ""}\n</Toggle>`,
   },
-  "button-group": {
+  "sliding-pill": {
     render: () => {
-      const [f, setF] = React.useState("xlsx");
+      const [range, setRange] = React.useState("week");
+      const [chip, setChip] = React.useState("all");
+      const [view, setView] = React.useState("list");
+      const [page, setPage] = React.useState(3);
+      const [mine, setMine] = React.useState("pack");
       return (
-        <ButtonGroup aria-label="Format">
-          {["csv", "xlsx", "pdf"].map((x) => (
-            <Button key={x} size="sm" onClick={() => setF(x)} className={cn(f === x && "!bg-on !text-on-ink")}>
-              {x.toUpperCase()}
-            </Button>
-          ))}
-        </ButtonGroup>
+        <div className="grid w-full max-w-md justify-items-start gap-4">
+          <Segmented aria-label="Range" value={range} onValueChange={setRange} options={[{ value: "day", label: "Today" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]} />
+          <ChipGroup aria-label="Order status">
+            {[["all", "All"], ["unpaid", "Unpaid"], ["pack", "To pack"], ["shipped", "Shipped"]].map(([k, l]) => (
+              <Chip key={k} selected={chip === k} onClick={() => setChip(k)}>
+                {l}
+              </Chip>
+            ))}
+          </ChipGroup>
+          <ToggleGroup type="single" aria-label="View" value={view} onValueChange={setView} options={[{ value: "list", label: "List" }, { value: "grid", label: "Grid" }, { value: "board", label: "Board" }]} />
+          {/* Any one-of-N list: a positioned parent, the pill first, options marked with aria-current. */}
+          <div className="relative grid w-48 gap-px">
+            <SlidingPill selector='[aria-current="true"]' className="rounded-control bg-fill-strong" />
+            {[["pack", "To pack"], ["ship", "To ship"], ["done", "Done"]].map(([k, l]) => (
+              <button key={k} type="button" aria-current={mine === k || undefined} onClick={() => setMine(k)} className={cn("relative flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body", mine === k ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink")}>
+                {l}
+              </button>
+            ))}
+          </div>
+          <Pagination page={page} pageCount={12} onPageChange={setPage} className="w-full" />
+        </div>
       );
     },
-    usage: () => `<ButtonGroup aria-label="Format">\n  <Button size="sm">CSV</Button>\n  <Button size="sm">XLSX</Button>\n  <Button size="sm">PDF</Button>\n</ButtonGroup>`,
+    usage: () => `// Built into Segmented, Tabs, ChipGroup, ToggleGroup type="single", Sidebar and Pagination.\n// For your own one-of-N list: a positioned parent, the pill first, options above it.\n<div className="relative grid gap-px">\n  <SlidingPill selector='[aria-current="true"]' className="rounded-control bg-fill-strong" />\n  {views.map((v) => (\n    <button key={v.id} aria-current={v.id === view || undefined} className="relative …">{v.label}</button>\n  ))}\n</div>`,
+  },
+  "button-group": {
+    render: () => (
+      <ButtonGroup aria-label="Order">
+        <Button size="sm" onClick={say("Printed")}>
+          <Printer />
+          Print
+        </Button>
+        <Button size="sm" onClick={say("Duplicated")}>
+          <Copy />
+          Duplicate
+        </Button>
+        <Button size="sm" icon aria-label="Download" onClick={say("Downloaded")}>
+          <Download />
+        </Button>
+      </ButtonGroup>
+    ),
+    usage: () => `// Related actions. For one choice out of several (CSV / XLSX / PDF), use Segmented: its pill slides.\n<ButtonGroup aria-label="Order">\n  <Button size="sm"><Printer />Print</Button>\n  <Button size="sm"><Copy />Duplicate</Button>\n  <Button size="sm" icon aria-label="Download"><Download /></Button>\n</ButtonGroup>`,
   },
 
   /* ---------------------------------------------------------- display */

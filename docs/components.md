@@ -482,9 +482,9 @@ Files: `src/components/ui/language-picker.tsx`. Installs too: `select`.
 npx shadcn@latest add "https://design.alorawork.com/r/segmented.json"
 ```
 
-Files: `src/components/ui/segmented.tsx`.
+Files: `src/components/ui/segmented.tsx`. Installs too: `sliding-pill`.
 
-`Segmented`: Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a soft drop, no edge or ring) one nest gap inside it, concentric. Active text is ink and medium, the rest muted and regular.
+`Segmented`: Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a soft drop, no edge or ring) one nest gap inside it, concentric; a new choice slides the pill over on a spring (SlidingPill). Active text is ink and medium, the rest muted and regular.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -494,6 +494,23 @@ Files: `src/components/ui/segmented.tsx`.
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
+### Sliding pill
+
+<a id="sliding-pill"></a>Page: https://design.alorawork.com/components/sliding-pill
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/sliding-pill.json"
+```
+
+Files: `src/components/ui/sliding-pill.tsx`.
+
+`SlidingPill`: The selected fill of a one-of-N picker (segmented, tabs, single toggle group, nav, pagination…). When the choice changes it slides from the old option to the new one on a spring; a second change mid-flight carries the current speed into the new target, so it never restarts or jumps. The first paint, resizes and font loads place it without motion, and keyboard changes and reduced motion place it instantly. Measured with offsetLeft/offsetTop, so it also holds in RTL.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `selector` (required) | `string` |  | CSS selector for the selected option inside the parent, e.g. `[aria-checked="true"]`, `[data-state="active"]`, `[aria-current="page"]`. The parent must be positioned (`relative`); options that should sit above the pill need `relative` too. |
+| `className` | `string` |  | Fill and radius of the pill: `bg-sel shadow-sel rounded-item` in a track, `bg-fill-strong rounded-control` on a surface. |
+
 ### Tabs
 
 <a id="tabs"></a>Page: https://design.alorawork.com/components/tabs
@@ -502,7 +519,7 @@ Files: `src/components/ui/segmented.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/tabs.json"
 ```
 
-Files: `src/components/ui/tabs.tsx`.
+Files: `src/components/ui/tabs.tsx`. Installs too: `sliding-pill`.
 
 `Tabs`: Tabs: no track and no underline. A grey pill (fill-strong) slides behind the active tab; its label turns ink and medium.
 
@@ -918,7 +935,7 @@ Files: `src/components/ui/bar-chart.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/status.json"
 ```
 
-Files: `src/components/ui/status.tsx`.
+Files: `src/components/ui/status.tsx`. Installs too: `sliding-pill`.
 
 `Status`: Default status: a small dot centred on the text, then the text. For tables and detail rows.
 
@@ -945,6 +962,10 @@ Files: `src/components/ui/status.tsx`.
 | `onClick` | `(() => void)` |  |  |
 | `onRemove` | `(() => void)` |  | Shows an × that calls this. |
 | `size` | `"default" \| "sm"` | `"default"` |  |
+
+Also takes the native props of the element it renders.
+
+`ChipGroup`: Chips where exactly one is on (All / Low stock / Out of stock): one grey pill slides from the old chip to the new one instead of each chip painting its own. Put Chips with `selected` and `onClick` inside.
 
 Also takes the native props of the element it renders.
 
@@ -1532,9 +1553,9 @@ Files: `src/components/ui/menubar.tsx`. Installs too: `button`, `menu`.
 npx shadcn@latest add "https://design.alorawork.com/r/pagination.json"
 ```
 
-Files: `src/components/ui/pagination.tsx`. Installs too: `button`.
+Files: `src/components/ui/pagination.tsx`. Installs too: `button`, `sliding-pill`.
 
-`Pagination`: The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a grey pill (fill-strong) in ink; the others are ghost buttons at the same size; arrows say where they go.
+`Pagination`: The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a grey pill (fill-strong) in ink that slides to the new page; the others are ghost buttons at the same size; arrows say where they go.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1725,7 +1746,7 @@ Files: `src/components/ui/drawer.tsx`. Installs too: `dialog`.
 npx shadcn@latest add "https://design.alorawork.com/r/sidebar.json"
 ```
 
-Files: `src/components/ui/sidebar.tsx`.
+Files: `src/components/ui/sidebar.tsx`. Installs too: `sliding-pill`.
 
 `Sidebar`
 
@@ -1742,7 +1763,7 @@ Files: `src/components/ui/sidebar.tsx`.
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
-`SidebarItem`: Icon + label. The active row gets a highlight; the icon stays the same.
+`SidebarItem`: Icon + label. The active row gets a highlight (it slides between rows inside a Sidebar); the icon stays the same.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2122,7 +2143,7 @@ Files: `src/components/ui/command-palette.tsx`. Installs too: `dialog`, `kbd`.
 npx shadcn@latest add "https://design.alorawork.com/r/date-range-picker.json"
 ```
 
-Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `select`.
+Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `select`, `sliding-pill`.
 
 `DateRangePicker`: Presets on the left, one month on the right. Click a start day, then an end day; the range previews under the pointer. The trigger names the preset when one matches.
 
@@ -2277,7 +2298,7 @@ Files: `src/components/ui/marketplace-mark.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/shop-picker.json"
 ```
 
-Files: `src/components/ui/shop-picker.tsx`. Installs too: `checkbox`, `select`, `marketplace-mark`.
+Files: `src/components/ui/shop-picker.tsx`. Installs too: `checkbox`, `select`, `marketplace-mark`, `sliding-pill`.
 
 `ShopPicker`: Shops with their marketplace marks, plus one-click "Only Shopee" / "Only TikTok".
 
@@ -2319,17 +2340,18 @@ Files: `src/components/ui/split-button.tsx`. Installs too: `menu`.
 npx shadcn@latest add "https://design.alorawork.com/r/toggle-group.json"
 ```
 
-Files: `src/components/ui/toggle-group.tsx`.
+Files: `src/components/ui/toggle-group.tsx`. Installs too: `sliding-pill`.
 
 `ToggleGroup`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `value` (required) | `string[]` |  |  |
-| `onValueChange` (required) | `(value: string[]) => void` |  |  |
-| `options` (required) | `{ value: string; label: ReactNode; "aria-label"?: string \| undefined; }[]` |  |  |
+| `options` (required) | `Option[]` |  |  |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
+| `type` | `"multiple" \| "single"` |  |  |
+| `value` (required) | `string \| string[]` |  |  |
+| `onValueChange` (required) | `((value: string[]) => void) \| ((value: string) => void)` |  |  |
 
 ### Context menu
 

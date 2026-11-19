@@ -529,6 +529,41 @@ for (const size of ["default", "lg"]) {
   }
 }
 
+// Sliding pill: picking another option slides one shared fill there (in-between positions on the way), it ends exactly
+// on the choice, and on load it already sits on the chosen option. Segmented, chip group, single toggle group, pagination.
+await page.goto(BASE + "/components/sliding-pill", { waitUntil: "networkidle" });
+const pillCases = [
+  ["Segmented", '[role=radiogroup][aria-label="Range"]', "Month", '[aria-checked="true"]'],
+  ["chip group", '[role=group][aria-label="Order status"]', "Shipped", '[aria-pressed="true"]'],
+  ["toggle group", '[aria-label="View"]', "Board", '[data-state="on"]'],
+  ["pagination", 'nav[aria-label="Pages"] > div', "4", '[aria-current="page"]'],
+];
+for (const [label, host, pick, sel] of pillCases) {
+  const h = page.locator(`[data-stage] ${host}`).first();
+  const at = () =>
+    h.evaluate((el, sel) => {
+      const p = el.querySelector("[data-sliding-pill]").getBoundingClientRect();
+      const o = el.querySelector(sel).getBoundingClientRect();
+      return { p: Math.round(p.left * 10) / 10, o: Math.round(o.left * 10) / 10, w: Math.abs(p.width - o.width) < 0.6 };
+    }, sel);
+  const rest = await at();
+  // Sample the pill every frame from the click on, in the page, so the samples are not slowed by the test.
+  const sampling = h.evaluate(
+    (el) =>
+      new Promise((done) => {
+        const xs = [];
+        const t0 = performance.now();
+        const f = () => (xs.push(el.querySelector("[data-sliding-pill]").getBoundingClientRect().left), performance.now() - t0 < 500 ? requestAnimationFrame(f) : done(xs));
+        requestAnimationFrame(f);
+      }),
+  );
+  await h.getByRole(label === "Segmented" ? "radio" : label === "toggle group" ? "radio" : "button", { name: pick, exact: true }).click();
+  const xs = await sampling;
+  const end = await at();
+  const mid = xs.filter((x) => Math.abs(x - rest.p) > 1 && Math.abs(x - end.o) > 1).length;
+  check(Math.abs(rest.p - rest.o) < 0.6 && rest.w && Math.abs(end.p - end.o) < 0.6 && end.w && mid >= 2, `sliding pill ${label}: starts on the choice, slides (${mid} frames between), lands on ${pick} (${JSON.stringify({ rest, end })})`);
+}
+
 // Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
 // keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open (Joshua, v5.4:
 // "overlapping scrollbar again"), and the right margin equals the left. Inner scroll areas: a carousel's track shows no

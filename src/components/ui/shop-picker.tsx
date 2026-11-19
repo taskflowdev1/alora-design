@@ -1,5 +1,6 @@
 import { Popover as P } from "radix-ui";
 import { ChevronDown } from "react-feather";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { cn } from "@/lib/ad";
 import { Checkbox } from "@/components/ui/checkbox";
 import { dropdownSurface, triggerClass } from "@/components/ui/select";
@@ -41,8 +42,8 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   const toggle = (id: string) => onValueChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
   const quickBtn = (active: boolean) =>
     cn(
-      "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-      active ? "bg-fill-strong font-medium text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
+      "relative inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+      active ? "font-medium text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
     );
 
   return (
@@ -58,14 +59,16 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
       </P.Trigger>
       <P.Portal>
         <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-80")}>
-          <div className="flex flex-wrap gap-1 pb-nest">
-            <button type="button" className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>
+          <div className="relative flex flex-wrap gap-1 pb-nest">
+            <SlidingPill selector='[aria-pressed="true"]' className="rounded-control bg-fill-strong" />
+            <button type="button" aria-pressed={all} className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>
               {hold("All")}
             </button>
             {quick.map((m) => (
               <button
                 key={m}
                 type="button"
+                aria-pressed={only === m}
                 className={quickBtn(only === m)}
                 onClick={() => onValueChange(shops.filter((s) => s.market === m).map((s) => s.id))}
               >

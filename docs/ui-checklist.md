@@ -4,7 +4,7 @@ Generated from `src/lib/encyclopedia.ts` by `node scripts/gen-docs.mjs`; do not 
 Why, how (with values) and sources for every rule: https://design.alorawork.com/encyclopedia
 
 Run every UI change through this list before review. Cite a rule by its id.
-**must** (72) blocks review. **should** (160) is the default unless the PR says why not. **showcase** (11) is decoration, allowed only on showcase and demo pages, never in product screens.
+**must** (73) blocks review. **should** (160) is the default unless the PR says why not. **showcase** (11) is decoration, allowed only on showcase and demo pages, never in product screens.
 
 ## Motion purpose
 
@@ -59,6 +59,7 @@ Run every UI change through this list before review. Cite a rule by its id.
 ## Springs and physics
 
 - [ ] **must** `motion.press-scale` Buttons and pressable things shrink slightly while pressed: scale 0.97 over 150 ms ease-out. Nothing else changes, colour included. Check: After `mouse.down()` on a button, its computed transform scale is between 0.96 and 0.99, and its background colour is unchanged.
+- [ ] **must** `motion.one-of-n-slides` Whenever exactly one option is chosen (segmented control, tabs, filter chips, a single toggle group, nav items, the current page), one shared fill moves from the old option to the new one. Two fills never blink in and out. Check: Click from the first option to the last: the `[data-sliding-pill]` element's transform passes through in-between x values over about 250 ms. Reload: it starts on the chosen option, not at x = 0. Grep pickers for a selected `bg-fill-strong`/`bg-sel` on the option itself: there should be none.
 - [ ] **should** `motion.spring-for-gestures` Drags, flicks and swipes settle with a spring that keeps the release velocity, not a fixed-duration tween. Check: `rg -n "onDragEnd|onPanEnd" -A6`. Look for `type: 'spring'` and `velocity`.
 - [ ] **should** `motion.spring-no-wobble` Springs in product UI don’t bounce. Use bounce 0–0.15, or stiffness about 500 with damping about 30–40. Check: `rg -n "bounce:\s*0?\.[2-9]|damping:\s*[0-9]\b"`.
 - [ ] **should** `motion.springs-for-motion-not-colour` Use springs for position and size, and plain easing for colour and opacity. Check: Code review.

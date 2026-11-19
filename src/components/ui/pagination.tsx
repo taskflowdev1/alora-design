@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 
 export interface PaginationProps {
   /** 1-based. */
@@ -24,7 +25,7 @@ export function pageList(page: number, count: number): (number | "gap")[] {
 
 /**
  * The bottom bar of any table longer than a page: the count on the left, pages on the right. The current page is a
- * grey pill (fill-strong) in ink; the others are ghost buttons at the same size; arrows say where they go.
+ * grey pill (fill-strong) in ink that slides to the new page; the others are ghost buttons at the same size; arrows say where they go.
  */
 export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50, numbers = true, className }: PaginationProps) {
   const go = (p: number) => onPageChange(Math.min(pageCount, Math.max(1, p)));
@@ -39,7 +40,8 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
       ) : (
         <span />
       )}
-      <div className="flex items-center gap-0.5">
+      <div className="relative flex items-center gap-0.5">
+        {numbers ? <SlidingPill selector='[aria-current="page"]' className="rounded-control bg-fill-strong" /> : null}
         <Button variant="ghost" size="sm" icon aria-label={`Page ${page - 1}`} disabled={page <= 1} onClick={() => go(page - 1)}>
           <ChevronLeft />
         </Button>
@@ -56,8 +58,8 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
                   aria-current={n === page ? "page" : undefined}
                   onClick={() => go(n)}
                   className={cn(
-                    "grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-                    n === page ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
+                    "relative grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+                    n === page ? "text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
                   )}
                 >
                   {n}

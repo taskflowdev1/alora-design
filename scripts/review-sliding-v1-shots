@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds BEFORE_REF from git and this tree, shoots both locally)
+# Sliding pill proof: output/sliding-v1/sliding.html (before | after pickers, playable, one file) + stills S1… + checks.json.
+# Needs git (the before build comes from `git archive $BEFORE_REF`), so run it on Yoga without --sync.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+BEFORE_REF="${BEFORE_REF:-4119f2e}"
+WORK="${TMPDIR:-/tmp}/review-sliding1"
+rm -rf "$WORK" && mkdir -p "$WORK/before" "$WORK/after"
+git archive "$BEFORE_REF" | tar -x -C "$WORK/before"
+tar -c --exclude=./node_modules --exclude=./output --exclude=./dist --exclude=./.git . | tar -x -C "$WORK/after"
+for v in before after; do
+  T="$WORK/$v"
+  ln -s "$PWD/node_modules" "$T/node_modules"
+  mkdir -p "$T/proof"
+  cp scripts/sliding-proof/index.html scripts/sliding-proof/proof.tsx scripts/sliding-proof/proof.css "$T/proof/"
+  cp "scripts/sliding-proof/variant-$v.tsx" "$T/proof/variant.tsx"
+  cat > "$T/proof.vite.config.mjs" <<CFG
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+export default defineConfig({
+  root: "$T/proof",
+  base: "./",
+  plugins: [react(), tailwindcss()],
+  resolve: { alias: { "@": "$T/src" } },
+  build: { outDir: "$WORK/$v-dist", emptyOutDir: true, assetsInlineLimit: 100000000, chunkSizeWarningLimit: 5000, rollupOptions: { output: { codeSplitting: false } } },
+});
+CFG
+  (cd "$T" && npx vite build --logLevel warn --config proof.vite.config.mjs)
+done
+BEFORE_REF="$BEFORE_REF" BEFORE_DIST="$WORK/before-dist" AFTER_DIST="$WORK/after-dist" node scripts/review-sliding-v1-shots.mjs 2>&1 | tee "$WORK/shots.log"

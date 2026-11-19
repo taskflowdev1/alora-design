@@ -3,6 +3,7 @@
 // src/components/ai.
 import * as React from "react";
 import { Clock, Edit, Inbox, TrendingUp } from "react-feather";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -149,16 +150,18 @@ export function ChatsCard({ active, onActive, className }: { active: number; onA
           </Button>
         }
       />
-      <div className="-mx-1.5 grid min-h-0 flex-1 content-start gap-px overflow-y-auto">
+      <div className="relative -mx-1.5 grid min-h-0 flex-1 content-start gap-px overflow-y-auto">
+        <SlidingPill selector='[aria-current="true"]' className="rounded-control bg-fill-strong" />
         {CHATS.map((c, i) => (
           <button
             key={c.label}
             type="button"
+            aria-current={i === active || undefined}
             onClick={() => onActive(i)}
             className={cn(
-              "flex h-item shrink-0 cursor-pointer items-center gap-3 rounded-control px-2.5 text-left text-body transition-colors duration-[160ms] ease-ad",
+              "relative flex h-item shrink-0 cursor-pointer items-center gap-3 rounded-control px-2.5 text-left text-body transition-colors duration-[160ms] ease-ad",
               i >= PHONE_CHATS && "max-lg:hidden",
-              i === active ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+              i === active ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
             )}
           >
             <span className="min-w-0 flex-1 truncate">{c.label}</span>

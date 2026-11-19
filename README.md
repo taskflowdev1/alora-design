@@ -135,6 +135,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Period stepper](https://design.alorawork.com/components/period-stepper) | `period-stepper` | `PeriodStepper` | `value`, `period`, `onValueChange`, `max`, `className` |
 | [Language picker](https://design.alorawork.com/components/language-picker) | `language-picker` | `LanguagePicker` | `value`, `onValueChange`, `languages=LANGUAGES`, `className` |
 | [Segmented control](https://design.alorawork.com/components/segmented) | `segmented` | `Segmented` | `value`, `onValueChange`, `options`, `className`, `aria-label` |
+| [Sliding pill](https://design.alorawork.com/components/sliding-pill) | `sliding-pill` | `SlidingPill` | `selector`, `className` |
 | [Tabs](https://design.alorawork.com/components/tabs) | `tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | none |
 | [Toggle](https://design.alorawork.com/components/switch) | `switch` | `Switch` | `size="default"` |
 | [Toggle button](https://design.alorawork.com/components/toggle) | `toggle` | `Toggle` | `size="default"`, `icon` |
@@ -155,7 +156,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Table](https://design.alorawork.com/components/table) | `table` | `Table`, `THead`, `TBody`, `TRow`, `TH`, `TD`, `TableBar` | `children`, `selected`, `onActivate`, `align="left"`, `className`, `width`, `maxWidth`, `page`, `total`, `pageSize=50`, `onPageChange` |
 | [Attention list](https://design.alorawork.com/components/attention-list) | `attention-list` | `AttentionList`, `AttentionItem` | `children`, `className`, `media`, `title`, `meta`, `value`, `action`, `onClick` |
 | [Bar chart](https://design.alorawork.com/components/bar-chart) | `bar-chart` | `BarChart`, `BarList` | `data`, `height=140`, `current`, `labelEvery=1`, `loading`, `className`, `aria-label`, `selected`, `onSelect` |
-| [Status, pill, chip](https://design.alorawork.com/components/status) | `status` | `Status`, `Pill`, `Chip` | `tone="default"`, `children`, `className`, `tone="attention"`, `dot`, `selected`, `onClick`, `onRemove`, `size="default"` |
+| [Status, pill, chip](https://design.alorawork.com/components/status) | `status` | `Status`, `Pill`, `Chip`, `ChipGroup` | `tone="default"`, `children`, `className`, `tone="attention"`, `dot`, `selected`, `onClick`, `onRemove`, `size="default"` |
 | [Badge](https://design.alorawork.com/components/badge) | `badge` | `Badge` | `children`, `className` |
 | [Avatar](https://design.alorawork.com/components/avatar) | `avatar` | `Avatar` | `name`, `src`, `size="md"`, `className` |
 | [Thumb](https://design.alorawork.com/components/thumb) | `thumb` | `Thumb` | `src`, `alt`, `size=32`, `className` |
@@ -244,7 +245,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Marketplace mark](https://design.alorawork.com/components/marketplace-mark) | `marketplace-mark` | `MarketMark` | `market`, `size=16`, `className` |
 | [Shop picker](https://design.alorawork.com/components/shop-picker) | `shop-picker` | `ShopPicker` | `shops`, `value`, `onValueChange`, `quick=["shopee", "tiktok"]`, `className` |
 | [Split button](https://design.alorawork.com/components/split-button) | `split-button` | `SplitButton` | `children`, `onClick`, `menu`, `variant="primary"`, `disabled`, `className`, `aria-label` |
-| [Toggle group](https://design.alorawork.com/components/toggle-group) | `toggle-group` | `ToggleGroup` | `value`, `onValueChange`, `options`, `className`, `aria-label` |
+| [Toggle group](https://design.alorawork.com/components/toggle-group) | `toggle-group` | `ToggleGroup` | `options`, `className`, `aria-label`, `type`, `value`, `onValueChange` |
 | [Context menu](https://design.alorawork.com/components/context-menu) | `context-menu` | `ContextMenu`, `ContextMenuItem`, `ContextMenuGroup`, `ContextMenuSub` | `children`, `menu`, `className`, `icon`, `shortcut`, `onSelect`, `disabled`, `label` |
 | [Hover card](https://design.alorawork.com/components/hover-card) | `hover-card` | `HoverCard` | `trigger`, `children`, `side="bottom"`, `align="start"`, `className` |
 | [Column menu](https://design.alorawork.com/components/column-menu) | `column-menu` | `ColumnMenu` | `columns`, `visible`, `onVisibleChange`, `defaults`, `className` |

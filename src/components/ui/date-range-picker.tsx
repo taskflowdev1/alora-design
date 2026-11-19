@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight } from "react-feather";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { cn, MONTHS } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { dropdownSurface, triggerClass } from "@/components/ui/select";
@@ -94,7 +95,8 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
       </P.Trigger>
       <P.Portal>
         <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "flex gap-nest max-sm:flex-col")}>
-          <div className="grid content-start gap-px sm:w-36" role="listbox" aria-label="Presets">
+          <div className="relative grid content-start gap-px sm:w-36" role="listbox" aria-label="Presets">
+            <SlidingPill selector='[aria-selected="true"]' className="rounded-control bg-fill-strong" />
             {presets.map((p) => (
               <button
                 key={p.key}
@@ -106,8 +108,8 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body",
-                  preset?.key === p.key ? "bg-fill-strong text-ink" : "text-ink hover:bg-fill focus-visible:bg-fill",
+                  "relative flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body",
+                  preset?.key === p.key ? "text-ink" : "text-ink hover:bg-fill focus-visible:bg-fill",
                 )}
               >
                 {p.label}

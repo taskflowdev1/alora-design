@@ -1,17 +1,22 @@
 import * as React from "react";
 import { ToggleGroup as T } from "radix-ui";
 import { cn } from "@/lib/ad";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 
-export interface ToggleGroupProps {
-  value: string[];
-  onValueChange: (value: string[]) => void;
-  options: { value: string; label: React.ReactNode; "aria-label"?: string }[];
+type Option = { value: string; label: React.ReactNode; "aria-label"?: string };
+
+export type ToggleGroupProps = {
+  options: Option[];
   className?: string;
   "aria-label"?: string;
-}
+} & (
+  | { type?: "multiple"; value: string[]; onValueChange: (value: string[]) => void }
+  /** One of N (alignment, view): the raised pill slides to the new choice, and the choice can't be cleared. */
+  | { type: "single"; value: string; onValueChange: (value: string) => void }
+);
 
 /**
- * Several on/off choices in one track, like a segmented control that allows more than one.
+ * On/off choices in one track: several at once (default), or one of N with `type="single"`.
  * Pressed items get the raised pill (sel + shadow-sel) on the grey track, in ink and medium; the rest stay muted and
  * regular. Track and pills are concentric.
  */
@@ -23,28 +28,37 @@ const hold = (label: React.ReactNode) => (
   </span>
 );
 
-export function ToggleGroup({ value, onValueChange, options, className, ...aria }: ToggleGroupProps) {
-  return (
-    <T.Root
-      type="multiple"
-      value={value}
-      onValueChange={onValueChange}
-      aria-label={aria["aria-label"]}
-      className={cn("inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-track p-nest", className)}
+export function ToggleGroup(props: ToggleGroupProps) {
+  const { options, className } = props;
+  const single = props.type === "single";
+  const item = (o: Option) => (
+    <T.Item
+      key={o.value}
+      value={o.value}
+      aria-label={o["aria-label"]}
+      className={cn(
+        "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
+        "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:font-medium data-[state=on]:text-ink",
+        // Multiple: each pressed item carries its own pill. Single: one shared pill slides under the choice.
+        single ? "data-[state=on]:focus-visible:bg-fill-strong" : "focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel",
+      )}
     >
-      {options.map((o) => (
-        <T.Item
-          key={o.value}
-          value={o.value}
-          aria-label={o["aria-label"]}
-          className={cn(
-            "inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
-            "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:font-medium data-[state=on]:text-ink data-[state=on]:shadow-sel",
-          )}
-        >
-          {hold(o.label)}
-        </T.Item>
-      ))}
+      {hold(o.label)}
+    </T.Item>
+  );
+  const track = cn("relative inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-track p-nest", className);
+  if (props.type === "single") {
+    const { value, onValueChange } = props;
+    return (
+      <T.Root type="single" value={value} onValueChange={(v) => v && onValueChange(v)} aria-label={props["aria-label"]} className={track}>
+        <SlidingPill selector='[data-state="on"]' className="rounded-item bg-sel shadow-sel" />
+        {options.map(item)}
+      </T.Root>
+    );
+  }
+  return (
+    <T.Root type="multiple" value={props.value} onValueChange={props.onValueChange} aria-label={props["aria-label"]} className={track}>
+      {options.map(item)}
     </T.Root>
   );
 }

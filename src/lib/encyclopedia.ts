@@ -549,6 +549,18 @@ export const RULES: Rule[] = [
     sources: ["uiw", "comeau"],
   },
   {
+    id: "motion.one-of-n-slides",
+    category: "physics",
+    level: "must",
+    title: "One-of-N selection slides; it never jumps",
+    rule: "Whenever exactly one option is chosen (segmented control, tabs, filter chips, a single toggle group, nav items, the current page), one shared fill moves from the old option to the new one. Two fills never blink in and out.",
+    why: "The slide shows where the choice went, so the eye follows it instead of hunting for the new highlight.",
+    how: "Wrap the options in a positioned parent with `<SlidingPill selector='[aria-checked=\"true\"]' />` (or `aria-current`, `aria-pressed`, `data-state`). It springs (stiffness about 520, damping just under critical), carries its speed into a second click, places itself without motion on the first paint, on resize and on font load, snaps for keyboard changes and reduced motion, and measures with offsetLeft so RTL holds. Hover fills stay inside the track: in a track, hover only darkens the label.",
+    check: "Click from the first option to the last: the `[data-sliding-pill]` element's transform passes through in-between x values over about 250 ms. Reload: it starts on the chosen option, not at x = 0. Grep pickers for a selected `bg-fill-strong`/`bg-sel` on the option itself: there should be none.",
+    context: "\"Frequent actions don’t animate\" would leave a picker static. Joshua asked for the slide on every picker (2026-11-19); it is short and interruptible, so it never makes anyone wait.",
+    sources: ["emil", "charles"],
+  },
+  {
     id: "motion.springs-for-motion-not-colour",
     category: "physics",
     level: "should",

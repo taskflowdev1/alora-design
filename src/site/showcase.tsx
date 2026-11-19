@@ -55,7 +55,7 @@ import { Slider } from "@/components/ui/slider";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { BarChart } from "@/components/ui/bar-chart";
-import { Chip, Status } from "@/components/ui/status";
+import { Chip, ChipGroup, Status } from "@/components/ui/status";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Thumb } from "@/components/ui/thumb";
@@ -510,7 +510,8 @@ function TableTile({ className }: { className?: string }) {
     <Tile className={className}>
       <div className="flex min-h-control flex-wrap items-center gap-gap px-2 pt-1">
         <h3 className="mr-auto text-title font-semibold">Orders</h3>
-        <Mark name="status" className="flex flex-wrap items-center gap-1">
+        <Mark name="status">
+          <ChipGroup aria-label="Order status" className="items-center">
           {[
             ["all", "All"],
             ["Unpaid", "Unpaid"],
@@ -521,6 +522,7 @@ function TableTile({ className }: { className?: string }) {
               {l}
             </Chip>
           ))}
+          </ChipGroup>
         </Mark>
       </div>
       <Mark name="table" className="flex-1">

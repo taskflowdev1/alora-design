@@ -27,7 +27,7 @@ import { BarChart, BarList } from "@/components/ui/bar-chart";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { Thumb } from "@/components/ui/thumb";
 import { Badge } from "@/components/ui/badge";
-import { Chip, Pill, Status } from "@/components/ui/status";
+import { Chip, ChipGroup, Pill, Status } from "@/components/ui/status";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { Search } from "@/components/ui/search";
 import { Select } from "@/components/ui/select";
@@ -548,7 +548,7 @@ function Products() {
       </PageHeader>
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Name or SKU" wrapperClassName="max-sm:w-full" />
-        <div className="flex gap-1">
+        <ChipGroup aria-label="Stock" className="flex-nowrap">
           {[
             ["all", "All"],
             ["low", "Low stock"],
@@ -558,7 +558,7 @@ function Products() {
               {l}
             </Chip>
           ))}
-        </div>
+        </ChipGroup>
       </Toolbar>
       <Card inset="nest">
         {list.length === 0 ? (

@@ -4,11 +4,14 @@ import {
   Archive,
   Bold,
   Box,
+  Columns,
   Copy,
   Edit2,
   FileText,
+  Grid,
   Home,
   Italic,
+  List,
   Package,
   Plus,
   Printer,
@@ -327,10 +330,28 @@ export const NICHE_DEMOS: Record<string, Demo> = {
     usage: () => `<SplitButton onClick={pack} menu={<>\n  <MenuItem icon={Printer}>Pack and print slips</MenuItem>\n  <MenuItem icon={Truck}>Pack and book courier</MenuItem>\n</>}>\n  <Box />Pack 12 orders\n</SplitButton>`,
   },
   "toggle-group": {
-    controls: [{ key: "icons", type: "toggle", label: "Icons only", default: false }],
+    controls: [
+      { key: "type", type: "select", label: "Type", options: ["multiple", "single"], default: "multiple" },
+      { key: "icons", type: "toggle", label: "Icons only", default: false },
+    ],
     render: (p) => {
       const [v, setV] = React.useState(["shopee", "tiktok"]);
       const [f, setF] = React.useState(["bold"]);
+      const [view, setView] = React.useState("list");
+      if (p.type === "single")
+        return (
+          <ToggleGroup
+            type="single"
+            aria-label="View"
+            value={view}
+            onValueChange={setView}
+            options={[
+              { value: "list", label: p.icons ? <List /> : <><List />List</>, "aria-label": "List" },
+              { value: "grid", label: p.icons ? <Grid /> : <><Grid />Grid</>, "aria-label": "Grid" },
+              { value: "board", label: p.icons ? <Columns /> : <><Columns />Board</>, "aria-label": "Board" },
+            ]}
+          />
+        );
       return (
         <div className="grid justify-items-center gap-4">
           <ToggleGroup
@@ -356,7 +377,10 @@ export const NICHE_DEMOS: Record<string, Demo> = {
         </div>
       );
     },
-    usage: () => `<ToggleGroup value={channels} onValueChange={setChannels} options={[\n  { value: "shopee", label: <><MarketMark market="shopee" />Shopee</> },\n  { value: "tiktok", label: <><MarketMark market="tiktok" />TikTok</> },\n]} />`,
+    usage: (p) =>
+      p.type === "single"
+        ? `<ToggleGroup type="single" value={view} onValueChange={setView} options={[\n  { value: "list", label: <><List />List</> },\n  { value: "grid", label: <><Grid />Grid</> },\n]} />`
+        : `<ToggleGroup value={channels} onValueChange={setChannels} options={[\n  { value: "shopee", label: <><MarketMark market="shopee" />Shopee</> },\n  { value: "tiktok", label: <><MarketMark market="tiktok" />TikTok</> },\n]} />`,
   },
   "context-menu": {
     stage: "page",

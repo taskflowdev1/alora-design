@@ -9,6 +9,7 @@ import { Search } from "@/components/ui/search";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from "@/components/ui/toast";
 import { CodeBlock as UICodeBlock } from "@/components/ui/code-block";
@@ -36,6 +37,7 @@ function GallerySidebar({ groups }: { groups: Group[] }) {
   const q = serializeConfig(config);
   return (
     <aside className="sticky top-20 hidden max-h-[calc(100dvh-96px)] w-52 shrink-0 overflow-auto pb-8 lg:block">
+      <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
       {groups.map((g) => (
         <div key={g} className="mb-4 grid gap-px">
           <div className="flex h-7 items-center px-2.5 text-small text-ink-muted">{g}</div>
@@ -45,8 +47,8 @@ function GallerySidebar({ groups }: { groups: Group[] }) {
               to={`${itemPath(i)}${q ? `?${q}` : ""}`}
               className={({ isActive }) =>
                 cn(
-                  "flex h-item items-center rounded-control px-2.5 text-body transition-colors duration-[160ms]",
-                  isActive ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+                  "relative flex h-item items-center rounded-control px-2.5 text-body transition-colors duration-[160ms]",
+                  isActive ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
                 )
               }
             >

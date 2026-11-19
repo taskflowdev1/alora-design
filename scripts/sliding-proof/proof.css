@@ -1,0 +1,11 @@
+/* Same as src/index.css, with the scan rooted at the tree this proof is built from. */
+@import "tailwindcss" source("../");
+@import "../src/styles/theme.css";
+@import "../src/styles/base.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  min-height: 100dvh;
+  background: var(--ad-page);
+}

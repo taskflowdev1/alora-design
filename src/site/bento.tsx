@@ -41,7 +41,7 @@ import { Toolbar } from "@/components/ui/toolbar";
 import { Search } from "@/components/ui/search";
 import { Popover } from "@/components/ui/popover";
 import { CheckboxField, Checkbox } from "@/components/ui/checkbox";
-import { Chip, Pill, Status } from "@/components/ui/status";
+import { Chip, ChipGroup, Pill, Status } from "@/components/ui/status";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Thumb } from "@/components/ui/thumb";
@@ -268,13 +268,13 @@ function OrdersCard({ className }: { className?: string }) {
         </Popover>
         <ColumnMenu columns={ORDER_COLUMNS} visible={cols} onVisibleChange={setCols} defaults={ORDER_DEFAULT_COLS} />
       </Toolbar>
-      <div className="flex flex-wrap gap-1 px-2">
+      <ChipGroup aria-label="Order status" className="px-2">
         {CHIPS.map((c) => (
           <Chip key={c.key} selected={chip === c.key} onClick={() => filter(setChip)(c.key)}>
             {c.label}
           </Chip>
         ))}
-      </div>
+      </ChipGroup>
       <Table className="min-h-[280px] lg:h-0 lg:flex-1">
         <THead>
           <tr>

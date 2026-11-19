@@ -5,6 +5,7 @@ import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { Toaster } from "@/components/ui/toast";
 import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
 import { Shortcut } from "@/components/ui/kbd";
@@ -30,7 +31,7 @@ function NavItem({ to, children, className }: { to: string; children: React.Reac
   return (
     <NavLink
       to={q ? `${to}?${q}` : to}
-      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "bg-fill-strong text-ink", className)}
+      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "relative bg-transparent text-ink hover:bg-transparent", !isActive && "relative", className)}
     >
       {children}
     </NavLink>
@@ -46,7 +47,8 @@ function PhoneTabs() {
     if (active && ref.current) ref.current.scrollTo({ left: Math.max(0, active.offsetLeft - 16), behavior: "instant" as ScrollBehavior });
   }, [pathname]);
   return (
-    <nav ref={ref} aria-label="Sections" className="mx-auto flex h-11 w-full max-w-[1280px] items-start gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] sm:px-6 lg:hidden [&::-webkit-scrollbar]:hidden">
+    <nav ref={ref} aria-label="Sections" className="relative mx-auto flex h-11 w-full max-w-[1280px] items-start gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] sm:px-6 lg:hidden [&::-webkit-scrollbar]:hidden">
+      <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
       {TABS.map((t) => (
         <NavItem key={t.to} to={t.to} className="px-2.5">
           {t.label}
@@ -154,7 +156,8 @@ export function SiteHeader() {
         <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
           <Wordmark />
         </SLink>
-        <nav aria-label="Sections" className="flex items-center gap-1 max-lg:hidden">
+        <nav aria-label="Sections" className="relative flex items-center gap-1 max-lg:hidden">
+          <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
           {TABS.map((t) => (
             <NavItem key={t.to} to={t.to}>
               {t.label}

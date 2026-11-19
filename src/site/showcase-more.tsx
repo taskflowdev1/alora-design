@@ -10,8 +10,10 @@ import {
   Box,
   Copy,
   Database,
+  Download,
   FileText,
   Grid,
+  Mail,
   Package,
   RefreshCw,
   ShoppingBag,
@@ -39,6 +41,8 @@ import { Pagination } from "@/components/ui/pagination";
 import { Textarea } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { Segmented } from "@/components/ui/segmented";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 import { InputGroup } from "@/components/ui/input-group";
 import { OtpFlow } from "./otp-flow";
 import { Select } from "@/components/ui/select";
@@ -353,15 +357,24 @@ function PayoutAccountTile({ className }: { className?: string }) {
       </div>
       <div className="mt-auto flex flex-wrap items-center justify-between gap-gap">
         <span className="text-body text-ink-muted">Statement</span>
-        <Mark name="button-group">
-          <ButtonGroup aria-label="Statement format">
-            {["csv", "xlsx", "pdf"].map((f) => (
-              <Button key={f} size="sm" onClick={() => (setFmt(f), toast(`Statement as ${f.toUpperCase()}`, "neutral"))} className={cn(fmt === f && "!bg-on !text-on-ink")}>
-                {f.toUpperCase()}
+        <div className="flex shrink-0 items-center gap-gap">
+          <Segmented
+            aria-label="Statement format"
+            value={fmt}
+            onValueChange={setFmt}
+            options={["csv", "xlsx", "pdf"].map((f) => ({ value: f, label: f.toUpperCase() }))}
+          />
+          <Mark name="button-group" className="shrink-0">
+            <ButtonGroup aria-label="Statement">
+              <Button icon aria-label="Download statement" onClick={() => toast(`Statement as ${fmt.toUpperCase()}`, "neutral")}>
+                <Download />
               </Button>
-            ))}
-          </ButtonGroup>
-        </Mark>
+              <Button icon aria-label="Email statement" onClick={() => toast("Statement sent to finance@tokodago.id", "neutral")}>
+                <Mail />
+              </Button>
+            </ButtonGroup>
+          </Mark>
+        </div>
       </div>
     </Tile>
   );
@@ -522,13 +535,14 @@ function DrawerTile({ className }: { className?: string }) {
               <span className="h-1 w-10 rounded-full bg-fill-strong" />
             </div>
             <span className="text-title font-semibold">Ship with</span>
-            <div className="grid gap-px">
+            <div role="radiogroup" aria-label="Courier" className="relative grid gap-px">
+              <SlidingPill selector='[aria-checked="true"]' className="rounded-item bg-fill-strong" />
               {[
                 ["jne", "JNE Regular", "Rp 12.000"],
                 ["sicepat", "SiCepat", "Rp 11.000"],
                 ["gosend", "GoSend Instant", "Rp 28.000"],
               ].map(([k, n, p]) => (
-                <button key={k} type="button" onClick={() => setCourier(k)} className={cn("flex h-row cursor-pointer items-center justify-between rounded-item px-2.5 text-body transition-colors duration-[160ms]", courier === k ? "bg-fill-strong" : "hover:bg-fill")}>
+                <button key={k} type="button" role="radio" aria-checked={courier === k} onClick={() => setCourier(k)} className={cn("relative flex h-row cursor-pointer items-center justify-between rounded-item px-2.5 text-body transition-colors duration-[160ms]", courier !== k && "hover:bg-fill")}>
                   {n}
                   <span className="tabular-nums text-ink-muted">{p}</span>
                 </button>

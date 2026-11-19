@@ -418,17 +418,21 @@ export const DEMOS: Record<string, Demo> = {
     controls: [{ key: "icons", type: "toggle", label: "Icons", default: false }],
     render: (p) => {
       const [v, setV] = React.useState("week");
+      const [f, setF] = React.useState("xlsx");
       return (
-        <Segmented
-          aria-label="Range"
-          value={v}
-          onValueChange={setV}
-          options={[
-            { value: "day", label: p.icons ? <><BarChart2 />Today</> : "Today" },
-            { value: "week", label: p.icons ? <><Layers />Week</> : "Week" },
-            { value: "month", label: p.icons ? <><Grid />Month</> : "Month" },
-          ]}
-        />
+        <div className="grid justify-items-center gap-4">
+          <Segmented
+            aria-label="Range"
+            value={v}
+            onValueChange={setV}
+            options={[
+              { value: "day", label: p.icons ? <><BarChart2 />Today</> : "Today" },
+              { value: "week", label: p.icons ? <><Layers />Week</> : "Week" },
+              { value: "month", label: p.icons ? <><Grid />Month</> : "Month" },
+            ]}
+          />
+          <Segmented aria-label="Export as" value={f} onValueChange={setF} options={["csv", "xlsx", "pdf"].map((x) => ({ value: x, label: x.toUpperCase() }))} />
+        </div>
       );
     },
     usage: () => `<Segmented value={range} onValueChange={setRange} options={[\n  { value: "day", label: "Today" },\n  { value: "week", label: "Week" },\n  { value: "month", label: "Month" },\n]} />`,

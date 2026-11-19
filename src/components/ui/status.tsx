@@ -1,6 +1,7 @@
 import * as React from "react";
 import { X } from "react-feather";
 import { cn } from "@/lib/ad";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 
 /*
  * One padding scale for every bubble: pills, chips, filter bubbles, segments and tabs.
@@ -71,6 +72,7 @@ export interface ChipProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonEle
 
 /** Filter chip: no border. Removable when onRemove is set. Same bubble padding as segments and tabs. */
 export function Chip({ selected, onRemove, size = "default", className, children, onClick, ...props }: ChipProps) {
+  const sliding = React.useContext(InChipGroup);
   const height = size === "sm" ? "h-item" : "h-control";
   if (onRemove) {
     return (
@@ -93,14 +95,31 @@ export function Chip({ selected, onRemove, size = "default", className, children
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
+        "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
         height,
-        selected ? "bg-fill-strong font-medium text-ink" : "bg-transparent text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
+        selected
+          ? cn("font-medium text-ink", !sliding && "bg-fill-strong")
+          : "bg-transparent text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
         className,
       )}
       {...props}
     >
       {hold(children)}
     </button>
+  );
+}
+
+const InChipGroup = React.createContext(false);
+
+/**
+ * Chips where exactly one is on (All / Low stock / Out of stock): one grey pill slides from the old chip to the new one
+ * instead of each chip painting its own. Put Chips with `selected` and `onClick` inside.
+ */
+export function ChipGroup({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div role="group" className={cn("relative flex flex-wrap gap-1", className)} {...props}>
+      <SlidingPill selector='[aria-pressed="true"]' className="rounded-control bg-fill-strong" />
+      <InChipGroup.Provider value={true}>{children}</InChipGroup.Provider>
+    </div>
   );
 }
