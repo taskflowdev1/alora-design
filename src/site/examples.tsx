@@ -117,7 +117,6 @@ const NOTICES: Notice[] = [
 
 function AppSidebar({ page }: { page: Page }) {
   const [shop, setShop] = React.useState("All shops");
-  const [notices, setNotices] = React.useState(NOTICES);
   return (
     <Sidebar className="h-full max-lg:hidden">
       <Menu
@@ -150,25 +149,32 @@ function AppSidebar({ page }: { page: Page }) {
           <SLink to="/examples/settings">Settings</SLink>
         </SidebarItem>
       </SidebarSection>
-      <div className="mt-auto flex items-center justify-between pl-1">
-        <Menu
-          tone="dark"
-          side="top"
-          trigger={
-            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
-              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
-            </button>
-          }
-        >
-          <MenuItem icon={User}>Profile</MenuItem>
-          <MenuItem icon={Bell}>Notifications</MenuItem>
-          <MenuItem icon={LogOut}>Sign out</MenuItem>
-        </Menu>
-        <div className="ad-on-dark">
-          <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} className="text-side-muted hover:text-side-ink" />
-        </div>
-      </div>
     </Sidebar>
+  );
+}
+
+/**
+ * Top right of the app: notifications, then the account. Here rather than at the foot of the sidebar so they are
+ * reachable on phones too, where the sidebar is closed and only the bottom tabs show.
+ */
+function AppTopBar() {
+  const [notices, setNotices] = React.useState(NOTICES);
+  return (
+    <div className="flex h-control items-center justify-end gap-1 px-1 sm:px-4">
+      <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} />
+      <Menu
+        align="end"
+        trigger={
+          <button type="button" aria-label="Account" className="grid size-control cursor-pointer place-items-center rounded-full transition-transform duration-[160ms] active:scale-95">
+            <Avatar name="Rizky Hartono" size="sm" />
+          </button>
+        }
+      >
+        <MenuItem icon={User}>Profile</MenuItem>
+        <MenuItem icon={Bell}>Notifications</MenuItem>
+        <MenuItem icon={LogOut}>Sign out</MenuItem>
+      </Menu>
+    </div>
   );
 }
 
@@ -209,6 +215,7 @@ export function Examples() {
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
       <AppSidebar page={p} />
       <div data-app className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
+        <AppTopBar />
         <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
           {p === "dashboard" ? (
             <Dashboard />
