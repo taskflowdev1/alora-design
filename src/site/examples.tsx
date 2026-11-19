@@ -1,11 +1,9 @@
 import * as React from "react";
 import { useBlocker, useNavigate, useParams, useSearchParams } from "react-router";
 import {
-  Bell,
   ChevronDown,
   Download,
   Home,
-  LogOut,
   MoreHorizontal,
   Package,
   Plus,
@@ -13,7 +11,6 @@ import {
   Settings as SettingsIcon,
   ShoppingBag,
   Tag,
-  User,
   UserPlus,
   Users,
   XCircle,
@@ -51,7 +48,6 @@ import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
 import { Alert } from "@/components/ui/alert";
 import { ColumnMenu } from "@/components/ui/column-menu";
 import { ShopPicker } from "@/components/ui/shop-picker";
-import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
 import { InlineEdit } from "@/components/ui/inline-edit";
 import { Sparkline } from "@/components/ui/sparkline";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -109,15 +105,8 @@ function useLoading() {
   return params.get("loading") === "1";
 }
 
-const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
-  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
-  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
-];
-
 function AppSidebar({ page }: { page: Page }) {
   const [shop, setShop] = React.useState("All shops");
-  const [notices, setNotices] = React.useState(NOTICES);
   return (
     <Sidebar className="h-full max-lg:hidden">
       <Menu
@@ -150,24 +139,6 @@ function AppSidebar({ page }: { page: Page }) {
           <SLink to="/examples/settings">Settings</SLink>
         </SidebarItem>
       </SidebarSection>
-      <div className="mt-auto flex items-center justify-between pl-1">
-        <Menu
-          tone="dark"
-          side="top"
-          trigger={
-            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
-              <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
-            </button>
-          }
-        >
-          <MenuItem icon={User}>Profile</MenuItem>
-          <MenuItem icon={Bell}>Notifications</MenuItem>
-          <MenuItem icon={LogOut}>Sign out</MenuItem>
-        </Menu>
-        <div className="ad-on-dark">
-          <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} className="text-side-muted hover:text-side-ink" />
-        </div>
-      </div>
     </Sidebar>
   );
 }
