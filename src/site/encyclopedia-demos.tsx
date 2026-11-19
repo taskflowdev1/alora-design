@@ -13,6 +13,8 @@ import { InputOTP, type InputOTPStatus } from "@/components/ui/input-otp";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Kbd } from "@/components/ui/kbd";
 import { Menu, MenuItem, MenuSub } from "@/components/ui/menu";
+import { InlineEdit, grouped } from "@/components/ui/inline-edit";
+import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 
 // Live demos for the encyclopedia: one small component per rule, keyed by rule id. Each is quiet and built from the
 // library's own components; a "without / with" pair shows the difference where words can't.
@@ -683,6 +685,42 @@ function SafeTriangle() {
 }
 
 /** Rule id → demo. Only rules where trying it teaches more than reading it. */
+/** Click a price: the box, the text and the right edge stay put; "Rp" stays fixed and the dots regroup as you type. */
+function EditInPlace() {
+  const [rows, setRows] = React.useState([
+    { name: "Linen shirt, sand", price: 189000, stock: 24 },
+    { name: "Canvas tote, olive", price: 99000, stock: 7 },
+  ]);
+  const set = (i: number, patch: Partial<(typeof rows)[number]>) => setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const digits = (v: string) => (/^\d+$/.test(v) ? null : "Numbers only");
+  return (
+    <Cell className="w-full">
+      <Table className="w-full">
+        <THead>
+          <tr>
+            <TH>Product</TH>
+            <TH align="right">Price</TH>
+            <TH align="right">Stock</TH>
+          </tr>
+        </THead>
+        <TBody>
+          {rows.map((r, i) => (
+            <TRow key={r.name}>
+              <TD>{r.name}</TD>
+              <TD align="right" className="w-36">
+                <InlineEdit align="right" aria-label={`${r.name} price`} inputMode="numeric" value={String(r.price)} prefix="Rp" {...grouped} validate={digits} onSave={(v) => set(i, { price: Number(v) })} />
+              </TD>
+              <TD align="right" className="w-24">
+                <InlineEdit align="right" aria-label={`${r.name} stock`} inputMode="numeric" value={String(r.stock)} validate={digits} onSave={(v) => set(i, { stock: Number(v) })} />
+              </TD>
+            </TRow>
+          ))}
+        </TBody>
+      </Table>
+    </Cell>
+  );
+}
+
 export const DEMOS: Record<string, () => React.ReactNode> = {
   "motion.press-scale": PressScale,
   "motion.enter-scale": EnterScale,
@@ -705,4 +743,5 @@ export const DEMOS: Record<string, () => React.ReactNode> = {
   "state.skeleton-matches": SkeletonMatches,
   "layout.edge-fade": EdgeFade,
   "form.error-shake": ErrorShake,
+  "form.edit-in-place": EditInPlace,
 };

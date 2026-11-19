@@ -2423,14 +2423,17 @@ npx shadcn@latest add "https://design.alorawork.com/r/inline-edit.json"
 
 Files: `src/components/ui/inline-edit.tsx`. Installs too: `tooltip`.
 
-`InlineEdit`: A table cell you can edit in place. Hover shows a soft fill and a pencil (its space is always reserved, so nothing moves). Click or Enter edits; Enter saves, Esc cancels.
+`InlineEdit`: A table cell you edit in place, the spreadsheet way. Click puts the caret where you clicked; the editing box is the resting box (same size, same text position, same right edge), so nothing in the row moves. The prefix stays fixed and `format` regroups the digits as you type. Enter saves, Tab saves and edits the next cell (Shift+Tab the one before), Esc reverts, leaving the cell saves. A refused value shows a soft danger fill and its message; a saved one shows a quiet check where the pencil sits.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `value` (required) | `string` |  |  |
-| `onSave` (required) | `(value: string) => void` |  |  |
-| `display` | `((value: string) => ReactNode)` |  | How the value reads when not editing. |
-| `validate` | `((value: string) => string \| null)` |  | Return an error message to refuse the value. |
+| `value` (required) | `string` |  | The stored value, unformatted ("99000"). |
+| `onSave` (required) | `(value: string) => void` |  | Gets the parsed value. Called only when it changed and `validate` passed. |
+| `prefix` | `string` |  | Shown before and after the value in both states, never part of the editable text ("Rp", "pcs"). |
+| `suffix` | `string` |  |  |
+| `format` | `((value: string) => string)` |  | Stored value to text ("99000" to "99.000"). Applied at rest and live while typing, caret kept on its digit. |
+| `parse` | `((text: string) => string)` |  | Typed text back to a stored value ("99.000" to "99000"). Must only remove characters (separators, spaces). |
+| `validate` | `((value: string) => string \| null)` |  | Return an error message to refuse the value. Checked on save; while the error shows, re-checked as you type. |
 | `align` | `"right" \| "left"` | `"left"` |  |
 | `inputMode` | `"search" \| "text" \| "none" \| "tel" \| "url" \| "email" \| "numeric" \| "decimal"` |  |  |
 | `className` | `string` |  |  |

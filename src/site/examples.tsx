@@ -52,7 +52,7 @@ import { Alert } from "@/components/ui/alert";
 import { ColumnMenu } from "@/components/ui/column-menu";
 import { ShopPicker } from "@/components/ui/shop-picker";
 import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
-import { InlineEdit } from "@/components/ui/inline-edit";
+import { InlineEdit, grouped } from "@/components/ui/inline-edit";
 import { Sparkline } from "@/components/ui/sparkline";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
@@ -597,12 +597,10 @@ function Products() {
                       aria-label={`${p.name} price`}
                       inputMode="numeric"
                       value={String(p.price)}
-                      display={(v) => formatRp(Number(v))}
-                      validate={(v) => (/^\d+$/.test(v.replace(/\./g, "")) ? null : "Numbers only")}
-                      onSave={(v) => {
-                        set(p.sku, { price: Number(v.replace(/\./g, "")) });
-                        toast("Price saved");
-                      }}
+                      prefix="Rp"
+                      {...grouped}
+                      validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
+                      onSave={(v) => set(p.sku, { price: Number(v) })}
                     />
                   </TD>
                   <TD align="right" className="w-28">
@@ -612,10 +610,7 @@ function Products() {
                       inputMode="numeric"
                       value={String(p.stock)}
                       validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
-                      onSave={(v) => {
-                        set(p.sku, { stock: Number(v) });
-                        toast("Stock saved");
-                      }}
+                      onSave={(v) => set(p.sku, { stock: Number(v) })}
                     />
                   </TD>
                   <TD>{loading ? <L>In stock</L> : stockStatus(p.stock)}</TD>

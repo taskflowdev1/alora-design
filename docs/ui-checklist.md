@@ -4,7 +4,7 @@ Generated from `src/lib/encyclopedia.ts` by `node scripts/gen-docs.mjs`; do not 
 Why, how (with values) and sources for every rule: https://design.alorawork.com/encyclopedia
 
 Run every UI change through this list before review. Cite a rule by its id.
-**must** (72) blocks review. **should** (159) is the default unless the PR says why not. **showcase** (11) is decoration, allowed only on showcase and demo pages, never in product screens.
+**must** (72) blocks review. **should** (160) is the default unless the PR says why not. **showcase** (11) is decoration, allowed only on showcase and demo pages, never in product screens.
 
 ## Motion purpose
 
@@ -197,6 +197,7 @@ Run every UI change through this list before review. Cite a rule by its id.
 - [ ] **should** `form.error-shake` A wrong code or password may shake the field sideways along with the error. Sign-in and code entry only. Check: Only sign-in or code inputs shake, and not under reduced motion.
 - [ ] **should** `form.chunking` Long codes and numbers display in readable groups. Check: A visual check.
 - [ ] **should** `form.prefix-icons-inside` Icons and prefixes (search glass, "Rp") sit inside the input with padding, and clicking them focuses the input. Check: Playwright: clicking the icon focuses the input.
+- [ ] **should** `form.edit-in-place` An editable cell edits where it stands: the editing box is the resting box, so the text, the right edge and the row don’t move. Units stay fixed beside the value and number grouping survives typing. Enter or leaving the cell saves, Tab saves and edits the next cell, Esc reverts. Check: Playwright: screenshot the cell, click it, hide the caret and screenshot again. The text pixels are identical and no other cell in the row moved.
 - [ ] **should** `form.unsaved-changes` Warn before leaving with unsaved changes. Make the dirty state visible on long forms. Check: Playwright: edit a field, navigate away, and expect a dialog.
 - [ ] **should** `form.autofocus-desktop-only` Autofocus the single main input on desktop only (search, command, a one-field dialog). Check: `rg -n "autoFocus"`.
 - [ ] **should** `form.reserved-names` Non-auth fields avoid names like "password", so password managers stay out. Check: `rg -n "name=\"password\""` outside auth.

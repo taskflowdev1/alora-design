@@ -36,7 +36,7 @@ export const DEFAULTS: Config = {
   smoothing: 2,
   padding: 16,
   height: 36,
-  accent: "#dc467d",
+  accent: "#3c6fe0",
   tone: "neutral",
   shadow: 50,
   font: 13,

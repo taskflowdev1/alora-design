@@ -45,7 +45,7 @@ One config drives every component through `--ad-*` CSS variables. In a URL it is
 | Smoothing | `k` | `2` | 1–3 | superellipse(k): 1 = round, 2 = squircle, up to 3. Used when corner = squircle. |
 | Padding | `p` | `16 px` | 8–24 px | Card padding in px. |
 | Height | `h` | `36 px` | 32–44 px | Control height and table row height in px. |
-| Accent | `a` | `#dc467d` | any hex, `a=` without `#` | Primary buttons, key actions and focus fills; chart shades derive from it. |
+| Accent | `a` | `#3c6fe0` | any hex, `a=` without `#` | Primary buttons, key actions and focus fills; chart shades derive from it. |
 | Greys | `g` | `neutral` | `neutral` (n), `cool` (c), `warm` (w) | Tint of the greys: neutral, cool (blue hint) or warm. |
 | Shadow | `sh` | `50%` | 0–100% | Card and menu shadow strength, 0 to 100. |
 | Text size | `f` | `13 px` | 12–15 px | Base font size in px. |
@@ -248,7 +248,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Context menu](https://design.alorawork.com/components/context-menu) | `context-menu` | `ContextMenu`, `ContextMenuItem`, `ContextMenuGroup`, `ContextMenuSub` | `children`, `menu`, `className`, `icon`, `shortcut`, `onSelect`, `disabled`, `label` |
 | [Hover card](https://design.alorawork.com/components/hover-card) | `hover-card` | `HoverCard` | `trigger`, `children`, `side="bottom"`, `align="start"`, `className` |
 | [Column menu](https://design.alorawork.com/components/column-menu) | `column-menu` | `ColumnMenu` | `columns`, `visible`, `onVisibleChange`, `defaults`, `className` |
-| [Inline edit](https://design.alorawork.com/components/inline-edit) | `inline-edit` | `InlineEdit` | `value`, `onSave`, `display`, `validate`, `align="left"`, `inputMode`, `className`, `aria-label` |
+| [Inline edit](https://design.alorawork.com/components/inline-edit) | `inline-edit` | `InlineEdit` | `value`, `onSave`, `prefix`, `suffix`, `format`, `parse`, `validate`, `align="left"`, `inputMode`, `className`, `aria-label` |
 | [Copy chip](https://design.alorawork.com/components/copy-chip) | `copy-chip` | `CopyChip` | `value`, `children`, `onCopied`, `className` |
 | [Keyboard shortcut](https://design.alorawork.com/components/kbd) | `kbd` | `Kbd`, `Shortcut` | `children`, `className`, `keys` |
 | [Sparkline](https://design.alorawork.com/components/sparkline) | `sparkline` | `Sparkline` | `data`, `kind="line"`, `width=96`, `height=28`, `dot=true`, `className`, `aria-label` |

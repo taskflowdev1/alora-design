@@ -77,7 +77,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
 
 ## Deliberate oddities
 
-- Defaults: dark theme, neutral greys, pink accent `#dc467d` (Joshua, v1 review). Dark is neutral
+- Defaults: dark theme, neutral greys, blue accent `#3c6fe0` (Joshua, 2026-11-19; was pink `#dc467d`, still a swatch). Dark is neutral
   near-black; cool/warm keep only a hint of tint in dark. Exports put the default theme on `:root` and the
   other on a class (`.light` when dark is default); the Tailwind `dark:` variant follows.
 - Config lives in the URL query (`r c k p h a g sh f t`, defaults omitted; light is `t=l`). `SLink`/`useHref`

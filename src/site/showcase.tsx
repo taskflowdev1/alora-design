@@ -85,7 +85,7 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import { ContextMenu, ContextMenuGroup, ContextMenuItem, ContextMenuSub } from "@/components/ui/context-menu";
 import { HoverCard } from "@/components/ui/hover-card";
 import { ColumnMenu } from "@/components/ui/column-menu";
-import { InlineEdit } from "@/components/ui/inline-edit";
+import { InlineEdit, grouped } from "@/components/ui/inline-edit";
 import { CopyChip } from "@/components/ui/copy-chip";
 import { Kbd } from "@/components/ui/kbd";
 import { Sparkline } from "@/components/ui/sparkline";
@@ -1332,9 +1332,10 @@ function PricesTile({ className }: { className?: string }) {
                     aria-label={`${r.name} price`}
                     inputMode="numeric"
                     value={String(r.price)}
-                    display={(v) => formatRp(Number(v))}
-                    validate={(v) => (/^\d+$/.test(v.replace(/\./g, "")) ? null : "Numbers only")}
-                    onSave={(v) => (setRows(rows.map((x, j) => (j === i ? { ...x, price: Number(v.replace(/\./g, "")) } : x))), toast("Price saved"))}
+                    prefix="Rp"
+                    {...grouped}
+                    validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
+                    onSave={(v) => setRows(rows.map((x, j) => (j === i ? { ...x, price: Number(v) } : x)))}
                   />
                 </TD>
                 <TD align="right" className="sm:w-24">

@@ -1891,6 +1891,18 @@ export const RULES: Rule[] = [
     sources: ["rauno"],
   },
   {
+    id: "form.edit-in-place",
+    category: "forms",
+    level: "should",
+    title: "Edit in place, the spreadsheet way",
+    rule: "An editable cell edits where it stands: the editing box is the resting box, so the text, the right edge and the row don’t move. Units stay fixed beside the value and number grouping survives typing. Enter or leaving the cell saves, Tab saves and edits the next cell, Esc reverts.",
+    why: "People edit tables in bursts. If the value jumps, loses its dots or hides its currency the moment it’s clicked, every edit starts with re-reading the cell.",
+    how: "`InlineEdit` with `prefix=\"Rp\" {...grouped}`: the value and the input share one grid cell sized by the text, the pencil’s slot is always reserved, and the caret lands where you clicked. Editing is the field focus fill (`fill-strong`), a refused value the `danger-soft` fill and its message only after a save attempt, and a save a quiet check in the pencil’s slot, not a toast.",
+    check: "Playwright: screenshot the cell, click it, hide the caret and screenshot again. The text pixels are identical and no other cell in the row moved.",
+    context: "Spreadsheets mark the edited cell with a 1 px ring. We use the field focus fill instead, since rings are out of the house style.",
+    sources: [],
+  },
+  {
     id: "form.unsaved-changes",
     category: "forms",
     level: "should",

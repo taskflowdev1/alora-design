@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds BEFORE_REF from git and this tree, shoots both locally)
+# Inline edit v1 + blue accent shots: output/inline-edit-v1/ (I letters) and output/accent-blue/ (B letters).
+# Needs git (the before build comes from `git archive $BEFORE_REF`), so run it on Yoga without --sync.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+BEFORE_REF="${BEFORE_REF:-1380500}"
+WORK="${TMPDIR:-/tmp}/review-ie1"
+rm -rf "$WORK" && mkdir -p "$WORK/before-src"
+git archive "$BEFORE_REF" | tar -x -C "$WORK/before-src"
+ln -s "$PWD/node_modules" "$WORK/before-src/node_modules"
+(cd "$WORK/before-src" && npx vite build --logLevel warn --outDir "$WORK/before" --emptyOutDir)
+npx vite build --logLevel warn --outDir "$WORK/after" --emptyOutDir
+BEFORE_REF="$BEFORE_REF" BEFORE_DIST="$WORK/before" AFTER_DIST="$WORK/after" node scripts/review-inline-edit-v1-shots.mjs 2>&1 | tee "$WORK/shots.log"

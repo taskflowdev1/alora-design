@@ -228,6 +228,67 @@ for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashbo
 }
 check(boxes.size === 1, "header sits in the same place on every page");
 
+// Inline edit, the spreadsheet way: the editing box is the resting box (same rect, same text right edge, no input
+// scroll, the row keeps its height), "Rp" stays outside the input, digits regroup while typing, Esc reverts, Tab moves to
+// the next cell, a bad value is refused with its message, Enter saves.
+await page.goto(BASE + "/examples/products", { waitUntil: "networkidle" });
+await sleep(800);
+const price = page.locator('button[data-inline-edit][aria-label$=" price"]').first();
+const ieRest = await price.evaluate((el) => ({
+  box: el.getBoundingClientRect().toJSON(),
+  text: el.querySelector("[data-value]").getBoundingClientRect().right,
+  row: el.closest("tr").getBoundingClientRect().height,
+  label: el.getAttribute("aria-label").replace(/^Edit /, ""),
+  value: el.querySelector("[data-value]").textContent,
+}));
+await price.click({ position: { x: ieRest.box.width - 14, y: ieRest.box.height / 2 } });
+await sleep(150);
+const ieEdit = await page.evaluate(() => {
+  const box = document.querySelector("[data-inline-edit][data-editing]");
+  const input = box?.querySelector("input");
+  return box && {
+    box: box.getBoundingClientRect().toJSON(),
+    text: box.querySelector("[data-value]").getBoundingClientRect().right,
+    row: box.closest("tr").getBoundingClientRect().height,
+    value: input.value,
+    focused: document.activeElement === input,
+    scroll: input.scrollLeft,
+    prefix: box.textContent.startsWith("Rp"),
+  };
+});
+const near = (a, b) => Math.abs(a - b) <= 0.5;
+check(
+  ieEdit && ["x", "y", "width", "height"].every((k) => near(ieEdit.box[k], ieRest.box[k])) && near(ieEdit.text, ieRest.text) && ieEdit.row === ieRest.row && ieEdit.scroll === 0 && ieEdit.focused && /^\d{1,3}(\.\d{3})*$/.test(ieEdit.value) && ieEdit.prefix,
+  `inline edit opens in place (${JSON.stringify({ ieRest, ieEdit })})`,
+);
+const ieInput = page.locator("[data-inline-edit][data-editing] input");
+await ieInput.press("ControlOrMeta+a");
+await ieInput.pressSequentially("1234567");
+const grouped = await ieInput.inputValue();
+await ieInput.press("Escape");
+await sleep(100);
+const reverted = await page.locator(`button[data-inline-edit][aria-label="Edit ${ieRest.label}"] [data-value]`).textContent();
+check(grouped === "1.234.567" && reverted === ieRest.value && !(await page.locator("[data-inline-edit][data-editing]").count()), `inline edit regroups digits and Esc reverts (${grouped}, ${reverted})`);
+await price.click();
+await page.keyboard.press("Tab");
+await sleep(150);
+const tabbed = await page.evaluate(() => document.activeElement?.closest("[data-inline-edit]")?.querySelector("input")?.getAttribute("aria-label"));
+check(tabbed === ieRest.label.replace(/ price$/, " stock"), `inline edit Tab saves and edits the next cell (${tabbed})`);
+await page.keyboard.press("Escape");
+await price.click();
+await ieInput.press("ControlOrMeta+a");
+await ieInput.pressSequentially("12a");
+await ieInput.press("Enter");
+await sleep(400);
+const refused = await page.evaluate(() => ({ open: !!document.querySelector("[data-inline-edit][data-editing]"), tip: document.querySelector("[role=tooltip]")?.textContent }));
+check(refused.open && refused.tip === "Numbers only", `inline edit refuses a bad value with its message (${JSON.stringify(refused)})`);
+await ieInput.press("ControlOrMeta+a");
+await ieInput.pressSequentially("150000");
+await ieInput.press("Enter");
+await sleep(300);
+const savedText = await page.locator(`button[data-inline-edit][aria-label="Edit ${ieRest.label}"] [data-value]`).textContent();
+check(savedText === "150.000", `inline edit Enter saves (${savedText})`);
+
 // Nav tabs: Components first, then AI, Backgrounds, Examples, Encyclopedia, Export; the current section is highlighted
 await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
 const tabs = await page.evaluate(() => {
