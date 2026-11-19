@@ -1,6 +1,6 @@
-// Writes the generated parts of README.md (settings table, component table) and docs/components.md (every component's
-// props) from the source: src/lib/config.ts, src/lib/registry.ts and the component files, read with the TypeScript
-// compiler. `--check` writes nothing and fails when the files are out of date (scripts/verify runs it).
+// Writes the generated parts of README.md (settings table, component table), docs/components.md (every component's
+// props) and docs/ui-checklist.md (the agent checklist) from the source: src/lib/config.ts, src/lib/registry.ts,
+// src/lib/encyclopedia.ts and the component files, read with the TypeScript compiler. `--check` writes nothing and fails when the files are out of date (scripts/verify runs it).
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -13,9 +13,10 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
 
 // The pure lib modules, transpiled to a temp folder so their data (DEFAULTS, LIMITS, ITEMS) can be imported.
 const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ad-docs-"));
-for (const f of ["config", "color", "registry"]) writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(read(`src/lib/${f}.ts`), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
+for (const f of ["config", "color", "registry", "encyclopedia"]) writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(read(`src/lib/${f}.ts`), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
 const { DEFAULTS, LIMITS, GREY_STEPS, GREY_ROLES, greyRamp } = await import(pathToFileURL(join(tmp, "config.js")).href);
 const { ITEMS, GROUPS, SITE, itemPath } = await import(pathToFileURL(join(tmp, "registry.js")).href);
+const { checklistMarkdown } = await import(pathToFileURL(join(tmp, "encyclopedia.js")).href);
 rmSync(tmp, { recursive: true, force: true });
 
 const parsed = ts.parseJsonConfigFileContent(JSON.parse(read("tsconfig.json")), ts.sys, ROOT);
@@ -187,12 +188,20 @@ function greysTable() {
 const readme = read("README.md");
 const nextReadme = splice(splice(splice(readme, "settings", settingsTable()), "greys", greysTable()), "components", componentTable());
 const nextDoc = componentsDoc();
-let current = "";
-try {
-  current = read("docs/components.md");
-} catch {}
+const nextChecklist = checklistMarkdown();
+const readOr = (p) => {
+  try {
+    return read(p);
+  } catch {
+    return "";
+  }
+};
 if (CHECK) {
-  const stale = [readme !== nextReadme && "README.md", current !== nextDoc && "docs/components.md"].filter(Boolean);
+  const stale = [
+    readme !== nextReadme && "README.md",
+    readOr("docs/components.md") !== nextDoc && "docs/components.md",
+    readOr("docs/ui-checklist.md") !== nextChecklist && "docs/ui-checklist.md",
+  ].filter(Boolean);
   if (stale.length) {
     console.error(`DOCS DRIFT: ${stale.join(", ")} out of date; run node scripts/gen-docs.mjs and commit.`);
     process.exit(1);
@@ -202,5 +211,6 @@ if (CHECK) {
   mkdirSync(join(ROOT, "docs"), { recursive: true });
   writeFileSync(join(ROOT, "README.md"), nextReadme);
   writeFileSync(join(ROOT, "docs/components.md"), nextDoc);
-  console.log(`wrote README.md and docs/components.md (${Object.values(parts).flat().length} components)`);
+  writeFileSync(join(ROOT, "docs/ui-checklist.md"), nextChecklist);
+  console.log(`wrote README.md, docs/components.md and docs/ui-checklist.md (${Object.values(parts).flat().length} components)`);
 }

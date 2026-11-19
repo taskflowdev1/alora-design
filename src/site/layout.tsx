@@ -20,6 +20,7 @@ export const TABS = [
   { to: "/ai", label: "AI" },
   { to: "/backgrounds", label: "Backgrounds" },
   { to: "/examples", label: "Examples" },
+  { to: "/encyclopedia", label: "Encyclopedia" },
   { to: "/export", label: "Export" },
 ];
 

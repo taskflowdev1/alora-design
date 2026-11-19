@@ -30,6 +30,7 @@ Other exports, all taking the same settings:
 | Agent kit (markdown for a coding agent: rules, tokens, every component's install URL) | `https://design.alorawork.com/api/kit?<settings>` |
 | Tokens as CSS / JSON | `/tokens.css?<settings>`, `/tokens.json?<settings>` |
 | Tailwind v4 `@theme` block | `/tailwind.css?<settings>` |
+| UI checklist (every rule agents check before review; browse them at `/encyclopedia`) | `/ui-checklist.md` |
 
 ## Settings
 
@@ -294,12 +295,13 @@ for the job queue, review screenshots, deploy and the deliberate oddities.
 | --- | --- |
 | `src/components/ui/` | the components, one copy-pasteable file each |
 | `src/components/ai/`, `src/components/backgrounds/` | the AI and Backgrounds collections |
-| `src/lib/` | `config.ts` (settings → tokens), `color.ts`, `registry.ts` (every item), `kit.ts` (exports), `ad.ts` (`cn()`) |
+| `src/lib/` | `config.ts` (settings → tokens), `color.ts`, `registry.ts` (every item), `kit.ts` (exports), `encyclopedia.ts` (UI rules), `ad.ts` (`cn()`) |
 | `src/styles/` | `theme.css` (Tailwind mapping), `base.css` (corner shape, scrollbar, keyframes); both ship in the theme |
-| `src/site/` | the gallery site: landing, Components, AI, Backgrounds, examples, export |
-| `api/` | Vercel functions behind `/r/*.json`, `/api/kit`, `/tokens.*` |
+| `src/site/` | the gallery site: landing, Components, AI, Backgrounds, examples, encyclopedia, export |
+| `api/` | Vercel functions behind `/r/*.json`, `/api/kit`, `/tokens.*`, `/ui-checklist.md` |
 | `scripts/` | verify, smoke test, docs generator, review screenshots |
 | `docs/components.md` | generated props reference |
+| `docs/ui-checklist.md` | generated UI checklist (from `src/lib/encyclopedia.ts`) |
 
 ## License
 

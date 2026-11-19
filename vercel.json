@@ -11,6 +11,7 @@
     { "source": "/tokens.css", "destination": "/api/tokens?format=css" },
     { "source": "/tokens.json", "destination": "/api/tokens?format=json" },
     { "source": "/tailwind.css", "destination": "/api/tokens?format=tailwind" },
+    { "source": "/ui-checklist.md", "destination": "/api/checklist" },
     { "source": "/((?!api/|assets/|favicon\\.svg).*)", "destination": "/index.html" }
   ]
 }

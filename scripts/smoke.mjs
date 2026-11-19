@@ -43,6 +43,7 @@ for (const [path, text] of [
   ["/examples/cancellations", "Cancellations"],
   ["/examples/team", "Team"],
   ["/examples/settings", "Settings"],
+  ["/encyclopedia", "Encyclopedia"],
   ["/export", "Export"],
 ]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
@@ -173,7 +174,7 @@ await phone.close();
 // 360 px: no horizontal page scroll anywhere; the header stays on one line
 const small = await (await browser.newContext({ viewport: { width: 360, height: 780 }, isMobile: true, hasTouch: true })).newPage();
 small.on("pageerror", (e) => errors.push(e.message));
-for (const path of ["/", "/components", "/components/select", "/ai", "/ai/thinking-orbs", "/backgrounds", "/backgrounds/sand-field", "/examples/dashboard", "/examples/orders", "/export"]) {
+for (const path of ["/", "/components", "/components/select", "/ai", "/ai/thinking-orbs", "/backgrounds", "/backgrounds/sand-field", "/examples/dashboard", "/examples/orders", "/encyclopedia", "/export"]) {
   await small.goto(BASE + path, { waitUntil: "networkidle" });
   const w = await small.evaluate(() => ({
     scroll: document.scrollingElement.scrollWidth,
@@ -221,19 +222,41 @@ check(def.dark && rgb.length === 3 && Math.max(...rgb) - Math.min(...rgb) <= 1, 
 
 // One header: same box on every page
 const boxes = new Set();
-for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashboard", "/export"]) {
+for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashboard", "/encyclopedia", "/export"]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   boxes.add(await page.evaluate(() => JSON.stringify([document.querySelector("header")?.getBoundingClientRect(), document.querySelector("header a")?.getBoundingClientRect()])));
 }
 check(boxes.size === 1, "header sits in the same place on every page");
 
-// Nav tabs: Components first, then AI, Backgrounds, Examples, Export; the current section is highlighted
+// Nav tabs: Components first, then AI, Backgrounds, Examples, Encyclopedia, Export; the current section is highlighted
 await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
 const tabs = await page.evaluate(() => {
   const nav = document.querySelector("header nav[aria-label=Sections]");
   return { labels: [...nav.querySelectorAll("a")].map((a) => a.textContent), active: nav.querySelector("[aria-current=page]")?.textContent };
 });
-check(tabs.labels.join() === "Components,AI,Backgrounds,Examples,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
+check(tabs.labels.join() === "Components,AI,Backgrounds,Examples,Encyclopedia,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
+
+// Encyclopedia: every rule renders as a row, search filters them (and the URL keeps it), a row opens to its why/how/check,
+// a rule with a demo shows it, and a search with no match shows the empty state.
+await page.goto(BASE + "/encyclopedia", { waitUntil: "networkidle" });
+const enc = async () =>
+  page.evaluate(() => ({ rows: document.querySelectorAll("[data-encyclopedia] [data-rule]").length, count: document.querySelector("[data-rule-count]")?.textContent }));
+const encAll = await enc();
+check(encAll.rows >= 200 && encAll.count === `${encAll.rows} rules`, `encyclopedia renders every rule (${JSON.stringify(encAll)})`);
+await page.getByRole("searchbox", { name: "Search rules" }).fill("tabular");
+await sleep(300);
+const encQ = await enc();
+check(encQ.rows > 0 && encQ.rows < encAll.rows && encQ.count === `${encQ.rows} of ${encAll.rows} rules` && page.url().includes("q=tabular"), `encyclopedia search filters rules (${JSON.stringify(encQ)}, ${page.url()})`);
+await page.locator('[data-rule="type.tabular-nums"]').click();
+await sleep(400);
+const encOpen = await page.evaluate(() => {
+  const body = document.querySelector('[data-rule="type.tabular-nums"]').closest("h3").parentElement;
+  return { text: body.textContent.includes("Check") && body.textContent.includes("Why"), demo: !!body.querySelector("[data-demo]") };
+});
+check(encOpen.text && encOpen.demo, `encyclopedia row opens to why/how/check with its demo (${JSON.stringify(encOpen)})`);
+await page.getByRole("searchbox", { name: "Search rules" }).fill("zzqx-no-such-rule");
+await sleep(300);
+check((await enc()).rows === 0 && (await page.getByText("No rules match").isVisible()), "encyclopedia search with no match shows the empty state");
 
 // Components page: every component live in category bento tiles (each exactly once); a component's chip opens its sliders.
 await page.goto(BASE + "/components", { waitUntil: "networkidle" });

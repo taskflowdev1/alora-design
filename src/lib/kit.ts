@@ -240,7 +240,7 @@ export function kitMarkdown(c: Config) {
     "Corner shape is one setting: square, round or squircle (`corner-shape: superellipse(k)`). People (avatars) and dots stay circles.",
     "Borders and outlines never shift layout. Controls have no borders; they are soft fills.",
     "Focus and selection show a soft fill only. No focus rings, outlines or border colour changes.",
-    "Nothing changes colour on click. Press = a small shrink (scale 0.96); nothing else moves.",
+    "Nothing changes colour on click. Press = a small shrink (scale 0.97); nothing else moves.",
     "Accent only on the primary or key action (Add, Save). Active nav, charts and numbers stay neutral.",
     "No dividing lines anywhere: not between rows, list items, stats, footer sections or columns. Separate with space or soft cards.",
     "No slop captions: no eyebrows, no subtitles that restate a title, no micro-copy under buttons, no meta lines, no grey corner text.",
@@ -261,7 +261,7 @@ export function kitMarkdown(c: Config) {
     "A one-line alert centres icon, text and action on one line; a multi-line alert keeps the icon on the first line.",
     "Metric cards: Tile (A) by default; Hero (D) for the one main number on a page; Scale (B) where a few short counts sit together. In a Tile, one or two digits sit in a soft tile beside the label; long values stay on one line with a muted unit.",
   ].forEach((rule) => lines.push(`- ${rule}`));
-  lines.push("");
+  lines.push("", `Before review, run every UI change through the UI checklist: ${SITE}/ui-checklist.md (every rule with its check; why, how and sources at ${SITE}/encyclopedia).`, "");
 
   lines.push(`## Components`, "");
   row("Component", "Install", "Page");

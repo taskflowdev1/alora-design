@@ -92,6 +92,7 @@ export function ExportPage() {
             <CardHeader title="Links" />
             <LinkRow label="Share link" value={`${SITE}/${qs}`} />
             <LinkRow label="Agent kit" value={`${SITE}/api/kit${qs}`} open />
+            <LinkRow label="UI checklist" value={`${SITE}/ui-checklist.md`} open />
           </Card>
           <Card className="grid gap-3">
             <CardHeader title="Files" />

@@ -40,6 +40,7 @@ export const router = createBrowserRouter([
       { path: "/gallery/:name", element: <FromGallery /> },
       { path: "/examples", element: <ToDashboard /> },
       { path: "/examples/:page", element: <Examples /> },
+      { path: "/encyclopedia", lazy: async () => ({ Component: (await import("./encyclopedia")).EncyclopediaPage }) },
       { path: "/export", element: <ExportPage /> },
       { path: "*", element: <NotFound /> },
     ],

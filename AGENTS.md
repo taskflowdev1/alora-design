@@ -28,12 +28,19 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
   they sit in; `AgentApp` = chat sidebar left (fit-content, 240–280 px), thread takes the rest, 580 px tall from lg). The message box
   (`Composer`) ships in `composer-glow.tsx`: one row attach | text | send, one control size, inset = half the card padding,
-  radius = control radius + inset; text grows upward, buttons stay at the bottom (Board's assistant composer), examples (7 pages), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
-- `api/`: Vercel functions. `kit.ts` (`/api/kit`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
+  radius = control radius + inset; text grows upward, buttons stay at the bottom (Board's assistant composer), examples (7 pages), `encyclopedia.tsx` (`/encyclopedia`: the UI rules, search and filters in the URL, live demos from
+  `encyclopedia-demos.tsx`, lazy-loaded), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
+- `api/`: Vercel functions. `kit.ts` (`/api/kit`), `checklist.ts` (`/ui-checklist.md`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables + `docs/components.md`), `review-shots`, `shots`,
+- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`), `review-shots`, `shots`,
   `check-endpoints`, `env.sh`, `greys.mjs` (grey ramp check and inventory).
+
+## UI checklist
+
+- Any UI change runs through `docs/ui-checklist.md` before review: every **must** holds, every **should** holds or the PR
+  says why not. Rules live in `src/lib/encyclopedia.ts` (site: `/encyclopedia`, agents: `/ui-checklist.md`); edit them
+  there, then `node scripts/gen-docs.mjs`. House rules win over outside advice; `context` says where they differ.
 
 ## Run, test, verify
 
@@ -83,7 +90,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `#root` keeps the global tokens. Cleanup removes both.
 - Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
   a step above the page, so it still stands out.
-- Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/export`. Header
+- Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
 - /components is a bento like the landing (12 columns, `gap-4` = 13 px gaps): per category, tiles that compose its components
   in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
