@@ -24,15 +24,48 @@ function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSPr
   return { maskImage: mask, WebkitMaskImage: mask };
 }
 
+/** How far an edge pull shows for a pull of x px: it gets harder the further you go and never passes d. */
+const band = (x: number, d: number) => Math.sign(x) * (1 - 1 / ((Math.abs(x) * 0.55) / d + 1)) * d;
+
 /**
- * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways.
- * Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
+ * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse
+ * can drag it too. Pulling past either end (mouse drag or trackpad) meets resistance that grows the further you pull,
+ * then springs back keeping the release speed. Prev/next are ghost buttons beside the dots under it, never over the
+ * content; the current dot is a solid ink pill.
  */
 export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots = true, className, ...aria }: CarouselProps) {
   const track = React.useRef<HTMLDivElement>(null);
   const [index, setIndex] = React.useState(0);
   const [pages, setPages] = React.useState(children.length);
   const [edges, setEdges] = React.useState({ start: false, end: false });
+  const pull = React.useRef({ over: 0, shown: 0, raf: 0, timer: 0, drag: null as null | { x: number; left: number; t: number; v: number; moved: boolean } });
+  // The pull is drawn by moving the slides (transform), never the scroll position, so snap stays intact.
+  const show = (px: number) => {
+    pull.current.shown = px;
+    track.current?.style.setProperty("--ad-pull", `${px}px`);
+  };
+  /** Spring the pull back to 0 from its current offset, starting at velocity v px/s (critically damped: no wobble). */
+  const release = (v = 0) => {
+    const p = pull.current;
+    cancelAnimationFrame(p.raf);
+    p.over = 0;
+    const x0 = p.shown;
+    if (!x0) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return show(0);
+    const w = 16;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const t = (now - t0) / 1000;
+      const x = (x0 + (v + w * x0) * t) * Math.exp(-w * t);
+      show(Math.abs(x) < 0.3 ? 0 : x);
+      if (Math.abs(x) >= 0.3) p.raf = requestAnimationFrame(step);
+    };
+    p.raf = requestAnimationFrame(step);
+  };
+  React.useEffect(() => {
+    const p = pull.current;
+    return () => (cancelAnimationFrame(p.raf), window.clearTimeout(p.timer));
+  }, []);
   React.useLayoutEffect(() => {
     const el = track.current;
     if (!el) return;
@@ -62,6 +95,67 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
       <div
         ref={track}
         tabIndex={0}
+        onWheel={(e) => {
+          const el = e.currentTarget;
+          if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          const max = el.scrollWidth - el.clientWidth;
+          const p = pull.current;
+          const atStart = el.scrollLeft <= 0 && e.deltaX < 0;
+          const atEnd = el.scrollLeft >= max - 1 && e.deltaX > 0;
+          if (!atStart && !atEnd && !p.over) return;
+          cancelAnimationFrame(p.raf);
+          p.over = Math.max(atEnd || p.over < 0 ? -Infinity : 0, Math.min(atStart || p.over > 0 ? Infinity : 0, p.over - e.deltaX));
+          show(band(p.over, el.clientWidth / 3));
+          window.clearTimeout(p.timer);
+          p.timer = window.setTimeout(() => release(), 120);
+        }}
+        onPointerDown={(e) => {
+          if (e.pointerType !== "mouse" || e.button !== 0) return;
+          const el = e.currentTarget;
+          cancelAnimationFrame(pull.current.raf);
+          pull.current.drag = { x: e.clientX, left: el.scrollLeft, t: performance.now(), v: 0, moved: false };
+          el.setPointerCapture(e.pointerId);
+          el.style.scrollSnapType = "none";
+        }}
+        onPointerMove={(e) => {
+          const d = pull.current.drag;
+          if (!d) return;
+          const el = e.currentTarget;
+          const now = performance.now();
+          const dx = e.clientX - d.x;
+          if (Math.abs(dx) > 4) d.moved = true;
+          d.v = d.v * 0.6 + ((e.movementX || 0) / Math.max(1, now - d.t)) * 1000 * 0.4;
+          d.t = now;
+          const want = d.left - dx;
+          const max = el.scrollWidth - el.clientWidth;
+          // Follows the pointer 1:1 inside the range; past an end it pulls against the band.
+          el.scrollLeft = Math.max(0, Math.min(max, want));
+          show(want < 0 ? band(-want, el.clientWidth / 3) : want > max ? band(max - want, el.clientWidth / 3) : 0);
+        }}
+        onPointerUp={(e) => {
+          const d = pull.current.drag;
+          pull.current.drag = null;
+          if (!d) return;
+          const el = e.currentTarget;
+          el.style.scrollSnapType = "";
+          const v = performance.now() - d.t > 80 ? 0 : d.v;
+          if (pull.current.shown) release(v);
+          else {
+            // Snap to the slide the throw is heading to.
+            const first = el.firstElementChild as HTMLElement | null;
+            const stepW = first ? first.offsetWidth + gap : el.clientWidth;
+            go(Math.round((el.scrollLeft - v * 0.15) / stepW));
+          }
+          if (d.moved) {
+            // A drag is not a click on the slide under the pointer.
+            el.addEventListener("click", (c) => (c.stopPropagation(), c.preventDefault()), { capture: true, once: true });
+          }
+        }}
+        onPointerCancel={(e) => {
+          pull.current.drag = null;
+          e.currentTarget.style.scrollSnapType = "";
+          release();
+        }}
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
             e.preventDefault();
@@ -72,7 +166,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
             go(index - 1);
           }
         }}
-        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         style={{ gap, ["--per" as string]: perView, ["--gap" as string]: `${gap}px`, ...edgeFade(edges) }}
       >
         {children.map((c, i) => (
@@ -81,7 +175,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${children.length}`}
-            className="min-w-0 shrink-0 snap-start basis-[calc(88%-var(--gap))] sm:basis-[calc((100%-var(--gap)*(var(--per)-1))/var(--per))]"
+            className="min-w-0 shrink-0 snap-start basis-[calc(88%-var(--gap))] [translate:var(--ad-pull,0px)_0] sm:basis-[calc((100%-var(--gap)*(var(--per)-1))/var(--per))] [&_img]:pointer-events-none"
           >
             {c}
           </div>

@@ -74,12 +74,26 @@ export function ChartTooltip({ title, rows, style, className }: { title?: React.
   );
 }
 
+export interface ChartLegendProps {
+  items: { label: React.ReactNode; color: string; value?: React.ReactNode }[];
+  /** Linked highlight: the item being pointed at elsewhere; the others dim. */
+  active?: number | null;
+  /** Pointing at an item reports it, so the chart and a table can light up its series. */
+  onActiveChange?: (index: number | null) => void;
+  className?: string;
+}
+
 /** Legend: a colour dot beside each name; the text stays in ink, never the series colour. Present from two series up. */
-export function ChartLegend({ items, className }: { items: { label: React.ReactNode; color: string; value?: React.ReactNode }[]; className?: string }) {
+export function ChartLegend({ items, active, onActiveChange, className }: ChartLegendProps) {
   return (
     <ul className={cn("flex flex-wrap items-center gap-x-4 gap-y-1.5 text-small text-ink-muted", className)}>
       {items.map((it, i) => (
-        <li key={i} className="inline-flex items-center gap-1.5">
+        <li
+          key={i}
+          onPointerEnter={onActiveChange && (() => onActiveChange(i))}
+          onPointerLeave={onActiveChange && (() => onActiveChange(null))}
+          className={cn("inline-flex items-center gap-1.5 transition-opacity duration-[160ms] ease-ad", active != null && active !== i && "opacity-45")}
+        >
           <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: it.color }} />
           {it.label}
           {it.value != null ? <span className="tabular-nums text-ink">{it.value}</span> : null}
@@ -111,6 +125,14 @@ export interface CartesianChartProps {
   /** The legend under the chart (from two series up). Off when the card's header carries it. */
   legend?: boolean;
   format?: (n: number) => string;
+  /** Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. */
+  active?: number | null;
+  /** Hovering or arrowing to a point reports its index (null on leave), so a table can light up the matching row. */
+  onActiveChange?: (index: number | null) => void;
+  /** Linked highlight: the series key to emphasise; the others dim. */
+  activeSeries?: string | null;
+  /** Hovering a line or its legend item reports its key. */
+  onActiveSeriesChange?: (key: string | null) => void;
   className?: string;
   "aria-label"?: string;
 }
@@ -135,9 +157,17 @@ const linear = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? "L" : 
  * Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks
  * and gridlines, a crosshair with one tooltip for every series on hover or arrow keys, and a legend from two series up.
  */
-export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = true, axis = true, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, className, ...aria }: CartesianChartProps) {
+export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = true, axis = true, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, active, onActiveChange, activeSeries, onActiveSeriesChange, className, ...aria }: CartesianChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  const [hover, setHover] = React.useState<number | null>(null);
+  const [own, setOwn] = React.useState<number | null>(null);
+  // Controlled when `active` is passed (linked to a table), otherwise its own.
+  const hover = active !== undefined ? active : own;
+  const setHover = (next: number | null | ((v: number | null) => number | null)) => {
+    const v = typeof next === "function" ? next(hover) : next;
+    setOwn(v);
+    if (v !== hover) onActiveChange?.(v);
+  };
+  const dim = (key: string) => activeSeries != null && activeSeries !== key;
   const area = kind === "area";
   const stack = area && stacked;
   const val = (d: Datum, k: string) => Number(d[k]) || 0;
@@ -205,15 +235,23 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
               ? series.map((s, si) => {
                   const up = path(lines[si]);
                   const down = path([...bases[si]].reverse()).replace(/^M/, "L");
-                  return <path key={s.key} d={`${up}${down}Z`} fill={seriesColor(si)} fillOpacity={stack ? Math.min(0.5, fill * 2.2) : fill} />;
+                  return <path key={s.key} d={`${up}${down}Z`} fill={seriesColor(si)} fillOpacity={(stack ? Math.min(0.5, fill * 2.2) : fill) * (dim(s.key) ? 0.35 : 1)} className="transition-[fill-opacity] duration-[160ms] ease-ad" />;
                 })
               : null}
             {series.map((s, si) => (
-              <path key={s.key} d={path(lines[si])} fill="none" stroke={seriesColor(si)} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <path key={s.key} d={path(lines[si])} fill="none" stroke={seriesColor(si)} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" strokeOpacity={dim(s.key) ? 0.25 : 1} className="transition-[stroke-opacity] duration-[160ms] ease-ad" />
             ))}
+            {onActiveSeriesChange
+              ? series.map((s, si) => (
+                  // A wide invisible stroke over each line, so pointing near a line picks its series.
+                  <path key={`hit-${s.key}`} d={path(lines[si])} fill="none" stroke="transparent" strokeWidth={14} onPointerEnter={() => onActiveSeriesChange(s.key)} onPointerLeave={() => onActiveSeriesChange(null)} />
+                ))
+              : null}
             {series.map((s, si) =>
               lines[si].map(([px, py], i) =>
-                dots || i === last || i === hover ? <circle key={`${s.key}${i}`} cx={px} cy={py} r={i === hover ? 4.5 : 4} fill={seriesColor(si)} stroke="var(--ad-surface)" strokeWidth={2} /> : null,
+                dots || i === last || i === hover ? (
+                  <circle key={`${s.key}${i}`} cx={px} cy={py} r={i === hover ? 4.5 : 4} fill={seriesColor(si)} stroke="var(--ad-surface)" strokeWidth={2} opacity={dim(s.key) ? 0.25 : 1} className="pointer-events-none" />
+                ) : null,
               ),
             )}
           </svg>
@@ -230,7 +268,14 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
           />
         ) : null}
       </div>
-      {legend && series.length > 1 ? <ChartLegend items={series.map((s, si) => ({ label: s.label, color: seriesColor(si) }))} className={cn(axis && "pl-1")} /> : null}
+      {legend && series.length > 1 ? (
+        <ChartLegend
+          items={series.map((s, si) => ({ label: s.label, color: seriesColor(si) }))}
+          active={activeSeries != null ? series.findIndex((s) => s.key === activeSeries) : null}
+          onActiveChange={onActiveSeriesChange && ((i) => onActiveSeriesChange(i == null ? null : series[i].key))}
+          className={cn(axis && "pl-1")}
+        />
+      ) : null}
     </figure>
   );
 }

@@ -17,6 +17,18 @@ export interface TraceStep {
   detail?: React.ReactNode;
   /** A bare icon instead of the status glyph (the tool's icon). */
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
+  /** When a running step started (Date.now()); its time ticks up live until it has a `time`. */
+  startedAt?: number;
+}
+
+/** Seconds since `from`, ticking every 100 ms in tabular figures ("1,2 s"). */
+function Elapsed({ from }: { from: number }) {
+  const [now, setNow] = React.useState(() => Date.now());
+  React.useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 100);
+    return () => window.clearInterval(id);
+  }, []);
+  return <>{`${(Math.max(0, now - from) / 1000).toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s`}</>;
 }
 
 const glyph = (s: TraceStatus) =>
@@ -25,13 +37,15 @@ const glyph = (s: TraceStatus) =>
 /**
  * What an agent did, step by step (reasoning, tool calls, sources): a glyph per step on a quiet rail of spacing, the
  * running step pulsing, the time on the right. Steps with detail open in place. Plain words; ids and payloads stay in
- * the detail, closed by default.
+ * the detail, closed by default. `live` (while the agent works): each new step slides in as it starts and the running
+ * one's time counts up, so the wait shows the work behind it.
  */
-export function Trace({ steps, className }: { steps: TraceStep[]; className?: string }) {
+export function Trace({ steps, live, className }: { steps: TraceStep[]; live?: boolean; className?: string }) {
   return (
     <ol className={cn("grid gap-px", className)}>
       {steps.map((s) => {
         const status = s.status ?? "done";
+        const time = s.time ?? (status === "running" && s.startedAt != null ? <Elapsed from={s.startedAt} /> : null);
         const row = (
           <>
             <span className="grid size-5 shrink-0 place-items-center">{s.icon ? <s.icon size={14} className="text-ink-muted" /> : glyph(status)}</span>
@@ -39,11 +53,11 @@ export function Trace({ steps, className }: { steps: TraceStep[]; className?: st
               <span className={cn("truncate text-body", status === "pending" ? "text-ink-muted" : "text-ink")}>{s.title}</span>
               {s.description ? <span className="truncate text-small text-ink-muted">{s.description}</span> : null}
             </span>
-            {s.time != null ? <span className="shrink-0 text-small tabular-nums text-ink-muted">{s.time}</span> : null}
+            {time != null ? <span className="shrink-0 text-small tabular-nums text-ink-muted">{time}</span> : null}
           </>
         );
         return (
-          <li key={s.id} aria-current={status === "running" ? "step" : undefined}>
+          <li key={s.id} aria-current={status === "running" ? "step" : undefined} className={cn(live && "animate-[ad-up_200ms_var(--ad-ease)]")}>
             {s.detail ? (
               <C.Root>
                 <C.Trigger className="group flex min-h-item w-full cursor-pointer items-center gap-2.5 rounded-item px-2 py-1 hover:bg-fill focus-visible:bg-fill">
