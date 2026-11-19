@@ -263,6 +263,11 @@ for (const [i, [path, title]] of SCREENS.entries()) {
 
 // ---------------------------------------------------------------- F: flows, key steps
 const APP = "/mobile/app";
+/** Rp 89.000 → Rp 89.900: three deletes, then 9, 0, 0. */
+async function typePrice(p) {
+  for (let i = 0; i < 3; i++) await p.getByRole("button", { name: "Delete, hold to clear" }).click();
+  for (const k of ["9", "0", "0"]) await p.getByRole("button", { name: k, exact: true }).click();
+}
 /** A flow: states are steps; `act` replays the steps up to the given one. */
 async function flow(letter, slug, title, path, steps) {
   await phone(letter, slug, title, path, async (p, s) => {
@@ -281,7 +286,7 @@ await flow("F1", "orders", "Orders: list → order slides in → courier sheet �
 await flow("F2", "product", "Products: product → Edit (full-screen modal) → price keypad → saved", `${APP}/products`, [
   { key: "product", label: "Product", run: async (p) => (await sleep(400), await p.locator(`${P} [data-app-screen=products] [role=listitem] button`).first().click(), sleep(800)) },
   { key: "edit", label: "Edit", run: async (p) => (await btn(p, "Edit product").click(), sleep(800)) },
-  { key: "price", label: "Price", run: async (p) => (await p.getByRole("button", { name: /^Price/ }).click(), await sleep(700), await btn(p, "000").click(), await btn(p, "Delete").click().catch(() => {}), sleep(300)) },
+  { key: "price", label: "Price", run: async (p) => (await p.getByRole("button", { name: /^Price/ }).click(), await sleep(700), await typePrice(p), sleep(300)) },
   { key: "saved", label: "Saved", run: async (p) => (await btn(p, "Done").click(), await sleep(500), await btn(p, "Save").click(), sleep(1400)) },
 ]);
 await flow("F3", "stock-count", "Stock count: scan three times → finish asks first", `${APP}/stock-count`, [
@@ -348,13 +353,13 @@ await flow("F11", "approvals", "Approvals: swipe right to approve → approved, 
 await flow("F12", "sign-in", "Sign in: number too short → code from the message → signed in", `${APP}/login`, [
   { key: "error", label: "Error", run: async (p) => (await p.locator(`${P} input`).fill("812 44"), await btn(p, "Send code").click(), sleep(500)) },
   { key: "code", label: "Code", run: async (p) => (await p.locator(`${P} input`).first().fill("812 4410 2231"), await btn(p, "Send code").click(), sleep(1700)) },
-  { key: "success", label: "Correct", run: async (p) => (await btn(p, "Your Rimba code is").click(), sleep(1900)) },
-  { key: "home", label: "Home", run: async () => sleep(1400) },
+  { key: "success", label: "Correct", run: async (p) => (await btn(p, "Your Rimba code is").click(), sleep(1250)) },
+  { key: "home", label: "Home", run: async () => sleep(2000) },
 ]);
 await flow("F13", "onboarding", "Welcome: swipe through to Get started", `${APP}/onboarding`, [
   { key: "one", label: "Page 1", run: async () => sleep(200) },
-  { key: "two", label: "Page 2 (swiped)", run: async (p) => (await p.locator(`${P} [aria-roledescription=carousel]`).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" })), sleep(600)) },
-  { key: "last", label: "Last", run: async (p) => (await p.locator(`${P} [aria-roledescription=carousel]`).evaluate((el) => el.scrollTo({ left: el.clientWidth * 3, behavior: "instant" })), sleep(600)) },
+  { key: "two", label: "Page 2 (swiped)", run: async (p) => (await p.locator(`${P} [data-app-cover] [aria-roledescription=carousel]`).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" })), sleep(600)) },
+  { key: "last", label: "Last", run: async (p) => (await p.locator(`${P} [data-app-cover] [aria-roledescription=carousel]`).evaluate((el) => el.scrollTo({ left: el.clientWidth * 3, behavior: "instant" })), sleep(600)) },
 ]);
 await flow("F14", "long-press", "Orders: long-press a row → its menu (same actions as the swipe)", `${APP}/orders`, [
   { key: "menu", label: "Long press", run: async (p) => {
