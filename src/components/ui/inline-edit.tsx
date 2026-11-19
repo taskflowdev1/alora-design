@@ -168,9 +168,10 @@ export function InlineEdit({
     <>
       <span className={cn("flex min-w-0 flex-1 items-baseline whitespace-nowrap", right && "justify-end")}>
         {prefix ? affix(prefix, "pre") : null}
-        {/* The value and the input share one grid cell: the cell is as wide as the text in both states. */}
-        <span className="grid min-w-0 grid-cols-[minmax(0,max-content)] items-baseline">
-          <span data-value className={cn("[grid-area:1/1] overflow-hidden text-ink", editingNow && "invisible")}>
+        {/* The hidden value sizes the slot and the input lies over it, out of flow: an input's own intrinsic width
+            (about 20 characters) would otherwise widen the slot and push its left-aligned text away from the right edge. */}
+        <span className="relative min-w-0">
+          <span data-value className={cn("block overflow-hidden text-ink", editingNow && "invisible")}>
             {text || "\u200b"}
           </span>
           {editingNow ? (
@@ -202,7 +203,7 @@ export function InlineEdit({
                 }
               }}
               // 4 px wider than the text so the caret at the end never scrolls the text sideways.
-              className="[grid-area:1/1] m-0 h-[1lh] w-[calc(100%+4px)] min-w-px border-0 bg-transparent p-0 text-left tabular-nums text-ink caret-ink outline-none selection:bg-[color-mix(in_oklch,var(--ad-brand)_32%,transparent)] selection:text-ink"
+              className="absolute left-0 top-0 m-0 h-full w-[calc(100%+4px)] min-w-px border-0 bg-transparent p-0 text-left tabular-nums text-ink caret-ink outline-none selection:bg-[color-mix(in_oklch,var(--ad-brand)_32%,transparent)] selection:text-ink"
             />
           ) : null}
         </span>

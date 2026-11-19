@@ -248,7 +248,14 @@ const ieEdit = await page.evaluate(() => {
   const input = box?.querySelector("input");
   return box && {
     box: box.getBoundingClientRect().toJSON(),
-    text: box.querySelector("[data-value]").getBoundingClientRect().right,
+    // Where the typed digits really end: the input's left plus the drawn text width (the hidden [data-value] copy
+    // could sit right while the visible text in a too-wide input sits left).
+    text: (() => {
+      const cs = getComputedStyle(input);
+      const c = document.createElement("canvas").getContext("2d");
+      c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      return input.getBoundingClientRect().left + c.measureText(input.value).width;
+    })(),
     row: box.closest("tr").getBoundingClientRect().height,
     value: input.value,
     focused: document.activeElement === input,
@@ -258,7 +265,7 @@ const ieEdit = await page.evaluate(() => {
 });
 const near = (a, b) => Math.abs(a - b) <= 0.5;
 check(
-  ieEdit && ["x", "y", "width", "height"].every((k) => near(ieEdit.box[k], ieRest.box[k])) && near(ieEdit.text, ieRest.text) && ieEdit.row === ieRest.row && ieEdit.scroll === 0 && ieEdit.focused && /^\d{1,3}(\.\d{3})*$/.test(ieEdit.value) && ieEdit.prefix,
+  ieEdit && ["x", "y", "width", "height"].every((k) => near(ieEdit.box[k], ieRest.box[k])) && Math.abs(ieEdit.text - ieRest.text) <= 1 && ieEdit.row === ieRest.row && ieEdit.scroll === 0 && ieEdit.focused && /^\d{1,3}(\.\d{3})*$/.test(ieEdit.value) && ieEdit.prefix,
   `inline edit opens in place (${JSON.stringify({ ieRest, ieEdit })})`,
 );
 const ieInput = page.locator("[data-inline-edit][data-editing] input");
