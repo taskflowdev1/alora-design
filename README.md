@@ -123,7 +123,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Input](https://design.alorawork.com/components/input) | `input` | `Input` | `icon`, `end`, `invalid`, `wrapperClassName` |
 | [Textarea](https://design.alorawork.com/components/textarea) | `textarea` | `Textarea` | `invalid` |
 | [Input group](https://design.alorawork.com/components/input-group) | `input-group` | `InputGroup` | `start`, `end`, `invalid`, `className`, `children` |
-| [One-time code](https://design.alorawork.com/components/input-otp) | `input-otp` | `InputOTP` | `value`, `onValueChange`, `length=6`, `group=3`, `onComplete`, `status="idle"`, `celebrate="join"`, `invalid`, `disabled`, `className`, `id`, `ref`, `aria-label`, `aria-describedby` |
+| [One-time code](https://design.alorawork.com/components/input-otp) | `input-otp` | `InputOTP` | `value`, `onValueChange`, `length=6`, `group=3`, `onComplete`, `status="idle"`, `celebrate="join"`, `invalid`, `disabled`, `size="default"`, `className`, `id`, `ref`, `aria-label`, `aria-describedby` |
 | [Label](https://design.alorawork.com/components/label) | `label` | `Label` | `required` |
 | [Search](https://design.alorawork.com/components/search) | `search` | `Search` | `value`, `onValueChange`, `invalid`, `wrapperClassName` |
 | [Field](https://design.alorawork.com/components/field) | `field` | `Field` | `label`, `error`, `layout="stack"`, `className`, `children`, `htmlFor` |
@@ -226,7 +226,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Prompt suggestions](https://design.alorawork.com/components/prompt-suggestions) | `prompt-suggestions` | `PromptSuggestions` | `items`, `onPick`, `layout="list"`, `className` |
 | [Streaming text](https://design.alorawork.com/components/streaming-text) | `streaming-text` | `StreamingText` | `text`, `streaming`, `reserve=3`, `final`, `cite`, `className` |
 | [Citation](https://design.alorawork.com/components/citation) | `citation` | `Citation` | `n`, `source`, `className` |
-| [Proposed change](https://design.alorawork.com/components/proposed-change) | `proposed-change` | `ProposedChange` | `title`, `changes`, `state="pending"`, `onApply`, `onDismiss`, `onUndo`, `applyLabel="Apply"`, `className` |
+| [Proposed change](https://design.alorawork.com/components/proposed-change) | `proposed-change` | `ProposedChange` | `title`, `changes`, `state="pending"`, `onApply`, `onDismiss`, `onUndo`, `applyLabel="Apply"`, `size="default"`, `className` |
 | [Reactions](https://design.alorawork.com/components/reactions) | `reactions` | `Reactions` | `items`, `onToggle`, `onError`, `className` |
 
 ### Niche ERP parts
@@ -252,7 +252,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Keyboard shortcut](https://design.alorawork.com/components/kbd) | `kbd` | `Kbd`, `Shortcut` | `children`, `className`, `keys` |
 | [Sparkline](https://design.alorawork.com/components/sparkline) | `sparkline` | `Sparkline` | `data`, `kind="line"`, `width=96`, `height=28`, `dot=true`, `className`, `aria-label` |
 | [Progress ring](https://design.alorawork.com/components/progress-ring) | `progress-ring` | `ProgressRing` | `value`, `max=100`, `size=48`, `thickness=5`, `label`, `className`, `aria-label` |
-| [Step progress](https://design.alorawork.com/components/steps) | `steps` | `Steps` | `steps`, `current`, `className` |
+| [Step progress](https://design.alorawork.com/components/steps) | `steps` | `Steps` | `steps`, `current`, `size="default"`, `className` |
 | [Activity timeline](https://design.alorawork.com/components/timeline) | `timeline` | `Timeline` | `events`, `className` |
 | [Comment thread](https://design.alorawork.com/components/comment-thread) | `comment-thread` | `CommentThread` | `comments`, `me`, `onReact`, `onReply`, `className` |
 | [File dropzone](https://design.alorawork.com/components/dropzone) | `dropzone` | `Dropzone` | `onFiles`, `accept`, `multiple=true`, `files=[]`, `onRemove`, `title="Drop files here"`, `className` |
@@ -281,6 +281,35 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Search bar](https://design.alorawork.com/mobile/mobile-search-bar) | `mobile-search-bar` | `MobileSearchBar` | `value`, `onValueChange`, `placeholder="Search"`, `onCancel`, `className` |
 | [Stepper](https://design.alorawork.com/mobile/mobile-stepper) | `mobile-stepper` | — | none |
 | [Snackbar](https://design.alorawork.com/mobile/mobile-snackbar) | `mobile-snackbar` | `MobileSnackbar` | `open`, `onOpenChange`, `message`, `action`, `duration=4000`, `above="tab-bar"` |
+| [Filter chips](https://design.alorawork.com/mobile/mobile-filter-chips) | `mobile-filter-chips` | `MobileFilterChips` | `value`, `onValueChange`, `options`, `aria-label`, `className` |
+| [Top tabs](https://design.alorawork.com/mobile/mobile-top-tabs) | `mobile-top-tabs` | `MobileTopTabs`, `MobileTabPager` | `value`, `onValueChange`, `tabs`, `aria-label`, `className`, `pages` |
+| [Switch, check and radio rows](https://design.alorawork.com/mobile/mobile-choice-rows) | `mobile-choice-rows` | `MobileSwitchRow`, `CheckMark`, `MobileCheckRow`, `MobileRadioList` | `title`, `subtitle`, `icon`, `checked`, `onCheckedChange`, `disabled`, `className`, `value`, `onValueChange`, `options`, `aria-label` |
+| [Avatar rows](https://design.alorawork.com/mobile/mobile-person-row) | `mobile-person-row` | `MobilePersonRow` | `name`, `src`, `subtitle`, `meta`, `unread`, `badge`, `chevron`, `onClick`, `className` |
+| [A–Z index](https://design.alorawork.com/mobile/mobile-index-list) | `mobile-index-list` | `MobileIndexedList` | `sections`, `renderItem`, `bottomInset=96`, `className` |
+| [Picker sheet](https://design.alorawork.com/mobile/mobile-picker-sheet) | `mobile-picker-sheet` | `MobilePickerSheet`, `MobileMultiSelectSheet` | `open`, `onOpenChange`, `title`, `options`, `value`, `onValueChange`, `doneLabel=(n) => (n ? `Done · ${n}` : "Done")` |
+| [Multi-select sheet](https://design.alorawork.com/mobile/mobile-multi-select) | `mobile-multi-select` | — | none |
+| [Date range sheet](https://design.alorawork.com/mobile/mobile-date-range) | `mobile-date-range` | `MobileDateRangeSheet` | `open`, `onOpenChange`, `title="Dates"`, `value`, `onValueChange`, `today=new Date()` |
+| [Long-press menu](https://design.alorawork.com/mobile/mobile-context-menu) | `mobile-context-menu` | `MobileContextMenu` | `children`, `actions`, `open`, `onOpenChange`, `aria-label` |
+| [Full-screen modal](https://design.alorawork.com/mobile/mobile-modal) | `mobile-modal` | `MobileModal` | `open`, `onOpenChange`, `title`, `onSave`, `saveLabel="Save"`, `dirty=false`, `discardTitle="Discard your changes?"`, `children` |
+| [Alert dialog](https://design.alorawork.com/mobile/mobile-alert) | `mobile-alert` | `MobileAlert` | `open`, `onOpenChange`, `title`, `message`, `actions` |
+| [Text field](https://design.alorawork.com/mobile/mobile-text-field) | `mobile-text-field` | `MobileTextField` | `label`, `value`, `onValueChange`, `error`, `prefix`, `clearable=true`, `trailing`, `className` |
+| [Amount keypad](https://design.alorawork.com/mobile/mobile-keypad) | `mobile-keypad` | `MobileAmountKeypad`, `MobileAmountSheet` | `value`, `onValueChange`, `label`, `max=999_999_999`, `quick`, `className`, `open`, `onOpenChange`, `title`, `doneLabel="Done"`, `max` |
+| [Slider](https://design.alorawork.com/mobile/mobile-slider) | `mobile-slider` | `MobileSlider` | `label`, `value`, `onValueChange`, `min`, `max`, `step=1`, `format=String`, `className` |
+| [Photo picker](https://design.alorawork.com/mobile/mobile-photo-picker) | `mobile-photo-picker` | `MobilePhotoGrid`, `MobilePhotoSheet`, `MobilePhotoStrip` | `photos`, `selected`, `onSelectedChange`, `max=9`, `onAdd`, `className`, `open`, `onOpenChange`, `onPick`, `title="Photos"`, `max`, `onRemove`, `onAddClick` |
+| [Barcode scanner](https://design.alorawork.com/mobile/mobile-scanner) | `mobile-scanner` | `MobileScanner` | `onScan`, `camera`, `mockCode=() => "8991234500017"`, `paused`, `className` |
+| [Signature pad](https://design.alorawork.com/mobile/mobile-signature) | `mobile-signature` | `MobileSignaturePad` | `onChange`, `placeholder="Sign here"`, `className`, `aria-label` |
+| [One-time code](https://design.alorawork.com/mobile/mobile-otp) | `mobile-otp` | — | none |
+| [Stat tiles](https://design.alorawork.com/mobile/mobile-stat-tiles) | `mobile-stat-tiles` | `MobileStatTile`, `MobileStatGrid`, `MobileKpiCard` | `label`, `value`, `onClick`, `loading`, `className`, `children` |
+| [KPI carousel](https://design.alorawork.com/mobile/mobile-kpi-carousel) | `mobile-kpi-carousel` | `MobileKpiCarousel` | `children`, `className`, `aria-label` |
+| [Scrub charts](https://design.alorawork.com/mobile/mobile-scrub-chart) | `mobile-scrub-chart` | `MobileScrubChart` | `label`, `value`, `data`, `kind="line"`, `height=120`, `current`, `labelEvery=0`, `className` |
+| [Order timeline](https://design.alorawork.com/mobile/mobile-timeline) | `mobile-timeline` | `MobileTimeline` | `events`, `className` |
+| [Progress steps](https://design.alorawork.com/mobile/mobile-steps) | `mobile-steps` | — | none |
+| [Receipt](https://design.alorawork.com/mobile/mobile-receipt) | `mobile-receipt` | `MobileReceipt` | `shop`, `number`, `time`, `lines`, `discount=0`, `method`, `received`, `cashier`, `className` |
+| [Badge counts](https://design.alorawork.com/mobile/mobile-badge) | `mobile-badge` | `CountBadge`, `BadgeAnchor` | `count=0`, `max=99`, `dot`, `tone="ink"`, `className`, `aria-label`, `badge`, `children` |
+| [Offline banner](https://design.alorawork.com/mobile/mobile-banner) | `mobile-banner` | `MobileBanner` | `open`, `icon`, `children`, `action`, `tone="neutral"`, `className` |
+| [Upload progress](https://design.alorawork.com/mobile/mobile-upload-row) | `mobile-upload-row` | `MobileUploadRow` | `name`, `size`, `progress`, `state`, `media`, `onCancel`, `onRetry` |
+| [Onboarding pager](https://design.alorawork.com/mobile/mobile-onboarding) | `mobile-onboarding` | `MobileOnboardingPager` | `pages`, `onDone`, `doneLabel="Get started"`, `className` |
+| [Chat and composer](https://design.alorawork.com/mobile/mobile-chat) | `mobile-chat` | `MobileChatThread`, `MobileComposer` | `messages`, `typing`, `className`, `value`, `onValueChange`, `onSend`, `onAttach`, `placeholder="Message"`, `suggestions`, `busy` |
 | [Bottom nav](https://design.alorawork.com/mobile/bottom-nav) | `bottom-nav` | `Fab` | `icon`, `label`, `onClick` |
 | [Drawer](https://design.alorawork.com/mobile/drawer) | `drawer` | — | none |
 

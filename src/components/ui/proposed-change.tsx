@@ -21,6 +21,8 @@ export interface ProposedChangeProps {
   onDismiss: () => void;
   onUndo?: () => void;
   applyLabel?: string;
+  /** "touch": 44 px buttons that share the row, 15 px rows, for phones. */
+  size?: "default" | "touch";
   className?: string;
 }
 
@@ -32,14 +34,15 @@ export interface ProposedChangeProps {
 // The card is a fill, so its quiet buttons sit on the surface (like its rows) and hover to fill-strong.
 const onFill = "bg-surface hover:bg-fill-strong focus-visible:bg-fill-strong";
 
-export function ProposedChange({ title, changes, state = "pending", onApply, onDismiss, onUndo, applyLabel = "Apply", className }: ProposedChangeProps) {
+export function ProposedChange({ title, changes, state = "pending", onApply, onDismiss, onUndo, applyLabel = "Apply", size = "default", className }: ProposedChangeProps) {
   const settled = state === "applied" || state === "dismissed";
+  const touch = size === "touch" ? "h-touch flex-1 text-[15px]" : undefined;
   return (
     <section aria-label="Proposed change" className={cn("grid gap-2 rounded-card bg-fill p-[calc(var(--ad-nest)*3)]", className)}>
       <h4 className="px-1 text-body font-medium text-ink">{title}</h4>
       <ul className="grid gap-px">
         {changes.map((c) => (
-          <li key={c.id} className="grid min-h-item grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-item bg-surface px-2.5 py-1.5 text-body">
+          <li key={c.id} className={cn("grid min-h-item grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-item bg-surface px-2.5 py-1.5", size === "touch" ? "min-h-touch text-[15px]" : "text-body")}>
             <span className="min-w-0 truncate text-ink">{c.label}</span>
             <span className="flex items-center gap-1.5 tabular-nums">
               <span className={cn("text-ink-muted", state === "applied" && "line-through")}>{c.from}</span>
@@ -57,16 +60,16 @@ export function ProposedChange({ title, changes, state = "pending", onApply, onD
           </span>
         ) : null}
         {settled && onUndo ? (
-          <Button variant="secondary" onClick={onUndo} className={onFill}>
+          <Button variant="secondary" onClick={onUndo} className={cn(onFill, touch && "h-touch text-[15px]")}>
             Undo
           </Button>
         ) : null}
         {settled ? null : (
           <>
-            <Button variant="secondary" onClick={onDismiss} disabled={state === "applying"} className={onFill}>
+            <Button variant="secondary" onClick={onDismiss} disabled={state === "applying"} className={cn(onFill, touch)}>
               Not now
             </Button>
-            <Button variant="primary" onClick={() => state === "pending" && onApply()} aria-busy={state === "applying" || undefined}>
+            <Button variant="primary" onClick={() => state === "pending" && onApply()} aria-busy={state === "applying" || undefined} className={touch}>
               {/* Both labels share one cell, so the button keeps its width when it says Applying…. */}
               <span className="inline-grid justify-items-center">
                 <span aria-hidden className="invisible [grid-area:1/1]">

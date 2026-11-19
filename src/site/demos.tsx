@@ -68,6 +68,7 @@ import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime } from "./data";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
 import { MOBILE_DEMOS } from "./demos-mobile";
+import { MOBILE_DEMOS_2 } from "./demos-mobile-2";
 import { NICHE_DEMOS } from "./demos-niche";
 import { MORE_DEMOS } from "./demos-more";
 import { MOTION_DEMOS } from "./demos-motion";
@@ -138,6 +139,7 @@ export const DEMOS: Record<string, Demo> = {
   ...MORE_DEMOS,
   ...MOTION_DEMOS,
   ...MOBILE_DEMOS,
+  ...MOBILE_DEMOS_2,
   "corner-shape": {
     stage: "surface",
     render: (_p, config) => (

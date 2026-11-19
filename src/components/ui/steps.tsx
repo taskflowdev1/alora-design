@@ -5,6 +5,8 @@ export interface StepsProps {
   steps: string[];
   /** Index of the current step. Steps before it are done. Pass steps.length when all are done. */
   current: number;
+  /** "touch": a thicker bar and 15 px labels, for phones. */
+  size?: "default" | "touch";
   className?: string;
 }
 
@@ -13,7 +15,8 @@ export interface StepsProps {
  * done = full with a check, current = half full, next = soft track. Ink, never the accent (the accent is for the
  * action buttons). No connecting lines.
  */
-export function Steps({ steps, current, className }: StepsProps) {
+export function Steps({ steps, current, size = "default", className }: StepsProps) {
+  const touch = size === "touch";
   return (
     <ol className={cn("grid gap-2", className)} style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}>
       {steps.map((s, i) => {
@@ -21,14 +24,14 @@ export function Steps({ steps, current, className }: StepsProps) {
         const now = i === current;
         return (
           <li key={s} aria-current={now ? "step" : undefined} className="grid min-w-0 gap-1.5">
-            <span className="h-1.5 overflow-hidden rounded-full bg-fill">
+            <span className={cn("overflow-hidden rounded-full bg-fill", touch ? "h-[6px]" : "h-1.5")}>
               <span
                 className="block h-full w-full rounded-full bg-on transition-transform duration-[220ms] ease-ad"
                 style={{ transform: `translateX(${done ? 0 : now ? -50 : -100}%)` }}
               />
             </span>
-            <span className={cn("flex min-w-0 items-center gap-1 text-body", done || now ? "text-ink" : "text-ink-muted", now && "font-medium")}>
-              {done ? <Check size={14} className="shrink-0 text-ink-muted" /> : null}
+            <span className={cn("flex min-w-0 items-center gap-1", touch ? "text-[15px]" : "text-body", done || now ? "text-ink" : "text-ink-muted", now && "font-medium")}>
+              {done ? <Check size={touch ? 16 : 14} className="shrink-0 text-ink-muted" /> : null}
               <span className="truncate">{s}</span>
             </span>
           </li>

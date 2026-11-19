@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/ad";
 import { SlidingPill } from "@/components/ui/sliding-pill";
+import { CountBadge } from "./mobile-badge";
 
 const IconOnly = React.createContext(false);
 
@@ -60,11 +61,7 @@ export function MobileTab({ icon: Icon, label, active, badge, onClick }: MobileT
       {/* Haptic-style feedback without haptics: the icon dips while pressed and springs back. */}
       <span className="relative transition-transform duration-[180ms] ease-ad group-active/tab:scale-[0.86]">
         <Icon size={22} strokeWidth={1.75} />
-        {badge ? (
-          <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-on px-1 text-[10px] font-semibold leading-none tabular-nums text-on-ink">
-            {badge > 99 ? "99+" : badge}
-          </span>
-        ) : null}
+        <CountBadge count={badge} className="absolute -right-2.5 -top-1.5" />
       </span>
       {iconOnly ? null : <span className={cn("text-[11px] leading-none", active && "font-medium")}>{label}</span>}
     </button>

@@ -16,7 +16,7 @@ export type Group =
   | "Backgrounds"
   | MobileGroup;
 /** The Mobile half of the library (src/components/mobile and touch sizes of shared parts). */
-export type MobileGroup = "Bars" | "Lists" | "Sheets" | "Touch inputs" | "Feedback";
+export type MobileGroup = "Bars" | "Lists" | "Sheets" | "Touch inputs" | "Data" | "Feedback" | "Flows";
 /** The site section an item lives in. Components and Mobile share the Components tab (Desktop | Mobile switch). */
 export type Section = "components" | "mobile" | "ai" | "backgrounds";
 
@@ -184,7 +184,7 @@ export const ITEMS: Item[] = [
 
   // Mobile: phone components. Own files in src/components/mobile (they import each other relatively, so they install
   // next to each other); shared parts appear here with their touch size. Shown at /mobile in a 390 × 844 phone frame.
-  { name: "mobile-tab-bar", title: "Tab bar", group: "Bars", dir: "mobile", files: ["mobile-tab-bar.tsx"], registryDeps: ["sliding-pill"] },
+  { name: "mobile-tab-bar", title: "Tab bar", group: "Bars", dir: "mobile", files: ["mobile-tab-bar.tsx"], registryDeps: ["sliding-pill", "mobile-badge"] },
   { name: "mobile-nav-bar", title: "Large-title nav bar", group: "Bars", dir: "mobile", files: ["mobile-nav-bar.tsx"] },
   { name: "mobile-action-bar", title: "Action bar", group: "Bars", dir: "mobile", files: ["mobile-action-bar.tsx"], registryDeps: ["button"] },
   { name: "mobile-list", title: "Grouped list", group: "Lists", dir: "mobile", files: ["mobile-list.tsx"] },
@@ -199,6 +199,36 @@ export const ITEMS: Item[] = [
   { name: "mobile-search-bar", title: "Search bar", group: "Touch inputs", dir: "mobile", files: ["mobile-search-bar.tsx"] },
   { name: "mobile-stepper", title: "Stepper", group: "Touch inputs", files: ["quantity-stepper.tsx"] },
   { name: "mobile-snackbar", title: "Snackbar", group: "Feedback", dir: "mobile", files: ["mobile-snackbar.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
+  // Mobile v2: inputs, data, sheets and flows for the example app's screens.
+  { name: "mobile-filter-chips", title: "Filter chips", group: "Bars", dir: "mobile", files: ["mobile-chip-row.tsx"], registryDeps: ["sliding-pill"] },
+  { name: "mobile-top-tabs", title: "Top tabs", group: "Bars", dir: "mobile", files: ["mobile-top-tabs.tsx"], registryDeps: ["sliding-pill"] },
+  { name: "mobile-choice-rows", title: "Switch, check and radio rows", group: "Lists", dir: "mobile", files: ["mobile-choice-rows.tsx"], deps: [RADIX], registryDeps: ["switch", "sliding-pill"] },
+  { name: "mobile-person-row", title: "Avatar rows", group: "Lists", dir: "mobile", files: ["mobile-person-row.tsx"], registryDeps: ["avatar", "mobile-badge"] },
+  { name: "mobile-index-list", title: "A–Z index", group: "Lists", dir: "mobile", files: ["mobile-index-scrubber.tsx"] },
+  { name: "mobile-picker-sheet", title: "Picker sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], deps: [RADIX], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
+  { name: "mobile-multi-select", title: "Multi-select sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], deps: [RADIX], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
+  { name: "mobile-date-range", title: "Date range sheet", group: "Sheets", dir: "mobile", files: ["mobile-date-range.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet", "mobile-filter-chips"] },
+  { name: "mobile-context-menu", title: "Long-press menu", group: "Sheets", dir: "mobile", files: ["mobile-context-menu.tsx"], registryDeps: ["mobile-sheet"] },
+  { name: "mobile-modal", title: "Full-screen modal", group: "Sheets", dir: "mobile", files: ["mobile-modal.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet", "mobile-alert"] },
+  { name: "mobile-alert", title: "Alert dialog", group: "Sheets", dir: "mobile", files: ["mobile-alert.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
+  { name: "mobile-text-field", title: "Text field", group: "Touch inputs", dir: "mobile", files: ["mobile-text-field.tsx"] },
+  { name: "mobile-keypad", title: "Amount keypad", group: "Touch inputs", dir: "mobile", files: ["mobile-keypad.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-slider", title: "Slider", group: "Touch inputs", dir: "mobile", files: ["mobile-slider.tsx"] },
+  { name: "mobile-photo-picker", title: "Photo picker", group: "Touch inputs", dir: "mobile", files: ["mobile-photo-picker.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-scanner", title: "Barcode scanner", group: "Touch inputs", dir: "mobile", files: ["mobile-scanner.tsx"], registryDeps: ["button", "mobile-text-field"] },
+  { name: "mobile-signature", title: "Signature pad", group: "Touch inputs", dir: "mobile", files: ["mobile-signature.tsx"] },
+  { name: "mobile-otp", title: "One-time code", group: "Touch inputs", files: ["input-otp.tsx"] },
+  { name: "mobile-stat-tiles", title: "Stat tiles", group: "Data", dir: "mobile", files: ["mobile-stats.tsx"] },
+  { name: "mobile-kpi-carousel", title: "KPI carousel", group: "Data", dir: "mobile", files: ["mobile-stats.tsx"] },
+  { name: "mobile-scrub-chart", title: "Scrub charts", group: "Data", dir: "mobile", files: ["mobile-scrub-chart.tsx"] },
+  { name: "mobile-timeline", title: "Order timeline", group: "Data", dir: "mobile", files: ["mobile-timeline.tsx"] },
+  { name: "mobile-steps", title: "Progress steps", group: "Data", files: ["steps.tsx"] },
+  { name: "mobile-receipt", title: "Receipt", group: "Data", dir: "mobile", files: ["mobile-receipt.tsx"] },
+  { name: "mobile-badge", title: "Badge counts", group: "Data", dir: "mobile", files: ["mobile-badge.tsx"] },
+  { name: "mobile-banner", title: "Offline banner", group: "Feedback", dir: "mobile", files: ["mobile-banner.tsx"] },
+  { name: "mobile-upload-row", title: "Upload progress", group: "Feedback", dir: "mobile", files: ["mobile-upload-row.tsx"] },
+  { name: "mobile-onboarding", title: "Onboarding pager", group: "Flows", dir: "mobile", files: ["mobile-pager.tsx"], registryDeps: ["button"] },
+  { name: "mobile-chat", title: "Chat and composer", group: "Flows", dir: "mobile", files: ["mobile-chat.tsx"] },
   // Old names, kept installable: each installs a re-export of its mobile replacement, and its page redirects there.
   { name: "bottom-nav", title: "Bottom nav", group: "Bars", files: ["bottom-nav.tsx"], registryDeps: ["mobile-tab-bar"], alias: "mobile-tab-bar", showcase: false },
   { name: "drawer", title: "Drawer", group: "Sheets", files: ["drawer.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"], alias: "mobile-sheet", showcase: false },
@@ -286,7 +316,7 @@ export const ITEMS: Item[] = [
 
 export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
-export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Feedback"];
+export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 
 export const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
   { id: "components", title: "Components", path: "/components", groups: GROUPS },

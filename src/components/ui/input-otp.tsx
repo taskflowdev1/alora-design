@@ -26,6 +26,8 @@ export interface InputOTPProps {
   /** Same as status="invalid". */
   invalid?: boolean;
   disabled?: boolean;
+  /** "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. */
+  size?: "default" | "touch";
   className?: string;
   id?: string;
   ref?: React.Ref<HTMLInputElement>;
@@ -67,6 +69,7 @@ export function InputOTP({
   celebrate = "join",
   invalid,
   disabled,
+  size = "default",
   className,
   id,
   ref,
@@ -109,7 +112,8 @@ export function InputOTP({
     <div
       ref={row}
       className={cn(
-        "relative inline-flex items-center gap-1.5 [--ad-otp-h:calc(var(--ad-control-h)*1.15)]",
+        "relative inline-flex items-center gap-1.5",
+        size === "touch" ? "touch-manipulation [--ad-otp-h:56px] [--ad-otp-w:46px]" : "[--ad-otp-h:calc(var(--ad-control-h)*1.15)] [--ad-otp-w:calc(var(--ad-control-h)*0.95)]",
         disabled && "pointer-events-none opacity-45",
         className,
       )}
@@ -137,7 +141,8 @@ export function InputOTP({
                 : { animationDelay: s === "checking" ? `${i * 90}ms` : undefined }
             }
             className={cn(
-              "relative grid h-(--ad-otp-h) w-[calc(var(--ad-control-h)*0.95)] place-items-center rounded-control text-number font-semibold tabular-nums transition-colors duration-[220ms] ease-ad",
+              "relative grid h-(--ad-otp-h) w-(--ad-otp-w) place-items-center rounded-control font-semibold tabular-nums transition-colors duration-[220ms] ease-ad",
+              size === "touch" ? "text-[24px]" : "text-number",
               s === "invalid"
                 ? "bg-danger-soft text-danger"
                 : ok
@@ -197,7 +202,7 @@ export function InputOTP({
           setSel(v.length);
           if (v.length === length) onComplete?.(v);
         }}
-        className={cn("absolute inset-0 opacity-0", locked ? "cursor-default" : "cursor-text")}
+        className={cn("absolute inset-0 opacity-0", size === "touch" && "text-[16px]", locked ? "cursor-default" : "cursor-text")}
       />
     </div>
   );

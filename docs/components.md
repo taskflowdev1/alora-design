@@ -242,6 +242,7 @@ Files: `src/components/ui/input-otp.tsx`.
 | `celebrate` | `InputOTPCelebrate` | `"join"` | success, how it lands. quiet: the boxes turn soft green one after another. join: then the gaps close into one green bar. seal: then the bar folds into a green circle and a check draws inside. |
 | `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
+| `size` | `"default" \| "touch"` | `"default"` | "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. |
 | `className` | `string` |  |  |
 | `id` | `string` |  |  |
 | `ref` | `Ref<HTMLInputElement>` |  |  |
@@ -2035,6 +2036,7 @@ Files: `src/components/ui/proposed-change.tsx`. Installs too: `button`.
 | `onDismiss` (required) | `() => void` |  |  |
 | `onUndo` | `(() => void)` |  |  |
 | `applyLabel` | `string` | `"Apply"` |  |
+| `size` | `"default" \| "touch"` | `"default"` | "touch": 44 px buttons that share the row, 15 px rows, for phones. |
 | `className` | `string` |  |  |
 
 ### Reactions
@@ -2509,6 +2511,7 @@ Files: `src/components/ui/steps.tsx`.
 | --- | --- | --- | --- |
 | `steps` (required) | `string[]` |  |  |
 | `current` (required) | `number` |  | Index of the current step. Steps before it are done. Pass steps.length when all are done. |
+| `size` | `"default" \| "touch"` | `"default"` | "touch": a thicker bar and 15 px labels, for phones. |
 | `className` | `string` |  |  |
 
 ### Activity timeline
@@ -2693,7 +2696,7 @@ Files: `src/components/ui/calendar-month.tsx`. Installs too: `button`, `tooltip`
 npx shadcn@latest add "https://design.alorawork.com/r/mobile-tab-bar.json"
 ```
 
-Files: `src/components/mobile/mobile-tab-bar.tsx`. Installs too: `sliding-pill`.
+Files: `src/components/mobile/mobile-tab-bar.tsx`. Installs too: `sliding-pill`, `mobile-badge`.
 
 `MobileTabBar`: Bottom tabs: a dark bar that floats with a margin above the home indicator, full rounding, in thumb reach. The active tab is a pill that slides to the tab you tap (SlidingPill); the icon stays the same. Three to five tabs, each a real destination. Leave one main action for the screen's action bar, not a floating button.
 
@@ -3006,6 +3009,699 @@ Files: `src/components/mobile/mobile-snackbar.tsx`. Installs too: `mobile-sheet`
 | `action` | `{ label: string; onClick: () => void; }` |  | One short action, usually Undo. |
 | `duration` | `number` | `4000` | ms before it leaves on its own; paused while a finger is on it. |
 | `above` | `"none" \| "tab-bar" \| "action-bar"` | `"tab-bar"` | What it must stay above: the tab bar (default), an action bar, or nothing. |
+
+### Filter chips
+
+<a id="mobile-filter-chips"></a>Page: https://design.alorawork.com/mobile/mobile-filter-chips
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-filter-chips.json"
+```
+
+Files: `src/components/mobile/mobile-chip-row.tsx`. Installs too: `sliding-pill`.
+
+`MobileFilterChips`: Quick filters in one row that scrolls sideways (no wrapping, no scrollbar). One chip is on: a grey pill slides to the chip you tap, the row scrolls it into view, and the edges fade only on the side that has more. 44 px chips.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `T \| null` |  |  |
+| `onValueChange` (required) | `(value: T) => void` |  |  |
+| `options` (required) | `FilterChipOption<T>[]` |  |  |
+| `aria-label` (required) | `string` |  |  |
+| `className` | `string` |  |  |
+
+### Top tabs
+
+<a id="mobile-top-tabs"></a>Page: https://design.alorawork.com/mobile/mobile-top-tabs
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-top-tabs.json"
+```
+
+Files: `src/components/mobile/mobile-top-tabs.tsx`. Installs too: `sliding-pill`.
+
+`MobileTopTabs`: Tabs at the top of a phone screen when there are more than a segmented control holds: one track that scrolls sideways, a raised pill that slides to the tab you pick (and the track scrolls it into view). Pair it with MobileTabPager so the content under it can be swiped too; the two stay in step.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `T` |  |  |
+| `onValueChange` (required) | `(value: T) => void` |  |  |
+| `tabs` (required) | `TopTab<T>[]` |  |  |
+| `aria-label` (required) | `string` |  |  |
+| `className` | `string` |  |  |
+
+`MobileTabPager`: The content under top tabs, one page per tab, side by side: swipe sideways to change tab (native scroll snap, so a flick glides to the next page), and picking a tab scrolls its page in. The screen still scrolls up and down.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `T` |  |  |
+| `onValueChange` (required) | `(value: T) => void` |  |  |
+| `pages` (required) | `{ value: T; content: ReactNode; }[]` |  |  |
+| `className` | `string` |  |  |
+
+### Switch, check and radio rows
+
+<a id="mobile-choice-rows"></a>Page: https://design.alorawork.com/mobile/mobile-choice-rows
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-choice-rows.json"
+```
+
+Files: `src/components/mobile/mobile-choice-rows.tsx`. Installs too: `switch`, `sliding-pill`.
+
+`MobileSwitchRow`: A setting that is on or off: the whole row is the switch's label, so a tap anywhere on it flips the switch.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `ReactNode` |  |  |
+| `subtitle` | `ReactNode` |  |  |
+| `icon` | `Icon` |  |  |
+| `checked` (required) | `boolean` |  |  |
+| `onCheckedChange` (required) | `(checked: boolean) => void` |  |  |
+| `disabled` | `boolean` |  |  |
+
+`CheckMark`: The round check used by check rows: an empty soft circle, or ink with a white tick.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `checked` (required) | `boolean` |  |  |
+| `className` | `string` |  |  |
+
+`MobileCheckRow`: One of several things you can tick: the row is the checkbox (edge to edge), the round check sits on the right.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `ReactNode` |  |  |
+| `subtitle` | `ReactNode` |  |  |
+| `icon` | `Icon` |  |  |
+| `value` | `ReactNode` |  | Right side, before the check: a count, a price. |
+| `checked` (required) | `boolean` |  |  |
+| `onCheckedChange` (required) | `(checked: boolean) => void` |  |  |
+| `disabled` | `boolean` |  |  |
+
+`MobileRadioList`: One of a few: rows on a soft card, the chosen row carries a grey pill that slides to the row you tap, and a tick on the right. Arrow keys move the choice.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `T` |  |  |
+| `onValueChange` (required) | `(value: T) => void` |  |  |
+| `options` (required) | `MobileRadioOption<T>[]` |  |  |
+| `aria-label` (required) | `string` |  |  |
+| `className` | `string` |  |  |
+
+### Avatar rows
+
+<a id="mobile-person-row"></a>Page: https://design.alorawork.com/mobile/mobile-person-row
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-person-row.json"
+```
+
+Files: `src/components/mobile/mobile-person-row.tsx`. Installs too: `avatar`, `mobile-badge`.
+
+`MobilePersonRow`: A person in a list (customer, buyer, teammate): a 40 px circle, the name, one line under it, and on the right the time over an unread count. People are circles; the whole row is one target. Unread rows set the name in medium.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` (required) | `string` |  |  |
+| `src` | `string` |  | Photo URL; initials otherwise. |
+| `subtitle` | `ReactNode` |  | One line under the name (last message, role, phone). |
+| `meta` | `ReactNode` |  | Top right: a time ("14:05"), a total. |
+| `unread` | `number` |  | Unread count under the meta. |
+| `badge` | `ReactNode` |  | Something instead of the avatar's initials: a marketplace mark as a small corner badge. |
+| `chevron` | `boolean` |  |  |
+| `onClick` | `(() => void)` |  |  |
+| `className` | `string` |  |  |
+
+### A–Z index
+
+<a id="mobile-index-list"></a>Page: https://design.alorawork.com/mobile/mobile-index-list
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-index-list.json"
+```
+
+Files: `src/components/mobile/mobile-index-scrubber.tsx`.
+
+`MobileIndexedList`: A long A–Z list (customers, suppliers): letter headings stick under the nav bar, and a strip of letters on the right edge jumps there. Slide a finger down the strip to scrub: the list follows letter by letter and the letter under the finger shows large beside it (the finger covers the strip). Tapping a letter jumps too; arrow keys step. The strip is one 44 px wide target. Put it inside a MobileScreen; letters with no names are left out of the strip.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `sections` (required) | `{ letter: string; items: T[]; }[]` |  | Sections in order; each letter gets a sticky heading. |
+| `renderItem` (required) | `(item: T) => ReactNode` |  |  |
+| `bottomInset` | `number` | `96` | Bottom room for the scrubber (the tab bar's height). |
+| `className` | `string` |  |  |
+
+### Picker sheet
+
+<a id="mobile-picker-sheet"></a>Page: https://design.alorawork.com/mobile/mobile-picker-sheet
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-picker-sheet.json"
+```
+
+Files: `src/components/mobile/mobile-picker-sheet.tsx`. Installs too: `button`, `sliding-pill`, `mobile-sheet`, `mobile-search-bar`, `mobile-choice-rows`.
+
+`MobilePickerSheet`: The phone's dropdown: a sheet of options, the chosen one on a grey pill with a tick. Tapping an option slides the pill to it and the sheet closes a beat later, so you see what you picked. Past eight options a search bar sits on top.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  |  |
+| `options` (required) | `PickerOption[]` |  |  |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+
+`MobileMultiSelectSheet`: Pick several: the chosen ones collect as chips at the top of the sheet (tap a chip to drop it), every row is a check row. The sheet edits a draft; Done keeps it, Clear empties it, closing any other way changes nothing.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  |  |
+| `options` (required) | `PickerOption[]` |  |  |
+| `value` (required) | `string[]` |  |  |
+| `onValueChange` (required) | `(value: string[]) => void` |  |  |
+| `doneLabel` | `((count: number) => string)` | `(n) => (n ? `Done · ${n}` : "Done")` | The primary button, given the draft count: (n) => `Show ${n} shops`. |
+
+### Multi-select sheet
+
+<a id="mobile-multi-select"></a>Page: https://design.alorawork.com/mobile/mobile-multi-select
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-multi-select.json"
+```
+
+Files: `src/components/mobile/mobile-picker-sheet.tsx`. Installs too: `button`, `sliding-pill`, `mobile-sheet`, `mobile-search-bar`, `mobile-choice-rows`.
+
+### Date range sheet
+
+<a id="mobile-date-range"></a>Page: https://design.alorawork.com/mobile/mobile-date-range
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-date-range.json"
+```
+
+Files: `src/components/mobile/mobile-date-range.tsx`. Installs too: `button`, `mobile-sheet`, `mobile-filter-chips`.
+
+`MobileDateRangeSheet`: A date range on a phone: quick ranges on top, then one month. Tap a start day, then an end day; the days between fill as one soft band with rounded ends, the two ends in ink. Swipe the month sideways (or use the arrows) to move. The sheet edits a draft; the button names the range it will show. Future days are off.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` | `string` | `"Dates"` |  |
+| `value` (required) | `DateRange` |  |  |
+| `onValueChange` (required) | `(value: DateRange) => void` |  |  |
+| `today` | `Date` | `new Date()` | Today (pinned in demos). Later days can't be picked. |
+
+### Long-press menu
+
+<a id="mobile-context-menu"></a>Page: https://design.alorawork.com/mobile/mobile-context-menu
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-context-menu.json"
+```
+
+Files: `src/components/mobile/mobile-context-menu.tsx`. Installs too: `mobile-sheet`.
+
+`MobileContextMenu`: Press and hold for a thing's actions. While the finger is down the item dips a little; at the hold mark the menu grows out of the point you pressed (its transform origin is that corner), opening below the finger or above it when the room is underneath, and never off screen. A tap outside, Esc or picking an action closes it. Holding is a shortcut: give the same actions a visible button too (open it with `open`), and right-click opens it on a desktop.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  | The thing you press and hold (a row, a card). |
+| `actions` (required) | `ContextAction[]` |  |  |
+| `open` | `boolean` |  | Controlled open (for the visible "…" twin of the gesture). |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Full-screen modal
+
+<a id="mobile-modal"></a>Page: https://design.alorawork.com/mobile/mobile-modal
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-modal.json"
+```
+
+Files: `src/components/mobile/mobile-modal.tsx`. Installs too: `mobile-sheet`, `mobile-alert`.
+
+`MobileModal`: A focused task that needs the whole screen (edit a product, a new customer): it rises from the bottom over everything, with Cancel on the left, the title in the middle and Save on the right, in thumb-friendly 44 px targets. With unsaved changes, Cancel (and Esc) ask first. The body scrolls on its own and stays clear of the keyboard.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  |  |
+| `onSave` (required) | `() => void \| Promise<unknown>` |  | Save: may return a promise; the button keeps its label and ignores taps until it settles, then the modal closes. |
+| `saveLabel` | `string` | `"Save"` |  |
+| `dirty` | `boolean` | `false` | Unsaved changes: Cancel asks before throwing them away, and Save is on. |
+| `discardTitle` | `string` | `"Discard your changes?"` | The question Cancel asks when dirty. |
+| `children` (required) | `ReactNode` |  |  |
+
+### Alert dialog
+
+<a id="mobile-alert"></a>Page: https://design.alorawork.com/mobile/mobile-alert
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-alert.json"
+```
+
+Files: `src/components/mobile/mobile-alert.tsx`. Installs too: `mobile-sheet`.
+
+`MobileAlert`: Ask before something that can't be undone: a small card in the middle of the screen over a dimmed backdrop, the question as the title, and 44 px buttons. It eases in from 96 % (no bounce). Esc and the backdrop count as the cancel action. Use it for confirmations only; feedback after the fact is a snackbar.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  | A question that names the thing: "Discard the changes to Gelas kopi?" |
+| `message` | `ReactNode` |  | One short line, only when the title can't carry it. |
+| `actions` (required) | `MobileAlertAction[]` |  | Two sit side by side (safe one first); three or more stack. |
+
+### Text field
+
+<a id="mobile-text-field"></a>Page: https://design.alorawork.com/mobile/mobile-text-field
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-text-field.json"
+```
+
+Files: `src/components/mobile/mobile-text-field.tsx`.
+
+`MobileTextField`: A text field for phones: the label sits right above the field (it never floats or hides), 16 px text so nothing zooms, a 44 px soft field that turns a shade darker while focused (no ring), and a 44 px clear button while there is a value. An error opens under the field (it slides open, nothing jumps) with its icon on the first line; no help text.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `error` | `string` |  | Shown under the field in place of help text; the field turns soft red. Say what to fix, in a few words. |
+| `prefix` | `ReactNode` |  | Fixed text before the value ("Rp", "+62"). |
+| `clearable` | `boolean` | `true` | Hide the clear button (on by default while there is a value). |
+| `trailing` | `ReactNode` |  | Something at the right end instead of / beside the clear button (a unit, a scan button). |
+| `className` | `string` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Amount keypad
+
+<a id="mobile-keypad"></a>Page: https://design.alorawork.com/mobile/mobile-keypad
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-keypad.json"
+```
+
+Files: `src/components/mobile/mobile-keypad.tsx`. Installs too: `button`, `mobile-sheet`.
+
+`MobileAmountKeypad`: Money on a phone without the system keyboard: the amount in rupiah, formatted as you type (Rp 125.000), over a 3 × 4 pad with a 000 key (prices end in thousands). Delete removes one digit; hold it to clear. Keys dip when pressed. A hardware keyboard works too (digits, Backspace) while the pad has focus.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `number` |  |  |
+| `onValueChange` (required) | `(value: number) => void` |  |  |
+| `label` | `string` |  | Above the amount, muted ("Price", "Cash received"). |
+| `max` | `number` | `999_999_999` | Largest amount it takes. |
+| `quick` | `{ label: string; value: number; }[]` |  | One-tap amounts above the keys ("Exact", Rp 50.000…). |
+| `className` | `string` |  |  |
+
+`MobileAmountSheet`: The keypad in a bottom sheet, editing a draft: Done keeps the amount, closing any other way leaves it as it was.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  |  |
+| `doneLabel` | `string` | `"Done"` | The button label; default "Done". |
+| `label` | `string` |  | Above the amount, muted ("Price", "Cash received"). |
+| `max` | `number` |  | Largest amount it takes. |
+| `value` (required) | `number` |  |  |
+| `onValueChange` (required) | `(value: number) => void` |  |  |
+| `quick` | `{ label: string; value: number; }[]` |  | One-tap amounts above the keys ("Exact", Rp 50.000…). |
+
+### Slider
+
+<a id="mobile-slider"></a>Page: https://design.alorawork.com/mobile/mobile-slider
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-slider.json"
+```
+
+Files: `src/components/mobile/mobile-slider.tsx`.
+
+`MobileSlider`: A slider for a thumb, not a cursor: a 44 px tall track you can grab anywhere, a 28 px thumb, and while your finger covers it the value floats above in a dark bubble so you can read it. The thumb follows the finger 1:1, then snaps to the nearest step. Vertical drags still scroll the page. Arrow keys step, Page keys jump by ten steps.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `number` |  |  |
+| `onValueChange` (required) | `(value: number) => void` |  |  |
+| `min` (required) | `number` |  |  |
+| `max` (required) | `number` |  |  |
+| `step` | `number` | `1` |  |
+| `format` | `((v: number) => string)` | `String` | How the value reads ("20%", "Rp 50.000"). |
+| `className` | `string` |  |  |
+
+### Photo picker
+
+<a id="mobile-photo-picker"></a>Page: https://design.alorawork.com/mobile/mobile-photo-picker
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-photo-picker.json"
+```
+
+Files: `src/components/mobile/mobile-photo-picker.tsx`. Installs too: `button`, `mobile-sheet`.
+
+`MobilePhotoGrid`: Pick photos the way the phone's own picker does: a grid of square tiles, tap to pick and the tile shows its number in the order you picked (1 is the cover); tap again to drop it and the rest renumber. At the limit the other tiles fade. The first tile opens the camera or the library.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `photos` (required) | `Photo[]` |  |  |
+| `selected` (required) | `string[]` |  | Picked photo ids, in the order they were picked (the first is the cover). |
+| `onSelectedChange` (required) | `(ids: string[]) => void` |  |  |
+| `max` | `number` | `9` |  |
+| `onAdd` | `((photos: Photo[]) => void)` |  | Adds a camera tile first; picked files come back as photos (add them to `photos` and select them). |
+| `className` | `string` |  |  |
+
+`MobilePhotoSheet`: The photo grid in a sheet: pick, then "Add 3 photos". Closing any other way adds nothing.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `onPick` (required) | `(ids: string[]) => void` |  | Called with the picked ids when Add is tapped. |
+| `title` | `string` | `"Photos"` |  |
+| `max` | `number` |  |  |
+| `photos` (required) | `Photo[]` |  |  |
+| `onAdd` | `((photos: Photo[]) => void)` |  | Adds a camera tile first; picked files come back as photos (add them to `photos` and select them). |
+
+`MobilePhotoStrip`: A product's photos on an edit screen: one row that scrolls sideways, the first marked Cover, an Add tile at the end.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `photos` (required) | `Photo[]` |  | In order; the first is the cover. |
+| `onRemove` (required) | `(id: string) => void` |  |  |
+| `onAddClick` (required) | `() => void` |  |  |
+| `max` | `number` | `9` |  |
+| `className` | `string` |  |  |
+
+### Barcode scanner
+
+<a id="mobile-scanner"></a>Page: https://design.alorawork.com/mobile/mobile-scanner
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-scanner.json"
+```
+
+Files: `src/components/mobile/mobile-scanner.tsx`. Installs too: `button`, `mobile-text-field`.
+
+`MobileScanner`: Scanning stock on a phone: a dark camera view with a frame and a scan line that sweeps while it looks. A read flashes the frame and the line stops for a beat, so each scan is felt. Typing the code is always one tap away under the view (a damaged label, no camera, a dark shelf). The torch button lights the view. The line pauses off screen and holds still for reduced motion.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `onScan` (required) | `(code: string) => void` |  | A code was read (from the camera or typed). |
+| `camera` | `ReactNode` |  | The camera view. Leave it out for the built-in mock (a dark viewfinder with a barcode in it: tap the frame to read it, which returns `mockCode()`); pass a <video> from getUserMedia in a real app. |
+| `mockCode` | `(() => string)` | `() => "8991234500017"` | The code the mock reads next. |
+| `paused` | `boolean` |  | Hold the scan line and ignore reads (while a sheet is open). |
+| `className` | `string` |  |  |
+
+### Signature pad
+
+<a id="mobile-signature"></a>Page: https://design.alorawork.com/mobile/mobile-signature
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-signature.json"
+```
+
+Files: `src/components/mobile/mobile-signature.tsx`.
+
+`MobileSignaturePad`: Proof of delivery: sign with a finger. The ink follows the finger with no lag (touch-action none, so the page doesn't scroll under it), thins a little on fast strokes like a real pen, and is redrawn in the current ink colour when the theme or size changes. Undo removes the last stroke, Clear removes all; both are real buttons, never a gesture.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `onChange` | `((png: string \| null) => void)` |  | Called after every stroke: a PNG data URL of the signature, or null once it is cleared. |
+| `placeholder` | `string` | `"Sign here"` | The faint word in the empty pad. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### One-time code
+
+<a id="mobile-otp"></a>Page: https://design.alorawork.com/mobile/mobile-otp
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-otp.json"
+```
+
+Files: `src/components/ui/input-otp.tsx`.
+
+### Stat tiles
+
+<a id="mobile-stat-tiles"></a>Page: https://design.alorawork.com/mobile/mobile-stat-tiles
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-stat-tiles.json"
+```
+
+Files: `src/components/mobile/mobile-stats.tsx`.
+
+`MobileStatTile`: One number on a phone: a plain grey label and the number under it (24 px, semibold, tabular). No icon, no caption, no colour. Tiles in a MobileStatGrid share one height. A tile that opens something presses like a row.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `ReactNode` |  |  |
+| `onClick` | `(() => void)` |  | The tile opens more (a report, a filtered list): it presses and shows a chevron. |
+| `loading` | `boolean` |  | The same box with pulsing text, so nothing moves when the number lands. |
+| `className` | `string` |  |  |
+
+`MobileStatGrid`: Stat tiles two to a row with the standard gap; every tile in a row the same height.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+`MobileKpiCard`: A card in a KPI carousel: label, number, and at most one chart.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `ReactNode` |  |  |
+| `children` | `ReactNode` |  | One chart (a scrub chart, a sparkline). |
+| `className` | `string` |  |  |
+
+### KPI carousel
+
+<a id="mobile-kpi-carousel"></a>Page: https://design.alorawork.com/mobile/mobile-kpi-carousel
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-kpi-carousel.json"
+```
+
+Files: `src/components/mobile/mobile-stats.tsx`.
+
+`MobileKpiCarousel`: A few KPI cards you swipe through: each card snaps into place (native scroll snap, so a flick glides), the next one peeks in at the edge so it's clear there is more, and the dots under it say where you are. Tapping a dot goes to its card (the swipe always has a tap twin). Cards hold their own content (MobileKpiCard or a scrub chart card).
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+| `aria-label` (required) | `string` |  |  |
+
+### Scrub charts
+
+<a id="mobile-scrub-chart"></a>Page: https://design.alorawork.com/mobile/mobile-scrub-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-scrub-chart.json"
+```
+
+Files: `src/components/mobile/mobile-scrub-chart.tsx`.
+
+`MobileScrubChart`: A chart you read with your finger: there is no hover on a phone, so drag across it and the number on top turns into the point under the finger (its label and value), the line or bar under it darkens, and the rest steps back. Let go and it returns to the total after a moment. Vertical drags still scroll. Arrow keys step through the points too. Shades of the one accent; no axes, no grid lines.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  | What the number is ("Sales today"). While scrubbing it shows the point's label instead. |
+| `value` (required) | `ReactNode` |  | The resting number (the total). While scrubbing it shows the point's value instead. |
+| `data` (required) | `ScrubPoint[]` |  |  |
+| `kind` | `"line" \| "bars"` | `"line"` |  |
+| `height` | `number` | `120` |  |
+| `current` | `number` |  | Bars: the index drawn in the darker shade at rest (today). |
+| `labelEvery` | `number` | `0` | Label every nth point along the bottom (0: none). |
+| `className` | `string` |  |  |
+
+### Order timeline
+
+<a id="mobile-timeline"></a>Page: https://design.alorawork.com/mobile/mobile-timeline
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-timeline.json"
+```
+
+Files: `src/components/mobile/mobile-timeline.tsx`.
+
+`MobileTimeline`: An order's story, oldest first: what happened, when, and what is still to come. Done steps carry a small tick, the current one a larger ink dot on a soft disc, the ones to come a muted dot and muted text. No rail line between them; the column of marks and the spacing carry the order.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `events` (required) | `MobileTimelineEvent[]` |  |  |
+| `className` | `string` |  |  |
+
+### Progress steps
+
+<a id="mobile-steps"></a>Page: https://design.alorawork.com/mobile/mobile-steps
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-steps.json"
+```
+
+Files: `src/components/ui/steps.tsx`.
+
+### Receipt
+
+<a id="mobile-receipt"></a>Page: https://design.alorawork.com/mobile/mobile-receipt
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-receipt.json"
+```
+
+Files: `src/components/mobile/mobile-receipt.tsx`.
+
+`MobileReceipt`: A sale's receipt on screen: a soft card with rounded corners (never a torn or zigzag edge), the shop, then the items (name, quantity × price, line total), then totals and payment. Groups are told apart by space, never by rules. The total is the one bold number. Tabular figures keep the amounts in a column.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` (required) | `string` |  |  |
+| `number` (required) | `string` |  | "POS-0417". |
+| `time` (required) | `string` |  | "Today, 14:20". |
+| `lines` (required) | `ReceiptLine[]` |  |  |
+| `discount` | `number` | `0` | A discount as a positive amount. |
+| `method` (required) | `string` |  | Paid with: "Cash", "QRIS". |
+| `received` | `number` |  | Cash handed over (shows the change). |
+| `cashier` | `string` |  | Who served ("Bayu"). |
+| `className` | `string` |  |  |
+
+### Badge counts
+
+<a id="mobile-badge"></a>Page: https://design.alorawork.com/mobile/mobile-badge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-badge.json"
+```
+
+Files: `src/components/mobile/mobile-badge.tsx`.
+
+`CountBadge`: A count on a tab, an icon or a row: a pill as wide as its digits (one digit stays a circle), tabular figures, ink on the surface (never the accent, never red). It pops in once when it appears and ticks when the count changes, so a new order is felt without anything else moving. Hidden at 0.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `count` | `number` | `0` | The count. 0 or less hides it (no "0" badge). |
+| `max` | `number` | `99` | Above this it reads "99+". |
+| `dot` | `boolean` |  | A small dot instead of a number (something new, no count worth showing). |
+| `tone` | `"soft" \| "ink"` | `"ink"` | "ink" (default): high contrast on a surface. "soft": a quieter grey for counts that need no attention. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  | Read out with the count, e.g. "unread". |
+
+`BadgeAnchor`: Puts a CountBadge on the top right corner of an icon or avatar without changing its size.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `badge` (required) | `ReactNode` |  |  |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+### Offline banner
+
+<a id="mobile-banner"></a>Page: https://design.alorawork.com/mobile/mobile-banner
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-banner.json"
+```
+
+Files: `src/components/mobile/mobile-banner.tsx`.
+
+`MobileBanner`: A screen-wide state above the content (offline, sync paused, a new version): a soft card with the icon on the first line, one plain sentence and at most one action. Never red, never over the content: it slides open in the flow and the content moves down with it. Announced to screen readers.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  | Shown or not; it slides open and closed so the content under it moves once, smoothly. |
+| `icon` | `ComponentType<{ size?: string \| number \| undefined; strokeWidth?: string \| number \| undefined; className?: string \| undefined; }>` |  |  |
+| `children` (required) | `ReactNode` |  | One plain sentence: what is happening ("You're offline. Changes save on this phone and sync later."). |
+| `action` | `{ label: string; onClick: () => void; }` |  | One short action (Retry, Turn on). |
+| `tone` | `"neutral" \| "info"` | `"neutral"` | neutral (default): a grey card. info: a soft accent card, for news worth a look. |
+| `className` | `string` |  |  |
+
+### Upload progress
+
+<a id="mobile-upload-row"></a>Page: https://design.alorawork.com/mobile/mobile-upload-row
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-upload-row.json"
+```
+
+Files: `src/components/mobile/mobile-upload-row.tsx`.
+
+`MobileUploadRow`: One file going up (a delivery photo, an invoice): its picture and name, a slim bar that fills at the speed of the upload (linear, it shows progress), and one action at the right: cancel while it runs, retry if it failed. Done swaps the bar for a tick and the size. A failed row says so in words, not red.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` (required) | `string` |  |  |
+| `size` | `string` |  | "2,4 MB". |
+| `progress` (required) | `number` |  | 0 to 1. |
+| `state` (required) | `"done" \| "uploading" \| "failed"` |  |  |
+| `media` | `ReactNode` |  | A thumbnail (Thumb or img). |
+| `onCancel` | `(() => void)` |  |  |
+| `onRetry` | `(() => void)` |  |  |
+
+### Onboarding pager
+
+<a id="mobile-onboarding"></a>Page: https://design.alorawork.com/mobile/mobile-onboarding
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-onboarding.json"
+```
+
+Files: `src/components/mobile/mobile-pager.tsx`. Installs too: `button`.
+
+`MobileOnboardingPager`: First run: a few full-width pages you swipe through (native scroll snap, so a flick glides to the next page and the edges give), each a picture and a one-line claim. The dots slide with the swipe; Next and Skip do the same without a gesture, and the last page's button says Get started. Shown once; never on every launch.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `pages` (required) | `PagerPage[]` |  |  |
+| `onDone` (required) | `() => void` |  | Get started on the last page, and Skip. |
+| `doneLabel` | `string` | `"Get started"` |  |
+| `className` | `string` |  |  |
+
+### Chat and composer
+
+<a id="mobile-chat"></a>Page: https://design.alorawork.com/mobile/mobile-chat
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-chat.json"
+```
+
+Files: `src/components/mobile/mobile-chat.tsx`.
+
+`MobileChatThread`: A conversation on a phone: your messages on the right in ink, theirs on the left on the surface; messages from the same side stack close, a new side or a time gap opens space. New messages rise in and the screen follows them to the bottom. The last line stays above the composer and the keyboard. Put it in a MobileScreen with bottomInset="none".
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `messages` (required) | `MobileChatMessage[]` |  |  |
+| `typing` | `boolean` |  |  |
+| `className` | `string` |  |  |
+
+`MobileComposer`: The message box on a phone: a floating card at the bottom that rides on top of the keyboard, a field that grows to five lines (16 px, so nothing zooms), the paperclip on the left and send on the right (the accent only once there is something to send). Enter adds a line; the button sends. Quick replies sit on top in one sideways row.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `onSend` (required) | `(text: string) => void` |  |  |
+| `onAttach` | `(() => void)` |  | Shows the paperclip (photo, order, product). |
+| `placeholder` | `string` | `"Message"` |  |
+| `suggestions` | `string[]` |  | Quick replies above the field; a tap sends one. |
+| `busy` | `boolean` |  | While a reply streams in: send is off. |
 
 ### Bottom nav
 
