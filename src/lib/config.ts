@@ -237,7 +237,7 @@ function themeColors(c: Config, dark: boolean) {
   const acc = hexToOklch(c.accent);
   const shades = accentShades(c.accent);
   const ramp = greyRamp(c.tone, dark);
-  const island = greyRamp(c.tone, true);
+  const island = greyRamp(c.tone, dark);
   const step = (s: GreyStep | "white") => (s === "white" ? "#ffffff" : ramp[s]);
   const roles = Object.fromEntries(Object.entries(GREY_ROLES).map(([k, r]) => [k, step(dark ? r.dark : r.light)]));
   const ink = ramp.ink;
@@ -277,8 +277,8 @@ function themeColors(c: Config, dark: boolean) {
     "series-3": series[2],
     "series-4": series[3],
     "series-5": series[4],
-    // Dark islands in both themes (sidebar, save bar, bottom nav) take the dark ramp. In dark mode the island sits at
-    // card level, a step above the page, so it still stands out.
+    // Islands (sidebar, save bar, bottom nav) follow the theme: light in light mode, dark in dark mode. In dark mode the
+    // island sits at card level, a step above the page, so it still stands out.
     side: island.surface,
     "side-raised": island.fill,
     "side-fill": island.fill,

@@ -141,7 +141,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
       style={{ ...style, ["--ad-metric-h" as string]: METRIC_H }}
       className={cn(
         "inline-flex h-[var(--ad-metric-h)] w-fit shrink-0",
-        primary && "bg-on text-on-ink [--ad-ink:var(--ad-on-ink)] [--ad-fill:var(--ad-ink-muted)]",
+        primary && "bg-brand-soft text-brand-soft-ink [--ad-ink:var(--ad-brand-soft-ink)] [--ad-fill:color-mix(in_oklab,var(--ad-brand-soft-ink)_12%,transparent)]",
         cls,
         className,
       )}
