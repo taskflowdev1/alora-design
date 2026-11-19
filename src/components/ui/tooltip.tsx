@@ -2,6 +2,7 @@ import * as React from "react";
 import { Tooltip as T } from "radix-ui";
 import { cn } from "@/lib/ad";
 
+/** Put one at the app root: the first tooltip waits, then neighbours open at once (and without animating) for a moment. */
 export function TooltipProvider({ children }: { children: React.ReactNode }) {
   return (
     <T.Provider delayDuration={300} skipDelayDuration={200}>
@@ -31,7 +32,8 @@ export function Tooltip({
           collisionPadding={8}
           className={cn(
             "z-[70] max-w-64 rounded-item bg-on px-2.5 py-1.5 text-small text-on-ink shadow-raised",
-            "origin-(--radix-tooltip-content-transform-origin) animate-[ad-in_160ms_var(--ad-ease)]",
+            // Only the first (delayed) tooltip grows in; one opened straight after another appears instantly.
+            "origin-(--radix-tooltip-content-transform-origin) data-[state=delayed-open]:animate-[ad-in_160ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_130ms_var(--ad-ease)]",
           )}
         >
           {content}

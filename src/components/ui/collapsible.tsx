@@ -33,6 +33,6 @@ export function Collapsible({ title, meta, className, children, ...props }: Coll
 /** Height animation for Radix collapsible/accordion content (shared with Accordion). */
 export const COLLAPSE_CSS = `
 .ad-collapse[data-state=open] { animation: ad-collapse-open 220ms var(--ad-ease); }
-.ad-collapse[data-state=closed] { animation: ad-collapse-close 160ms ease-in; }
+.ad-collapse[data-state=closed] { animation: ad-collapse-close 180ms var(--ad-ease); }
 @keyframes ad-collapse-open { from { height: 0; opacity: 0; } to { height: var(--radix-collapsible-content-height, var(--radix-accordion-content-height)); opacity: 1; } }
 @keyframes ad-collapse-close { from { height: var(--radix-collapsible-content-height, var(--radix-accordion-content-height)); opacity: 1; } to { height: 0; opacity: 0; } }`;

@@ -72,7 +72,8 @@ export function Combobox({
           collisionPadding={8}
           onOpenAutoFocus={(e) => {
             e.preventDefault();
-            inputRef.current?.focus();
+            // Desktop only: on a phone the keyboard would cover the list (tap the field to type).
+            if (window.matchMedia("(pointer: fine)").matches) inputRef.current?.focus();
           }}
           className={cn(dropdownSurface, "w-[max(240px,var(--radix-popover-trigger-width))]")}
         >
@@ -86,6 +87,9 @@ export function Combobox({
               aria-activedescendant={filtered.length ? `${id}-opt-${nav.active}` : undefined}
               value={query}
               placeholder={searchPlaceholder}
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="search"
               onChange={(e) => {
                 setQuery(e.target.value);
                 nav.setActive(0);

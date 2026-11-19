@@ -10,7 +10,11 @@ export function ContextMenu({ children, menu, className }: { children: React.Rea
     <C.Root>
       <C.Trigger asChild>{children}</C.Trigger>
       <C.Portal>
-        <C.Content collisionPadding={8} className={cn(menuSurface, "origin-(--radix-context-menu-content-transform-origin)", className)}>
+        <C.Content
+          collisionPadding={8}
+          // Summoned constantly, so it appears at once (like the macOS menu) and only fades on the way out.
+          className={cn(menuSurface, "origin-(--radix-context-menu-content-transform-origin) data-[state=open]:animate-none data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]", className)}
+        >
           {menu}
         </C.Content>
       </C.Portal>
@@ -55,7 +59,7 @@ export function ContextMenuSub({ label, icon: Icon, children }: { label: React.R
         <ChevronRight size={16} className="-mr-1 shrink-0 text-ink-muted" />
       </C.SubTrigger>
       <C.Portal>
-        <C.SubContent sideOffset={6} collisionPadding={8} className={cn(menuSurface, "animate-[ad-fade-in_160ms_var(--ad-ease)]")}>
+        <C.SubContent sideOffset={6} collisionPadding={8} className={cn(menuSurface, "data-[state=open]:animate-none data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]")}>
           {children}
         </C.SubContent>
       </C.Portal>

@@ -20,6 +20,8 @@ export interface CommandGroup {
   items: Command[];
 }
 
+const finePointer = () => typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
+
 /** Opens on Cmd+K / Ctrl+K anywhere on the page. */
 export function useCommandShortcut(setOpen: (fn: (open: boolean) => boolean) => void, key = "k") {
   React.useEffect(() => {
@@ -58,9 +60,16 @@ export function CommandPalette({ open = false, onOpenChange, inline, className, 
         <D.Overlay className={overlayClass} />
         <D.Content
           aria-describedby={undefined}
+          onOpenAutoFocus={(e) => {
+            // Phones: focus the panel, not the field, so the keyboard doesn't cover the list until they tap it.
+            if (finePointer()) return;
+            e.preventDefault();
+            (e.target as HTMLElement | null)?.focus();
+          }}
           className={cn(
-            "fixed left-1/2 top-[14vh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog",
-            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
+            "fixed left-1/2 top-[14dvh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog",
+            // Opened many times a day, so it appears at once; it only fades on the way out.
+            "data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]",
             className,
           )}
         >
@@ -125,7 +134,10 @@ function CommandPanel({
       <label className="flex h-[calc(var(--ad-control-h)+8px)] items-center gap-2.5 rounded-control bg-fill px-3 text-body focus-within:bg-fill-strong">
         <SearchIcon size={16} className="shrink-0 text-ink-muted" />
         <input
-          autoFocus={autoFocus}
+          autoFocus={autoFocus && finePointer()}
+          autoComplete="off"
+          spellCheck={false}
+          enterKeyHint="go"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}
@@ -137,7 +149,7 @@ function CommandPanel({
           className="h-full w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
-      <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56vh)]")}>
+      <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56dvh)]")}>
         {flat.length === 0 ? <div className="flex h-16 items-center justify-center text-body text-ink-muted">{empty}</div> : null}
         {filtered.map((g) => (
           <div key={g.label} role="group" aria-label={g.label} className="grid gap-px pb-1">

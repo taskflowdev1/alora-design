@@ -53,7 +53,7 @@ export function NavigationMenu({ items, className }: { items: NavigationMenuItem
                           href={l.href}
                           active={l.active}
                           onSelect={() => l.onSelect?.()}
-                          className="flex min-h-item cursor-pointer select-none items-center gap-2.5 rounded-control px-2.5 py-1.5 text-body text-ink transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill data-[active]:bg-fill-strong"
+                          className="flex min-h-item cursor-pointer select-none items-center gap-2.5 rounded-control px-2.5 py-1.5 text-body text-ink hover:bg-fill focus-visible:bg-fill data-[active]:bg-fill-strong"
                         >
                           {l.icon ? <l.icon size={16} className="shrink-0" /> : null}
                           <span className="grid min-w-0">
