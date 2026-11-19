@@ -491,6 +491,7 @@ Files: `src/components/ui/segmented.tsx`. Installs too: `sliding-pill`.
 | `value` (required) | `T` |  |  |
 | `onValueChange` (required) | `(value: T) => void` |  |  |
 | `options` (required) | `{ value: T; label: ReactNode; "aria-label"?: string \| undefined; }[]` |  |  |
+| `size` | `"default" \| "touch"` | `"default"` | "touch": 44 px options and 15 px labels for phones; with `className="w-full"` the options share the width. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -1714,28 +1715,6 @@ Files: `src/components/ui/alert-dialog.tsx`. Installs too: `button`, `dialog`.
 | `cancel` | `ReactNode` | `"Keep"` | Label of the way out. |
 | `className` | `string` |  |  |
 
-### Drawer
-
-<a id="drawer"></a>Page: https://design.alorawork.com/components/drawer
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/drawer.json"
-```
-
-Files: `src/components/ui/drawer.tsx`. Installs too: `dialog`.
-
-`Drawer`: The phone's bottom sheet: it floats with a margin and full rounding (never glued to the edge), slides up, and drags down to close (grab the handle or the title row; past 80 px or a quick flick it closes, otherwise it springs back keeping the speed you let go with; dragging up meets a rubber band). Desktop uses Sheet or Dialog.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `open` | `boolean` |  |  |
-| `onOpenChange` | `((open: boolean) => void)` |  |  |
-| `trigger` | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
-| `title` (required) | `ReactNode` |  |  |
-| `children` | `ReactNode` |  |  |
-| `footer` | `ReactNode` |  | Buttons at the bottom, full width on phones. |
-| `className` | `string` |  |  |
-
 ## Layout
 
 ### Sidebar
@@ -1772,40 +1751,6 @@ Files: `src/components/ui/sidebar.tsx`. Installs too: `sliding-pill`.
 | `active` | `boolean` |  |  |
 | `count` | `number` |  | Plain grey count on the right. |
 | `asChild` | `boolean` |  |  |
-| `onClick` | `(() => void)` |  |  |
-
-### Bottom nav
-
-<a id="bottom-nav"></a>Page: https://design.alorawork.com/components/bottom-nav
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/bottom-nav.json"
-```
-
-Files: `src/components/ui/bottom-nav.tsx`.
-
-`BottomNav`: Phone: bottom tabs with icon + label, floating with margin. Pair with one floating action button.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `children` (required) | `ReactNode` |  |  |
-| `className` | `string` |  |  |
-
-`BottomNavItem`
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; }>` |  |  |
-| `label` (required) | `string` |  |  |
-| `active` | `boolean` |  |  |
-| `onClick` | `(() => void)` |  |  |
-
-`Fab`: The one main action on phone screens. Sits above the bottom tabs.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; }>` |  |  |
-| `label` (required) | `string` |  |  |
 | `onClick` | `(() => void)` |  |  |
 
 ### Resizable panes
@@ -2194,7 +2139,7 @@ Files: `src/components/ui/quantity-stepper.tsx`.
 | `min` | `number` | `0` |  |
 | `max` | `number` | `Infinity` |  |
 | `step` | `number` | `1` |  |
-| `size` | `"default" \| "sm"` | `"default"` |  |
+| `size` | `"default" \| "sm" \| "touch"` | `"default"` | "touch": 44 px buttons for phones. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -2737,6 +2682,358 @@ Files: `src/components/ui/calendar-month.tsx`. Installs too: `button`, `tooltip`
 | `max` | `number` | `2` | Events shown per day before "+n". |
 | `onEventClick` | `((e: CalendarEvent) => void)` |  |  |
 | `className` | `string` |  |  |
+
+## Mobile
+
+### Tab bar
+
+<a id="mobile-tab-bar"></a>Page: https://design.alorawork.com/mobile/mobile-tab-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-tab-bar.json"
+```
+
+Files: `src/components/mobile/mobile-tab-bar.tsx`. Installs too: `sliding-pill`.
+
+`MobileTabBar`: Bottom tabs: a dark bar that floats with a margin above the home indicator, full rounding, in thumb reach. The active tab is a pill that slides to the tab you tap (SlidingPill); the icon stays the same. Three to five tabs, each a real destination. Leave one main action for the screen's action bar, not a floating button.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `iconOnly` | `boolean` | `false` | Icons without labels (each tab keeps its label as its accessible name). |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+`MobileTab`
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; strokeWidth?: string \| number \| undefined; }>` |  |  |
+| `label` (required) | `string` |  |  |
+| `active` | `boolean` |  |  |
+| `badge` | `number` |  | A small count on the icon (unread, to pack). |
+| `onClick` | `(() => void)` |  |  |
+
+### Large-title nav bar
+
+<a id="mobile-nav-bar"></a>Page: https://design.alorawork.com/mobile/mobile-nav-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-nav-bar.json"
+```
+
+Files: `src/components/mobile/mobile-nav-bar.tsx`.
+
+`MobileScreen`: One phone screen: its own scroll area with a nav bar on top. With `large`, the title starts big under the bar; as it scrolls under the bar the bar's small title fades in and the bar takes the page colour, so the content never shows through behind the title. Clears the status bar (safe area) at the top and the tab or action bar at the bottom.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `string` |  |  |
+| `large` | `boolean` | `true` | A large title under the bar that shrinks into it as you scroll. Off: the small title only (detail screens). |
+| `back` | `{ label: string; onClick: () => void; }` |  | Back to the previous screen: a chevron and the previous screen's name. |
+| `trailing` | `ReactNode` |  | Up to two icon buttons on the right (MobileBarButton). |
+| `header` | `ReactNode` |  | Under the large title and scrolling with it: a search bar, a segmented control. |
+| `bottomInset` | `"none" \| "tab-bar" \| "action-bar"` | `"tab-bar"` | Room at the bottom so the last row clears what floats there. |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+| `ref` | `Ref<HTMLDivElement>` |  | The scroll area, for scrolling to top or restoring a position. |
+
+`MobileBarButton`: A 44 px icon button for the nav bar. Give it an aria-label.
+
+Also takes the native props of the element it renders.
+
+### Action bar
+
+<a id="mobile-action-bar"></a>Page: https://design.alorawork.com/mobile/mobile-action-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-action-bar.json"
+```
+
+Files: `src/components/mobile/mobile-action-bar.tsx`. Installs too: `button`.
+
+`MobileActionBar`: The screen's one main action, pinned at the bottom in thumb reach instead of a floating button: a floating card with full-width 44 px buttons (primary last, on the right). It rides on top of the keyboard when one is open and clears the home indicator otherwise. Give the screen bottomInset="action-bar" so the last row stays visible.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+### Grouped list
+
+<a id="mobile-list"></a>Page: https://design.alorawork.com/mobile/mobile-list
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-list.json"
+```
+
+Files: `src/components/mobile/mobile-list.tsx`.
+
+`MobileList`: A grouped list: rows on one soft card, inset from the screen edge, no lines between them. The row height and the press fill do the separating. Titles sit above the card, never inside it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` |  | A plain heading above the group. |
+| `variant` | `"plain" \| "inset"` | `"inset"` | "inset" (default): a soft rounded card with margin. "plain": rows run edge to edge on the page. |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+`MobileListRow`: One row. At least 44 px (56 with a second line); the whole row is the target. Press shows a fill at once and a tiny shrink, so a tap is felt; hover fill only on devices that hover.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `media` | `ReactNode` |  | A Feather icon (20 px) or a thumbnail / avatar node. |
+| `title` (required) | `ReactNode` |  |  |
+| `subtitle` | `ReactNode` |  | A second line under the title. |
+| `value` | `ReactNode` |  | Right side: a value, a status, a switch. |
+| `chevron` | `boolean` |  | Shows a chevron: the row opens another screen. |
+| `onClick` | `(() => void)` |  |  |
+| `trailing` | `ReactNode` |  | Extra controls at the far right (a "more" button that offers the same actions as a swipe). |
+| `toggle` | `ReactNode` |  | A Switch or Checkbox on the right: the whole row becomes its label, so the whole row toggles it. |
+| `className` | `string` |  |  |
+
+### Swipe actions
+
+<a id="mobile-swipe-row"></a>Page: https://design.alorawork.com/mobile/mobile-swipe-row
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-swipe-row.json"
+```
+
+Files: `src/components/mobile/mobile-swipe-row.tsx`. Installs too: `mobile-list`.
+
+`SwipeRow`: Swipe a row sideways to reveal its actions. The row follows the finger only after the gesture is clearly sideways, so vertical scrolling is never stolen. On release it opens or closes by position and speed, on a spring that keeps the throw; a long swipe left runs the first trailing action. A tap on an open row closes it. Swiping is a shortcut: put the same actions in the row's detail screen or a "more" button, so nobody has to discover the gesture.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `leading` | `SwipeAction[]` | `[]` | Revealed by swiping right. |
+| `trailing` | `SwipeAction[]` | `[]` | Revealed by swiping left. A long swipe runs the first one. |
+| `className` | `string` |  |  |
+
+### Pull to refresh
+
+<a id="mobile-pull-refresh"></a>Page: https://design.alorawork.com/mobile/mobile-pull-refresh
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-pull-refresh.json"
+```
+
+Files: `src/components/mobile/mobile-pull-refresh.tsx`. Installs too: `mobile-nav-bar`.
+
+`PullToRefresh`: Pull down at the top of a list to reload. The list follows the finger against growing resistance while three dots fill in one by one (how far to pull); past the line they darken (let go now). On release the list rests a little lower while the dots wave, then springs back once the data is in. No spinner. Put it inside the scroll area (a MobileScreen); it only engages when that area is already at the top, so normal scrolling is untouched.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `onRefresh` (required) | `() => Promise<unknown>` |  | Resolve when the new data is in; the dots wave until then. |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+### Skeleton list
+
+<a id="mobile-list-skeleton"></a>Page: https://design.alorawork.com/mobile/mobile-list-skeleton
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-list-skeleton.json"
+```
+
+Files: `src/components/mobile/mobile-list.tsx`.
+
+`MobileListSkeleton`: The loading state of a MobileList: the same card, rows, heights and paddings, with pulsing blocks where text and thumbnails will be, so nothing moves when the data lands. No spinner.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rows` | `number` | `6` |  |
+| `media` | `"icon" \| "none" \| "thumb"` | `"thumb"` | Match the loaded rows: a 40 px thumbnail, an icon, or none. |
+| `subtitle` | `boolean` | `true` |  |
+| `value` | `boolean` | `true` |  |
+| `chevron` | `boolean` | `false` |  |
+| `title` | `boolean` | `false` |  |
+| `className` | `string` |  |  |
+
+### Empty state
+
+<a id="mobile-empty-state"></a>Page: https://design.alorawork.com/mobile/mobile-empty-state
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-empty-state.json"
+```
+
+Files: `src/components/ui/empty-state.tsx`.
+
+### Bottom sheet
+
+<a id="mobile-sheet"></a>Page: https://design.alorawork.com/mobile/mobile-sheet
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-sheet.json"
+```
+
+Files: `src/components/mobile/mobile-sheet.tsx`.
+
+`MobileSheet`: The phone's bottom sheet. It floats with a margin and full rounding, rises from the bottom and rests at its detents. Drag the handle or the title row: it follows the finger 1:1, pulls against a rubber band past the top detent, and on release picks the detent the throw is heading for (position + speed), or closes on a downward flick or a drag past the smallest detent. Every move is a spring that keeps the release speed and can be grabbed again mid-flight. Esc, the backdrop and a Close button close it too (the gesture is never the only way). It sits above the keyboard (`--ad-keyboard`) and the home indicator, and contains its own scroll.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` |  |  |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `trigger` | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
+| `title` | `ReactNode` |  | The title row; it is also a drag handle. Without one, pass aria-label. |
+| `aria-label` | `string` |  |  |
+| `detents` | `Detent[]` | `["fit"]` | Heights it rests at, smallest first. Default ["fit"]. |
+| `initialDetent` | `number` | `0` | Which detent it opens at (index into detents). Default 0. |
+| `children` | `ReactNode` |  |  |
+| `footer` | `ReactNode` |  | Full-width buttons pinned at the bottom of the sheet. |
+| `surface` | `boolean` | `true` | false: no card, no handle; the children draw their own groups (action sheets). |
+| `className` | `string` |  |  |
+
+### Action sheet
+
+<a id="mobile-action-sheet"></a>Page: https://design.alorawork.com/mobile/mobile-action-sheet
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-action-sheet.json"
+```
+
+Files: `src/components/mobile/mobile-action-sheet.tsx`. Installs too: `mobile-sheet`.
+
+`MobileActionSheet`: A short list of actions for one thing, rising from the bottom in thumb reach: the actions on one card, Cancel on its own card under it (the safest action is the easiest to hit). Rows are 56 px, icon then label; the backdrop, Esc and Cancel all close it. Each card's corners follow the sheet radius, rows sit one nest gap inside, concentric.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` | `string` |  | What the actions act on ("ORD-1043"). Short; no sentence. |
+| `actions` (required) | `MobileAction[]` |  |  |
+| `cancelLabel` | `string` | `"Cancel"` |  |
+
+### Wheel date picker
+
+<a id="mobile-date-picker"></a>Page: https://design.alorawork.com/mobile/mobile-date-picker
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-date-picker.json"
+```
+
+Files: `src/components/mobile/mobile-wheel-picker.tsx`. Installs too: `button`, `mobile-sheet`.
+
+`WheelColumn`: One wheel: flick it and it glides and snaps to a row (native scroll snap, so the throw keeps the finger's speed). Rows fade and tilt away from the centre band. Tap a row to bring it to the centre; arrow keys step one row.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `options` (required) | `{ value: string; label: string; }[]` |  |  |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `aria-label` (required) | `string` |  |  |
+| `className` | `string` |  |  |
+
+`WheelPicker`: Wheels side by side over one centre band (the band spans every column, concentric with the sheet).
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+`MobileDateSheet`: A date or time on a phone: wheels in a bottom sheet, the month written out (7 Nov 2026), Done to keep it. The wheels hold a draft, so closing without Done changes nothing.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `title` (required) | `string` |  |  |
+| `value` (required) | `Date` |  |  |
+| `onValueChange` (required) | `(value: Date) => void` |  |  |
+| `mode` | `"time" \| "date"` | `"date"` | date: day, month, year. time: hour and minute (5-minute steps). |
+| `years` | `[number, number]` | `[2024, 2028]` |  |
+
+### Segmented control
+
+<a id="mobile-segmented"></a>Page: https://design.alorawork.com/mobile/mobile-segmented
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-segmented.json"
+```
+
+Files: `src/components/ui/segmented.tsx`. Installs too: `sliding-pill`.
+
+### Search bar
+
+<a id="mobile-search-bar"></a>Page: https://design.alorawork.com/mobile/mobile-search-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-search-bar.json"
+```
+
+Files: `src/components/mobile/mobile-search-bar.tsx`.
+
+`MobileSearchBar`: Search on a phone: a 44 px soft field with 16 px text (no zoom on focus). Focus slides a Cancel button in from the right while the field gives it room; Cancel clears, closes the keyboard and slides back out. The × clears without leaving. Focus shows as a lighter fill, never a ring.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `placeholder` | `string` | `"Search"` |  |
+| `onCancel` | `(() => void)` |  | Called after Cancel clears and leaves the field. |
+| `className` | `string` |  |  |
+
+### Stepper
+
+<a id="mobile-stepper"></a>Page: https://design.alorawork.com/mobile/mobile-stepper
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-stepper.json"
+```
+
+Files: `src/components/ui/quantity-stepper.tsx`.
+
+### Snackbar
+
+<a id="mobile-snackbar"></a>Page: https://design.alorawork.com/mobile/mobile-snackbar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-snackbar.json"
+```
+
+Files: `src/components/mobile/mobile-snackbar.tsx`. Installs too: `mobile-sheet`.
+
+`MobileSnackbar`: Feedback after an action, on a phone: a dark bar that rises just above the tab bar (never over the buttons you need next), says what happened in a few words, and offers Undo. It leaves after 4 s, or drag it down. Announced to screen readers.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `message` (required) | `ReactNode` |  |  |
+| `action` | `{ label: string; onClick: () => void; }` |  | One short action, usually Undo. |
+| `duration` | `number` | `4000` | ms before it leaves on its own; paused while a finger is on it. |
+| `above` | `"none" \| "tab-bar" \| "action-bar"` | `"tab-bar"` | What it must stay above: the tab bar (default), an action bar, or nothing. |
+
+### Bottom nav
+
+<a id="bottom-nav"></a>Page: https://design.alorawork.com/mobile/bottom-nav
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/bottom-nav.json"
+```
+
+Files: `src/components/ui/bottom-nav.tsx`. Installs too: `mobile-tab-bar`.
+
+`Fab`: A floating main action. Kept for existing screens; new phone screens put their one main action in MobileActionBar (pinned at the bottom, above the keyboard) instead.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; }>` |  |  |
+| `label` (required) | `string` |  |  |
+| `onClick` | `(() => void)` |  |  |
+
+### Drawer
+
+<a id="drawer"></a>Page: https://design.alorawork.com/mobile/drawer
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/drawer.json"
+```
+
+Files: `src/components/ui/drawer.tsx`. Installs too: `mobile-sheet`.
 
 ## AI
 

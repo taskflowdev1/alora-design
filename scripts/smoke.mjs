@@ -437,7 +437,7 @@ check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
 // The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
 // every one of them live exactly once in its category bands.
-const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "drawer", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
+const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
 const before = errors.length;
 for (const name of MORE) {
   await page.goto(`${BASE}/components/${name}`, { waitUntil: "networkidle" });
@@ -563,6 +563,130 @@ for (const [label, host, pick, sel] of pillCases) {
   const mid = xs.filter((x) => Math.abs(x - rest.p) > 1 && Math.abs(x - end.o) > 1).length;
   check(Math.abs(rest.p - rest.o) < 0.6 && rest.w && Math.abs(end.p - end.o) < 0.6 && end.w && mid >= 2, `sliding pill ${label}: starts on the choice, slides (${mid} frames between), lands on ${pick} (${JSON.stringify({ rest, end })})`);
 }
+
+// Mobile: the Desktop | Mobile split, every mobile page at a 390 px phone viewport (renders, no sideways scroll,
+// every touch target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh,
+// snackbar above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
+const MOBILE = ["mobile-tab-bar", "mobile-nav-bar", "mobile-action-bar", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-empty-state", "mobile-sheet", "mobile-action-sheet", "mobile-date-picker", "mobile-segmented", "mobile-search-bar", "mobile-stepper", "mobile-snackbar"];
+await page.goto(BASE + "/mobile", { waitUntil: "networkidle" });
+const mobIndex = await page.evaluate(() => ({
+  tab: document.querySelector('header a[aria-current="page"]')?.textContent,
+  sw: document.querySelector('[role=radiogroup][aria-label="Platform"] [aria-checked="true"]')?.textContent,
+  tiles: document.querySelectorAll("[data-mobile-screen-tile]").length,
+  parts: [...new Set([...document.querySelectorAll("[data-mobile-part]")].map((a) => a.dataset.mobilePart))],
+}));
+check(mobIndex.tab === "Components" && /Mobile/.test(mobIndex.sw ?? ""), `/mobile: Components tab lit, switch on Mobile (${JSON.stringify({ tab: mobIndex.tab, sw: mobIndex.sw })})`);
+check(mobIndex.tiles === 6 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "all"})`);
+await page.locator('[role=radiogroup][aria-label="Platform"] [role=radio]').first().click();
+await page.waitForURL(/\/components$/);
+check(true, "platform switch goes back to Desktop");
+for (const [from, to] of [["/components/drawer", "/mobile/mobile-sheet"], ["/components/bottom-nav", "/mobile/mobile-tab-bar"], ["/components/mobile-sheet", "/mobile/mobile-sheet"]]) {
+  await page.goto(BASE + from, { waitUntil: "networkidle" });
+  check(new URL(page.url()).pathname === to, `${from} redirects to ${to} (${new URL(page.url()).pathname})`);
+}
+
+const phoneCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+const ph = await phoneCtx.newPage();
+const phErrors = [];
+ph.on("pageerror", (e) => phErrors.push(e.message));
+/** Interactive things smaller than 44 × 44 inside the phone (layout size, so the frame's scale doesn't count). */
+const smallTargets = () =>
+  ph.evaluate(() => {
+    const root = document.querySelector("[data-phone-screen]") ?? document.querySelector("[data-mobile-app]");
+    if (!root) return ["(no phone)"];
+    const seen = [];
+    for (const el of root.querySelectorAll("button, a[href], input, textarea, [role=radio], [role=option], [role=switch], [role=tab]")) {
+      if (el.closest("[aria-hidden=true]") || !el.offsetParent || getComputedStyle(el).visibility === "hidden") continue;
+      const box = el.getAttribute("role") === "switch" ? el.closest("label") ?? el : el;
+      if (box.offsetWidth < 44 || box.offsetHeight < 44) seen.push(`${el.tagName.toLowerCase()}:${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 18)} ${box.offsetWidth}x${box.offsetHeight}`);
+    }
+    return [...new Set(seen)].slice(0, 6);
+  });
+for (const path of ["/mobile", "/mobile/app", ...MOBILE.map((n) => `/mobile/${n}`)]) {
+  phErrors.length = 0;
+  await ph.goto(BASE + path, { waitUntil: "networkidle" });
+  await sleep(path === "/mobile/app" ? 900 : 300);
+  const r = await ph.evaluate(() => ({
+    over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    phone: !!(document.querySelector("[data-phone-screen]") ?? document.querySelector("[data-mobile-app]")),
+    // The phone itself fits the page (it scales down; nothing of it is cut off on the right).
+    cut: Math.max(0, ...[...document.querySelectorAll("[data-phone-screen]")].map((f) => Math.round(f.getBoundingClientRect().right - document.documentElement.clientWidth))),
+  }));
+  const small = await smallTargets();
+  check(!phErrors.length && r.over <= 0 && r.cut === 0 && r.phone && small.length === 0, `390 px ${path}: renders, no sideways scroll, touch targets ≥ 44 (${JSON.stringify({ ...r, errors: phErrors.slice(0, 2), small })})`);
+}
+await phoneCtx.close();
+
+// Gestures, on the detail pages at desktop width (phone frame at full scale).
+const drag = async (from, dx, dy, steps = 12) => {
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(from.x + (dx * i) / steps, from.y + (dy * i) / steps);
+    await sleep(14);
+  }
+  await page.mouse.up();
+};
+const centre = async (loc) => {
+  const b = await loc.boundingBox();
+  return { x: b.x + b.width / 2, y: b.y + b.height / 2, b };
+};
+await page.goto(BASE + "/mobile/mobile-tab-bar", { waitUntil: "networkidle" });
+await page.locator("[data-mobile-tab-bar] button", { hasText: "Products" }).click();
+await sleep(600);
+const tabPill = await page.evaluate(() => {
+  const p = document.querySelector("[data-mobile-tab-bar] [data-sliding-pill]").getBoundingClientRect();
+  const t = document.querySelector('[data-mobile-tab-bar] [aria-current="page"]').getBoundingClientRect();
+  return { d: Math.round(Math.abs(p.left - t.left)), title: document.querySelector("[data-phone-screen] h1")?.textContent };
+});
+check(tabPill.d <= 1 && tabPill.title === "Products", `tab bar: the pill lands on the tapped tab and its screen opens (${JSON.stringify(tabPill)})`);
+
+await page.goto(BASE + "/mobile/mobile-sheet", { waitUntil: "networkidle" });
+await page.locator("[data-phone-screen] [role=listitem] button").first().click();
+await sleep(700);
+const sheetOpen = await page.evaluate(() => {
+  const d = document.querySelector("[data-phone-screen] [role=dialog]");
+  const f = document.querySelector("[data-phone-screen]").getBoundingClientRect();
+  const btn = [...(d?.querySelectorAll("button") ?? [])].find((b) => /^Use /.test(b.textContent));
+  const bb = btn?.getBoundingClientRect();
+  return { open: !!d, footerVisible: !!bb && bb.bottom <= f.bottom - 30 && bb.top >= f.top };
+});
+check(sheetOpen.open && sheetOpen.footerVisible, `sheet opens at its half detent with the footer button on screen (${JSON.stringify(sheetOpen)})`);
+await drag(await centre(page.locator("[data-phone-screen] [role=dialog] .cursor-grab").first()), 0, 320);
+await sleep(700);
+check(!(await page.locator("[data-phone-screen] [role=dialog]").count()), "sheet: dragging the handle down closes it");
+
+await page.goto(BASE + "/mobile/mobile-swipe-row", { waitUntil: "networkidle" });
+const swipeRow = page.locator("[data-phone-screen] [role=listitem]").first();
+const rc = await centre(swipeRow);
+await drag({ x: rc.b.x + rc.b.width * 0.6, y: rc.y }, -150, 0);
+await sleep(600);
+const swiped = await swipeRow.evaluate((el) => ({ t: el.parentElement.style.transform, packed: [...el.closest(".overflow-hidden").querySelectorAll("button")].some((b) => b.textContent.includes("Packed") && getComputedStyle(b.parentElement).visibility === "visible") }));
+check(/translate3d\(-1[45]\d/.test(swiped.t) && swiped.packed, `swipe row: a left swipe opens its actions (${JSON.stringify(swiped)})`);
+
+await page.goto(BASE + "/mobile/mobile-pull-refresh", { waitUntil: "networkidle" });
+await drag(await centre(page.locator("[data-phone-screen] [role=listitem]").first()), 0, 220, 16);
+await sleep(250);
+check(await page.locator('[data-phone-screen] [role=status][aria-label="Refreshing"]').count(), "pull to refresh: a long pull starts a refresh (dots, no spinner)");
+
+await page.goto(BASE + "/mobile/mobile-snackbar", { waitUntil: "networkidle" });
+await page.getByRole("button", { name: /Mark .* packed/ }).first().click();
+await sleep(600);
+const snack = await page.evaluate(() => {
+  const s = document.querySelector("[data-phone-screen] [role=status]")?.getBoundingClientRect();
+  const t = document.querySelector("[data-mobile-tab-bar]").getBoundingClientRect();
+  return s ? { above: s.bottom <= t.top - 4, text: document.querySelector("[data-phone-screen] [role=status]").textContent } : null;
+});
+check(snack?.above && /packed/.test(snack.text) && /Undo/.test(snack.text), `snackbar sits above the tab bar with Undo (${JSON.stringify(snack)})`);
+
+await page.goto(BASE + "/mobile/mobile-action-bar?keyboard=1", { waitUntil: "networkidle" });
+await sleep(400);
+const bar = await page.evaluate(() => {
+  const a = document.querySelector("[data-mobile-action-bar]").getBoundingClientRect();
+  const f = document.querySelector("[data-phone-screen]").getBoundingClientRect();
+  return { gap: Math.round(f.bottom - a.bottom) };
+});
+check(bar.gap >= 291, `action bar rides above the keyboard (${JSON.stringify(bar)})`);
 
 // Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
 // keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open (Joshua, v5.4:

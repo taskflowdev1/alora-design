@@ -63,6 +63,7 @@
   --spacing-control: var(--ad-control-h);
   --spacing-item: var(--ad-item-h);
   --spacing-row: var(--ad-row-h);
+  --spacing-touch: var(--ad-touch-h);
   --spacing-pad: var(--ad-pad);
   --spacing-nest: var(--ad-nest);
   --spacing-gap: var(--ad-gap);

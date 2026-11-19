@@ -143,7 +143,12 @@ export function componentItem(item: Item, c: Config, a: Pick<Assets, "sources">)
     dependencies: ["react-feather", ...(item.deps ?? [])],
     registryDependencies: [registryUrl("theme", c), `${SITE}/r/ad.json`, ...(item.registryDeps ?? []).map((n) => registryUrl(n, c))],
     // registry:ui files land in the app's ui folder, collections included, so their relative imports resolve.
-    files: item.files.map((f) => ({ path: `registry/alora/${item.dir ?? "ui"}/${f}`, type: "registry:ui", content: a.sources[sourceKey(item, f)] ?? "" })),
+    // Mobile files land there too, so imports between the two folders become same-folder imports.
+    files: item.files.map((f) => ({
+      path: `registry/alora/${item.dir ?? "ui"}/${f}`,
+      type: "registry:ui",
+      content: (a.sources[sourceKey(item, f)] ?? "").replaceAll('from "../mobile/', 'from "./').replaceAll('from "@/components/mobile/', 'from "@/components/ui/'),
+    })),
   };
 }
 

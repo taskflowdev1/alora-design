@@ -29,7 +29,8 @@ const MODULES = import.meta.glob("../components/{ai,backgrounds}/*.tsx", { eager
 /** The component an item's registry entry names (`export`) in its file. */
 const componentOf = (item: Item) => MODULES[`../components/${item.dir}/${item.files[0]}`]?.[item.export ?? ""] as AnyComponent | undefined;
 
-export const SECTION_TITLE: Record<Exclude<Section, "components">, string> = { ai: "AI", backgrounds: "Backgrounds" };
+export type CollectionSection = Exclude<Section, "components" | "mobile">;
+export const SECTION_TITLE: Record<CollectionSection, string> = { ai: "AI", backgrounds: "Backgrounds" };
 const itemsOf = (section: Section) => ITEMS.filter((i) => sectionOf(i) === section);
 
 /** Param defaults, overridden by matching URL params (?size=48), so any state has a link. */
@@ -123,7 +124,7 @@ function ParamControl({ p, value, onChange }: { p: Param; value: number | string
 const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-3", "composer-glow": "sm:col-span-2 lg:col-span-6" };
 
 /** The AI or Backgrounds page: every item live, under its small kind heading; each opens its sliders. */
-export function CollectionIndex({ section }: { section: Exclude<Section, "components"> }) {
+export function CollectionIndex({ section }: { section: CollectionSection }) {
   const items = itemsOf(section);
   const kinds = [...new Set(items.map((i) => i.kind ?? SECTION_TITLE[section]))];
   // A few items share one row with no subheadings; the kind headings appear once a section grows.
@@ -157,7 +158,7 @@ export function CollectionIndex({ section }: { section: Exclude<Section, "compon
 }
 
 /** One AI or Backgrounds item: live on a stage, its sliders beside it, then usage, source and install. */
-export function CollectionItem({ section }: { section: Exclude<Section, "components"> }) {
+export function CollectionItem({ section }: { section: CollectionSection }) {
   const { name = "" } = useParams();
   const item = findItem(name);
   const ok = !!item && sectionOf(item) === section && !!componentOf(item);

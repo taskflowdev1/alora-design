@@ -15,7 +15,7 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
 const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ad-docs-"));
 for (const f of ["config", "color", "registry", "encyclopedia"]) writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(read(`src/lib/${f}.ts`), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
 const { DEFAULTS, LIMITS, GREY_STEPS, GREY_ROLES, greyRamp } = await import(pathToFileURL(join(tmp, "config.js")).href);
-const { ITEMS, GROUPS, SITE, itemPath } = await import(pathToFileURL(join(tmp, "registry.js")).href);
+const { ITEMS, GROUPS, MOBILE_GROUPS, SITE, itemPath } = await import(pathToFileURL(join(tmp, "registry.js")).href);
 const { checklistMarkdown } = await import(pathToFileURL(join(tmp, "encyclopedia.js")).href);
 rmSync(tmp, { recursive: true, force: true });
 
@@ -108,6 +108,7 @@ const parts = Object.fromEntries(
 
 const sections = [
   ...GROUPS.map((g) => ({ title: g === "Niche" ? "Niche ERP parts" : g, items: ITEMS.filter((i) => i.group === g) })),
+  { title: "Mobile", items: ITEMS.filter((i) => MOBILE_GROUPS.includes(i.group)) },
   { title: "AI", items: ITEMS.filter((i) => i.group === "AI") },
   { title: "Backgrounds", items: ITEMS.filter((i) => i.group === "Backgrounds") },
 ];

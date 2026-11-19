@@ -38,7 +38,6 @@ import { Carousel } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { H1, H2, H3, InlineCode, List, Muted, Num, P, Quote, Small } from "@/components/ui/typography";
 import { AlertDialog } from "@/components/ui/alert-dialog";
-import { Drawer, DrawerClose } from "@/components/ui/drawer";
 import { Resizable } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bubble, BubbleGroup, Message } from "@/components/ui/message";
@@ -538,35 +537,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
       </AlertDialog>
     ),
     usage: () => `<AlertDialog\n  trigger={<Button>Cancel 3 orders</Button>}\n  title="Cancel 3 orders?"\n  action="Cancel orders"\n  onAction={cancel}\n>\n  Buyers get their money back today.\n</AlertDialog>`,
-  },
-  drawer: {
-    render: () => (
-      <Drawer
-        trigger={<Button>Choose courier</Button>}
-        title="Ship with"
-        footer={
-          <DrawerClose asChild>
-            <Button variant="primary" onClick={() => toast("Courier booked")}>
-              Book pickup
-            </Button>
-          </DrawerClose>
-        }
-      >
-        <div className="grid gap-px">
-          {[
-            ["JNE Regular", "Rp 12.000"],
-            ["SiCepat", "Rp 11.000"],
-            ["GoSend Instant", "Rp 28.000"],
-          ].map(([n, pr]) => (
-            <div key={n} className="flex h-row items-center justify-between rounded-item px-2.5 text-body hover:bg-fill">
-              {n}
-              <span className="tabular-nums text-ink-muted">{pr}</span>
-            </div>
-          ))}
-        </div>
-      </Drawer>
-    ),
-    usage: () => `<Drawer trigger={<Button>Choose courier</Button>} title="Ship with" footer={<Button variant="primary">Book pickup</Button>}>\n  …\n</Drawer>`,
   },
 
   /* ---------------------------------------------------------- layout */

@@ -134,7 +134,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Date picker](https://design.alorawork.com/components/date-picker) | `date-picker` | `DatePicker` | `value`, `onValueChange`, `placeholder="Pick a date"`, `smart=true`, `today=new Date()`, `className` |
 | [Period stepper](https://design.alorawork.com/components/period-stepper) | `period-stepper` | `PeriodStepper` | `value`, `period`, `onValueChange`, `max`, `className` |
 | [Language picker](https://design.alorawork.com/components/language-picker) | `language-picker` | `LanguagePicker` | `value`, `onValueChange`, `languages=LANGUAGES`, `className` |
-| [Segmented control](https://design.alorawork.com/components/segmented) | `segmented` | `Segmented` | `value`, `onValueChange`, `options`, `className`, `aria-label` |
+| [Segmented control](https://design.alorawork.com/components/segmented) | `segmented` | `Segmented` | `value`, `onValueChange`, `options`, `size="default"`, `className`, `aria-label` |
 | [Sliding pill](https://design.alorawork.com/components/sliding-pill) | `sliding-pill` | `SlidingPill` | `selector`, `className` |
 | [Tabs](https://design.alorawork.com/components/tabs) | `tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | none |
 | [Toggle](https://design.alorawork.com/components/switch) | `switch` | `Switch` | `size="default"` |
@@ -203,14 +203,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Tooltip](https://design.alorawork.com/components/tooltip) | `tooltip` | `TooltipProvider`, `Tooltip` | `children`, `content`, `side="top"`, `open` |
 | [Toast](https://design.alorawork.com/components/toast) | `toast` | `Toaster`, `ToastView` | `tone="success"`, `children`, `className` |
 | [Alert dialog](https://design.alorawork.com/components/alert-dialog) | `alert-dialog` | `AlertDialog` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `action`, `onAction`, `cancel="Keep"`, `className` |
-| [Drawer](https://design.alorawork.com/components/drawer) | `drawer` | `Drawer` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `footer`, `className` |
 
 ### Layout
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
 | [Sidebar](https://design.alorawork.com/components/sidebar) | `sidebar` | `Sidebar`, `SidebarSection`, `SidebarItem` | `className`, `children`, `label`, `icon`, `active`, `count`, `asChild`, `onClick` |
-| [Bottom nav](https://design.alorawork.com/components/bottom-nav) | `bottom-nav` | `BottomNav`, `BottomNavItem`, `Fab` | `children`, `className`, `icon`, `label`, `active`, `onClick` |
 | [Resizable panes](https://design.alorawork.com/components/resizable) | `resizable` | `Resizable` | `children`, `direction="horizontal"`, `defaultSize=50`, `min=20`, `max=80`, `onResize`, `className` |
 | [Scroll area](https://design.alorawork.com/components/scroll-area) | `scroll-area` | `ScrollArea` | `orientation="vertical"` |
 
@@ -263,6 +261,28 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Notification bell](https://design.alorawork.com/components/notification-bell) | `notification-bell` | `NotificationBell` | `notices`, `onMarkAllRead`, `className` |
 | [Kanban card](https://design.alorawork.com/components/kanban-card) | `kanban-card` | `KanbanCard`, `KanbanColumn` | `title`, `id`, `media`, `tags=[]`, `people=[]`, `due`, `attention`, `onClick`, `className`, `count`, `children` |
 | [Calendar month](https://design.alorawork.com/components/calendar-month) | `calendar-month` | `CalendarMonth` | `month`, `onMonthChange`, `events`, `today=new Date()`, `max=2`, `onEventClick`, `className` |
+
+### Mobile
+
+| Component | Install name | Exports | Props (`=default`) |
+| --- | --- | --- | --- |
+| [Tab bar](https://design.alorawork.com/mobile/mobile-tab-bar) | `mobile-tab-bar` | `MobileTabBar`, `MobileTab` | `children`, `iconOnly=false`, `className`, `aria-label`, `icon`, `label`, `active`, `badge`, `onClick` |
+| [Large-title nav bar](https://design.alorawork.com/mobile/mobile-nav-bar) | `mobile-nav-bar` | `MobileScreen`, `MobileBarButton` | `title`, `large=true`, `back`, `trailing`, `header`, `bottomInset="tab-bar"`, `children`, `className`, `ref` |
+| [Action bar](https://design.alorawork.com/mobile/mobile-action-bar) | `mobile-action-bar` | `MobileActionBar` | `children`, `className` |
+| [Grouped list](https://design.alorawork.com/mobile/mobile-list) | `mobile-list` | `MobileList`, `MobileListRow` | `title`, `variant="inset"`, `children`, `className`, `media`, `subtitle`, `value`, `chevron`, `onClick`, `trailing`, `toggle` |
+| [Swipe actions](https://design.alorawork.com/mobile/mobile-swipe-row) | `mobile-swipe-row` | `SwipeRow` | `children`, `leading=[]`, `trailing=[]`, `className` |
+| [Pull to refresh](https://design.alorawork.com/mobile/mobile-pull-refresh) | `mobile-pull-refresh` | `PullToRefresh` | `onRefresh`, `children`, `className` |
+| [Skeleton list](https://design.alorawork.com/mobile/mobile-list-skeleton) | `mobile-list-skeleton` | `MobileListSkeleton` | `rows=6`, `media="thumb"`, `subtitle=true`, `value=true`, `chevron=false`, `title=false`, `className` |
+| [Empty state](https://design.alorawork.com/mobile/mobile-empty-state) | `mobile-empty-state` | — | none |
+| [Bottom sheet](https://design.alorawork.com/mobile/mobile-sheet) | `mobile-sheet` | `MobileSheet` | `open`, `onOpenChange`, `trigger`, `title`, `aria-label`, `detents=["fit"]`, `initialDetent=0`, `children`, `footer`, `surface=true`, `className` |
+| [Action sheet](https://design.alorawork.com/mobile/mobile-action-sheet) | `mobile-action-sheet` | `MobileActionSheet` | `open`, `onOpenChange`, `title`, `actions`, `cancelLabel="Cancel"` |
+| [Wheel date picker](https://design.alorawork.com/mobile/mobile-date-picker) | `mobile-date-picker` | `WheelColumn`, `WheelPicker`, `MobileDateSheet` | `options`, `value`, `onValueChange`, `aria-label`, `className`, `children`, `open`, `onOpenChange`, `title`, `mode="date"`, `years=[2024, 2028]` |
+| [Segmented control](https://design.alorawork.com/mobile/mobile-segmented) | `mobile-segmented` | — | none |
+| [Search bar](https://design.alorawork.com/mobile/mobile-search-bar) | `mobile-search-bar` | `MobileSearchBar` | `value`, `onValueChange`, `placeholder="Search"`, `onCancel`, `className` |
+| [Stepper](https://design.alorawork.com/mobile/mobile-stepper) | `mobile-stepper` | — | none |
+| [Snackbar](https://design.alorawork.com/mobile/mobile-snackbar) | `mobile-snackbar` | `MobileSnackbar` | `open`, `onOpenChange`, `message`, `action`, `duration=4000`, `above="tab-bar"` |
+| [Bottom nav](https://design.alorawork.com/mobile/bottom-nav) | `bottom-nav` | `Fab` | `icon`, `label`, `onClick` |
+| [Drawer](https://design.alorawork.com/mobile/drawer) | `drawer` | — | none |
 
 ### AI
 

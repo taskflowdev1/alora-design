@@ -1,5 +1,5 @@
 import * as React from "react";
-import { NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from "react-router";
+import { Link, Outlet, ScrollRestoration, useLocation, useNavigate } from "react-router";
 import { Box, Cpu, Download, Grid, Home, Image, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
@@ -25,16 +25,20 @@ export const TABS = [
   { to: "/export", label: "Export" },
 ];
 
+/** A header tab. Components stays lit on /mobile too: Desktop and Mobile are the two halves of one Components tab. */
 function NavItem({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
+  const { pathname } = useLocation();
+  const active = pathname === to || pathname.startsWith(`${to}/`) || (to === "/components" && (pathname === "/mobile" || pathname.startsWith("/mobile/")));
   return (
-    <NavLink
+    <Link
       to={q ? `${to}?${q}` : to}
-      className={({ isActive }) => cn(buttonClass({ variant: "ghost" }), "shrink-0 text-ink-muted hover:text-ink", isActive && "relative bg-transparent text-ink hover:bg-transparent", !isActive && "relative", className)}
+      aria-current={active ? "page" : undefined}
+      className={cn(buttonClass({ variant: "ghost" }), "relative shrink-0 text-ink-muted hover:text-ink", active && "bg-transparent text-ink hover:bg-transparent", className)}
     >
       {children}
-    </NavLink>
+    </Link>
   );
 }
 

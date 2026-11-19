@@ -34,7 +34,7 @@ import {
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
-import { COMPONENT_ITEMS, GROUPS, findItem, type Group } from "@/lib/registry";
+import { COMPONENT_ITEMS, GROUPS, findItem, type Group, type MobileGroup } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, MetricCard } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -70,7 +70,6 @@ import { Menu, MenuItem, menuSurface } from "@/components/ui/menu";
 import { Toolbar, ToolbarSpacer } from "@/components/ui/toolbar";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
-import { BottomNav, BottomNavItem } from "@/components/ui/bottom-nav";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { DateRangePicker, DEFAULT_PRESETS, type DateRange } from "@/components/ui/date-range-picker";
 import { TimePicker } from "@/components/ui/time-picker";
@@ -884,40 +883,6 @@ function DesktopShellTile({ className }: { className?: string }) {
   );
 }
 
-function PhoneShellTile({ className }: { className?: string }) {
-  const [at, setAt] = React.useState("Orders");
-  return (
-    <Card inset="none" className={cn("relative min-h-[384px] min-w-0 overflow-hidden [transform:translateZ(0)]", className)}>
-      <div className="grid gap-nest p-[calc(var(--ad-nest)*2)] pb-24">
-        <CardHeader title="To pack" action={<Badge>3</Badge>} className="px-2 pt-1" />
-        {ORDERS.slice(0, 4).map((o) => (
-          <div key={o.id} className="flex items-center gap-2.5 rounded-item bg-fill px-2.5 py-2">
-            <Thumb alt={o.items} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-body">{o.items}</p>
-              <p className="text-small tabular-nums text-ink-muted">{o.id}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Mark name="bottom-nav" className="absolute inset-x-3 bottom-3">
-        <BottomNav className="relative inset-auto bottom-auto">
-          {(
-            [
-              [Home, "Home"],
-              [ShoppingBag, "Orders"],
-              [Package, "Stock"],
-              [SearchIcon, "Search"],
-            ] as const
-          ).map(([I, l]) => (
-            <BottomNavItem key={l} icon={I} label={l} active={at === l} onClick={() => setAt(l)} />
-          ))}
-        </BottomNav>
-      </Mark>
-    </Card>
-  );
-}
-
 /* ------------------------------------------------------------ Niche */
 
 const NOTICES: Notice[] = [
@@ -1380,7 +1345,7 @@ function ShipmentTile({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ the page */
 
-const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat">, TileDef[]> = {
+const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat" | MobileGroup>, TileDef[]> = {
   Foundations: [
     { items: ["corner-shape"], render: (c) => <CornerTile config={c} className={S[8]} /> },
     { items: ["scrollbar"], render: () => <ScrollTile className={S[4]} /> },
@@ -1418,8 +1383,7 @@ const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat">, TileD
     { items: ["toast"], render: () => <ToastTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
   ],
   Layout: [
-    { items: ["sidebar"], render: () => <DesktopShellTile className={S[8]} /> },
-    { items: ["bottom-nav"], render: () => <PhoneShellTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
+    { items: ["sidebar"], render: () => <DesktopShellTile className={S[12]} /> },
   ],
   Niche: [
     { items: ["notification-bell", "shop-picker", "date-range-picker", "toggle-group", "column-menu", "context-menu", "marketplace-mark", "sparkline", "diff"], render: () => <PayoutsTile className={S[8]} /> },

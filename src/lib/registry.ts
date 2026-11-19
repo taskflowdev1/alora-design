@@ -1,9 +1,24 @@
 // Every item on the site: drives the Components, AI and Backgrounds pages, the shadcn registry (/r/<name>.json),
 // /api/kit and the README tables (scripts/gen-docs.mjs). Pure data: the API imports it.
 
-export type Group = "Actions" | "Inputs" | "Display" | "Charts" | "Navigation" | "Overlays" | "Layout" | "Chat" | "Foundations" | "Niche" | "AI" | "Backgrounds";
-/** The site section (nav tab) an item lives in. */
-export type Section = "components" | "ai" | "backgrounds";
+export type Group =
+  | "Actions"
+  | "Inputs"
+  | "Display"
+  | "Charts"
+  | "Navigation"
+  | "Overlays"
+  | "Layout"
+  | "Chat"
+  | "Foundations"
+  | "Niche"
+  | "AI"
+  | "Backgrounds"
+  | MobileGroup;
+/** The Mobile half of the library (src/components/mobile and touch sizes of shared parts). */
+export type MobileGroup = "Bars" | "Lists" | "Sheets" | "Touch inputs" | "Feedback";
+/** The site section an item lives in. Components and Mobile share the Components tab (Desktop | Mobile switch). */
+export type Section = "components" | "mobile" | "ai" | "backgrounds";
 
 /** A control on a collection item's page; its value is passed to the component as the prop `key`. */
 export type Param =
@@ -18,7 +33,9 @@ export interface Item {
   group: Group;
   /** Files under src/components/<dir> (default "ui"). Empty for foundation pages. */
   files: string[];
-  dir?: "ui" | "ai" | "backgrounds";
+  dir?: "ui" | "ai" | "backgrounds" | "mobile";
+  /** An old install name kept working: it installs a re-export of this item, and its page redirects there. */
+  alias?: string;
   deps?: string[];
   registryDeps?: string[];
   /** AI and Backgrounds only: the component the file exports, and the controls its page shows. */
@@ -114,10 +131,10 @@ export const ITEMS: Item[] = [
   { name: "tooltip", title: "Tooltip", group: "Overlays", files: ["tooltip.tsx"], deps: [RADIX] },
   { name: "toast", title: "Toast", group: "Overlays", files: ["toast.tsx"] },
   { name: "alert-dialog", title: "Alert dialog", group: "Overlays", files: ["alert-dialog.tsx"], deps: [RADIX], registryDeps: ["button", "dialog"] },
-  { name: "drawer", title: "Drawer", group: "Overlays", files: ["drawer.tsx"], deps: [RADIX], registryDeps: ["dialog"] },
+
 
   { name: "sidebar", title: "Sidebar", group: "Layout", files: ["sidebar.tsx"], deps: [RADIX], registryDeps: ["sliding-pill"] },
-  { name: "bottom-nav", title: "Bottom nav", group: "Layout", files: ["bottom-nav.tsx"] },
+
   { name: "resizable", title: "Resizable panes", group: "Layout", files: ["resizable.tsx"], showcase: false },
   { name: "scroll-area", title: "Scroll area", group: "Layout", files: ["scroll-area.tsx"], deps: [RADIX], showcase: false },
 
@@ -164,6 +181,27 @@ export const ITEMS: Item[] = [
   { name: "notification-bell", title: "Notification bell", group: "Niche", files: ["notification-bell.tsx"], registryDeps: ["button", "popover"] },
   { name: "kanban-card", title: "Kanban card", group: "Niche", files: ["kanban-card.tsx"], registryDeps: ["avatar-group", "badge"] },
   { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], deps: [RADIX], registryDeps: ["button", "tooltip"] },
+
+  // Mobile: phone components. Own files in src/components/mobile (they import each other relatively, so they install
+  // next to each other); shared parts appear here with their touch size. Shown at /mobile in a 390 × 844 phone frame.
+  { name: "mobile-tab-bar", title: "Tab bar", group: "Bars", dir: "mobile", files: ["mobile-tab-bar.tsx"], registryDeps: ["sliding-pill"] },
+  { name: "mobile-nav-bar", title: "Large-title nav bar", group: "Bars", dir: "mobile", files: ["mobile-nav-bar.tsx"] },
+  { name: "mobile-action-bar", title: "Action bar", group: "Bars", dir: "mobile", files: ["mobile-action-bar.tsx"], registryDeps: ["button"] },
+  { name: "mobile-list", title: "Grouped list", group: "Lists", dir: "mobile", files: ["mobile-list.tsx"] },
+  { name: "mobile-swipe-row", title: "Swipe actions", group: "Lists", dir: "mobile", files: ["mobile-swipe-row.tsx"], registryDeps: ["mobile-list"] },
+  { name: "mobile-pull-refresh", title: "Pull to refresh", group: "Lists", dir: "mobile", files: ["mobile-pull-refresh.tsx"], registryDeps: ["mobile-nav-bar"] },
+  { name: "mobile-list-skeleton", title: "Skeleton list", group: "Lists", dir: "mobile", files: ["mobile-list.tsx"] },
+  { name: "mobile-empty-state", title: "Empty state", group: "Lists", files: ["empty-state.tsx"] },
+  { name: "mobile-sheet", title: "Bottom sheet", group: "Sheets", dir: "mobile", files: ["mobile-sheet.tsx"], deps: [RADIX] },
+  { name: "mobile-action-sheet", title: "Action sheet", group: "Sheets", dir: "mobile", files: ["mobile-action-sheet.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
+  { name: "mobile-date-picker", title: "Wheel date picker", group: "Sheets", dir: "mobile", files: ["mobile-wheel-picker.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-segmented", title: "Segmented control", group: "Touch inputs", files: ["segmented.tsx"], registryDeps: ["sliding-pill"] },
+  { name: "mobile-search-bar", title: "Search bar", group: "Touch inputs", dir: "mobile", files: ["mobile-search-bar.tsx"] },
+  { name: "mobile-stepper", title: "Stepper", group: "Touch inputs", files: ["quantity-stepper.tsx"] },
+  { name: "mobile-snackbar", title: "Snackbar", group: "Feedback", dir: "mobile", files: ["mobile-snackbar.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
+  // Old names, kept installable: each installs a re-export of its mobile replacement, and its page redirects there.
+  { name: "bottom-nav", title: "Bottom nav", group: "Bars", files: ["bottom-nav.tsx"], registryDeps: ["mobile-tab-bar"], alias: "mobile-tab-bar", showcase: false },
+  { name: "drawer", title: "Drawer", group: "Sheets", files: ["drawer.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"], alias: "mobile-sheet", showcase: false },
 
   // AI: loaders and agent chrome. Add one = a file in src/components/ai + an entry here (see README).
   {
@@ -248,13 +286,17 @@ export const ITEMS: Item[] = [
 
 export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
+export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Feedback"];
+
 export const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
   { id: "components", title: "Components", path: "/components", groups: GROUPS },
+  { id: "mobile", title: "Mobile", path: "/mobile", groups: MOBILE_GROUPS },
   { id: "ai", title: "AI", path: "/ai", groups: ["AI"] },
   { id: "backgrounds", title: "Backgrounds", path: "/backgrounds", groups: ["Backgrounds"] },
 ];
 
-export const sectionOf = (i: Item): Section => (i.group === "AI" ? "ai" : i.group === "Backgrounds" ? "backgrounds" : "components");
+export const sectionOf = (i: Item): Section =>
+  i.group === "AI" ? "ai" : i.group === "Backgrounds" ? "backgrounds" : (MOBILE_GROUPS as Group[]).includes(i.group) ? "mobile" : "components";
 /** The item's page on the site, e.g. /components/button, /ai/thinking-orbs. */
 export const itemPath = (i: Item) => `${SECTIONS.find((s) => s.id === sectionOf(i))!.path}/${i.name}`;
 /** Source key for a file: "button.tsx" for ui, "ai/thinking-orbs.tsx" for the collections. */
@@ -266,5 +308,7 @@ export const SITE = "https://design.alorawork.com";
 export const REGISTRY_ITEMS = ITEMS.filter((i) => i.files.length);
 
 export const findItem = (name: string) => ITEMS.find((i) => i.name === name);
-/** Items in the Components section (everything but AI and Backgrounds). */
+/** Items in the Components section (desktop: everything but Mobile, AI and Backgrounds). */
 export const COMPONENT_ITEMS = ITEMS.filter((i) => sectionOf(i) === "components");
+/** The Mobile items with their own page (aliases redirect). */
+export const MOBILE_ITEMS = ITEMS.filter((i) => sectionOf(i) === "mobile" && !i.alias);

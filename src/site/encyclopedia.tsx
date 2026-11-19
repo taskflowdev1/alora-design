@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useSearchParams } from "react-router";
 import { Clock, ExternalLink, Play, Search as SearchIcon } from "react-feather";
-import { CATEGORIES, LEVELS, RULES, SOURCES, rulesIn, sourceById, type Level, type Rule } from "@/lib/encyclopedia";
+import { CATEGORIES, LEVELS, RULES, SOURCES, forPlatform, platformOf, rulesIn, sourceById, type Level, type Rule } from "@/lib/encyclopedia";
 import { Accordion } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { CopyChip } from "@/components/ui/copy-chip";
@@ -17,6 +17,7 @@ import { DEMOS, DemoFrame } from "./encyclopedia-demos";
 // interaction rules. Filters live in the URL (q, cat, level, demos; rule opens one rule). Data: src/lib/encyclopedia.ts.
 
 type LevelFilter = Level | "all";
+type PlatformFilter = "all" | "desktop" | "mobile";
 
 /** Inline `code` in rule text becomes a code chip. */
 function Rich({ text }: { text: string }) {
@@ -93,6 +94,7 @@ function RuleBody({ rule: r }: { rule: Rule }) {
       <div className="flex flex-wrap items-center gap-gap">
         <CopyChip value={r.id} />
         <span className="text-ink-muted">{levelTitle(r.level)}</span>
+        <span className="text-ink-muted">{platformOf(r) === "both" ? "Desktop and mobile" : platformOf(r) === "mobile" ? "Mobile" : "Desktop"}</span>
       </div>
     </div>
   );
@@ -121,6 +123,7 @@ export function EncyclopediaPage() {
   const cat = CATEGORIES.some((c) => c.id === params.get("cat")) ? params.get("cat")! : "all";
   const level: LevelFilter = LEVELS.some((l) => l.id === params.get("level")) ? (params.get("level") as Level) : "all";
   const demosOnly = params.get("demos") === "1";
+  const platform: PlatformFilter = params.get("platform") === "desktop" || params.get("platform") === "mobile" ? (params.get("platform") as PlatformFilter) : "all";
   const [openRule] = React.useState(() => params.get("rule"));
   const [slow, setSlow] = React.useState(false);
   useSlowMotion(slow);
@@ -142,6 +145,7 @@ export function EncyclopediaPage() {
     (r) =>
       (cat === "all" || r.category === cat) &&
       (level === "all" || r.level === level) &&
+      (platform === "all" || forPlatform(r, platform)) &&
       (!demosOnly || DEMOS[r.id]) &&
       terms.every((t) => haystack.get(r.id)!.includes(t)),
   );
@@ -168,6 +172,16 @@ export function EncyclopediaPage() {
           value={level}
           onValueChange={(v) => set("level", v === "all" ? null : v)}
           options={[{ value: "all", label: "All" }, ...LEVELS.map((l) => ({ value: l.id, label: l.title }))]}
+        />
+        <Segmented<PlatformFilter>
+          aria-label="Platform"
+          value={platform}
+          onValueChange={(v) => set("platform", v === "all" ? null : v)}
+          options={[
+            { value: "all", label: "Any" },
+            { value: "desktop", label: "Desktop" },
+            { value: "mobile", label: "Mobile" },
+          ]}
         />
         <Toggle pressed={demosOnly} onPressedChange={(on) => set("demos", on ? "1" : null)}>
           <Play />
@@ -205,6 +219,7 @@ export function EncyclopediaPage() {
                   meta: (
                     <span className="flex items-center gap-3">
                       {DEMOS[r.id] ? <span>Demo</span> : null}
+                      {platformOf(r) !== "both" ? <span data-platform={platformOf(r)}>{platformOf(r) === "mobile" ? "Mobile" : "Desktop"}</span> : null}
                       {r.level !== "should" ? <span>{levelTitle(r.level)}</span> : null}
                     </span>
                   ),

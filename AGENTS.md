@@ -21,6 +21,13 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   Every shadcn component has ours except Separator (no dividing lines) and Direction (an RTL provider); Spinner maps
   to Thinking orbs (no spinners). `src/components/ai/` (Thinking orbs, Run status, Composer
   glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
+- `src/components/mobile/*.tsx`: the Mobile set (tab bar, large-title screen, action bar, grouped list + skeleton, swipe row,
+  pull to refresh, bottom sheet with detents, action sheet, wheel date picker, search bar, snackbar). Registry groups Bars,
+  Lists, Sheets, Touch inputs, Feedback (section `mobile`, pages `/mobile/<name>`). They import each other relatively
+  (`./mobile-sheet`) and ui parts by `@/components/ui/…`; the kit rewrites `../mobile/` to `./` because every file installs
+  into the app's ui folder. Shared parts get a touch size instead of a copy (`Segmented size="touch"`, `QuantityStepper
+  size="touch"`, listed as `mobile-segmented` / `mobile-stepper`). `ui/drawer.tsx` and `ui/bottom-nav.tsx` are re-export
+  shims; their registry items carry `alias`, install the shim and redirect their page.
 - `src/site/`: landing (hero, `bento.tsx` = the original components in 19 real ERP cards, `MoreBento` from
   `showcase-more.tsx` = the shadcn-parity tiles in category bands, then the AI and Backgrounds bands, then the closing
   card that is the landing's footer), Components page (`showcase.tsx`: every component live in category bento tiles,
@@ -30,6 +37,12 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   (`Composer`) ships in `composer-glow.tsx`: one row attach | text | send, one control size, inset = half the card padding,
   radius = control radius + inset; text grows upward, buttons stay at the bottom (Board's assistant composer), examples (7 pages), `encyclopedia.tsx` (`/encyclopedia`: the UI rules, search and filters in the URL, live demos from
   `encyclopedia-demos.tsx`, lazy-loaded), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
+- Mobile site (`gallery.tsx`, `mobile-overview.tsx`, `demos-mobile.tsx`, `phone.tsx`, `mobile-app.tsx`): the Components tab
+  has a Desktop | Mobile switch (`PlatformSwitch`: next to the title on the overview, on top of the sidebar on detail
+  pages); `/components` and `/mobile` render the same `GalleryIndex` so the switch slides. Mobile demos use
+  `stage: "phone"`: `PhoneFrame` (390 × 844, status bar, home indicator, `--ad-safe-top/bottom` 47/34 px, `?keyboard=1`
+  draws a keyboard and sets `--ad-keyboard`) is the containing block for fixed bars and the `MobileLayer` portal target for
+  sheets. `/mobile/app` (outside the site layout) is the example app full screen on a phone, framed on desktop.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `checklist.ts` (`/ui-checklist.md`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
@@ -90,7 +103,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `#root` keeps the global tokens. Cleanup removes both.
 - Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
   a step above the page, so it still stands out.
-- Routes: `/components` (was `/gallery`, which redirects), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
+- Routes: `/components` (was `/gallery`, which redirects) and `/mobile` (its Mobile half, plus `/mobile/app`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
 - /components is a bento like the landing (12 columns, `gap-4` = 13 px gaps): per category, tiles that compose its components
   in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
@@ -129,6 +142,10 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   gets up to 12 px of left padding so the edge tab never covers content (smoke checks it at 768).
 - Footer: the credit "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com) at body size. Inner pages:
   one line on the content edge. Landing: the closing card is the only footer (wordmark + Explore, then tabs + credit).
+- One-of-N pickers slide (Joshua, 2026-11-19): the selected fill is one `SlidingPill` (`ui/sliding-pill.tsx`) inside a positioned
+  parent, found by a selector (`aria-checked`, `aria-current`, `aria-pressed`, `data-state`); options carry `relative` and no
+  selected fill of their own. Segmented, Tabs, ToggleGroup `type="single"`, ChipGroup, Sidebar, Pagination, the site header
+  and sidebars use it. A one-of-N picker is a Segmented, never a ButtonGroup with a painted button.
 - Selected states follow the shadcn/Radix/Apple norm (Joshua rejected solid-ink pills in v5): in a track (segmented,
   toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track` (a soft drop only: never an edge, outline or ring); on a plain
   surface (tabs, chips, shop-picker All/Only, toggle, pagination) the grey `fill-strong` pill. Active text is ink and

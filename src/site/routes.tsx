@@ -7,6 +7,7 @@ import { GalleryIndex, GalleryItem } from "./gallery";
 import { CollectionIndex, CollectionItem } from "./collections";
 import { Examples } from "./examples";
 import { ExportPage } from "./export";
+import { MobileAppPage } from "./mobile-app-page";
 
 function ToDashboard() {
   const { search } = useLocation();
@@ -25,6 +26,8 @@ function NotFound() {
 }
 
 export const router = createBrowserRouter([
+  // The example phone app, full screen on a phone (no site header).
+  { path: "/mobile/app", element: <MobileAppPage />, errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" /> },
   {
     element: <SiteLayout />,
     errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" />,
@@ -32,6 +35,8 @@ export const router = createBrowserRouter([
       { path: "/", element: <Landing /> },
       { path: "/components", element: <GalleryIndex /> },
       { path: "/components/:name", element: <GalleryItem /> },
+      { path: "/mobile", element: <GalleryIndex /> },
+      { path: "/mobile/:name", element: <GalleryItem /> },
       { path: "/ai", element: <CollectionIndex section="ai" /> },
       { path: "/ai/:name", element: <CollectionItem section="ai" /> },
       { path: "/backgrounds", element: <CollectionIndex section="backgrounds" /> },

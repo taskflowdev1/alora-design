@@ -13,7 +13,7 @@ import {
   Layers,
   Package,
   Plus,
-  Search as SearchIcon,
+
   Settings,
   Share2,
   ShoppingBag,
@@ -64,10 +64,10 @@ import { Menu, MenuGroup, MenuItem, MenuLabel, MenuSub } from "@/components/ui/m
 import { Toolbar, ToolbarSpacer, PageHeader } from "@/components/ui/toolbar";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
-import { BottomNav, BottomNavItem } from "@/components/ui/bottom-nav";
 import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime } from "./data";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
+import { MOBILE_DEMOS } from "./demos-mobile";
 import { NICHE_DEMOS } from "./demos-niche";
 import { MORE_DEMOS } from "./demos-more";
 import { MOTION_DEMOS } from "./demos-motion";
@@ -84,8 +84,8 @@ export type Props = Record<string, string | boolean>;
 
 export interface Demo {
   controls?: Control[];
-  /** "page" shows the preview on a tinted stage (for cards); "surface" on a white card. */
-  stage?: "page" | "surface";
+  /** "page" shows the preview on a tinted stage (for cards); "surface" on a white card; "phone" inside a 390 × 844 phone. */
+  stage?: "page" | "surface" | "phone";
   render: (p: Props, config: Config) => React.ReactNode;
   usage: (p: Props) => string;
 }
@@ -137,6 +137,7 @@ export const DEMOS: Record<string, Demo> = {
   ...NICHE_DEMOS,
   ...MORE_DEMOS,
   ...MOTION_DEMOS,
+  ...MOBILE_DEMOS,
   "corner-shape": {
     stage: "surface",
     render: (_p, config) => (
@@ -912,27 +913,6 @@ export const DEMOS: Record<string, Demo> = {
       );
     },
     usage: () => `<Sidebar>\n  <SidebarSection>\n    <SidebarItem icon={Home} active>Dashboard</SidebarItem>\n    <SidebarItem icon={ShoppingBag} count={23}>Orders</SidebarItem>\n  </SidebarSection>\n</Sidebar>`,
-  },
-  "bottom-nav": {
-    stage: "page",
-    render: () => {
-      const [at, setAt] = React.useState("Home");
-      return (
-        <div className="relative h-[220px] w-[340px] overflow-hidden rounded-sheet bg-page shadow-card [transform:translateZ(0)]">
-          <BottomNav className="absolute">
-            {[
-              [Home, "Home"],
-              [ShoppingBag, "Orders"],
-              [Package, "Stock"],
-              [SearchIcon, "Search"],
-            ].map(([I, l]) => (
-              <BottomNavItem key={l as string} icon={I as typeof Home} label={l as string} active={at === l} onClick={() => setAt(l as string)} />
-            ))}
-          </BottomNav>
-        </div>
-      );
-    },
-    usage: () => `<BottomNav>\n  <BottomNavItem icon={Home} label="Home" active />\n  <BottomNavItem icon={ShoppingBag} label="Orders" />\n</BottomNav>\n<Fab icon={Plus} label="Add order" />`,
   },
 };
 

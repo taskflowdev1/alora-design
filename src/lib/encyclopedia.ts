@@ -4,6 +4,8 @@
 
 /** must: blocks review. should: the default unless there's a stated reason. showcase: decoration, allowed only on showcase and demo pages. */
 export type Level = "must" | "should" | "showcase";
+/** Where a rule applies: desktop screens (pointer, hover, keyboard), phone screens (touch), or both. */
+export type Platform = "desktop" | "mobile" | "both";
 
 export interface Category {
   id: string;
@@ -27,6 +29,8 @@ export interface Rule {
   context?: string;
   /** Source ids from SOURCES. Empty: an Alora Design rule with no outside source. */
   sources: string[];
+  /** Set only to override the default (platformOf): the Mobile category is "mobile", DESKTOP_RULES "desktop", the rest "both". */
+  platform?: Platform;
 }
 
 export interface Source {
@@ -35,6 +39,37 @@ export interface Source {
   url: string;
   licence: string;
 }
+
+export const PLATFORMS: { id: Platform; title: string }[] = [
+  { id: "desktop", title: "Desktop" },
+  { id: "mobile", title: "Mobile" },
+  { id: "both", title: "Both" },
+];
+
+/** Rules about hover, pointer precision, keyboard shortcuts and scrollbars: they don't exist on a phone. */
+const DESKTOP_RULES = new Set([
+  "motion.no-keyboard-animation",
+  "motion.context-menu-exit-only",
+  "ix.tooltip-delay-once",
+  "ix.tooltip-no-interactive",
+  "ix.no-tooltip-on-disabled",
+  "ix.safe-triangle",
+  "ix.hover-and-click",
+  "ix.list-keyboard",
+  "ix.shortcuts-shown",
+  "ix.brushing-linking",
+  "layout.scrollbars",
+  "form.autofocus-desktop-only",
+  "state.hover-cues",
+  "state.hover-children-sync",
+]);
+/** Rules that only matter on a phone, outside the Mobile category. */
+const MOBILE_RULES = new Set(["layout.safe-areas", "layout.dvh", "motion.momentum-dismiss", "motion.rubber-band"]);
+
+export const platformOf = (r: Rule): Platform =>
+  r.platform ?? (r.category === "mobile" || MOBILE_RULES.has(r.id) ? "mobile" : DESKTOP_RULES.has(r.id) ? "desktop" : "both");
+/** Rules for a platform: its own plus the ones for both. */
+export const forPlatform = (r: Rule, p: Platform) => p === "both" || platformOf(r) === p || platformOf(r) === "both";
 
 export const LEVELS: { id: Level; title: string }[] = [
   { id: "must", title: "Must" },
@@ -1676,8 +1711,8 @@ export const RULES: Rule[] = [
     title: "Respect safe areas",
     rule: "Respect notches and home indicators.",
     why: "Controls hidden under system UI can’t be used.",
-    how: "`pb-[env(safe-area-inset-bottom)]` on bottom bars (Bottom nav does this).",
-    check: "`rg -n \"safe-area-inset\"` in fixed bars.",
+    how: "Read `var(--ad-safe-top, env(safe-area-inset-top))` and `--ad-safe-bottom` the same way, so a docs phone frame can set them. Floating bars sit at `max(10px, safe-bottom)`; screens pad their top by safe-top. Tab bar, action bar, sheets and snackbars do this.",
+    check: "`rg -n \"safe-area-inset\"` in fixed bars. At 390 × 844 in the phone frame nothing sits under the status bar or the home indicator.",
     sources: ["vercel"],
   },
   {
@@ -2089,6 +2124,107 @@ export const RULES: Rule[] = [
     how: "Bottom nav with icon and label, and the main action within thumb reach.",
     check: "A visual check at 390 × 844.",
     sources: ["lawsofux"],
+  },
+  {
+    id: "mobile.touch-targets",
+    category: "mobile",
+    level: "must",
+    title: "44 px to touch",
+    rule: "Everything you can tap on a phone is at least 44 × 44 px, and a row is one target from edge to edge.",
+    why: "A fingertip covers about 10 mm; smaller targets get missed or hit the neighbour.",
+    how: "`h-touch` / `size-touch` (`--ad-touch-h`, 44 px). Rows `min-h-touch`, two-line rows 56 px. Shared parts take `size=\"touch\"` (Segmented, QuantityStepper) instead of a copy. A switch in a row makes the whole row its label.",
+    check: "Smoke at 390 px: every button, link, input and option inside the phone frame has an offset box of at least 44 × 44 (a switch counts its row).",
+    context: "Desktop keeps 24 px hit areas (`ix.hit-area`); only the phone gets the bigger size.",
+    sources: ["apple", "material", "lawsofux"],
+  },
+  {
+    id: "mobile.no-hover-only",
+    category: "mobile",
+    level: "must",
+    title: "Nothing waits for a hover",
+    rule: "On a phone, nothing is reachable only by hovering: no hover-only buttons, tooltips or reveals. Press feedback replaces hover feedback.",
+    why: "There is no hover on touch; a hover-only control simply isn't there.",
+    how: "Hover styles behind `[@media(hover:hover)]:`; every row and button gets an `active:` fill or a press dip. Tooltip content lives in the row or a sheet.",
+    check: "`rg -n \"hover:\" src/components/mobile` shows only `[@media(hover:hover)]:hover:` forms; each `group-hover` reveal has a tap path.",
+    sources: ["vercel", "material"],
+  },
+  {
+    id: "mobile.gesture-alternative",
+    category: "mobile",
+    level: "must",
+    title: "Every gesture has a visible twin",
+    rule: "Swipe, pull, drag-to-dismiss and long-press are shortcuts. The same action is also a visible control.",
+    why: "Gestures are invisible until someone shows you; people who never find them must not lose the feature.",
+    how: "Swipe actions also live in the row's detail screen or a … button that opens an action sheet. Pull to refresh pairs with reload on focus. Sheets close by Cancel, backdrop and Esc as well as by dragging.",
+    check: "For each SwipeRow, PullToRefresh and MobileSheet, find the matching button. A Playwright run that never drags can still reach every action.",
+    sources: ["apple", "material", "lawsofux"],
+  },
+  {
+    id: "mobile.keyboard-avoidance",
+    category: "mobile",
+    level: "must",
+    title: "Stay above the keyboard",
+    rule: "Bars and sheets ride on top of the on-screen keyboard, and the focused field stays visible.",
+    why: "A Save button under the keyboard can't be pressed without closing it first.",
+    how: "`useKeyboardInset()` once at the root writes `--ad-keyboard` from `visualViewport`; MobileActionBar and MobileSheet use `max(safe-bottom, keyboard + 8px)` and ease the change over 250 ms.",
+    check: "Phone frame with the keyboard drawn (`?keyboard=1` on /mobile/mobile-action-bar): the action bar sits above it.",
+    sources: ["apple"],
+  },
+  {
+    id: "mobile.sheet-detents",
+    category: "mobile",
+    level: "should",
+    title: "Sheets rest at detents",
+    rule: "A bottom sheet rests at set heights (half, full, or its content). A drag picks the detent it is heading for by position and speed; a flick down or a drag past the smallest closes it.",
+    why: "Detents let people peek at the screen behind and expand when they need more, without a second screen.",
+    how: "`<MobileSheet detents={[0.5, 0.92]}>`: between detents the sheet changes height so its footer stays visible; aim = position + 0.18 × velocity; close past the smallest + 72 px or on a downward flick over 900 px/s; rubber band above the tallest.",
+    check: "Drag the handle up from half: it settles at full; flick down: it closes; the footer button is visible at both detents.",
+    sources: ["apple", "emil"],
+  },
+  {
+    id: "mobile.motion-feedback",
+    category: "mobile",
+    level: "should",
+    title: "Feedback you can feel, in motion",
+    rule: "Without haptics, motion carries the feel: a press dips, a release springs back, a choice slides, a drop snaps.",
+    why: "On glass there is no click; motion is what tells the finger it worked.",
+    how: "Tabs dip to 0.86 while pressed and the pill slides; rows shrink to 0.99 with an instant fill; sheets and swipe rows settle on springs that keep the release speed. All of it short and off under reduced motion.",
+    check: "Press and hold a tab and a row at 390 px: each shows its press state at once.",
+    sources: ["apple", "emil", "charles"],
+  },
+  {
+    id: "mobile.one-main-action",
+    category: "mobile",
+    level: "should",
+    title: "One main action, pinned at the bottom",
+    rule: "A phone screen's main action is a full-width button in a bar pinned at the bottom, above the home indicator and the keyboard, not a floating round button.",
+    why: "It sits where the thumb already is, says what it does in words, and never covers the last row.",
+    how: "`<MobileActionBar>` with the screen on `bottomInset=\"action-bar\"`; primary last, on the right. Lists that need a create action put it in the nav bar.",
+    check: "No `Fab` in new phone screens; each screen has at most one accent button.",
+    context: "Material leads with a floating action button. Joshua's set keeps it out (2026-11-19): it covers content and hides its label.",
+    sources: ["material", "apple"],
+  },
+  {
+    id: "mobile.tab-bar",
+    category: "mobile",
+    level: "should",
+    title: "Three to five real tabs",
+    rule: "The tab bar holds three to five top-level destinations, each a real screen, with icon and label; it floats above the home indicator and hides on pushed detail screens.",
+    why: "Tabs are the map of the app; a dead or duplicate tab breaks trust in all of them.",
+    how: "`<MobileTabBar>` with `MobileTab`s; `iconOnly` only when the icons are unmistakable. Counts as a small badge, never a second label.",
+    check: "Tap every tab in the example app: each opens its own screen.",
+    sources: ["apple", "material"],
+  },
+  {
+    id: "mobile.push-pages",
+    category: "mobile",
+    level: "should",
+    title: "Detail screens push in",
+    rule: "On a phone, details open as a full screen that slides in from the right, with a back button naming where it goes.",
+    why: "One concern per screen; the slide tells you the old screen is still there behind it.",
+    how: "Push 300 ms on the iOS curve; the screen below shifts left by about a quarter; back reverses it. Large titles on top-level screens, small titles on pushed ones.",
+    check: "Open an order in /mobile/app: it slides in from the right; Back slides it out.",
+    sources: ["apple"],
   },
   {
     id: "state.design-all-states",
@@ -2816,13 +2952,14 @@ export function checklistMarkdown() {
     `Why, how (with values) and sources for every rule: ${SITE_URL}/encyclopedia`,
     "",
     "Run every UI change through this list before review. Cite a rule by its id.",
+    "Each rule is tagged *desktop*, *mobile* or *both*: a phone screen runs the mobile and both rules, a desktop screen the desktop and both rules.",
     `**must** (${count("must")}) blocks review. **should** (${count("should")}) is the default unless the PR says why not. ` +
       `**showcase** (${count("showcase")}) is decoration, allowed only on showcase and demo pages, never in product screens.`,
     "",
   ];
   for (const c of CATEGORIES) {
     lines.push(`## ${c.title}`, "");
-    for (const r of rulesIn(c.id)) lines.push(`- [ ] **${r.level}** \`${r.id}\` ${r.rule} Check: ${r.check}`);
+    for (const r of rulesIn(c.id)) lines.push(`- [ ] **${r.level}** \`${r.id}\` *${platformOf(r)}* ${r.rule} Check: ${r.check}`);
     lines.push("");
   }
   lines.push("## Sources", "", ...SOURCES.map((s) => `- [${s.name}](${s.url}) (${s.licence})`), "");

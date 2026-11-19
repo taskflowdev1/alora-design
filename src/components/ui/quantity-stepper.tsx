@@ -8,7 +8,8 @@ export interface QuantityStepperProps {
   min?: number;
   max?: number;
   step?: number;
-  size?: "default" | "sm";
+  /** "touch": 44 px buttons for phones. */
+  size?: "default" | "sm" | "touch";
   className?: string;
   "aria-label"?: string;
 }
@@ -31,7 +32,11 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
     <div
       role="group"
       aria-label={aria["aria-label"] ?? "Quantity"}
-      className={cn("inline-flex items-stretch rounded-control bg-fill p-nest", size === "sm" ? "h-item" : "h-control", className)}
+      className={cn(
+        "inline-flex items-stretch rounded-control bg-fill p-nest",
+        size === "sm" ? "h-item" : size === "touch" ? "h-[calc(var(--ad-touch-h)+var(--ad-nest)*2)] touch-manipulation [&_svg]:!size-[18px]" : "h-control",
+        className,
+      )}
     >
       <button type="button" aria-label="Less" className={btn} disabled={value <= min} onClick={() => onValueChange(clamp(value - step))}>
         <Minus />
@@ -55,7 +60,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
             onValueChange(clamp(value - step));
           }
         }}
-        className="w-[calc(var(--w)*1ch+16px)] min-w-9 grow bg-transparent text-center text-body pointer-coarse:text-[16px] font-medium tabular-nums text-ink outline-none"
+        className={cn("w-[calc(var(--w)*1ch+16px)] min-w-9 grow bg-transparent text-center font-medium tabular-nums text-ink outline-none", size === "touch" ? "min-w-touch text-[16px]" : "text-body pointer-coarse:text-[16px]")}
         style={{ ["--w" as string]: Math.max(2, String(draft ?? value).length) }}
       />
       <button type="button" aria-label="More" className={btn} disabled={value >= max} onClick={() => onValueChange(clamp(value + step))}>

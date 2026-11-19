@@ -42,7 +42,6 @@ import { Textarea } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Segmented } from "@/components/ui/segmented";
-import { SlidingPill } from "@/components/ui/sliding-pill";
 import { InputGroup } from "@/components/ui/input-group";
 import { OtpFlow } from "./otp-flow";
 import { Select } from "@/components/ui/select";
@@ -522,44 +521,6 @@ function ConfirmTile({ className }: { className?: string }) {
   );
 }
 
-function DrawerTile({ className }: { className?: string }) {
-  const [courier, setCourier] = React.useState("jne");
-  return (
-    <Tile className={className}>
-      <Mark name="drawer" className="flex flex-1">
-        <div className={cn(frame, "mx-auto w-full max-w-[300px]")}>
-          <BackPage rows={5} compact />
-          <div className="absolute inset-0 bg-overlay" />
-          <div className="absolute inset-x-2 bottom-2 grid gap-3 rounded-sheet bg-surface px-pad pb-pad shadow-dialog">
-            <div className="flex justify-center pt-2.5">
-              <span className="h-1 w-10 rounded-full bg-fill-strong" />
-            </div>
-            <span className="text-title font-semibold">Ship with</span>
-            <div role="radiogroup" aria-label="Courier" className="relative grid gap-px">
-              <SlidingPill selector='[aria-checked="true"]' className="rounded-item bg-fill-strong" />
-              {[
-                ["jne", "JNE Regular", "Rp 12.000"],
-                ["sicepat", "SiCepat", "Rp 11.000"],
-                ["gosend", "GoSend Instant", "Rp 28.000"],
-              ].map(([k, n, p]) => (
-                <button key={k} type="button" role="radio" aria-checked={courier === k} onClick={() => setCourier(k)} className={cn("relative flex h-row cursor-pointer items-center justify-between rounded-item px-2.5 text-body transition-colors duration-[160ms]", courier !== k && "hover:bg-fill")}>
-                  {n}
-                  <span className="tabular-nums text-ink-muted">{p}</span>
-                </button>
-              ))}
-            </div>
-            <Button variant="primary" className="w-full" onClick={() => toast("Courier booked")}>
-              Book pickup
-            </Button>
-          </div>
-        </div>
-      </Mark>
-    </Tile>
-  );
-}
-
-/* ------------------------------------------------------------ Chat */
-
 function AgentChatTile({ className }: { className?: string }) {
   const [files, setFiles] = React.useState(["restock-dago.csv", "foto-rak.jpg"]);
   return (
@@ -667,8 +628,7 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
     { items: ["item", "collapsible"], render: () => <SuppliersTile className={S[6]} /> },
   ],
   Overlays: [
-    { items: ["alert-dialog"], render: () => <ConfirmTile className={S[6]} /> },
-    { items: ["drawer"], render: () => <DrawerTile className={S[6]} /> },
+    { items: ["alert-dialog"], render: () => <ConfirmTile className={S[12]} /> },
   ],
   Chat: [
     { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: () => <AgentChatTile className={S[8]} /> },

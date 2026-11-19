@@ -327,6 +327,8 @@ export function tokens(c: Config) {
     "--ad-control-h": px(c.height),
     "--ad-item-h": px(c.height - 4),
     "--ad-row-h": px(c.height),
+    // Phones: the smallest thing a finger can hit reliably. Fixed, not scaled with the control height.
+    "--ad-touch-h": "44px",
     "--ad-pad": px(c.padding),
     "--ad-bubble-x": px(Math.round(c.padding * 0.75)),
     "--ad-bubble-x-sm": px(Math.round(c.padding / 2)),

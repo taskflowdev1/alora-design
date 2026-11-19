@@ -12,7 +12,7 @@ export function assets(): Assets {
   if (cache) return cache;
   const sources: Record<string, string> = { "ad.ts": read("src/lib/ad.ts") };
   // ui files are keyed by name ("button.tsx"); the collections by folder ("ai/thinking-orbs.tsx"), as sourceKey() expects.
-  for (const dir of ["ui", "ai", "backgrounds"])
+  for (const dir of ["ui", "ai", "backgrounds", "mobile"])
     for (const f of readdirSync(join(root, "src/components", dir))) if (f.endsWith(".tsx")) sources[dir === "ui" ? f : `${dir}/${f}`] = read(`src/components/${dir}/${f}`);
   cache = { themeCss: read("src/styles/theme.css"), baseCss: read("src/styles/base.css"), sources };
   return cache;
