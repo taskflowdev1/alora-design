@@ -13,6 +13,7 @@ import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
 import { Wordmark } from "./logo";
+import { AppAccount } from "./app-account";
 
 /** The nav tabs, in order. Components first: the site starts with them. */
 export const TABS = [
@@ -147,6 +148,8 @@ function HeaderSearch() {
 
 /** One header for every page: same position, width and height on landing, gallery, examples and export. */
 export function SiteHeader() {
+  // On the example app's pages the header is that app's top bar too: its notifications and account sit top right.
+  const onExamples = useLocation().pathname.startsWith("/examples");
   return (
     <header className="sticky top-0 z-40 bg-page">
       <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
@@ -164,6 +167,7 @@ export function SiteHeader() {
           <HeaderSearch />
           <CustomizeButton className="md:hidden" />
           <ThemeButton />
+          {onExamples ? <AppAccount /> : null}
         </div>
       </div>
       <PhoneTabs />

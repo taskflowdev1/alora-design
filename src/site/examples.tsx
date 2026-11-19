@@ -1,11 +1,9 @@
 import * as React from "react";
 import { useBlocker, useNavigate, useParams, useSearchParams } from "react-router";
 import {
-  Bell,
   ChevronDown,
   Download,
   Home,
-  LogOut,
   MoreHorizontal,
   Package,
   Plus,
@@ -13,7 +11,6 @@ import {
   Settings as SettingsIcon,
   ShoppingBag,
   Tag,
-  User,
   UserPlus,
   Users,
   XCircle,
@@ -51,7 +48,6 @@ import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
 import { Alert } from "@/components/ui/alert";
 import { ColumnMenu } from "@/components/ui/column-menu";
 import { ShopPicker } from "@/components/ui/shop-picker";
-import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
 import { InlineEdit } from "@/components/ui/inline-edit";
 import { Sparkline } from "@/components/ui/sparkline";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -109,12 +105,6 @@ function useLoading() {
   return params.get("loading") === "1";
 }
 
-const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
-  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
-  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
-];
-
 function AppSidebar({ page }: { page: Page }) {
   const [shop, setShop] = React.useState("All shops");
   return (
@@ -150,31 +140,6 @@ function AppSidebar({ page }: { page: Page }) {
         </SidebarItem>
       </SidebarSection>
     </Sidebar>
-  );
-}
-
-/**
- * Top right of the app: notifications, then the account. Here rather than at the foot of the sidebar so they are
- * reachable on phones too, where the sidebar is closed and only the bottom tabs show.
- */
-function AppTopBar() {
-  const [notices, setNotices] = React.useState(NOTICES);
-  return (
-    <div className="flex h-control items-center justify-end gap-1 px-1 sm:px-4">
-      <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} />
-      <Menu
-        align="end"
-        trigger={
-          <button type="button" aria-label="Account" className="grid size-control cursor-pointer place-items-center rounded-full transition-transform duration-[160ms] active:scale-95">
-            <Avatar name="Rizky Hartono" size="sm" />
-          </button>
-        }
-      >
-        <MenuItem icon={User}>Profile</MenuItem>
-        <MenuItem icon={Bell}>Notifications</MenuItem>
-        <MenuItem icon={LogOut}>Sign out</MenuItem>
-      </Menu>
-    </div>
   );
 }
 
@@ -215,7 +180,6 @@ export function Examples() {
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
       <AppSidebar page={p} />
       <div data-app className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
-        <AppTopBar />
         <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
           {p === "dashboard" ? (
             <Dashboard />
