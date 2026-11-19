@@ -2,9 +2,9 @@
 // wider screen it sits in the phone frame with a way back.
 import * as React from "react";
 import { ChevronLeft } from "react-feather";
-import { useSearchParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { useKeyboardInset } from "@/components/mobile/mobile-action-bar";
-import { OrdersApp } from "./mobile-app";
+import { MobileApp } from "./mobile-app";
 import { PhoneFrame } from "./phone";
 import { ConfigTokens, SLink } from "./config";
 
@@ -23,8 +23,19 @@ function useNarrow() {
 export function MobileAppPage() {
   useKeyboardInset();
   const narrow = useNarrow();
-  const [params] = useSearchParams();
-  const at = params.get("at") ?? undefined;
+  const { screen: path } = useParams();
+  const [query] = useSearchParams();
+  // /mobile/app/<screen>?state=…&id=…: the screen, a forced state, and the rest as the screen's params. The v1 links
+  // (?at=detail, ?at=actions) open an order.
+  const at = query.get("at");
+  const screen = path ?? (at ? "order" : "home");
+  const state = query.get("state") ?? undefined;
+  const params: Record<string, string> = {};
+  query.forEach((v, k) => {
+    if (!["state", "at", "t", "r", "c", "k", "p", "h", "a", "g", "sh", "f"].includes(k)) params[k] = v;
+  });
+  if (at === "actions") params.actions = "1";
+  const app = <MobileApp key={`${screen}?${query.toString()}`} screen={screen} params={params} state={state} />;
   // Full screen on a phone: let the page run under the status bar and home indicator, then clear them with env().
   React.useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
@@ -39,7 +50,7 @@ export function MobileAppPage() {
       <ConfigTokens />
       {narrow ? (
         <div data-mobile-app className="fixed inset-0 bg-page">
-          <OrdersApp startAt={at} />
+          {app}
         </div>
       ) : (
         <main data-mobile-app className="grid min-h-dvh place-items-center gap-4 bg-page px-4 py-8">
@@ -48,9 +59,7 @@ export function MobileAppPage() {
               <ChevronLeft size={18} />
               Mobile components
             </SLink>
-            <PhoneFrame>
-              <OrdersApp startAt={at} />
-            </PhoneFrame>
+            <PhoneFrame>{app}</PhoneFrame>
           </div>
         </main>
       )}

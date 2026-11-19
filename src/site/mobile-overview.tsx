@@ -1,7 +1,7 @@
 // /mobile: the Mobile half of the Components page. Phone screens composed from the mobile components in real use (the
 // example app live first), each followed by links to the components it is made of.
 import * as React from "react";
-import { Maximize2, Package, Plus, RotateCcw, Tag, Truck } from "react-feather";
+import { Grid, Maximize2, Package, Plus, RotateCcw, Tag, Truck } from "react-feather";
 import { NOW, ORDERS, smartTime } from "./data";
 import { findItem, itemPath } from "@/lib/registry";
 import { formatRp } from "@/lib/ad";
@@ -16,7 +16,8 @@ import { MobileDateSheet } from "@/components/mobile/mobile-wheel-picker";
 import { MobileActionBar } from "@/components/mobile/mobile-action-bar";
 import { PhoneFrame } from "./phone";
 import { SLink } from "./config";
-import { COURIERS, CourierPicker, OrdersApp } from "./mobile-app";
+import { COURIERS, CourierPicker, MobileApp, findScreen } from "./mobile-app";
+import { LazyPhone } from "./lazy-phone";
 
 const TO_PACK = ORDERS.filter((o) => o.status === "Paid").slice(0, 8);
 
@@ -38,7 +39,7 @@ function Parts({ names }: { names: string[] }) {
 function Screen({ names, children, keyboard, extra }: { names: string[]; children: React.ReactNode; keyboard?: boolean; extra?: React.ReactNode }) {
   return (
     <section data-mobile-screen-tile className="grid min-w-0 content-start gap-4 rounded-sheet bg-surface p-4 shadow-card sm:p-6">
-      <PhoneFrame keyboard={keyboard}>{children}</PhoneFrame>
+      {keyboard ? <PhoneFrame keyboard>{children}</PhoneFrame> : <LazyPhone>{children}</LazyPhone>}
       <Parts names={names} />
       {extra}
     </section>
@@ -160,22 +161,44 @@ function NewProductScreen() {
   );
 }
 
+/** Screens from the example app that show the rest of the set in real use (every mobile item is linked from a tile). */
+const APP_TILES: [string, Record<string, string>?][] = [
+  ["home"],
+  ["reports"],
+  ["inbox"],
+  ["chat", { id: "ch1" }],
+  ["product-edit", { sku: "RMB-GL-014" }],
+  ["stock-count"],
+  ["delivery", { photos: "1" }],
+  ["customers"],
+  ["order", { id: "RMB-24811" }],
+  ["pos-receipt", { method: "cash", received: "500000" }],
+  ["otp"],
+  ["onboarding"],
+];
+
 export function MobileOverview() {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <Screen
         names={["mobile-tab-bar", "mobile-nav-bar", "mobile-search-bar", "mobile-segmented", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-snackbar"]}
         extra={
-          <SLink to="/mobile/app" className="mx-auto inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong">
-            <Maximize2 size={16} />
-            Open full screen
-          </SLink>
+          <div className="flex flex-wrap justify-center gap-gap">
+            <SLink to="/mobile/app" className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong">
+              <Maximize2 size={16} />
+              Open full screen
+            </SLink>
+            <SLink to="/mobile/screens" data-all-screens className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong">
+              <Grid size={16} />
+              All screens
+            </SLink>
+          </div>
         }
       >
-        <OrdersApp />
+        <MobileApp screen="orders" />
       </Screen>
       <Screen names={["mobile-action-sheet", "mobile-stepper", "mobile-action-bar"]}>
-        <OrdersApp startAt="actions" />
+        <MobileApp screen="order" params={{ actions: "1" }} />
       </Screen>
       <Screen names={["mobile-sheet"]}>
         <CourierScreen />
@@ -189,6 +212,11 @@ export function MobileOverview() {
       <Screen names={["mobile-action-bar"]} keyboard>
         <NewProductScreen />
       </Screen>
+      {APP_TILES.map(([id, params]) => (
+        <Screen key={id} names={findScreen(id)!.parts.filter((n) => !["mobile-nav-bar", "mobile-list", "mobile-tab-bar"].includes(n))}>
+          <MobileApp screen={id} params={params} />
+        </Screen>
+      ))}
     </div>
   );
 }
