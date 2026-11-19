@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { InputGroup } from "@/components/ui/input-group";
-import { InputOTP } from "@/components/ui/input-otp";
+import { OtpFlow, type OtpForce } from "./otp-flow";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
@@ -276,13 +276,11 @@ export const MORE_DEMOS: Record<string, Demo> = {
   "input-otp": {
     controls: [
       { key: "length", type: "select", label: "Length", options: ["4", "6"], default: "6" },
-      { key: "invalid", type: "toggle", label: "Invalid", default: false },
+      { key: "state", type: "select", label: "State", options: ["live", "checking", "wrong", "open"], labels: ["Live", "Checking", "Wrong", "Correct"], default: "live" },
     ],
-    render: (p) => {
-      const [v, setV] = React.useState("482");
-      return <InputOTP value={v} onValueChange={setV} length={Number(p.length)} group={p.length === "6" ? 3 : 0} invalid={!!p.invalid} onComplete={() => toast("Code accepted")} />;
-    },
-    usage: (p) => `<InputOTP value={code} onValueChange={setCode} length={${p.length}} onComplete={verify} />`,
+    render: (p) => <OtpFlow key={String(p.state)} length={Number(p.length)} force={p.state as OtpForce} done="Code accepted" />,
+    usage: (p) =>
+      `<InputOTP\n  value={code}\n  onValueChange={setCode}\n  length={${p.length}}\n  status={${p.state === "checking" ? '"checking"' : p.state === "wrong" ? '"invalid"' : p.state === "open" ? '"success"' : "status"}}\n  onComplete={verify}\n/>`,
   },
   label: {
     controls: [{ key: "required", type: "toggle", label: "Required", default: false }],

@@ -229,7 +229,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/input-otp.json"
 
 Files: `src/components/ui/input-otp.tsx`.
 
-`InputOTP`: A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines.
+`InputOTP`: A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines. Digits rise in as they're typed; status drives the checking wave, the wrong-code shake and the success pop.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -238,10 +238,14 @@ Files: `src/components/ui/input-otp.tsx`.
 | `length` | `number` | `6` |  |
 | `group` | `number` | `3` | Split the boxes into groups with a gap (3 = 123 456). 0 keeps one row. |
 | `onComplete` | `((value: string) => void)` |  | Called once every box is filled. |
-| `invalid` | `boolean` |  |  |
+| `status` | `InputOTPStatus` | `"idle"` | idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red. success: the boxes turn soft green one after another. |
+| `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
 | `className` | `string` |  |  |
+| `id` | `string` |  |  |
+| `ref` | `Ref<HTMLInputElement>` |  |  |
 | `aria-label` | `string` |  |  |
+| `aria-describedby` | `string` |  |  |
 
 ### Label
 
@@ -1525,7 +1529,7 @@ Files: `src/components/ui/toast.tsx`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `tone` | `"neutral" \| "success"` | `"success"` |  |
+| `tone` | `"success" \| "neutral"` | `"success"` |  |
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
