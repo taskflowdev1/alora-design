@@ -36,8 +36,12 @@ export function SaveBar({ open, onSave, onDiscard, saving, label = "Unsaved chan
           <Button variant="ghost" onClick={onDiscard} disabled={saving}>
             Discard
           </Button>
-          <Button variant="primary" onClick={onSave} disabled={saving}>
-            {saving ? "Saving…" : "Save changes"}
+          <Button variant="primary" onClick={onSave} disabled={saving} aria-busy={saving || undefined}>
+            {/* Both labels share one cell, so "Saving…" never changes the button's width. */}
+            <span className="inline-grid [&>*]:[grid-area:1/1]">
+              <span className={cn(saving && "invisible")}>Save changes</span>
+              <span className={cn(!saving && "invisible")}>Saving…</span>
+            </span>
           </Button>
         </div>
       </div>

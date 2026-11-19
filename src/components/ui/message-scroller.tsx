@@ -20,7 +20,8 @@ export function MessageScroller({ children, watch, className }: MessageScrollerP
   const box = React.useRef<HTMLDivElement>(null);
   const pinned = React.useRef(true);
   const [away, setAway] = React.useState(false);
-  const toBottom = (smooth?: boolean) => box.current?.scrollTo({ top: box.current.scrollHeight, behavior: smooth ? "smooth" : "instant" });
+  const toBottom = (smooth?: boolean) =>
+    box.current?.scrollTo({ top: box.current.scrollHeight, behavior: smooth && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant" });
   React.useLayoutEffect(() => {
     if (pinned.current) toBottom();
     else setAway(true);

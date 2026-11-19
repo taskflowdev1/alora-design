@@ -55,7 +55,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
   const go = (i: number) => {
     const el = track.current;
     const target = el?.children[Math.max(0, Math.min(pages - 1, i))] as HTMLElement | undefined;
-    if (el && target) el.scrollTo({ left: target.offsetLeft - el.offsetLeft, behavior: "smooth" });
+    if (el && target) el.scrollTo({ left: target.offsetLeft - el.offsetLeft, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
   };
   return (
     <section aria-roledescription="carousel" aria-label={aria["aria-label"]} className={cn("grid min-w-0 gap-3", className)}>

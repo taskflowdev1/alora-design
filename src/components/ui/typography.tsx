@@ -8,19 +8,19 @@ import { cn } from "@/lib/ad";
  */
 
 export function H1({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h1 className={cn("text-[calc(var(--ad-text-heading)*1.35)] font-semibold leading-tight tracking-[-0.015em] text-ink", className)} {...p} />;
+  return <h1 className={cn("text-balance text-[calc(var(--ad-text-heading)*1.35)] font-semibold leading-tight tracking-[-0.015em] text-ink", className)} {...p} />;
 }
 export function H2({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn("text-heading font-semibold tracking-[-0.01em] text-ink", className)} {...p} />;
+  return <h2 className={cn("text-balance text-heading font-semibold tracking-[-0.01em] text-ink", className)} {...p} />;
 }
 export function H3({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-title font-semibold text-ink", className)} {...p} />;
+  return <h3 className={cn("text-balance text-title font-semibold text-ink", className)} {...p} />;
 }
 export function H4({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h4 className={cn("text-body font-semibold text-ink", className)} {...p} />;
+  return <h4 className={cn("text-balance text-body font-semibold text-ink", className)} {...p} />;
 }
 export function P({ className, ...p }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("text-body leading-relaxed text-ink", className)} {...p} />;
+  return <p className={cn("text-pretty text-body leading-relaxed text-ink", className)} {...p} />;
 }
 /** Secondary text and labels: grey, regular weight. */
 export function Muted({ className, ...p }: React.HTMLAttributes<HTMLParagraphElement>) {
