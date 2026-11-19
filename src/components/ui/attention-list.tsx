@@ -24,7 +24,7 @@ export function AttentionItem({ media, title, meta, value, action, onClick }: At
     <li
       onClick={onClick}
       className={cn(
-        "flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5 transition-colors duration-[160ms]",
+        "flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5",
         action && "pr-1.5",
         onClick && "cursor-pointer hover:bg-fill-strong focus-visible:bg-fill-strong",
       )}

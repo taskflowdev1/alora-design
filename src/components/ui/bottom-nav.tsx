@@ -4,7 +4,7 @@ import { cn } from "@/lib/ad";
 /** Phone: bottom tabs with icon + label, floating with margin. Pair with one floating action button. */
 export function BottomNav({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <nav className={cn("ad-on-dark fixed inset-x-3 bottom-3 z-40 flex items-stretch justify-around rounded-card bg-side p-nest shadow-dialog", className)}>
+    <nav className={cn("ad-on-dark fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-40 flex items-stretch justify-around rounded-card bg-side p-nest shadow-dialog", className)}>
       {children}
     </nav>
   );
@@ -44,7 +44,7 @@ export function Fab({ icon: Icon, label, onClick }: { icon: React.ComponentType<
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="fixed bottom-[88px] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]"
+      className="fixed bottom-[calc(88px+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]"
     >
       <Icon size={20} />
     </button>

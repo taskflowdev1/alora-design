@@ -85,6 +85,9 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
               icon={SearchIcon}
               aria-label="Search rows"
               placeholder="Search"
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="search"
               value={q}
               onChange={(e) => (setQ(e.target.value), setPage(1))}
               wrapperClassName="w-full sm:w-56"

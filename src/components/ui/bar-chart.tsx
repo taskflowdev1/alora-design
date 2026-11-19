@@ -81,7 +81,7 @@ export function BarList({ data, selected, onSelect, loading, className }: BarLis
               aria-pressed={on}
               onClick={() => onSelect?.(on ? null : d.key)}
               className={cn(
-                "grid h-row w-full cursor-pointer grid-cols-[minmax(80px,140px)_1fr_auto] items-center gap-3 rounded-item px-2.5 text-left text-body transition-colors duration-[160ms]",
+                "grid h-row w-full cursor-pointer grid-cols-[minmax(80px,140px)_1fr_auto] items-center gap-3 rounded-item px-2.5 text-left text-body",
                 on ? "bg-fill-strong" : "hover:bg-fill focus-visible:bg-fill",
               )}
             >

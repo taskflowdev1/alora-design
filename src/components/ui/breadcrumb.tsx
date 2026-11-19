@@ -32,7 +32,7 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
             <li key={i} className={cn("flex min-w-0 items-center gap-0.5", last ? "shrink" : "shrink-0")}>
               {c === "more" ? (
                 <Tooltip content={items.slice(1, -2).map((x) => String(x.label)).join(" / ")}>
-                  <span tabIndex={0} aria-label={items.slice(1, -2).map((x) => String(x.label)).join(" / ")} className="grid h-7 w-7 place-items-center text-ink-muted">
+                  <span tabIndex={0} aria-label={items.slice(1, -2).map((x) => String(x.label)).join(" / ")} className="grid h-7 w-7 place-items-center rounded-small text-ink-muted focus-visible:bg-fill">
                     <MoreHorizontal size={16} />
                   </span>
                 </Tooltip>
