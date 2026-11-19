@@ -20,7 +20,7 @@ export function Switch({ size = "default", className, ...props }: React.Componen
     <S.Root
       className={cn(
         "group inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] [transition:background-color_220ms_var(--ad-ease),transform_150ms_var(--ad-ease)] active:scale-[0.97]",
-        "bg-fill-strong data-[state=checked]:bg-switch-on disabled:pointer-events-none disabled:opacity-45",
+        "bg-fill-strong data-[state=checked]:bg-switch-on focus-visible:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted dark:data-[state=checked]:focus-visible:bg-ink disabled:pointer-events-none disabled:opacity-45",
         sizes[size].root,
         className,
       )}

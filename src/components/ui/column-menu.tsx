@@ -46,7 +46,7 @@ export function ColumnMenu({ columns, visible, onVisibleChange, defaults, classN
             key={c.key}
             className={cn(
               "flex h-item select-none items-center gap-2.5 rounded-control px-2 text-body",
-              c.locked ? "text-ink-muted" : "cursor-pointer hover:bg-fill",
+              c.locked ? "text-ink-muted" : "cursor-pointer hover:bg-fill focus-visible:bg-fill",
             )}
           >
             <Checkbox checked={c.locked || visible.includes(c.key)} disabled={c.locked} onCheckedChange={() => toggle(c.key)} />

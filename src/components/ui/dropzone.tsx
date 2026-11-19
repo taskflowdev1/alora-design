@@ -46,7 +46,7 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
       >
         <UploadCloud size={24} className="text-ink-muted [--ad-icon-stroke:1.5]" />
         <span className="text-body font-medium text-ink">{title}</span>
-        <Button size="sm" variant="secondary" className="mt-1 bg-surface hover:bg-fill-strong" onClick={() => input.current?.click()}>
+        <Button size="sm" variant="secondary" className="mt-1 bg-surface hover:bg-fill-strong focus-visible:bg-fill-strong" onClick={() => input.current?.click()}>
           Browse
         </Button>
         <input

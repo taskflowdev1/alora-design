@@ -37,7 +37,7 @@ export function Attachment({ name, meta, kind = "file", src, state = "done", pro
       className={cn(
         "group relative flex min-w-0 items-center gap-2.5 rounded-card bg-fill p-nest pr-2 text-left",
         sm ? "h-control w-48" : "w-64",
-        onOpen && "cursor-pointer transition-colors duration-[160ms] ease-ad hover:bg-fill-strong",
+        onOpen && "cursor-pointer transition-colors duration-[160ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong",
         state === "error" && "bg-danger-soft",
         className,
       )}
@@ -65,7 +65,7 @@ export function Attachment({ name, meta, kind = "file", src, state = "done", pro
             e.stopPropagation();
             onRemove();
           }}
-          className="text-ink-muted hover:bg-fill-strong hover:text-ink"
+          className="text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong hover:text-ink focus-visible:text-ink"
         >
           <X />
         </Button>

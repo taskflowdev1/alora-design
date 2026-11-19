@@ -16,8 +16,8 @@ export interface SplitButtonProps {
 }
 
 const tone = {
-  primary: { box: "bg-brand text-brand-ink", hover: "hover:bg-brand-hover data-[state=open]:bg-brand-hover" },
-  secondary: { box: "bg-fill text-ink", hover: "hover:bg-fill-strong data-[state=open]:bg-fill-strong" },
+  primary: { box: "bg-brand text-brand-ink", hover: "hover:bg-brand-hover focus-visible:bg-brand-hover data-[state=open]:bg-brand-hover" },
+  secondary: { box: "bg-fill text-ink", hover: "hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong" },
 };
 
 /**

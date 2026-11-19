@@ -44,7 +44,7 @@ export function Fab({ icon: Icon, label, onClick }: { icon: React.ComponentType<
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="fixed bottom-[88px] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-brand-hover active:scale-[0.97]"
+      className="fixed bottom-[88px] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]"
     >
       <Icon size={20} />
     </button>

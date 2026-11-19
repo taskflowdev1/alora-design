@@ -26,7 +26,7 @@ export interface NavigationMenuItemDef {
   columns?: 1 | 2;
 }
 
-const trigger = cn(buttonClass({ variant: "ghost" }), "font-normal text-ink-muted hover:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink data-[active]:bg-fill-strong data-[active]:text-ink");
+const trigger = cn(buttonClass({ variant: "ghost" }), "font-normal text-ink-muted hover:text-ink focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink data-[active]:bg-fill-strong data-[active]:text-ink");
 
 /**
  * A site or app top nav whose items can open a panel of links. Icon + label in the panel, the active page as a

@@ -17,7 +17,7 @@ export function Toggle({ size = "default", icon, className, ...props }: TogglePr
     <T.Root
       className={cn(
         "inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-control text-body font-medium transition-[transform,background-color,color] duration-[150ms] ease-ad active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4",
-        "text-ink-muted data-[state=off]:hover:bg-fill data-[state=off]:hover:text-ink data-[state=on]:bg-fill-strong data-[state=on]:text-ink",
+        "text-ink-muted data-[state=off]:hover:bg-fill data-[state=off]:focus-visible:bg-fill data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:bg-fill-strong data-[state=on]:text-ink",
         size === "sm" ? "h-item" : "h-control",
         icon ? (size === "sm" ? "w-item" : "w-control") : size === "sm" ? "px-2.5" : "px-3.5",
         className,

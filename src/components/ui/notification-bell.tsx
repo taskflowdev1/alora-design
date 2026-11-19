@@ -44,7 +44,7 @@ export function NotificationBell({ notices, onMarkAllRead, className }: { notice
             key={n.id}
             type="button"
             onClick={n.onOpen}
-            className="grid cursor-pointer grid-cols-[8px_minmax(0,1fr)] items-start gap-x-2.5 rounded-control px-2 py-2 text-left hover:bg-fill"
+            className="grid cursor-pointer grid-cols-[8px_minmax(0,1fr)] items-start gap-x-2.5 rounded-control px-2 py-2 text-left hover:bg-fill focus-visible:bg-fill"
           >
             <span className="grid h-5 place-items-center">
               {n.unread ? <span data-shape="round" className="size-1.5 rounded-full bg-ink" /> : null}

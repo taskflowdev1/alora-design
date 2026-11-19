@@ -17,7 +17,7 @@ export function Timeline({ events, className }: { events: TimelineEvent[]; class
   return (
     <ol className={cn("grid gap-1", className)}>
       {events.map((e) => (
-        <li key={e.id} className="grid grid-cols-[auto_20px_minmax(0,1fr)] items-start gap-x-3 rounded-item px-2 py-1.5 hover:bg-fill">
+        <li key={e.id} className="grid grid-cols-[auto_20px_minmax(0,1fr)] items-start gap-x-3 rounded-item px-2 py-1.5 hover:bg-fill focus-visible:bg-fill">
           <span className="w-[7.75rem] truncate pt-px text-small leading-5 tabular-nums text-ink-muted">{e.time}</span>
           <span className="grid h-5 place-items-center text-ink-muted [&_svg]:size-4">
             {e.media ?? <span data-shape="round" className="size-1.5 rounded-full bg-ink-muted" />}

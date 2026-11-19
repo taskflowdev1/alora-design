@@ -87,7 +87,7 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                     onClick={() => onEventClick?.(e)}
                     className={cn(
                       "flex h-6 min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
-                      e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong",
+                      e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80 focus-visible:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
                     )}
                   >
                     <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />

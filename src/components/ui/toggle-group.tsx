@@ -39,7 +39,7 @@ export function ToggleGroup({ value, onValueChange, options, className, ...aria 
           aria-label={o["aria-label"]}
           className={cn(
             "inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
-            "text-ink-muted data-[state=off]:hover:text-ink data-[state=on]:bg-sel data-[state=on]:font-medium data-[state=on]:text-ink data-[state=on]:shadow-sel",
+            "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:font-medium data-[state=on]:text-ink data-[state=on]:shadow-sel",
           )}
         >
           {hold(o.label)}

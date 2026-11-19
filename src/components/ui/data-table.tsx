@@ -109,7 +109,7 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
                     type="button"
                     onClick={() => setSort((s) => (s?.key !== c.key ? { key: c.key, dir: 1 } : s.dir === 1 ? { key: c.key, dir: -1 } : null))}
                     aria-sort={sort?.key === c.key ? (sort.dir === 1 ? "ascending" : "descending") : undefined}
-                    className={cn("-mx-1.5 inline-flex cursor-pointer items-center gap-1 rounded-small px-1.5 py-0.5 transition-colors duration-[160ms] hover:bg-fill hover:text-ink", sort?.key === c.key && "text-ink", c.align === "right" && "flex-row-reverse")}
+                    className={cn("-mx-1.5 inline-flex cursor-pointer items-center gap-1 rounded-small px-1.5 py-0.5 transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink", sort?.key === c.key && "text-ink", c.align === "right" && "flex-row-reverse")}
                   >
                     {c.header}
                     {sort?.key === c.key ? sort.dir === 1 ? <ArrowUp size={14} /> : <ArrowDown size={14} /> : <span className="w-3.5" />}

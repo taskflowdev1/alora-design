@@ -38,7 +38,7 @@ export function Item({ media, title, description, end, variant = "plain", asChil
         "flex min-h-row min-w-0 items-center gap-3 rounded-item px-2.5 py-1.5 text-left",
         variant === "soft" && "bg-fill",
         asChild && "cursor-pointer transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill",
-        asChild && variant === "soft" && "hover:bg-fill-strong",
+        asChild && variant === "soft" && "hover:bg-fill-strong focus-visible:bg-fill-strong",
         className,
       )}
       {...props}

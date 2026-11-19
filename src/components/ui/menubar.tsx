@@ -37,7 +37,7 @@ export function Menubar({ menus, className }: { menus: MenubarMenu[]; className?
                 focusAt(i + d);
                 if (open != null) setOpen((i + d + menus.length) % menus.length);
               }}
-              className={cn(buttonClass({ variant: "ghost", size: "sm" }), "h-full rounded-item px-[calc(var(--ad-bubble-x)-var(--ad-nest))] font-normal hover:bg-fill-strong data-[state=open]:bg-fill-strong")}
+              className={cn(buttonClass({ variant: "ghost", size: "sm" }), "h-full rounded-item px-[calc(var(--ad-bubble-x)-var(--ad-nest))] font-normal hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong")}
             >
               {m.label}
             </button>

@@ -8,7 +8,7 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof C.
     <C.Root
       className={cn(
         "grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-small bg-fill-strong text-on-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-        "hover:bg-fill-strong data-[state=checked]:bg-on data-[state=indeterminate]:bg-on disabled:pointer-events-none disabled:opacity-45",
+        "data-[state=checked]:bg-on data-[state=indeterminate]:bg-on focus-visible:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted data-[state=indeterminate]:focus-visible:bg-ink-muted disabled:pointer-events-none disabled:opacity-45",
         className,
       )}
       {...props}

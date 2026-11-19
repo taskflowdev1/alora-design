@@ -17,7 +17,7 @@ export interface CollapsibleProps extends Omit<React.ComponentProps<typeof C.Roo
 export function Collapsible({ title, meta, className, children, ...props }: CollapsibleProps) {
   return (
     <C.Root className={cn("grid", className)} {...props}>
-      <C.Trigger className="group flex h-row w-full cursor-pointer select-none items-center gap-2 rounded-item px-2.5 text-left text-body text-ink transition-colors duration-[160ms] ease-ad hover:bg-fill">
+      <C.Trigger className="group flex h-row w-full cursor-pointer select-none items-center gap-2 rounded-item px-2.5 text-left text-body text-ink transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill">
         <span className="min-w-0 flex-1 truncate font-medium">{title}</span>
         {meta != null ? <span className="shrink-0 text-ink-muted">{meta}</span> : null}
         <ChevronDown size={16} className="shrink-0 text-ink-muted transition-transform duration-[220ms] ease-ad group-data-[state=open]:rotate-180" />

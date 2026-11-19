@@ -46,7 +46,7 @@ export function Trace({ steps, className }: { steps: TraceStep[]; className?: st
           <li key={s.id} aria-current={status === "running" ? "step" : undefined}>
             {s.detail ? (
               <C.Root>
-                <C.Trigger className="group flex min-h-item w-full cursor-pointer items-center gap-2.5 rounded-item px-2 py-1 transition-colors duration-[160ms] ease-ad hover:bg-fill">
+                <C.Trigger className="group flex min-h-item w-full cursor-pointer items-center gap-2.5 rounded-item px-2 py-1 transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill">
                   {row}
                   <ChevronDown size={14} className="shrink-0 text-ink-muted transition-transform duration-[220ms] group-data-[state=open]:rotate-180" />
                 </C.Trigger>

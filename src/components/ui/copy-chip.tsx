@@ -21,7 +21,7 @@ export function CopyChip({ value, children, onCopied, className }: { value: stri
       }}
       className={cn(
         "inline-flex h-6 max-w-full shrink-0 cursor-pointer select-none items-center gap-1.5 rounded-item bg-fill px-bubble-sm text-small font-medium tabular-nums text-ink",
-        "transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong active:scale-[0.97]",
+        "transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]",
         className,
       )}
     >

@@ -42,7 +42,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   const quickBtn = (active: boolean) =>
     cn(
       "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-      active ? "bg-fill-strong font-medium text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+      active ? "bg-fill-strong font-medium text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
     );
 
   return (
@@ -80,7 +80,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
           </div>
           <div className="grid gap-px">
             {shops.map((s) => (
-              <label key={s.id} className="flex h-item cursor-pointer select-none items-center gap-2.5 rounded-control px-2.5 text-body hover:bg-fill">
+              <label key={s.id} className="flex h-item cursor-pointer select-none items-center gap-2.5 rounded-control px-2.5 text-body hover:bg-fill has-[:focus-visible]:bg-fill">
                 <Checkbox checked={value.includes(s.id)} onCheckedChange={() => toggle(s.id)} />
                 <MarketMark market={s.market} />
                 <span className="min-w-0 flex-1 truncate">{s.name}</span>

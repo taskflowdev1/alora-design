@@ -33,7 +33,7 @@ export function Accordion({ items, type = "single", defaultValue, cards, classNa
         <A.Trigger
           className={cn(
             "group flex h-row w-full cursor-pointer select-none items-center gap-2 text-left text-body font-medium text-ink transition-colors duration-[160ms] ease-ad",
-            cards ? "rounded-card px-pad hover:bg-fill-strong" : "rounded-item px-2.5 hover:bg-fill",
+            cards ? "rounded-card px-pad hover:bg-fill-strong focus-visible:bg-fill-strong" : "rounded-item px-2.5 hover:bg-fill focus-visible:bg-fill",
           )}
         >
           <span className="min-w-0 flex-1 truncate">{it.title}</span>

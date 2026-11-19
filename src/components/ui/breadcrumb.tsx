@@ -49,7 +49,7 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
             c.onClick();
           }
                   }}
-                  className="block max-w-40 cursor-pointer truncate rounded-small px-1.5 py-0.5 text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill hover:text-ink"
+                  className="block max-w-40 cursor-pointer truncate rounded-small px-1.5 py-0.5 text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
                 >
                   {c.label}
                 </a>

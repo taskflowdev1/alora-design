@@ -57,7 +57,7 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
                   onClick={() => go(n)}
                   className={cn(
                     "grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-                    n === page ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+                    n === page ? "bg-fill-strong text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
                   )}
                 >
                   {n}
