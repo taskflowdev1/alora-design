@@ -7,23 +7,17 @@
 import * as React from "react";
 import {
   AlertCircle,
-  Bold,
   Box,
-  Calendar as CalendarIcon,
   Copy,
   Database,
   FileText,
   Grid,
-  Home,
-  Italic,
   Package,
   RefreshCw,
-  Search as SearchIcon,
   ShoppingBag,
   Tag,
   ThumbsUp,
   Truck,
-  Underline,
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { findItem, type Group } from "@/lib/registry";
@@ -246,46 +240,46 @@ function StoreChromeTile({ className }: { className?: string }) {
 }
 
 function ReceiptEditorTile({ className }: { className?: string }) {
-  const [marks, setMarks] = React.useState<Record<string, boolean>>({ bold: true });
-  const [text, setText] = React.useState("Terima kasih sudah belanja di Rimba Kemang.\nTukar barang dalam 7 hari dengan struk ini.");
+  const [flags, setFlags] = React.useState<Record<string, boolean>>({ fragile: true });
+  const [text, setText] = React.useState("Vas keramik: bubble wrap dua lapis, kardus double wall.\nSelipkan kartu terima kasih.");
   return (
     <Tile className={className}>
       <Mark name="menubar" className="w-fit max-w-full">
         <Menubar
           menus={[
             {
-              label: "File",
+              label: "Order",
               content: (
                 <>
-                  <MenuItem icon={FileText} shortcut="⌘N" onSelect={say("New template")}>
-                    New template
+                  <MenuItem icon={ThumbsUp} onSelect={say("RMB-24817 marked paid")}>
+                    Mark paid
                   </MenuItem>
-                  <MenuItem icon={Copy} onSelect={say("Duplicated")}>
+                  <MenuItem icon={Copy} onSelect={say("RMB-24817 duplicated")}>
                     Duplicate
                   </MenuItem>
                 </>
               ),
             },
             {
-              label: "Insert",
+              label: "Print",
               content: (
                 <>
-                  <MenuItem icon={CalendarIcon} onSelect={say("Date inserted")}>
-                    Date
+                  <MenuItem icon={FileText} shortcut="⌘P" onSelect={say("Packing slip sent to printer")}>
+                    Packing slip
                   </MenuItem>
-                  <MenuSub label="Shop details" icon={Home}>
-                    <MenuItem onSelect={say("Address inserted")}>Address</MenuItem>
-                    <MenuItem onSelect={say("Phone inserted")}>Phone</MenuItem>
+                  <MenuSub label="Label" icon={Tag}>
+                    <MenuItem onSelect={say("JNE label printed")}>JNE</MenuItem>
+                    <MenuItem onSelect={say("SiCepat label printed")}>SiCepat</MenuItem>
                   </MenuSub>
                 </>
               ),
             },
             {
-              label: "View",
+              label: "Ship",
               content: (
                 <MenuGroup>
-                  <MenuItem icon={SearchIcon} onSelect={say("Preview")}>
-                    Print preview
+                  <MenuItem icon={Truck} onSelect={say("Pickup booked")}>
+                    Book pickup
                   </MenuItem>
                 </MenuGroup>
               ),
@@ -293,23 +287,24 @@ function ReceiptEditorTile({ className }: { className?: string }) {
           ]}
         />
       </Mark>
-      <div className="flex items-center gap-1 px-1">
-        <Mark name="toggle" className="flex gap-1">
+      <div className="flex flex-wrap items-center gap-1 px-1">
+        <Mark name="toggle" className="flex flex-wrap gap-1">
           {(
             [
-              ["bold", Bold],
-              ["italic", Italic],
-              ["underline", Underline],
+              ["fragile", AlertCircle, "Fragile"],
+              ["gift", Package, "Gift wrap"],
+              ["priority", Truck, "Priority"],
             ] as const
-          ).map(([k, I]) => (
-            <Toggle key={k} size="sm" icon aria-label={k} pressed={!!marks[k]} onPressedChange={(v) => setMarks((m) => ({ ...m, [k]: v }))}>
+          ).map(([k, I, label]) => (
+            <Toggle key={k} size="sm" pressed={!!flags[k]} onPressedChange={(v) => setFlags((m) => ({ ...m, [k]: v }))}>
               <I />
+              {label}
             </Toggle>
           ))}
         </Mark>
       </div>
       <Mark name="textarea" className="flex flex-1">
-        <Textarea aria-label="Receipt footer" value={text} onChange={(e) => setText(e.target.value)} rows={4} className={cn("flex-1", marks.bold && "font-semibold", marks.italic && "italic", marks.underline && "underline")} />
+        <Textarea aria-label="Note for the packer" value={text} onChange={(e) => setText(e.target.value)} rows={4} className="flex-1" />
       </Mark>
     </Tile>
   );

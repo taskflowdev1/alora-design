@@ -259,7 +259,7 @@ export function kitMarkdown(c: Config) {
     "Every pill, chip, filter bubble and segment shares one padding scale (`--ad-bubble-x`, `--ad-bubble-x-sm`).",
     "Triggers (date, select) size to their value; they are not stretched.",
     "A one-line alert centres icon, text and action on one line; a multi-line alert keeps the icon on the first line.",
-    "Metric numbers: one or two digits sit in a soft tile beside the label; long values stay on one line with a muted unit.",
+    "Metric cards: Tile (A) by default; Hero (D) for the one main number on a page; Scale (B) where a few short counts sit together. In a Tile, one or two digits sit in a soft tile beside the label; long values stay on one line with a muted unit.",
   ].forEach((rule) => lines.push(`- ${rule}`));
   lines.push("");
 

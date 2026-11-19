@@ -568,8 +568,8 @@ function NumbersStack({ className }: { className?: string }) {
   return (
     <div className={cn(stack, "lg:grid-rows-[auto_1fr]", className)}>
       <Mark name="metric-card" className="grid grid-cols-2 gap-4">
-        <MetricCard label="Orders" value={312} delta={{ value: "3,1%", direction: "down" }} className="w-full" />
-        <MetricCard label="Cancelled" value={4} className="w-full" />
+        <MetricCard variant="scale" label="Orders" value={312} delta={{ value: "3,1%", direction: "down" }} className="w-full" />
+        <MetricCard variant="scale" label="Cancelled" value={4} className="w-full" />
       </Mark>
       <Tile>
         <Head title="Last 30 days" />
