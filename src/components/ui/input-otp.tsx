@@ -2,6 +2,8 @@ import * as React from "react";
 import { cn } from "@/lib/ad";
 
 export type InputOTPStatus = "idle" | "checking" | "invalid" | "success";
+/** How the boxes show a correct code. */
+export type InputOTPCelebrate = "join" | "quiet" | "seal";
 
 export interface InputOTPProps {
   value: string;
@@ -13,9 +15,14 @@ export interface InputOTPProps {
   onComplete?: (value: string) => void;
   /**
    * idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red.
-   * success: the boxes turn soft green one after another.
+   * success: the boxes turn soft green one after another (see celebrate).
    */
   status?: InputOTPStatus;
+  /**
+   * success, how it lands. quiet: the boxes turn soft green one after another. join: then the gaps close into one
+   * green bar. seal: then the bar folds into a green circle and a check draws inside.
+   */
+  celebrate?: InputOTPCelebrate;
   /** Same as status="invalid". */
   invalid?: boolean;
   disabled?: boolean;
@@ -29,12 +36,26 @@ export interface InputOTPProps {
 const css = `
 @keyframes ad-otp-digit { from { opacity: 0; transform: translateY(4px) scale(0.85); } }
 @keyframes ad-otp-wave { 0%, 100% { background-color: var(--ad-fill); } 40% { background-color: var(--ad-fill-strong); } }
-@keyframes ad-otp-pop { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }`;
+@keyframes ad-otp-seal {
+  0% { opacity: 0; clip-path: inset(0 0 round var(--ad-radius-control)); }
+  30% { opacity: 1; clip-path: inset(0 0 round var(--ad-radius-control)); }
+  100% { opacity: 1; clip-path: inset(0 calc(50% - var(--ad-otp-h) / 2) round 999px); }
+}
+@keyframes ad-otp-draw { to { stroke-dashoffset: 0; } }
+@keyframes ad-otp-rise { from { opacity: 0; transform: translateX(-4px); } }
+@keyframes ad-otp-hide { to { opacity: 0; } }`;
+
+/** One box's colour change, left to right (ms). */
+export const OTP_SWEEP = 55;
+/** When a correct code has finished landing (ms), so a status line can follow it. */
+export const otpLanded = (length: number, celebrate: InputOTPCelebrate) =>
+  length * OTP_SWEEP + (celebrate === "quiet" ? 160 : celebrate === "join" ? 380 : 900);
+const ease = "var(--ad-ease)";
 
 /**
  * A one-time code: one real input under a row of soft boxes, so paste, autofill (one-time-code) and the phone's
  * number pad all work. The box being typed into gets the focus tint and a caret; no rings, no outlines. Digits rise
- * in as they're typed; status drives the checking wave, the wrong-code shake and the success pop.
+ * in as they're typed; status drives the checking wave, the wrong-code shake and how a correct code lands.
  */
 export function InputOTP({
   value,
@@ -43,6 +64,7 @@ export function InputOTP({
   group = 3,
   onComplete,
   status = "idle",
+  celebrate = "join",
   invalid,
   disabled,
   className,
@@ -78,10 +100,20 @@ export function InputOTP({
   const typing = s === "idle" && focused;
   const locked = disabled || s === "checking" || s === "success";
   const sync = () => setSel(inner.current?.selectionStart ?? value.length);
+  const ok = s === "success";
+  // After the colour sweep, join and seal close the gaps so the code reads as one piece.
+  const joinAt = length * OTP_SWEEP + 120;
+  const joined = ok && celebrate !== "quiet";
+  const r = "var(--ad-radius-control)";
   return (
     <div
       ref={row}
-      className={cn("relative inline-flex items-center gap-1.5", disabled && "pointer-events-none opacity-45", className)}
+      className={cn(
+        "relative inline-flex items-center gap-1.5 [--ad-otp-h:calc(var(--ad-control-h)*1.15)]",
+        disabled && "pointer-events-none opacity-45",
+        className,
+      )}
+      style={joined ? { gap: 0, transition: `gap 280ms ${ease} ${joinAt}ms` } : undefined}
       onClick={() => inner.current?.focus()}
     >
       <style href="ad-input-otp" precedence="default">
@@ -89,18 +121,27 @@ export function InputOTP({
       </style>
       {Array.from({ length }, (_, i) => (
         <React.Fragment key={i}>
-          {group && i && i % group === 0 ? <span aria-hidden className="w-2" /> : null}
+          {group && i && i % group === 0 ? (
+            <span aria-hidden className="w-2 self-stretch" style={joined ? { width: 0, transition: `width 280ms ${ease} ${joinAt}ms` } : undefined} />
+          ) : null}
           <span
             aria-hidden
-            style={{
-              animationDelay: s === "checking" ? `${i * 90}ms` : s === "success" ? `${i * 45}ms` : undefined,
-            }}
+            style={
+              ok
+                ? {
+                    transition: `background-color 220ms ${ease} ${i * OTP_SWEEP}ms, color 220ms ${ease} ${i * OTP_SWEEP}ms, border-radius 280ms ${ease} ${joinAt}ms`,
+                    borderRadius: joined ? (i === 0 ? `${r} 0 0 ${r}` : i === length - 1 ? `0 ${r} ${r} 0` : 0) : undefined,
+                    // Seal: once the green bar covers them, the boxes go so only the circle is left.
+                    animation: celebrate === "seal" ? `ad-otp-hide 1ms linear ${joinAt + 380}ms forwards` : undefined,
+                  }
+                : { animationDelay: s === "checking" ? `${i * 90}ms` : undefined }
+            }
             className={cn(
-              "relative grid h-[calc(var(--ad-control-h)*1.15)] w-[calc(var(--ad-control-h)*0.95)] place-items-center rounded-control text-number font-semibold tabular-nums transition-colors duration-[220ms] ease-ad",
+              "relative grid h-(--ad-otp-h) w-[calc(var(--ad-control-h)*0.95)] place-items-center rounded-control text-number font-semibold tabular-nums transition-colors duration-[220ms] ease-ad",
               s === "invalid"
                 ? "bg-danger-soft text-danger"
-                : s === "success"
-                  ? "animate-[ad-otp-pop_360ms_var(--ad-ease)_both] bg-success-soft text-success"
+                : ok
+                  ? "bg-success-soft text-success"
                   : s === "checking"
                     ? "animate-[ad-otp-wave_900ms_ease-in-out_infinite] bg-fill text-ink"
                     : typing && i === Math.min(value.length, at)
@@ -117,6 +158,23 @@ export function InputOTP({
           </span>
         </React.Fragment>
       ))}
+      {ok && celebrate === "seal" ? (
+        <span
+          aria-hidden
+          className="absolute inset-0 grid place-items-center bg-success-soft text-success"
+          style={{ animation: `ad-otp-seal 520ms ${ease} ${joinAt + 200}ms both` }}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+            <path
+              d="M5 12.5l4.5 4.5L19 7.5"
+              pathLength={1}
+              strokeDasharray={1}
+              strokeDashoffset={1}
+              style={{ animation: `ad-otp-draw 280ms ${ease} ${joinAt + 640}ms forwards` }}
+            />
+          </svg>
+        </span>
+      ) : null}
       <input
         ref={setRef}
         id={id}

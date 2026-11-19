@@ -1,8 +1,8 @@
 import * as React from "react";
-import { AlertCircle, CheckCircle } from "react-feather";
+import { AlertCircle } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
-import { InputOTP, type InputOTPStatus } from "@/components/ui/input-otp";
+import { InputOTP, otpLanded, type InputOTPCelebrate, type InputOTPStatus } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Mark } from "./mark";
 
@@ -25,6 +25,7 @@ export function OtpFlow({
   label = "Code from WhatsApp",
   done = "Till open",
   marks,
+  celebrate = "join",
   className,
 }: {
   length?: number;
@@ -32,6 +33,7 @@ export function OtpFlow({
   label?: string;
   done?: string;
   marks?: boolean;
+  celebrate?: InputOTPCelebrate;
   className?: string;
 }) {
   const [sent, setSent] = React.useState(() => (length === 6 ? "482193" : "4821"));
@@ -112,8 +114,7 @@ export function OtpFlow({
         : force === "open"
           ? { phase: "open", code: sent, notice: "open", tries: TRIES }
           : { phase, code, notice, tries };
-  const status: InputOTPStatus =
-    shown.phase === "checking" ? "checking" : shown.phase === "wrong" ? "invalid" : shown.phase === "open" ? "success" : "idle";
+  const status: InputOTPStatus = shown.phase === "checking" ? "checking" : shown.phase === "wrong" ? "invalid" : shown.phase === "open" ? "success" : "idle";
   const live = force === "live";
   const canResend = shown.phase === "locked" || (wait === 0 && shown.phase !== "open");
 
@@ -132,6 +133,7 @@ export function OtpFlow({
           group={length === 6 ? 3 : 0}
           value={shown.code}
           status={status}
+          celebrate={celebrate}
           disabled={shown.phase === "locked"}
           onValueChange={(v) => {
             if (!live) return;
@@ -155,15 +157,16 @@ export function OtpFlow({
             Too many tries. Send a new code.
           </span>
         ) : null}
-        {shown.notice === "open" ? (
-          <span className="flex animate-[ad-in_220ms_var(--ad-ease)] items-center gap-1.5 font-medium text-success">
-            <CheckCircle size={16} />
-            {done}
-          </span>
-        ) : null}
+        {shown.notice === "open" ? <Opened delay={otpLanded(length, celebrate)} icon={celebrate !== "seal"} text={done} /> : null}
       </div>
       {shown.phase === "open" ? (
-        <Button size="sm" variant="ghost" onClick={() => live && reset()}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => live && reset()}
+          className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
+          style={{ animationDelay: `${otpLanded(length, celebrate) + 200}ms` }}
+        >
           Start over
         </Button>
       ) : (
@@ -195,6 +198,34 @@ export function OtpFlow({
         </button>
       ) : null}
     </div>
+  );
+}
+
+/** "Till open" follows the boxes: a check circle draws itself, then the words slide in beside it. */
+function Opened({ delay, icon, text }: { delay: number; icon: boolean; text: string }) {
+  const draw = (at: number) => ({ animation: `ad-otp-draw 320ms var(--ad-ease) ${delay + at}ms forwards` });
+  return (
+    <span className="flex items-center gap-1.5 font-medium text-success">
+      {icon ? (
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <circle cx="12" cy="12" r="9.5" pathLength={1} strokeDasharray={1} strokeDashoffset={1} transform="rotate(-90 12 12)" style={draw(0)} />
+          <path d="M8 12.5l2.75 2.75L16.25 9.5" pathLength={1} strokeDasharray={1} strokeDashoffset={1} style={draw(220)} />
+        </svg>
+      ) : null}
+      <span className="animate-[ad-otp-rise_260ms_var(--ad-ease)_both]" style={{ animationDelay: `${delay + (icon ? 120 : 0)}ms` }}>
+        {text}
+      </span>
+    </span>
   );
 }
 
