@@ -23,7 +23,20 @@ export interface DropzoneProps {
   className?: string;
 }
 
-const kb = (n: number) => (n >= 1e6 ? `${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })} MB` : `${Math.max(1, Math.round(n / 1e3))} KB`);
+// A no-break space keeps the number and its unit together.
+const kb = (n: number) => (n >= 1e6 ? `${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })}\u00a0MB` : `${Math.max(1, Math.round(n / 1e3))}\u00a0KB`);
+
+/** A file name that truncates in the middle: the end of the name and its extension always stay visible. */
+function FileName({ name, className }: { name: string; className?: string }) {
+  const dot = name.lastIndexOf(".");
+  const cut = dot > 0 ? Math.max(0, dot - 4) : name.length;
+  return (
+    <span className={cn("flex min-w-0", className)}>
+      <span className="min-w-0 truncate">{name.slice(0, cut)}</span>
+      <span className="shrink-0 whitespace-pre">{name.slice(cut)}</span>
+    </span>
+  );
+}
 
 /** A soft area, no dashed border. Dragging over it deepens the fill. Files list under it with progress. */
 export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemove, title = "Drop files here", className }: DropzoneProps) {
@@ -68,7 +81,7 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
               <File size={16} className="shrink-0 text-ink-muted" />
               <div className="grid min-w-0 flex-1 gap-1.5">
                 <div className="flex items-baseline gap-2 text-body">
-                  <span className="min-w-0 flex-1 truncate">{f.name}</span>
+                  <FileName name={f.name} className="flex-1" />
                   <span className="shrink-0 text-small tabular-nums text-ink-muted">{f.progress != null ? `${Math.round(f.progress)}%` : kb(f.size)}</span>
                 </div>
                 {f.progress != null ? <Progress value={f.progress} aria-label={`Uploading ${f.name}`} className="h-1 bg-fill-strong" /> : null}

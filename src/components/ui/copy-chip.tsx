@@ -27,8 +27,9 @@ export function CopyChip({ value, children, onCopied, className }: { value: stri
     >
       <span className="truncate">{children ?? value}</span>
       <span className="relative grid size-3.5 shrink-0 place-items-center text-ink-muted">
-        <Copy size={13} className={cn("absolute transition-opacity duration-[160ms]", done && "opacity-0")} />
-        <Check size={13} className={cn("absolute transition-opacity duration-[160ms]", !done && "opacity-0")} />
+        {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
+        <Copy size={13} className={cn("absolute transition-[opacity,scale,filter] duration-[160ms] ease-ad", done && "opacity-0 scale-[0.8] blur-[2px]")} />
+        <Check size={13} className={cn("absolute transition-[opacity,scale,filter] duration-[160ms] ease-ad", !done && "opacity-0 scale-[0.8] blur-[2px]")} />
       </span>
     </button>
   );

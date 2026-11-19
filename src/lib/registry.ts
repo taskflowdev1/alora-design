@@ -68,8 +68,8 @@ export const ITEMS: Item[] = [
   { name: "radio", title: "Radio", group: "Inputs", files: ["radio.tsx"], deps: [RADIX] },
   { name: "slider", title: "Slider", group: "Inputs", files: ["slider.tsx"], deps: [RADIX] },
 
-  { name: "card", title: "Card", group: "Display", files: ["card.tsx"] },
-  { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"] },
+  { name: "card", title: "Card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
+  { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
   { name: "table", title: "Table", group: "Display", files: ["table.tsx"], registryDeps: ["button", "tooltip"] },
   { name: "attention-list", title: "Attention list", group: "Display", files: ["attention-list.tsx"], registryDeps: ["thumb"] },
   { name: "bar-chart", title: "Bar chart", group: "Display", files: ["bar-chart.tsx"] },

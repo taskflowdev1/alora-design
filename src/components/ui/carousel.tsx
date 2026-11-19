@@ -21,10 +21,18 @@ export interface CarouselProps {
  * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways.
  * Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
  */
+/** Fades the cut edge of the track, only on a side with more slides to scroll to. */
+function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSProperties {
+  if (!start && !end) return {};
+  const mask = `linear-gradient(90deg, ${start ? "transparent" : "#000"}, #000 16px, #000 calc(100% - 16px), ${end ? "transparent" : "#000"})`;
+  return { maskImage: mask, WebkitMaskImage: mask };
+}
+
 export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots = true, className, ...aria }: CarouselProps) {
   const track = React.useRef<HTMLDivElement>(null);
   const [index, setIndex] = React.useState(0);
   const [pages, setPages] = React.useState(children.length);
+  const [edges, setEdges] = React.useState({ start: false, end: false });
   React.useLayoutEffect(() => {
     const el = track.current;
     if (!el) return;
@@ -34,6 +42,9 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
       const shown = Math.max(1, Math.round((el.clientWidth + gap) / step));
       setPages(Math.max(1, children.length - shown + 1));
       setIndex(Math.min(children.length - 1, Math.round(el.scrollLeft / step)));
+      const start = el.scrollLeft > 1;
+      const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+      setEdges((p) => (p.start === start && p.end === end ? p : { start, end }));
     };
     measure();
     el.addEventListener("scroll", measure, { passive: true });
@@ -62,7 +73,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
           }
         }}
         className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{ gap, ["--per" as string]: perView, ["--gap" as string]: `${gap}px` }}
+        style={{ gap, ["--per" as string]: perView, ["--gap" as string]: `${gap}px`, ...edgeFade(edges) }}
       >
         {children.map((c, i) => (
           <div

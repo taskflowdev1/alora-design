@@ -30,7 +30,7 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
       className={cn(
         "grid gap-2.5 rounded-card p-3 text-body shadow-card",
         attention ? "bg-brand-soft" : "bg-surface",
-        onClick && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised active:scale-[0.99]",
+        onClick && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised focus-visible:-translate-y-0.5 focus-visible:shadow-raised active:scale-[0.99]",
         className,
       )}
     >

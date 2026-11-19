@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ArrowDownRight, ArrowUpRight } from "react-feather";
 import { cn } from "@/lib/ad";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Clickable cards lift slightly on hover. */
@@ -16,7 +17,7 @@ export function Card({ interactive, inset = "pad", className, ...props }: CardPr
         "rounded-card bg-surface shadow-card",
         inset === "pad" && "p-pad",
         inset === "nest" && "p-[calc(var(--ad-nest)*2)]",
-        interactive && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised active:scale-[0.99]",
+        interactive && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised focus-visible:-translate-y-0.5 focus-visible:shadow-raised active:scale-[0.99]",
         className,
       )}
       {...props}
@@ -70,7 +71,7 @@ const groups = (v: number) => Math.round(v).toLocaleString("id-ID");
 /** "Rp 48,2 jt", "Rp 1,2 M", "Rp 154 rb". */
 export function compactNumber(v: number) {
   const abs = Math.abs(v);
-  const f = (n: number, s: string) => `${n.toLocaleString("id-ID", { maximumFractionDigits: Math.abs(n) < 100 ? 1 : 0 })} ${s}`;
+  const f = (n: number, s: string) => `${n.toLocaleString("id-ID", { maximumFractionDigits: Math.abs(n) < 100 ? 1 : 0 })}\u00a0${s}`;
   if (abs >= 1e9) return f(v / 1e9, "M");
   if (abs >= 1e6) return f(v / 1e6, "jt");
   if (abs >= 1e4) return f(v / 1e3, "rb");
@@ -202,10 +203,10 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
     if (m) digits = (<>{m[1]}<span className={muted}>{m[2]}</span></>);
   } else if (variant === "compact" && typeof value === "number") {
     digits = compactNumber(value);
-    title = `${unit ? `${unit} ` : ""}${text}`;
+    title = `${unit ? `${unit}\u00a0` : ""}${text}`;
   }
-  return shell(
-    <span className="flex flex-col justify-center gap-1" title={title}>
+  const body = (
+    <span className="flex flex-col justify-center gap-1">
       {labelEl}
       <span className="flex items-baseline gap-2 whitespace-nowrap">
         <span className="text-number font-semibold tabular-nums">
@@ -216,7 +217,8 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
         </span>
         {delta ? <Delta delta={delta} primary={primary} /> : null}
       </span>
-    </span>,
-    "min-w-36 p-pad",
+    </span>
   );
+  // The exact value of a shortened number shows in the house tooltip, never the browser's title box.
+  return shell(title ? <Tooltip content={title}>{body}</Tooltip> : body, "min-w-36 p-pad");
 }

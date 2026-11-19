@@ -11,7 +11,7 @@ export function ButtonGroup({ className, children, ...props }: React.HTMLAttribu
       role="group"
       className={cn(
         "inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-fill p-nest",
-        "[&>*]:h-full [&>*]:rounded-item [&>*]:bg-transparent [&>*]:px-[calc(var(--ad-bubble-x)-var(--ad-nest))] [&>*:hover]:bg-fill-strong",
+        "[&>*]:h-full [&>*]:rounded-item [&>*]:bg-transparent [&>*]:px-[calc(var(--ad-bubble-x)-var(--ad-nest))] [&>*]:hover:bg-fill-strong [&>*]:focus-visible:bg-fill-strong",
         "[&>[data-icon]]:aspect-square [&>[data-icon]]:px-0",
         className,
       )}

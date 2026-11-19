@@ -21,6 +21,8 @@ export interface CodeBlockProps {
  */
 export function CodeBlock({ code, title, lineNumbers, maxHeight = 420, onCopy, className }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
+  const timer = React.useRef<number | undefined>(undefined);
+  React.useEffect(() => () => window.clearTimeout(timer.current), []);
   const lines = code.split("\n");
   return (
     <div className={cn("relative min-w-0 rounded-card bg-fill", className)}>
@@ -49,10 +51,15 @@ export function CodeBlock({ code, title, lineNumbers, maxHeight = 420, onCopy, c
           void navigator.clipboard?.writeText(code);
           onCopy?.(code);
           setCopied(true);
-          window.setTimeout(() => setCopied(false), 1400);
+          window.clearTimeout(timer.current);
+          timer.current = window.setTimeout(() => setCopied(false), 1400);
         }}
       >
-        {copied ? <Check /> : <Copy />}
+        {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
+        <span className="relative grid size-4 place-items-center [&>svg]:absolute [&>svg]:transition-[opacity,scale,filter] [&>svg]:duration-[160ms] [&>svg]:ease-ad">
+          <Copy className={cn(copied && "opacity-0 scale-[0.8] blur-[2px]")} />
+          <Check className={cn(!copied && "opacity-0 scale-[0.8] blur-[2px]")} />
+        </span>
       </Button>
     </div>
   );

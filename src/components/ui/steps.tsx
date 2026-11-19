@@ -22,8 +22,8 @@ export function Steps({ steps, current, className }: StepsProps) {
           <li key={s} aria-current={now ? "step" : undefined} className="grid min-w-0 gap-1.5">
             <span className="h-1.5 overflow-hidden rounded-full bg-fill">
               <span
-                className="block h-full rounded-full bg-chart-1 transition-[width] duration-[220ms] ease-ad"
-                style={{ width: done ? "100%" : now ? "50%" : "0%" }}
+                className="block h-full w-full rounded-full bg-chart-1 transition-transform duration-[220ms] ease-ad"
+                style={{ transform: `translateX(${done ? 0 : now ? -50 : -100}%)` }}
               />
             </span>
             <span className={cn("flex min-w-0 items-center gap-1 text-body", done || now ? "text-ink" : "text-ink-muted", now && "font-medium")}>
