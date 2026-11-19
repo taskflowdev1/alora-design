@@ -785,7 +785,7 @@ function TooltipTile({ className }: { className?: string }) {
           </Button>
         </Tooltip>
         <span className="relative">
-          <span aria-hidden className="absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-item bg-on px-2.5 py-1.5 text-small text-on-ink shadow-raised">
+          <span aria-hidden className="absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-item bg-tip px-2.5 py-1.5 text-small text-tip-ink shadow-raised">
             Print packing slip
           </span>
           <Tooltip content="Print packing slip">

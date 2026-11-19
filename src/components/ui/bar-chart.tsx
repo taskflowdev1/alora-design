@@ -48,7 +48,7 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, loading,
       </div>
       {!loading && shown != null && data[shown] ? (
         <figcaption
-          className="pointer-events-none absolute top-0 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-item bg-on px-2 py-1 text-small tabular-nums text-on-ink shadow-raised"
+          className="pointer-events-none absolute top-0 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-item bg-tip px-2 py-1 text-small tabular-nums text-tip-ink shadow-raised"
           style={{ left: `${((shown + 0.5) / data.length) * 100}%` }}
         >
           {data[shown].label} · {data[shown].display ?? data[shown].value.toLocaleString("id-ID")}

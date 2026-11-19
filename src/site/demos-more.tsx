@@ -54,6 +54,23 @@ const chartCard = "w-full max-w-2xl";
 const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2", "#c2b0a4"]; // grey-ok
 const photoIcon = "text-black/30"; // grey-ok
 
+/** The running step's time counts up from when the page opened. */
+function TraceDemo() {
+  const [startedAt] = React.useState(() => Date.now());
+  return (
+    <Trace
+      className="w-full max-w-md"
+      steps={[
+        { id: "s", title: "Read stock at Dago and Kemang", description: "Stock table", time: "0,8 s", icon: Database, detail: "Gelas kopi tanah liat: Dago 9, Kemang 2." },
+        { id: "o", title: "Checked open orders", time: "0,4 s" },
+        { id: "e", title: "Couldn’t reach the courier", status: "error", time: "2,0 s" },
+        { id: "t", title: "Booking a transfer", status: "running", startedAt },
+        { id: "n", title: "Tell the Kemang team", status: "pending" },
+      ]}
+    />
+  );
+}
+
 export const MORE_DEMOS: Record<string, Demo> = {
   /* ---------------------------------------------------------- charts */
   chart: {
@@ -602,19 +619,8 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: (p) => (p.variant === "label" ? `<Marker variant="label">Today</Marker>` : `<Marker icon={Truck}${p.variant === "soft" ? ' variant="soft"' : ""}>Transfer booked, pickup 15:00</Marker>`),
   },
   trace: {
-    render: () => (
-      <Trace
-        className="w-full max-w-md"
-        steps={[
-          { id: "s", title: "Read stock at Dago and Kemang", description: "Stock table", time: "0,8 s", icon: Database, detail: "Gelas kopi tanah liat: Dago 9, Kemang 2." },
-          { id: "o", title: "Checked open orders", time: "0,4 s" },
-          { id: "e", title: "Couldn’t reach the courier", status: "error", time: "2,0 s" },
-          { id: "t", title: "Booking a transfer", status: "running" },
-          { id: "n", title: "Tell the Kemang team", status: "pending" },
-        ]}
-      />
-    ),
-    usage: () => `<Trace steps={[\n  { id: "s", title: "Read stock", time: "0,8 s", detail: "…" },\n  { id: "t", title: "Booking a transfer", status: "running" },\n]} />`,
+    render: () => <TraceDemo />,
+    usage: () => `<Trace steps={[\n  { id: "s", title: "Read stock", time: "0,8 s", detail: "…" },\n  { id: "t", title: "Booking a transfer", status: "running", startedAt },\n]} />`,
   },
   attachment: {
     controls: [

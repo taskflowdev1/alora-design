@@ -205,6 +205,10 @@ export const GREY_ROLES: Record<string, { light: GreyStep | "white"; dark: GreyS
   sel: { light: "surface", dark: "fill-strong", use: "the raised pill in a track" },
   on: { light: "ink", dark: "ink", use: "ink surfaces: tooltips, toasts, checked boxes, progress" },
   "on-ink": { light: "surface", dark: "surface", use: "text and marks on ink surfaces" },
+  // Joshua (Board, 2026-11-09): popovers and previews sit darker than the page in dark mode, never a white card.
+  tip: { light: "ink", dark: "page", use: "tooltips and chart tooltips: ink in light, the darkest step in dark" },
+  "tip-ink": { light: "surface", dark: "ink", use: "text on tooltips" },
+  pop: { light: "surface", dark: "page", use: "previews that float over content (citation): white in light, the darkest step in dark" },
   scroll: { light: "fill-strong", dark: "fill-strong", use: "scrollbar thumb" },
   "switch-on": { light: "ink", dark: "ink-muted", use: "switch on: neutral, never the accent (off is fill-strong)" },
   thumb: { light: "white", dark: "white", use: "switch and slider thumb" },

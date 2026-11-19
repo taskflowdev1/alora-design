@@ -669,7 +669,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/password-input.json"
 
 Files: `src/components/ui/password-input.tsx`. Installs too: `input`.
 
-`PasswordInput`: A new-password field that rewards early and complains late: a small ring closes around as the password gets stronger (no weak/strong label) and turns into a check when it is strong; "too common" shows the moment it matches, "too short" only once you leave the field. Reveal turns each dot into its letter in place (monospace, so nothing moves). While empty it offers a generated password in groups of four.
+`PasswordInput`: A new-password field that rewards early and complains late: a small progress ring (a faint full track and the filled part) closes as the password gets stronger, with no weak/strong label, and a check draws inside it once it is strong. Nothing complains while you type: "too short" or "too common" shows once you leave the field (or submit), then clears live as you fix it. A weak password never tints the field (only an `error` from outside does). Reveal turns each dot into its letter in place (monospace, so nothing moves). While empty it offers a generated password in groups of four.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1284,7 +1284,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/chart.json"
 
 Files: `src/components/ui/chart.tsx`.
 
-`ChartTooltip`: The one tooltip: a small solid-ink card with a title and one row per series (colour key, label, value).
+`ChartTooltip`: The one tooltip: a small card with a title and one row per series (colour key, label, value). Ink in light; in dark the darkest step, below the card it floats over, never a white card.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1292,6 +1292,7 @@ Files: `src/components/ui/chart.tsx`.
 | `rows` (required) | `{ color?: string \| undefined; label: ReactNode; value: ReactNode; }[]` |  |  |
 | `style` | `CSSProperties` |  |  |
 | `className` | `string` |  |  |
+| `ref` | `Ref<HTMLDivElement>` |  |  |
 
 `ChartLegend`: Legend: a colour dot beside each name; the text stays in ink, never the series colour. Present from two series up.
 
@@ -1302,7 +1303,7 @@ Files: `src/components/ui/chart.tsx`.
 | `onActiveChange` | `((index: number \| null) => void)` |  | Pointing at an item reports it, so the chart and a table can light up its series. |
 | `className` | `string` |  |  |
 
-`CartesianChart`: Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks and gridlines, a crosshair with one tooltip for every series on hover or arrow keys, and a legend from two series up.
+`CartesianChart`: Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks and gridlines, a crosshair with one tooltip for every series on hover, tap or arrow keys (kept inside the plot), and a legend in a row above from two series up.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1317,7 +1318,7 @@ Files: `src/components/ui/chart.tsx`.
 | `stacked` | `boolean` | `false` | Area only: stack the series on top of each other. |
 | `fill` | `number` | `0.14` | Area only: wash strength, 0 to 0.4. |
 | `labelEvery` | `number` | `0` | Label every nth x value. 0 = pick from the width. |
-| `legend` | `boolean` | `true` | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `legend` | `boolean` | `true` | The legend in a row above the chart (from two series up). Off when the card's header carries it. |
 | `format` | `((n: number) => string)` | `formatShort` |  |
 | `active` | `number \| null` |  | Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. |
 | `onActiveChange` | `((index: number \| null) => void)` |  | Hovering or arrowing to a point reports its index (null on leave), so a table can light up the matching row. |
@@ -1336,12 +1337,12 @@ npx shadcn@latest add "https://design.alorawork.com/r/line-chart.json"
 
 Files: `src/components/ui/line-chart.tsx`. Installs too: `chart`.
 
-`LineChart`: Change over time: 2 px lines in accent shades, an end dot, round clean ticks on one axis, a crosshair tooltip that lists every series, and a legend from two series up. Arrow keys move the crosshair.
+`LineChart`: Change over time: 2 px lines in accent shades, an end dot, round clean ticks on one axis, a crosshair tooltip that lists every series (kept inside the plot), and a legend in a row above from two series up. Arrow keys move the crosshair.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `data` (required) | `Datum[]` |  |  |
-| `legend` | `boolean` |  | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `legend` | `boolean` |  | The legend in a row above the chart (from two series up). Off when the card's header carries it. |
 | `height` | `number` |  |  |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
@@ -1372,7 +1373,7 @@ Files: `src/components/ui/area-chart.tsx`. Installs too: `chart`.
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `data` (required) | `Datum[]` |  |  |
-| `legend` | `boolean` |  | The legend under the chart (from two series up). Off when the card's header carries it. |
+| `legend` | `boolean` |  | The legend in a row above the chart (from two series up). Off when the card's header carries it. |
 | `height` | `number` |  |  |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
@@ -2018,13 +2019,14 @@ npx shadcn@latest add "https://design.alorawork.com/r/streaming-text.json"
 
 Files: `src/components/ui/streaming-text.tsx`.
 
-`StreamingText`: An answer that writes itself without moving the page: the paragraph in progress holds room for a few lines ahead of the words, so the next line lands in space that is already there instead of pushing everything below it down, and each new chunk fades in where it lands. A small pulsing dot marks where it is writing. When it finishes, the reserve goes and the block keeps exactly the height of its text.
+`StreamingText`: An answer that writes itself without moving the page. With `final`, the whole answer's shape is there from the first frame as skeleton lines, and each word fades in exactly where its skeleton was. Without it, the paragraph in progress holds `reserve` lines open, drawn as skeleton lines under the words, so the next line lands in space that is already there. A source number never wraps away from its word. When it finishes, the block keeps exactly the height of its text.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `text` (required) | `string` |  | The answer so far. Paragraphs are split on blank lines. |
 | `streaming` | `boolean` |  | Still arriving: the paragraph being written keeps room for `reserve` lines, so what is below never jumps. |
-| `reserve` | `number` | `3` | Lines to hold open for the paragraph in progress (and for the first one before any text arrives). |
+| `reserve` | `number` | `3` | Lines to hold open for the paragraph in progress (shown as skeleton lines before the first words arrive). |
+| `final` | `string` |  | The whole answer, when it is known before it is shown (a replay, a cached answer, a template). Then the space it will take shows as skeleton lines from the first frame, word for word where the text will land, so nothing moves at all; `reserve` is not used. |
 | `cite` | `((n: number) => ReactNode)` |  | Renders a source marker written as [n] in the text (a Citation); it appears as soon as its marker arrives. |
 | `className` | `string` |  |  |
 
@@ -2038,7 +2040,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/citation.json"
 
 Files: `src/components/ui/citation.tsx`.
 
-`Citation`: A claim's source as a small number after it. Tapping (or hovering, after a short wait) opens a card that grows out of that number, not from the middle of the screen, with the source's name, where it lives and the passage used.
+`Citation`: A claim's source as a small number after it. Tapping (or hovering, after a short wait) opens a card that grows out of that number, not from the middle of the screen, with the source's name, where it lives and the passage used. The card opens below the number (above only when there is no room), so it never covers the sentence it backs; it is white in light and darker than the page in dark. Keep the number on its word's line: StreamingText does it for you, or wrap the last word, the number and its punctuation in `whitespace-nowrap`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2056,7 +2058,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/proposed-change.json"
 
 Files: `src/components/ui/proposed-change.tsx`. Installs too: `button`.
 
-`ProposedChange`: An agent may suggest anything, but it asks before it changes your data: the exact before → after per row, then Apply (the one accent) or Not now. While applying the button keeps its width and says so; once applied the card says what happened and offers Undo instead of a second confirm.
+`ProposedChange`
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2531,7 +2533,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/steps.json"
 
 Files: `src/components/ui/steps.tsx`.
 
-`Steps`: Where an order (or any flow) is. Each step is a slim bar with its label under it: done = accent shade with a check, current = half full, next = soft track. No connecting lines.
+`Steps`: Where an order (or any flow) is. Each step is a slim bar with its label under it: done = full with a check, current = half full, next = soft track. Ink, never the accent (the accent is for the action buttons). No connecting lines.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

@@ -538,7 +538,7 @@ function SaveButton({ hold }: { hold: boolean }) {
           "Save"
         )}
       </Button>
-      <Button variant="ghost">Cancel</Button>
+      <Button variant="secondary">Cancel</Button>
     </div>
   );
 }

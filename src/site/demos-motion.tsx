@@ -1,11 +1,11 @@
 // Detail-page demos for the motion set: each live with its controls, plus its usage snippet.
 import * as React from "react";
 import { toast } from "@/components/ui/toast";
-import { Citation } from "@/components/ui/citation";
 import { PromptSuggestions } from "@/components/ui/prompt-suggestions";
 import { Reactions, type Reaction } from "@/components/ui/reactions";
+import { Message } from "@/components/ui/message";
 import type { Demo } from "./demos";
-import { DialDemo, FIRST_SOURCES, LinkedSales, PasswordDemo, PriceChange, PROMPTS, PurchaseOrderForm, StreamingDemo, ThemePreview, type DIAL_PRESETS } from "./showcase-motion";
+import { CitedAnswer, DialInUse, LinkedSales, PasswordDemo, PriceChange, PROMPTS, PurchaseOrderForm, StreamingDemo, ThemePreview, type DIAL_PRESETS } from "./showcase-motion";
 
 function ReactionsDemo({ fail }: { fail: boolean }) {
   const [items, setItems] = React.useState<Reaction[]>([
@@ -13,20 +13,25 @@ function ReactionsDemo({ fail }: { fail: boolean }) {
     { emoji: "🎉", count: 9, who: "Dewi and 8 others" },
     { emoji: "👀", count: 1, who: "Rudi" },
   ]);
+  // Where reactions belong: under a teammate's comment.
   return (
-    <Reactions
-      items={items}
-      onToggle={(emoji, on) =>
-        new Promise<void>((ok, no) =>
-          window.setTimeout(() => {
-            if (fail) return no(new Error("offline"));
-            setItems((rs) => rs.map((r) => (r.emoji === emoji ? { ...r, mine: on, count: r.count + (on ? 1 : -1) } : r)));
-            ok();
-          }, 600),
-        )
-      }
-      onError={() => toast("Couldn’t save your reaction. Try again", "neutral")}
-    />
+    <Message from={{ name: "Dewi" }} time="Today, 14:05" className="w-full max-w-md">
+      <p>Kemang’s restock is booked for Friday, 6 mugs from Dago.</p>
+      <Reactions
+        className="mt-1.5"
+        items={items}
+        onToggle={(emoji, on) =>
+          new Promise<void>((ok, no) =>
+            window.setTimeout(() => {
+              if (fail) return no(new Error("offline"));
+              setItems((rs) => rs.map((r) => (r.emoji === emoji ? { ...r, mine: on, count: r.count + (on ? 1 : -1) } : r)));
+              ok();
+            }, 600),
+          )
+        }
+        onError={() => toast("Couldn’t save your reaction. Try again", "neutral")}
+      />
+    </Message>
   );
 }
 
@@ -37,7 +42,7 @@ export const MOTION_DEMOS: Record<string, Demo> = {
       { key: "sound", type: "toggle", label: "Tick sound (showcase)", default: false },
       { key: "blur", type: "toggle", label: "Motion blur (showcase)", default: false },
     ],
-    render: (p) => <DialDemo key={String(p.preset)} preset={p.preset as keyof typeof DIAL_PRESETS} sound={!!p.sound} blur={!!p.blur} className="w-full max-w-md" />,
+    render: (p) => <DialInUse key={String(p.preset)} preset={p.preset as keyof typeof DIAL_PRESETS} sound={!!p.sound} blur={!!p.blur} className="max-w-md" />,
     usage: (p) =>
       p.preset === "year"
         ? `<NumberDial aria-label="Financial year" value={year} onValueChange={setYear} min={2000} max={2040} majorEvery={5} />`
@@ -83,19 +88,17 @@ export const MOTION_DEMOS: Record<string, Demo> = {
     usage: (p) => `<PromptSuggestions${p.layout === "chips" ? ' layout="chips"' : ""} items={[{ prompt: "Why is Kemang short on clay mugs?", icon: Package }]} onPick={send} />`,
   },
   "streaming-text": {
-    controls: [{ key: "reserve", type: "select", label: "Lines held open", options: ["2", "3", "4"], default: "3" }],
-    render: (p) => <StreamingDemo key={String(p.reserve)} reserve={Number(p.reserve)} />,
-    usage: (p) => `<StreamingText text={soFar} streaming={!done}${p.reserve !== "3" ? ` reserve={${p.reserve}}` : ""} cite={(n) => <Citation n={n} source={sources[n]} />} />`,
+    controls: [{ key: "space", type: "select", label: "Space held", options: ["answer", "2", "3", "4"], labels: ["The whole answer", "2 lines ahead", "3 lines ahead", "4 lines ahead"], default: "answer" }],
+    render: (p) => <StreamingDemo key={String(p.space)} space={String(p.space)} />,
+    usage: (p) =>
+      p.space === "answer"
+        ? `// The answer is known (a replay): its shape shows as skeleton lines from the first frame.\n<StreamingText text={soFar} final={answer} streaming={!done} cite={(n) => <Citation n={n} source={sources[n]} />} />`
+        : `<StreamingText text={soFar} streaming={!done}${p.space !== "3" ? ` reserve={${p.space}}` : ""} cite={(n) => <Citation n={n} source={sources[n]} />} />`,
   },
   citation: {
-    render: () => (
-      <p className="max-w-md text-body leading-relaxed text-ink">
-        Kemang sold 18 clay mugs this week, twice its usual pace
-        <Citation n={1} source={FIRST_SOURCES[1]} />. Dago has 9 and needs 3 for its own orders
-        <Citation n={2} source={FIRST_SOURCES[2]} />. Moving 6 covers Kemang until Friday.
-      </p>
-    ),
-    usage: () => `Dago has 9 and needs 3<Citation n={2} source={{ title: "Stock ledger", meta: "Dago · today 09:00", quote: "On hand 9 · reserved 3" }} />.`,
+    render: () => <CitedAnswer />,
+    usage: () =>
+      `// In an answer, StreamingText keeps each number on its word's line:\n<StreamingText text={answer} cite={(n) => <Citation n={n} source={sources[n]} />} />\n\n// By hand, wrap the word, the number and its full stop:\n<span className="whitespace-nowrap">needs 3<Citation n={2} source={{ title: "Stock ledger", meta: "Dago · today 09:00", quote: "On hand 9 · reserved 3" }} />.</span>`,
   },
   "proposed-change": {
     render: () => <PriceChange className="w-full max-w-md" />,

@@ -58,10 +58,11 @@ const swap = "absolute transition-[opacity,scale,filter] duration-[160ms] ease-a
 const off = "opacity-0 scale-[0.8] blur-[2px]";
 
 /**
- * A new-password field that rewards early and complains late: a small ring closes around as the password gets
- * stronger (no weak/strong label) and turns into a check when it is strong; "too common" shows the moment it matches,
- * "too short" only once you leave the field. Reveal turns each dot into its letter in place (monospace, so nothing
- * moves). While empty it offers a generated password in groups of four.
+ * A new-password field that rewards early and complains late: a small progress ring (a faint full track and the
+ * filled part) closes as the password gets stronger, with no weak/strong label, and a check draws inside it once it is
+ * strong. Nothing complains while you type: "too short" or "too common" shows once you leave the field (or submit),
+ * then clears live as you fix it. A weak password never tints the field (only an `error` from outside does). Reveal turns each dot into its
+ * letter in place (monospace, so nothing moves). While empty it offers a generated password in groups of four.
  */
 export function PasswordInput({ value, onValueChange, minLength = 8, suggest = true, error, submitted, className, wrapperClassName, onBlur, onFocus, ...props }: PasswordInputProps) {
   const [shown, setShown] = React.useState(false);
@@ -75,17 +76,19 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
   const id = React.useId();
   const s = passwordStrength(value, minLength);
-  const message = error ?? (s.common ? "This password is too common" : s.short && value && (left || submitted) ? `Use ${minLength} or more characters` : null);
+  // Only once you're done with the field (left it with something in it, or submitted); then it re-checks live.
+  const done = left || submitted;
+  const short = `Use ${minLength} or more characters`;
+  const message = error ?? (!done ? null : !value ? (submitted ? short : null) : s.common ? "This password is too common" : s.short ? short : null);
   const suggested = filled?.value === value && value !== "";
   const sync = () => {
     if (layer.current && input.current) layer.current.style.transform = `translateX(${-input.current.scrollLeft}px)`;
   };
   React.useLayoutEffect(sync);
-  const r = 6.25;
 
   return (
     <div className={cn("grid gap-1.5", wrapperClassName)}>
-      <label className={cn(fieldBoxClass(!!message && !s.strong), "cursor-text")}>
+      <label className={cn(fieldBoxClass(!!error), "cursor-text")}>
         <span className="relative flex h-full min-w-0 flex-1 items-center overflow-hidden font-mono">
           <input
             ref={input}
@@ -102,7 +105,7 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             onScroll={sync}
             onSelect={sync}
             onFocus={(e) => (setFocused(true), onFocus?.(e))}
-            onBlur={(e) => (setFocused(false), setLeft(true), onBlur?.(e))}
+            onBlur={(e) => (setFocused(false), setLeft((l) => l || e.target.value !== ""), onBlur?.(e))}
             className={cn("h-full w-full min-w-0 bg-transparent text-body pointer-coarse:text-[16px] text-transparent caret-ink outline-none selection:bg-brand-soft placeholder:font-sans placeholder:text-ink-muted", className)}
             {...props}
           />
@@ -167,25 +170,29 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             <Eye size={14} className={cn(swap, shown && off)} />
             <EyeOff size={14} className={cn(swap, !shown && off)} />
           </button>
-          {/* Strength as a shape that closes: the arc runs round as it improves and becomes a check when strong. */}
-          <span role="img" aria-label={s.strong ? "Strong password" : `Password strength ${Math.round(s.score * 100)}%`} className="relative ml-1 grid size-4 place-items-center">
-            <svg viewBox="0 0 16 16" className={cn("size-4 -rotate-90 transition-[opacity,scale] duration-[220ms] ease-ad", s.strong && "scale-[0.8] opacity-0")}>
-              <circle cx="8" cy="8" r={r} fill="none" strokeWidth="1.75" className="stroke-fill-strong" />
+          {/* Strength as progress that closes: a faint full track, the filled part running round, then a check drawn inside. */}
+          <span role="img" aria-label={!value ? "Password strength" : s.strong ? "Strong password" : `Password strength ${Math.round(s.score * 100)}%`} className="ml-1 grid size-4 place-items-center">
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+              <circle cx="12" cy="12" r="9.5" className="stroke-ink-muted" opacity={0.4} />
               <circle
-                cx="8"
-                cy="8"
-                r={r}
-                fill="none"
-                strokeWidth="1.75"
-                strokeLinecap="round"
+                cx="12"
+                cy="12"
+                r="9.5"
                 pathLength={1}
-                strokeDasharray={`${s.score} 1`}
-                className={cn("transition-[stroke-dasharray] duration-[220ms] ease-ad", s.common ? "stroke-danger" : "stroke-ink-muted", !value && "opacity-0")}
+                strokeDasharray={`${value ? s.score : 0} 1`}
+                transform="rotate(-90 12 12)"
+                opacity={value ? 1 : 0}
+                className="stroke-ink transition-[stroke-dasharray] duration-[220ms] ease-ad"
+              />
+              <path
+                d="M8 12.25l2.75 2.75L16 9.75"
+                pathLength={1}
+                strokeDasharray="1 1"
+                strokeDashoffset={s.strong ? 0 : 1}
+                opacity={s.strong ? 1 : 0}
+                className={cn("stroke-ink transition-[stroke-dashoffset,opacity] ease-ad", s.strong ? "delay-[120ms] duration-[160ms]" : "duration-[120ms]")}
               />
             </svg>
-            <span className={cn("absolute grid size-4 place-items-center rounded-full bg-ink text-surface transition-[opacity,scale] duration-[220ms] ease-ad", !s.strong && "scale-[0.6] opacity-0")}>
-              <Check size={11} strokeWidth={3} />
-            </span>
           </span>
         </span>
       </label>

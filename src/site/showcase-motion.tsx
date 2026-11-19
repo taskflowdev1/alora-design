@@ -2,7 +2,7 @@
 // pieces the Components page, the landing bands and the detail pages share, then their bento tiles.
 import * as React from "react";
 import { BarChart2, Database, FileText, Layers, Package, TrendingDown, TrendingUp } from "react-feather";
-import { cn, formatRp } from "@/lib/ad";
+import { cn, formatDate, formatRp } from "@/lib/ad";
 import { DEFAULTS } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -10,7 +10,8 @@ import { Field } from "@/components/ui/field";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { toast } from "@/components/ui/toast";
-import { NumberDial } from "@/components/ui/number-dial";
+import { NumberDial, RollingNumber } from "@/components/ui/number-dial";
+import { Thumb } from "@/components/ui/thumb";
 import { PasswordInput, passwordStrength } from "@/components/ui/password-input";
 import { ThemeSwitch, type ThemeChoice } from "@/components/ui/theme-switch";
 import { StepForm } from "@/components/ui/step-form";
@@ -59,6 +60,50 @@ export function DialDemo({ preset = "quantity", sound = false, blur = false, cla
   const [value, setValue] = React.useState<number>(p.start);
   const tick = useTick(sound);
   return <NumberDial aria-label={p.label} value={value} onValueChange={setValue} min={p.min} max={p.max} majorEvery={p.majorEvery} unit={p.unit} blur={blur} onTick={tick} className={className} />;
+}
+
+const MUG_PRICE = 79_000;
+
+/** The dial where an ERP would use it: a line on a purchase order, a supplier's payment terms, a report's year. */
+export function DialInUse({ preset = "quantity", sound = false, blur = false, className }: { preset?: keyof typeof DIAL_PRESETS; sound?: boolean; blur?: boolean; className?: string }) {
+  const p = DIAL_PRESETS[preset];
+  const [value, setValue] = React.useState<number>(p.start);
+  const tick = useTick(sound);
+  const due = new Date();
+  due.setDate(due.getDate() + value);
+  const head =
+    preset === "quantity"
+      ? { title: "Gelas kopi tanah liat", meta: `${formatRp(MUG_PRICE)} each` }
+      : preset === "days"
+        ? { title: "Keramik Plered", meta: "Pays by bank transfer" }
+        : { title: "Sales report", meta: "All shops" };
+  const foot =
+    preset === "quantity"
+      ? { label: "Line total", value: <RollingNumber value={value * MUG_PRICE} format={formatRp} />, action: "Add to order", done: `${value} pcs added to PO-0418` }
+      : preset === "days"
+        ? { label: "First invoice due", value: formatDate(due), action: "Save terms", done: `Keramik Plered pays within ${value} days` }
+        : { label: "Covers", value: `1 Jan to 31 Dec ${value}`, action: "Open report", done: `Sales report for ${value}` };
+  return (
+    <div className={cn("grid w-full gap-4", className)}>
+      <div className="flex min-w-0 items-center gap-3">
+        <Thumb alt={head.title} size={40} />
+        <div className="grid min-w-0">
+          <span className="truncate text-body font-medium text-ink">{head.title}</span>
+          <span className="truncate text-small text-ink-muted">{head.meta}</span>
+        </div>
+      </div>
+      <NumberDial aria-label={p.label} value={value} onValueChange={setValue} min={p.min} max={p.max} majorEvery={p.majorEvery} unit={p.unit} blur={blur} onTick={tick} />
+      <div className="flex items-end justify-between gap-gap">
+        <div className="grid min-w-0">
+          <span className="text-small text-ink-muted">{foot.label}</span>
+          <span className="truncate text-title font-semibold tabular-nums text-ink">{foot.value}</span>
+        </div>
+        <Button variant="primary" onClick={() => toast(foot.done)}>
+          {foot.action}
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------ password */
@@ -392,20 +437,52 @@ export function AskThread({ className, failReactions = false }: { className?: st
   );
 }
 
-export function StreamingDemo({ reserve = 3 }: { reserve?: number }) {
-  const [run, setRun] = React.useState(0);
-  const s = useScript(SCRIPTS[0], run, true);
+/** One question and Alora's answer, at a chat's width: the frame the streaming and citation demos sit in. */
+function AnswerFrame({ children, footer, writing }: { children: React.ReactNode; footer?: React.ReactNode; writing?: boolean }) {
   return (
-    <div className="grid w-full max-w-md gap-4">
-      <StreamingText text={SCRIPTS[0].answer.slice(0, s.text)} streaming={s.running} reserve={reserve} cite={(n) => <Citation n={n} source={SCRIPTS[0].sources[n]} />} />
-      <Button variant="secondary" className="justify-self-start" onClick={() => setRun((r) => r + 1)} disabled={s.running}>
-        Write it again
-      </Button>
+    <div className="grid w-full max-w-2xl content-start gap-4">
+      <Bubble align="end">{SCRIPTS[0].prompt}</Bubble>
+      <Message from={{ name: "Alora", agent: true }} time={writing ? "Writing…" : "now"}>
+        {children}
+      </Message>
+      {footer}
     </div>
   );
 }
 
-export const FIRST_SOURCES = SCRIPTS[0].sources;
+const cite0 = (n: number) => (SCRIPTS[0].sources[n] ? <Citation n={n} source={SCRIPTS[0].sources[n]} /> : null);
+
+/**
+ * `space` "answer": the answer is known (a replay), so its whole shape shows as skeleton lines from the first frame.
+ * A number holds that many lines open ahead of the words instead, as for a live model.
+ */
+export function StreamingDemo({ space = "answer" }: { space?: string }) {
+  const [run, setRun] = React.useState(0);
+  const s = useScript(SCRIPTS[0], run, true);
+  const known = space === "answer";
+  return (
+    <AnswerFrame
+      writing={s.running}
+      footer={
+        <Button variant="secondary" className="ml-8 justify-self-start" onClick={() => setRun((r) => r + 1)} disabled={s.running}>
+          Write it again
+        </Button>
+      }
+    >
+      <StreamingText text={SCRIPTS[0].answer.slice(0, s.text)} streaming={s.running} final={known ? SCRIPTS[0].answer : undefined} reserve={known ? undefined : Number(space)} cite={cite0} />
+    </AnswerFrame>
+  );
+}
+
+/** The finished answer with its sources: point at (or tap) a number to see the passage behind the claim. */
+export function CitedAnswer() {
+  return (
+    <AnswerFrame>
+      <StreamingText text={SCRIPTS[0].answer} cite={cite0} />
+    </AnswerFrame>
+  );
+}
+
 export const PROMPTS = SCRIPTS.map((s) => ({ prompt: s.prompt, icon: s.icon }));
 
 const PRICES = [

@@ -20,7 +20,10 @@ export interface CitationProps {
 
 /**
  * A claim's source as a small number after it. Tapping (or hovering, after a short wait) opens a card that grows out of
- * that number, not from the middle of the screen, with the source's name, where it lives and the passage used.
+ * that number, not from the middle of the screen, with the source's name, where it lives and the passage used. The card
+ * opens below the number (above only when there is no room), so it never covers the sentence it backs; it is white in
+ * light and darker than the page in dark. Keep the number on its word's line: StreamingText does it for you, or wrap
+ * the last word, the number and its punctuation in `whitespace-nowrap`.
  */
 export function Citation({ n, source, className }: CitationProps) {
   const [open, setOpen] = React.useState(false);
@@ -48,13 +51,15 @@ export function Citation({ n, source, className }: CitationProps) {
       <P.Portal>
         <P.Content
           {...hover}
-          side="top"
-          align="center"
+          side="bottom"
+          align="start"
+          // The card's own number sits right under the one you pointed at.
+          alignOffset={-12}
           sideOffset={6}
           collisionPadding={8}
           onOpenAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "z-50 grid w-[min(320px,calc(100vw-16px))] gap-1.5 rounded-card bg-raised p-[calc(var(--ad-nest)*3)] text-ink shadow-raised",
+            "z-50 grid w-[min(320px,calc(100vw-16px))] gap-1.5 rounded-card bg-pop p-[calc(var(--ad-nest)*3)] text-ink shadow-raised",
             "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_200ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_150ms_var(--ad-ease)]",
           )}
         >

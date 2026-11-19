@@ -44,7 +44,10 @@ export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID")
   React.useEffect(() => {
     prev.current = value;
   }, [value]);
-  const chars = format(value).split("");
+  // A plain space would collapse inside its own slot ("Rp1.896.000"), so it holds a non-breaking one.
+  const chars = format(value)
+    .split("")
+    .map((c) => (c === " " ? "\u00a0" : c));
   return (
     <span className={cn("inline-flex overflow-hidden tabular-nums", className)} style={{ ["--ad-blur" as string]: blur ? "2px" : "0px" }}>
       <style href="ad-number-dial" precedence="default">

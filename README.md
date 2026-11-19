@@ -84,6 +84,9 @@ grey (`bg-black/5`, `text-white`…), an alpha or `color-mix` on a grey token, o
 | `sel` | surface | fill-strong | the raised pill in a track |
 | `on` | ink | ink | ink surfaces: tooltips, toasts, checked boxes, progress |
 | `on-ink` | surface | surface | text and marks on ink surfaces |
+| `tip` | ink | page | tooltips and chart tooltips: ink in light, the darkest step in dark |
+| `tip-ink` | surface | ink | text on tooltips |
+| `pop` | surface | page | previews that float over content (citation): white in light, the darkest step in dark |
 | `scroll` | fill-strong | fill-strong | scrollbar thumb |
 | `switch-on` | ink | ink-muted | switch on: neutral, never the accent (off is fill-strong) |
 | `thumb` | white | white | switch and slider thumb |
@@ -172,7 +175,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
-| [Chart parts](https://design.alorawork.com/components/chart) | `chart` | `ChartTooltip`, `ChartLegend`, `CartesianChart` | `title`, `rows`, `style`, `className`, `items`, `active`, `onActiveChange`, `data`, `series`, `kind="line"`, `height=200`, `curve="smooth"`, `grid=true`, `axis=true`, `dots=false`, `stacked=false`, `fill=0.14`, `labelEvery=0`, `legend=true`, `format=formatShort`, `activeSeries`, `onActiveSeriesChange`, `aria-label` |
+| [Chart parts](https://design.alorawork.com/components/chart) | `chart` | `ChartTooltip`, `ChartLegend`, `CartesianChart` | `title`, `rows`, `style`, `className`, `ref`, `items`, `active`, `onActiveChange`, `data`, `series`, `kind="line"`, `height=200`, `curve="smooth"`, `grid=true`, `axis=true`, `dots=false`, `stacked=false`, `fill=0.14`, `labelEvery=0`, `legend=true`, `format=formatShort`, `activeSeries`, `onActiveSeriesChange`, `aria-label` |
 | [Line chart](https://design.alorawork.com/components/line-chart) | `line-chart` | `LineChart` | `data`, `legend`, `height`, `className`, `aria-label`, `grid`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format`, `active`, `onActiveChange`, `activeSeries`, `onActiveSeriesChange` |
 | [Area chart](https://design.alorawork.com/components/area-chart) | `area-chart` | `AreaChart` | `data`, `legend`, `height`, `className`, `aria-label`, `fill`, `grid`, `stacked`, `series`, `curve`, `axis`, `dots`, `labelEvery`, `format`, `active`, `onActiveChange`, `activeSeries`, `onActiveSeriesChange` |
 | [Pie and donut](https://design.alorawork.com/components/pie-chart) | `pie-chart` | `PieChart` | `data`, `size=168`, `thickness=0.32`, `center`, `legend="side"`, `format=formatShort`, `className`, `aria-label` |
@@ -222,7 +225,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Questionnaire](https://design.alorawork.com/components/questionnaire) | `questionnaire` | `Questionnaire` | `questions`, `onSubmit`, `skippable=true`, `submitLabel="Send answers"`, `className` |
 | [Code block](https://design.alorawork.com/components/code-block) | `code-block` | `CodeBlock` | `code`, `title`, `lineNumbers`, `maxHeight=420`, `onCopy`, `className` |
 | [Prompt suggestions](https://design.alorawork.com/components/prompt-suggestions) | `prompt-suggestions` | `PromptSuggestions` | `items`, `onPick`, `layout="list"`, `className` |
-| [Streaming text](https://design.alorawork.com/components/streaming-text) | `streaming-text` | `StreamingText` | `text`, `streaming`, `reserve=3`, `cite`, `className` |
+| [Streaming text](https://design.alorawork.com/components/streaming-text) | `streaming-text` | `StreamingText` | `text`, `streaming`, `reserve=3`, `final`, `cite`, `className` |
 | [Citation](https://design.alorawork.com/components/citation) | `citation` | `Citation` | `n`, `source`, `className` |
 | [Proposed change](https://design.alorawork.com/components/proposed-change) | `proposed-change` | `ProposedChange` | `title`, `changes`, `state="pending"`, `onApply`, `onDismiss`, `onUndo`, `applyLabel="Apply"`, `className` |
 | [Reactions](https://design.alorawork.com/components/reactions) | `reactions` | `Reactions` | `items`, `onToggle`, `onError`, `className` |

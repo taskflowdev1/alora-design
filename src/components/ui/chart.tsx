@@ -58,10 +58,13 @@ export function useWidth<T extends HTMLElement>() {
   return [ref, w] as const;
 }
 
-/** The one tooltip: a small solid-ink card with a title and one row per series (colour key, label, value). */
-export function ChartTooltip({ title, rows, style, className }: { title?: React.ReactNode; rows: { color?: string; label: React.ReactNode; value: React.ReactNode }[]; style?: React.CSSProperties; className?: string }) {
+/**
+ * The one tooltip: a small card with a title and one row per series (colour key, label, value). Ink in light; in dark
+ * the darkest step, below the card it floats over, never a white card.
+ */
+export function ChartTooltip({ title, rows, style, className, ref }: { title?: React.ReactNode; rows: { color?: string; label: React.ReactNode; value: React.ReactNode }[]; style?: React.CSSProperties; className?: string; ref?: React.Ref<HTMLDivElement> }) {
   return (
-    <div role="status" className={cn("pointer-events-none absolute z-10 grid min-w-28 gap-1 whitespace-nowrap rounded-item bg-on px-2.5 py-2 text-small text-on-ink shadow-raised", className)} style={style}>
+    <div ref={ref} role="status" className={cn("pointer-events-none absolute z-10 grid min-w-28 gap-1 whitespace-nowrap rounded-item bg-tip px-2.5 py-2 text-small text-tip-ink shadow-raised", className)} style={style}>
       {title != null ? <div className="font-medium">{title}</div> : null}
       {rows.map((r, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -122,7 +125,7 @@ export interface CartesianChartProps {
   fill?: number;
   /** Label every nth x value. 0 = pick from the width. */
   labelEvery?: number;
-  /** The legend under the chart (from two series up). Off when the card's header carries it. */
+  /** The legend in a row above the chart (from two series up). Off when the card's header carries it. */
   legend?: boolean;
   format?: (n: number) => string;
   /** Linked highlight (brushing): the point index shown from outside, e.g. while a table row is hovered. */
@@ -155,7 +158,8 @@ const linear = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? "L" : 
 
 /**
  * Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks
- * and gridlines, a crosshair with one tooltip for every series on hover or arrow keys, and a legend from two series up.
+ * and gridlines, a crosshair with one tooltip for every series on hover, tap or arrow keys (kept inside the plot), and
+ * a legend in a row above from two series up.
  */
 export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = true, axis = true, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, active, onActiveChange, activeSeries, onActiveSeriesChange, className, ...aria }: CartesianChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
@@ -192,8 +196,32 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
   };
   const h = hover != null ? data[hover] : null;
   const last = data.length - 1;
+  // The tooltip sits beside the crosshair on the side with room, and always inside the plot: never over the value axis.
+  const tip = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const el = tip.current;
+    if (!el || hover == null) return;
+    const w = el.offsetWidth;
+    const px = x(hover);
+    const lo = pad.l + 4;
+    const hi = width - pad.r - w;
+    const right = px + 12;
+    const left = px - 12 - w;
+    const at = px > width / 2 ? (left >= lo ? left : right <= hi ? right : left) : right <= hi ? right : left >= lo ? left : right;
+    el.style.left = `${Math.max(lo, Math.min(hi, at))}px`;
+  });
+  const legendRow =
+    legend && series.length > 1 ? (
+      <ChartLegend
+        items={series.map((s, si) => ({ label: s.label, color: seriesColor(si) }))}
+        active={activeSeries != null ? series.findIndex((s) => s.key === activeSeries) : null}
+        onActiveChange={onActiveSeriesChange && ((i) => onActiveSeriesChange(i == null ? null : series[i].key))}
+        className={cn(axis && "pl-1")}
+      />
+    ) : null;
   return (
-    <figure aria-label={aria["aria-label"]} className={cn("grid min-w-0 gap-3", className)}>
+    <figure aria-label={aria["aria-label"]} className={cn("grid min-w-0 content-start gap-3", className)}>
+      {legendRow}
       <div ref={ref} className="relative min-w-0" style={{ height }}>
         {width > 0 ? (
           <svg
@@ -205,7 +233,8 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             className="block touch-pan-y overflow-visible"
             onPointerMove={(e) => pick(e.clientX, e.currentTarget)}
             onPointerDown={(e) => pick(e.clientX, e.currentTarget)}
-            onPointerLeave={() => setHover(null)}
+            // A finger lifting is not leaving: on touch the tooltip stays until you tap elsewhere.
+            onPointerLeave={(e) => e.pointerType === "mouse" && setHover(null)}
             onBlur={() => setHover(null)}
             onKeyDown={(e) => {
               if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -258,24 +287,13 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
         ) : null}
         {h && hover != null ? (
           <ChartTooltip
+            ref={tip}
             title={h.label}
             rows={series.map((s, si) => ({ color: series.length > 1 ? seriesColor(si) : undefined, label: s.label, value: format(val(h, s.key)) }))}
-            style={{
-              top: pad.t,
-              left: x(hover),
-              transform: `translateX(${x(hover) > width / 2 ? "calc(-100% - 12px)" : "12px"})`,
-            }}
+            style={{ top: pad.t, left: x(hover) + 12 }}
           />
         ) : null}
       </div>
-      {legend && series.length > 1 ? (
-        <ChartLegend
-          items={series.map((s, si) => ({ label: s.label, color: seriesColor(si) }))}
-          active={activeSeries != null ? series.findIndex((s) => s.key === activeSeries) : null}
-          onActiveChange={onActiveSeriesChange && ((i) => onActiveSeriesChange(i == null ? null : series[i].key))}
-          className={cn(axis && "pl-1")}
-        />
-      ) : null}
     </figure>
   );
 }

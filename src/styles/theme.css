@@ -10,6 +10,9 @@
   --color-ink-muted: var(--ad-ink-muted);
   --color-on: var(--ad-on);
   --color-on-ink: var(--ad-on-ink);
+  --color-tip: var(--ad-tip);
+  --color-tip-ink: var(--ad-tip-ink);
+  --color-pop: var(--ad-pop);
   --color-thumb: var(--ad-thumb);
   --color-track: var(--ad-track);
   --color-sel: var(--ad-sel);

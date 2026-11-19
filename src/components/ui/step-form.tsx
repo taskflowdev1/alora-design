@@ -114,7 +114,7 @@ export function StepForm({ steps, step: stepProp, onStepChange, finishLabel = "F
       <Steps steps={steps.map((s) => s.title)} current={step} />
       <StepPanels step={step}>{steps.map((s) => s.content)}</StepPanels>
       <div className="flex items-center justify-between gap-gap">
-        <Button variant="ghost" onClick={() => go(step - 1)} className={cn(step === 0 && "invisible")} tabIndex={step === 0 ? -1 : undefined}>
+        <Button variant="secondary" onClick={() => go(step - 1)} className={cn(step === 0 && "invisible")} tabIndex={step === 0 ? -1 : undefined}>
           Back
         </Button>
         <Button type="submit" variant="primary">

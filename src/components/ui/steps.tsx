@@ -10,7 +10,8 @@ export interface StepsProps {
 
 /**
  * Where an order (or any flow) is. Each step is a slim bar with its label under it:
- * done = accent shade with a check, current = half full, next = soft track. No connecting lines.
+ * done = full with a check, current = half full, next = soft track. Ink, never the accent (the accent is for the
+ * action buttons). No connecting lines.
  */
 export function Steps({ steps, current, className }: StepsProps) {
   return (
@@ -22,7 +23,7 @@ export function Steps({ steps, current, className }: StepsProps) {
           <li key={s} aria-current={now ? "step" : undefined} className="grid min-w-0 gap-1.5">
             <span className="h-1.5 overflow-hidden rounded-full bg-fill">
               <span
-                className="block h-full w-full rounded-full bg-chart-1 transition-transform duration-[220ms] ease-ad"
+                className="block h-full w-full rounded-full bg-on transition-transform duration-[220ms] ease-ad"
                 style={{ transform: `translateX(${done ? 0 : now ? -50 : -100}%)` }}
               />
             </span>

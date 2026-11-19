@@ -11,7 +11,7 @@ export interface Brush {
   /** Spread on a LineChart or AreaChart: it shows the linked point and series and reports its own hover. */
   chart: { active: number | null; onActiveChange: (i: number | null) => void; activeSeries: string | null; onActiveSeriesChange: (key: string | null) => void };
   /** Spread on the table row for point i (a TRow): hovering or focusing it lights up the chart, and it lights up back. */
-  row: (i: number) => { onPointerEnter: () => void; onPointerLeave: () => void; onFocus: () => void; onBlur: () => void; "data-brushed"?: true; className?: string };
+  row: (i: number) => { onPointerEnter: () => void; onPointerLeave: (e: React.PointerEvent) => void; onFocus: () => void; onBlur: () => void; "data-brushed"?: true; className?: string };
   /** Spread on a column header (TH content or a span in it) for series `key`. */
   head: (key: string) => { onPointerEnter: () => void; onPointerLeave: () => void };
   /** Class for a cell of series `key`: the linked column stays ink, the others fade back (no weight change, so nothing shifts). */
@@ -34,7 +34,8 @@ export function useBrush(): Brush {
     chart: { active: point, onActiveChange: setPoint, activeSeries: series, onActiveSeriesChange: setSeries },
     row: (i) => ({
       onPointerEnter: () => setPoint(i),
-      onPointerLeave: () => setPoint((p) => (p === i ? null : p)),
+      // On touch a tap keeps the link (the finger lifting isn't leaving); tapping another row moves it.
+      onPointerLeave: (e) => e.pointerType === "mouse" && setPoint((p) => (p === i ? null : p)),
       onFocus: () => setPoint(i),
       onBlur: () => setPoint((p) => (p === i ? null : p)),
       ...(point === i ? { "data-brushed": true as const, className: "[&>td]:bg-fill" } : {}),

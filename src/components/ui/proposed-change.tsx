@@ -29,6 +29,9 @@ export interface ProposedChangeProps {
  * (the one accent) or Not now. While applying the button keeps its width and says so; once applied the card says what
  * happened and offers Undo instead of a second confirm.
  */
+// The card is a fill, so its quiet buttons sit on the surface (like its rows) and hover to fill-strong.
+const onFill = "bg-surface hover:bg-fill-strong focus-visible:bg-fill-strong";
+
 export function ProposedChange({ title, changes, state = "pending", onApply, onDismiss, onUndo, applyLabel = "Apply", className }: ProposedChangeProps) {
   const settled = state === "applied" || state === "dismissed";
   return (
@@ -54,13 +57,13 @@ export function ProposedChange({ title, changes, state = "pending", onApply, onD
           </span>
         ) : null}
         {settled && onUndo ? (
-          <Button variant="ghost" onClick={onUndo}>
+          <Button variant="secondary" onClick={onUndo} className={onFill}>
             Undo
           </Button>
         ) : null}
         {settled ? null : (
           <>
-            <Button variant="ghost" onClick={onDismiss} disabled={state === "applying"}>
+            <Button variant="secondary" onClick={onDismiss} disabled={state === "applying"} className={onFill}>
               Not now
             </Button>
             <Button variant="primary" onClick={() => state === "pending" && onApply()} aria-busy={state === "applying" || undefined}>
