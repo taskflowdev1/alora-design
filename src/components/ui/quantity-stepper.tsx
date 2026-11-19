@@ -24,7 +24,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
     setDraft(null);
   };
   const btn = cn(
-    "grid aspect-square h-full shrink-0 cursor-pointer place-items-center rounded-item text-ink transition-[background-color,transform] duration-[160ms] ease-ad hover:bg-fill-strong active:scale-90",
+    "grid aspect-square h-full shrink-0 cursor-pointer place-items-center rounded-item text-ink transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-35 [&_svg]:size-3.5",
   );
   return (

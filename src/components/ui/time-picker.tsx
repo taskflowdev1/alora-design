@@ -33,7 +33,7 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
 
   const cell = (selected: boolean) =>
     cn(
-      "flex h-item w-12 shrink-0 cursor-pointer items-center justify-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-95",
+      "flex h-item w-12 shrink-0 cursor-pointer items-center justify-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
       selected ? "bg-on text-on-ink" : "hover:bg-fill",
     );
 

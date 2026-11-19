@@ -71,7 +71,7 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
               aria-checked={on(o)}
               onClick={() => pick(o)}
               className={cn(
-                "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body transition-[background-color,color,transform] duration-[160ms] ease-ad active:scale-[0.99]",
+                "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.99]",
                 on(o) ? "bg-on text-on-ink" : error ? "bg-danger-soft text-ink" : "bg-fill text-ink hover:bg-fill-strong",
               )}
             >

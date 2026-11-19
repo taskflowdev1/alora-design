@@ -41,7 +41,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   const toggle = (id: string) => onValueChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
   const quickBtn = (active: boolean) =>
     cn(
-      "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[160ms] ease-ad active:scale-[0.96]",
+      "inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
       active ? "bg-fill-strong font-medium text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
     );
 

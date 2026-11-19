@@ -80,7 +80,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
           type="button"
           aria-label="Remove"
           onClick={onRemove}
-          className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[220ms] ease-ad hover:bg-fill-strong active:scale-90"
+          className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong active:scale-[0.97]"
         >
           <X size={14} />
         </button>
@@ -93,7 +93,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
+        "inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
         height,
         selected ? "bg-fill-strong font-medium text-ink" : "bg-transparent text-ink-muted hover:bg-fill hover:text-ink",
         className,

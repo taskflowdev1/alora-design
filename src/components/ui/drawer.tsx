@@ -52,7 +52,7 @@ export function Drawer({ open: openProp, onOpenChange, trigger, title, children,
           style={{ transform: drag ? `translateY(${drag}px)` : undefined, transition: drag ? "none" : undefined }}
           className={cn(
             "fixed inset-x-2 bottom-2 z-50 mx-auto grid max-h-[85dvh] w-auto max-w-[520px] grid-rows-[auto_auto_1fr_auto] gap-3 rounded-sheet bg-surface px-pad pb-pad text-ink shadow-dialog",
-            "transition-transform duration-[220ms] ease-ad data-[state=open]:animate-[ad-drawer-in_260ms_var(--ad-ease)] data-[state=closed]:animate-[ad-drawer-out_180ms_ease-in]",
+            "transition-transform duration-[220ms] ease-ad data-[state=open]:animate-[ad-drawer-in_260ms_var(--ad-ease)] data-[state=closed]:animate-[ad-drawer-out_210ms_ease-in]",
             className,
           )}
         >

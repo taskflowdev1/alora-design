@@ -158,7 +158,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                       onClick={() => pick(d)}
                       onPointerEnter={() => anchor && setHover(d)}
                       className={cn(
-                        "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-90",
+                        "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
                         edge ? "bg-on text-on-ink" : "hover:bg-fill-strong",
                         !inMonth && !edge && "text-ink-muted",
                         same(d, today) && !edge && "font-semibold",

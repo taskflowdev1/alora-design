@@ -49,7 +49,7 @@ export function SidebarItem({ icon: Icon, children, active, count, asChild, onCl
       aria-current={active ? "page" : undefined}
       onClick={onClick}
       className={cn(
-        "flex h-item w-full cursor-pointer select-none items-center gap-2.5 rounded-item px-2.5 text-body transition-[background-color,color,transform] duration-[160ms] ease-ad active:scale-[0.98]",
+        "flex h-item w-full cursor-pointer select-none items-center gap-2.5 rounded-item px-2.5 text-body transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.98]",
         active ? "bg-side-fill-strong text-side-ink" : "text-side-muted hover:bg-side-fill hover:text-side-ink focus-visible:bg-side-fill",
       )}
     >

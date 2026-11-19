@@ -27,7 +27,7 @@ export function HoverCard({
           collisionPadding={8}
           className={cn(
             "z-50 w-72 rounded-card bg-raised p-pad text-ink shadow-raised",
-            "origin-(--radix-hover-card-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]",
+            "origin-(--radix-hover-card-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
             className,
           )}
         >

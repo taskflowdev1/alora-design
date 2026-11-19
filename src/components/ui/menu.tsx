@@ -46,7 +46,7 @@ const inRect = (p: Pt, r: DOMRect) => p.x >= r.left && p.x <= r.right && p.y >= 
 
 export const menuSurface = cn(
   "z-50 min-w-48 rounded-card bg-raised p-nest text-ink shadow-raised",
-  "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]",
+  "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
 );
 
 const itemClass = cn(

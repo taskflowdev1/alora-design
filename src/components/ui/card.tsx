@@ -16,7 +16,7 @@ export function Card({ interactive, inset = "pad", className, ...props }: CardPr
         "rounded-card bg-surface shadow-card",
         inset === "pad" && "p-pad",
         inset === "nest" && "p-[calc(var(--ad-nest)*2)]",
-        interactive && "cursor-pointer transition-[transform,box-shadow] duration-[220ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised active:scale-[0.99]",
+        interactive && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised active:scale-[0.99]",
         className,
       )}
       {...props}

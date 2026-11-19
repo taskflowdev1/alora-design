@@ -45,7 +45,7 @@ export function NavigationMenu({ items, className }: { items: NavigationMenuItem
                   {it.label}
                   <ChevronDown size={14} aria-hidden className="transition-transform duration-[220ms] ease-ad [[data-state=open]>&]:rotate-180" />
                 </N.Trigger>
-                <N.Content className="p-nest data-[motion^=from-]:animate-[ad-fade-in_200ms_var(--ad-ease)] data-[motion^=to-]:animate-[ad-fade-out_120ms_ease-in]">
+                <N.Content className="p-nest data-[motion^=from-]:animate-[ad-fade-in_200ms_var(--ad-ease)] data-[motion^=to-]:animate-[ad-fade-out_160ms_var(--ad-ease)]">
                   <ul className={cn("grid gap-px", it.columns === 2 ? "w-[min(480px,calc(100vw-32px))] sm:grid-cols-2" : "w-[min(260px,calc(100vw-32px))]")}>
                     {it.links.map((l, j) => (
                       <li key={j}>
@@ -75,7 +75,7 @@ export function NavigationMenu({ items, className }: { items: NavigationMenuItem
         ))}
       </N.List>
       <div className="absolute left-0 top-full flex justify-start pt-1.5">
-        <N.Viewport className="relative h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) origin-top overflow-hidden rounded-card bg-raised text-ink shadow-raised transition-[width,height] duration-[220ms] ease-ad data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]" />
+        <N.Viewport className="relative h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) origin-top overflow-hidden rounded-card bg-raised text-ink shadow-raised transition-[width,height] duration-[220ms] ease-ad data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]" />
       </div>
     </N.Root>
   );

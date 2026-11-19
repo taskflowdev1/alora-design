@@ -37,7 +37,7 @@ export function Search({ value, onValueChange, placeholder = "Search", className
             ref.current?.focus();
           }}
           className={cn(
-            "grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[opacity,background-color,transform] duration-[220ms] ease-ad hover:bg-fill-strong active:scale-90",
+            "grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[opacity,background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong active:scale-[0.97]",
             value ? "opacity-100" : "pointer-events-none opacity-0",
           )}
         >

@@ -34,7 +34,7 @@ export function DatePicker({ value, onValueChange, placeholder = "Pick a date", 
           onOpenAutoFocus={(e) => e.preventDefault()}
           className={cn(
             "z-50 rounded-card bg-raised p-nest text-ink shadow-raised",
-            "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]",
+            "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
           )}
         >
           <Calendar

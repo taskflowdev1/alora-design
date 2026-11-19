@@ -16,7 +16,7 @@ export interface DialogProps {
 }
 
 export const overlayClass =
-  "fixed inset-0 z-50 bg-overlay data-[state=open]:animate-[ad-fade-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-fade-out_160ms_ease-in]";
+  "fixed inset-0 z-50 bg-overlay data-[state=open]:animate-[ad-fade-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-fade-out_180ms_var(--ad-ease)]";
 
 export function Dialog({ open, onOpenChange, trigger, title, children, footer, className }: DialogProps) {
   return (
@@ -28,7 +28,7 @@ export function Dialog({ open, onOpenChange, trigger, title, children, footer, c
           aria-describedby={undefined}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 grid w-[min(440px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sheet bg-surface p-pad text-ink shadow-dialog",
-            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_140ms_ease-in]",
+            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
             className,
           )}
         >

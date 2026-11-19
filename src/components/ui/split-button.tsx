@@ -27,7 +27,7 @@ const tone = {
 export function SplitButton({ children, onClick, menu, variant = "primary", disabled, className, ...aria }: SplitButtonProps) {
   const t = tone[variant];
   const half = cn(
-    "inline-flex h-full cursor-pointer select-none items-center justify-center transition-[background-color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
+    "inline-flex h-full cursor-pointer select-none items-center justify-center transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
     t.hover,
   );
   return (

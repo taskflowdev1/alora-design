@@ -16,12 +16,12 @@ export type Option = {
 /** Menu surface: radius = item radius + padding, so options sit concentric inside it. */
 export const dropdownSurface = cn(
   "z-50 min-w-[var(--radix-popover-trigger-width)] rounded-card bg-raised p-nest text-ink shadow-raised",
-  "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]",
+  "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
 );
 
 export const triggerClass = cn(
   "inline-flex h-control min-w-0 cursor-pointer select-none items-center gap-2 rounded-control bg-fill pl-3 pr-2 text-body text-ink",
-  "transition-[transform,background-color] duration-[220ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.98]",
+  "transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.98]",
   "disabled:pointer-events-none disabled:opacity-45",
 );
 

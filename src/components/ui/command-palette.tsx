@@ -60,7 +60,7 @@ export function CommandPalette({ open = false, onOpenChange, inline, className, 
           aria-describedby={undefined}
           className={cn(
             "fixed left-1/2 top-[14vh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog",
-            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_140ms_ease-in]",
+            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
             className,
           )}
         >

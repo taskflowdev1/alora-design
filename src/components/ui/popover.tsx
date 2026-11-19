@@ -44,7 +44,7 @@ export function Popover({ trigger, children, align = "start", side = "bottom", o
           collisionPadding={8}
           className={cn(
             "z-50 rounded-card bg-raised p-[calc(var(--ad-nest)*2)] text-ink shadow-raised",
-            "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_120ms_ease-in]",
+            "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
             tone === "dark" && "ad-on-dark",
             className,
           )}

@@ -99,7 +99,7 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
                 onValueChange(d);
               }}
               className={cn(
-                "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad active:scale-90 disabled:pointer-events-none disabled:opacity-35",
+                "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35",
                 selected ? "bg-on text-on-ink" : "hover:bg-fill focus-visible:bg-fill",
                 !inMonth && !selected && "text-ink-muted",
                 same(d, today) && !selected && "font-semibold",

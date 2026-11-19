@@ -52,7 +52,7 @@ export function TabsTrigger({ className, children, ...props }: React.ComponentPr
   return (
     <T.Trigger
       className={cn(
-        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform] duration-[220ms] ease-ad active:scale-[0.96] [&_svg]:size-4",
+        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
         "text-ink-muted data-[state=inactive]:hover:text-ink data-[state=inactive]:focus-visible:text-ink data-[state=active]:font-medium data-[state=active]:text-ink",
         className,
       )}

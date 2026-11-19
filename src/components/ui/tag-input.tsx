@@ -36,7 +36,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
               type="button"
               aria-label={`Remove ${t}`}
               onClick={(e) => (e.stopPropagation(), onValueChange(value.filter((x) => x !== t)))}
-              className="grid size-5 cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[160ms] hover:bg-fill hover:text-ink active:scale-90"
+              className="grid size-5 cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad hover:bg-fill hover:text-ink active:scale-[0.97]"
             >
               <X size={12} />
             </button>

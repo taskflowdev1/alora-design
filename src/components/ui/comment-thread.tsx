@@ -27,7 +27,7 @@ const EMOJI = ["👍", "🙏", "🎉", "👀", "✅", "😂"];
 function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: string; onReact: (emoji: string) => void }) {
   const pill = (mine: boolean) =>
     cn(
-      "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[160ms] ease-ad active:scale-95",
+      "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97]",
       mine ? "bg-sel text-ink shadow-sel" : "bg-fill text-ink-muted hover:bg-fill-strong",
     );
   return (
@@ -56,7 +56,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
               type="button"
               aria-label={`React ${e}`}
               onClick={() => onReact(e)}
-              className="grid size-8 cursor-pointer place-items-center rounded-control text-[16px] transition-[background-color,box-shadow,transform] duration-[160ms] hover:bg-fill active:scale-90"
+              className="grid size-8 cursor-pointer place-items-center rounded-control text-[16px] transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad hover:bg-fill active:scale-[0.97]"
             >
               {e}
             </button>

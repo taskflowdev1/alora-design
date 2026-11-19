@@ -59,7 +59,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
                   e.stopPropagation();
                   toggle(o.value);
                 }}
-                className="grid size-5 place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[220ms] ease-ad hover:bg-fill hover:text-ink active:scale-90"
+                className="grid size-5 place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad hover:bg-fill hover:text-ink active:scale-[0.97]"
               >
                 <X size={12} />
               </span>

@@ -33,7 +33,7 @@ export function Sheet({ open, onOpenChange, title, children, footer, modal = tru
           }}
           className={cn(
             "fixed inset-2 z-50 flex flex-col rounded-sheet bg-surface text-ink shadow-dialog sm:inset-auto sm:bottom-3 sm:right-3 sm:top-3 sm:w-[min(440px,calc(100vw-24px))]",
-            "data-[state=open]:animate-[ad-sheet-in_260ms_var(--ad-ease)] data-[state=closed]:animate-[ad-sheet-out_180ms_ease-in]",
+            "data-[state=open]:animate-[ad-sheet-in_260ms_var(--ad-ease)] data-[state=closed]:animate-[ad-sheet-out_210ms_ease-in]",
             className,
           )}
         >

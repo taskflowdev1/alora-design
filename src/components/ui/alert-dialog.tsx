@@ -33,7 +33,7 @@ export function AlertDialog({ open, onOpenChange, trigger, title, children, acti
         <AD.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-50 grid w-[min(400px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 gap-3 rounded-sheet bg-surface p-pad text-ink shadow-dialog",
-            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_140ms_ease-in]",
+            "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
             className,
           )}
         >
