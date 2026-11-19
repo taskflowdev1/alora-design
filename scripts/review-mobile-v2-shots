@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds this tree and shoots it locally)
+# Mobile v2 shots: output/mobile-v2/ (C components, P sample screens, F flows, G site pages; dark | light). ONLY="C1|P3".
+set -euo pipefail
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+WORK="${TMPDIR:-/tmp}/review-mobile2"
+rm -rf "$WORK" && mkdir -p "$WORK"
+npx vite build --logLevel warn --outDir "$WORK/after" --emptyOutDir
+AFTER_DIST="$WORK/after" node scripts/review-mobile-v2-shots.mjs 2>&1 | tee "$WORK/shots.log"

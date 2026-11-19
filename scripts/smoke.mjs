@@ -568,6 +568,11 @@ for (const [label, host, pick, sel] of pillCases) {
 // every touch target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh,
 // snackbar above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
 const MOBILE = ["mobile-tab-bar", "mobile-nav-bar", "mobile-action-bar", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-empty-state", "mobile-sheet", "mobile-action-sheet", "mobile-date-picker", "mobile-segmented", "mobile-search-bar", "mobile-stepper", "mobile-snackbar"];
+// Mobile v2: the rest of the set, and every screen of the example app (with its forced states) at /mobile/app/<screen>.
+const MOBILE_2 = ["mobile-filter-chips", "mobile-top-tabs", "mobile-choice-rows", "mobile-person-row", "mobile-index-list", "mobile-picker-sheet", "mobile-multi-select", "mobile-date-range", "mobile-context-menu", "mobile-modal", "mobile-alert", "mobile-text-field", "mobile-keypad", "mobile-slider", "mobile-photo-picker", "mobile-scanner", "mobile-signature", "mobile-otp", "mobile-stat-tiles", "mobile-kpi-carousel", "mobile-scrub-chart", "mobile-timeline", "mobile-steps", "mobile-receipt", "mobile-badge", "mobile-banner", "mobile-upload-row", "mobile-onboarding", "mobile-chat"];
+MOBILE.push(...MOBILE_2);
+const APP_SCREENS = ["home", "notifications", "search", "reports", "orders", "order", "delivery", "products", "product", "product-edit", "stock-count", "inbox", "chat", "assistant", "more", "customers", "customer", "pos", "pos-pay", "pos-receipt", "approvals", "schedule", "settings", "account", "login", "otp", "onboarding"];
+const APP_STATES = ["home?state=offline", "notifications?state=empty", "search?state=empty", "reports?state=error", "approvals?state=empty"];
 await page.goto(BASE + "/mobile", { waitUntil: "networkidle" });
 const mobIndex = await page.evaluate(() => ({
   tab: document.querySelector('header a[aria-current="page"]')?.textContent,
@@ -576,7 +581,15 @@ const mobIndex = await page.evaluate(() => ({
   parts: [...new Set([...document.querySelectorAll("[data-mobile-part]")].map((a) => a.dataset.mobilePart))],
 }));
 check(mobIndex.tab === "Components" && /Mobile/.test(mobIndex.sw ?? ""), `/mobile: Components tab lit, switch on Mobile (${JSON.stringify({ tab: mobIndex.tab, sw: mobIndex.sw })})`);
-check(mobIndex.tiles === 6 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "all"})`);
+check(mobIndex.tiles === 18 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
+check(await page.locator('a[data-all-screens][href^="/mobile/screens"]').count(), "/mobile links to the screens gallery");
+await page.goto(BASE + "/mobile/screens", { waitUntil: "networkidle" });
+const gallery = await page.evaluate(() => ({
+  tiles: [...document.querySelectorAll("[data-screen-tile]")].map((t) => t.querySelector("a")?.getAttribute("href")),
+  tab: document.querySelector('header a[aria-current="page"]')?.textContent,
+}));
+const wantTiles = [...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)];
+check(gallery.tiles.length === wantTiles.length && wantTiles.every((h) => gallery.tiles.some((t) => t?.split("&")[0].startsWith(h))) && gallery.tab === "Components", `/mobile/screens: a live phone per screen and state, each linking to its full-screen route (${gallery.tiles.length}/${wantTiles.length})`);
 await page.locator('[role=radiogroup][aria-label="Platform"] [role=radio]').first().click();
 await page.waitForURL(/\/components$/);
 check(true, "platform switch goes back to Desktop");
@@ -592,7 +605,8 @@ ph.on("pageerror", (e) => phErrors.push(e.message));
 /** Interactive things smaller than 44 × 44 inside the phone (layout size, so the frame's scale doesn't count). */
 const smallTargets = () =>
   ph.evaluate(() => {
-    const root = document.querySelector("[data-phone-screen]") ?? document.querySelector("[data-mobile-app]");
+    // The full-screen app owns the page, so its sheets and modals (portalled to <body>) count too.
+    const root = document.querySelector("[data-phone-screen]") ?? (document.querySelector("[data-mobile-app]") ? document.body : null);
     if (!root) return ["(no phone)"];
     const seen = [];
     for (const el of root.querySelectorAll("button, a[href], input, textarea, [role=radio], [role=option], [role=switch], [role=tab]")) {
@@ -602,10 +616,10 @@ const smallTargets = () =>
     }
     return [...new Set(seen)].slice(0, 6);
   });
-for (const path of ["/mobile", "/mobile/app", ...MOBILE.map((n) => `/mobile/${n}`)]) {
+for (const path of ["/mobile", "/mobile/app", "/mobile/screens", ...MOBILE.map((n) => `/mobile/${n}`), ...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)]) {
   phErrors.length = 0;
   await ph.goto(BASE + path, { waitUntil: "networkidle" });
-  await sleep(path === "/mobile/app" ? 900 : 300);
+  await sleep(path.startsWith("/mobile/app") ? 900 : 300);
   const r = await ph.evaluate(() => ({
     over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     phone: !!(document.querySelector("[data-phone-screen]") ?? document.querySelector("[data-mobile-app]")),
@@ -613,7 +627,14 @@ for (const path of ["/mobile", "/mobile/app", ...MOBILE.map((n) => `/mobile/${n}
     cut: Math.max(0, ...[...document.querySelectorAll("[data-phone-screen]")].map((f) => Math.round(f.getBoundingClientRect().right - document.documentElement.clientWidth))),
   }));
   const small = await smallTargets();
-  check(!phErrors.length && r.over <= 0 && r.cut === 0 && r.phone && small.length === 0, `390 px ${path}: renders, no sideways scroll, touch targets ≥ 44 (${JSON.stringify({ ...r, errors: phErrors.slice(0, 2), small })})`);
+  // mobile.input-16px: no field on a phone zooms the page when focused.
+  const tiny = await ph.evaluate(() =>
+    [...document.querySelectorAll("[data-phone-screen] input, [data-phone-screen] textarea, [data-mobile-app] input, [data-mobile-app] textarea, body > [role=dialog] input")]
+      .filter((el) => el.type !== "file" && parseFloat(getComputedStyle(el).fontSize) < 16)
+      .map((el) => el.getAttribute("aria-label") || el.id || el.type)
+      .slice(0, 3),
+  );
+  check(!phErrors.length && r.over <= 0 && r.cut === 0 && r.phone && small.length === 0 && tiny.length === 0, `390 px ${path}: renders, no sideways scroll, touch targets ≥ 44, inputs ≥ 16 px (${JSON.stringify({ ...r, errors: phErrors.slice(0, 2), small, tiny })})`);
 }
 await phoneCtx.close();
 
@@ -687,6 +708,104 @@ const bar = await page.evaluate(() => {
   return { gap: Math.round(f.bottom - a.bottom) };
 });
 check(bar.gap >= 291, `action bar rides above the keyboard (${JSON.stringify(bar)})`);
+
+
+// Mobile v2 gestures and flows (desktop width, phone frames at full scale).
+// The example app: every tab opens its own screen; a row pushes its detail in from the right; Back slides it out.
+await page.goto(BASE + "/mobile/app", { waitUntil: "networkidle" });
+const topScreen = () => page.evaluate(() => [...document.querySelectorAll("[data-app-screen]:not([aria-hidden])")].filter((e) => getComputedStyle(e.parentElement).visibility !== "hidden").map((e) => e.dataset.appScreen).pop());
+const tabsOk = [];
+for (const [label, id] of [["Orders", "orders"], ["Products", "products"], ["Inbox", "inbox"], ["More", "more"], ["Home", "home"]]) {
+  await page.locator("[data-mobile-tab-bar] button", { hasText: label }).click();
+  await sleep(250);
+  tabsOk.push((await topScreen()) === id ? id : `${label}→${await topScreen()}`);
+}
+check(tabsOk.every((t) => !t.includes("→")), `app: each tab opens its own screen (${tabsOk.join(", ")})`);
+await page.locator("[data-mobile-tab-bar] button", { hasText: "Orders" }).click();
+await sleep(1000);
+await page.locator('[data-app-screen="orders"] [role=listitem] button').first().click();
+await sleep(80);
+const pushing = await page.evaluate(() => getComputedStyle(document.querySelector('[data-app-screen="order"]')).animationName);
+await sleep(500);
+const pushedApp = { top: await topScreen(), bar: await page.evaluate(() => getComputedStyle(document.querySelector("[data-mobile-tab-bar]").parentElement).opacity) };
+check(pushing === "ad-push-in" && pushedApp.top === "order" && pushedApp.bar === "0", `app: an order slides in from the right and the tab bar steps away (${JSON.stringify({ pushing, ...pushedApp })})`);
+await page.locator('[data-app-screen="order"] header button').first().click();
+await sleep(500);
+check((await topScreen()) === "orders" && !(await page.locator('[data-app-screen="order"]').count()), "app: Back slides the order out and the list is on top again");
+
+// Sign in → code → tap the WhatsApp message → signed in, back on the tabs.
+await page.goto(BASE + "/mobile/app/login", { waitUntil: "networkidle" });
+await page.locator("[data-mobile-action-bar] button", { hasText: "Send code" }).click();
+await sleep(1400);
+await page.locator("[data-phone-screen] button", { hasText: "Your Rimba code is" }).click();
+await sleep(3200);
+check(!(await page.locator("[data-app-cover]").count()) && (await topScreen()) === "home", "app: sign in → code from the message → signed in on Home");
+
+// Long press: the menu grows out of the pressed point; Esc closes it.
+await page.goto(BASE + "/mobile/mobile-context-menu", { waitUntil: "networkidle" });
+const lp = await centre(page.locator("[data-phone-screen] [role=listitem]").nth(1));
+await page.mouse.move(lp.x - 60, lp.y);
+await page.mouse.down();
+await sleep(650);
+await page.mouse.up();
+await sleep(250);
+const ctx = await page.evaluate(() => {
+  const m = document.querySelector("[data-phone-screen] [role=menu]");
+  return m ? { items: m.querySelectorAll("[role=menuitem]").length, origin: m.style.transformOrigin } : null;
+});
+check(ctx?.items === 3 && /px/.test(ctx.origin), `long-press menu opens from the pressed point (${JSON.stringify(ctx)})`);
+await page.keyboard.press("Escape");
+await sleep(200);
+check(!(await page.locator("[data-phone-screen] [role=menu]").count()), "long-press menu: Esc closes it");
+
+// Scrub chart: dragging across it turns the number into the point under the finger.
+await page.goto(BASE + "/mobile/mobile-scrub-chart", { waitUntil: "networkidle" });
+const chart = await centre(page.locator("[data-phone-screen] [role=slider]").first());
+await page.mouse.move(chart.b.x + 20, chart.y);
+await page.mouse.down();
+await page.mouse.move(chart.b.x + chart.b.width * 0.4, chart.y, { steps: 6 });
+const scrubbed = await page.locator("[data-phone-screen] figcaption").first().textContent();
+await page.mouse.up();
+check(/Nov|Oct/.test(scrubbed) && !/last 30 days/.test(scrubbed), `scrub chart: the readout follows the finger (${scrubbed})`);
+
+// Date range: two taps pick a range; the button names it.
+await page.goto(BASE + "/mobile/mobile-date-range?open=1", { waitUntil: "networkidle" });
+await sleep(700);
+await page.getByRole("gridcell", { name: "3 November", exact: true }).click();
+await page.getByRole("gridcell", { name: "9 November", exact: true }).click();
+const rangeBtn = await page.locator("[data-phone-screen] [role=dialog] button", { hasText: /^Show / }).textContent();
+check(/3 – 9 Nov/.test(rangeBtn), `date range: start and end taps make the range (${rangeBtn})`);
+
+// Keypad: a quick amount, then Delete drops one digit.
+await page.goto(BASE + "/mobile/mobile-keypad", { waitUntil: "networkidle" });
+await page.locator("[data-phone-screen] button", { hasText: "Exact" }).click();
+await page.getByRole("button", { name: "Delete, hold to clear" }).click();
+const amount = await page.locator("[data-phone-screen] output").textContent();
+check(amount === "Rp 41.200", `keypad: Exact then Delete (${amount})`);
+
+// Full-screen modal: an edit turns Save on; Cancel with changes asks first.
+await page.goto(BASE + "/mobile/mobile-modal?open=1", { waitUntil: "networkidle" });
+await sleep(600);
+await page.locator("[data-phone-screen] [role=dialog] input").first().fill("Gelas kopi tanah liat, biru");
+const saveOn = await page.locator("[data-phone-screen] [role=dialog] header button", { hasText: "Save" }).isEnabled();
+await page.locator("[data-phone-screen] [role=dialog] header button", { hasText: "Cancel" }).click();
+await sleep(400);
+check(saveOn && (await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count()), "modal: an edit turns Save on, Cancel asks before discarding");
+
+// A–Z index: a tap low on the strip jumps the list down.
+await page.goto(BASE + "/mobile/mobile-index-list", { waitUntil: "networkidle" });
+const strip = await page.locator('[data-phone-screen] [role=slider][aria-label="Jump to letter"]').boundingBox();
+await page.mouse.click(strip.x + strip.width / 2, strip.y + strip.height * 0.9);
+await sleep(300);
+const jumped = await page.evaluate(() => document.querySelector("[data-phone-screen] [data-mobile-screen]").scrollTop);
+check(jumped > 600, `A–Z index: tapping a letter jumps the list (${jumped})`);
+
+// Approvals: the button and the swipe do the same; the snackbar offers Undo.
+await page.goto(BASE + "/mobile/app/approvals", { waitUntil: "networkidle" });
+await page.locator("[data-phone-screen] article button", { hasText: "Approve" }).first().click();
+await sleep(500);
+const approved = await page.locator("[data-phone-screen] [role=status]", { hasText: "Approved" }).textContent().catch(() => "");
+check(/Approved: Bubble wrap/.test(approved) && /Undo/.test(approved), `approvals: Approve removes the request and offers Undo (${approved})`);
 
 // Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
 // keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open (Joshua, v5.4:

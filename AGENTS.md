@@ -22,11 +22,15 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   to Thinking orbs (no spinners). `src/components/ai/` (Thinking orbs, Run status, Composer
   glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
 - `src/components/mobile/*.tsx`: the Mobile set (tab bar, large-title screen, action bar, grouped list + skeleton, swipe row,
-  pull to refresh, bottom sheet with detents, action sheet, wheel date picker, search bar, snackbar). Registry groups Bars,
-  Lists, Sheets, Touch inputs, Feedback (section `mobile`, pages `/mobile/<name>`). They import each other relatively
+  pull to refresh, bottom sheet with detents, action sheet, wheel date picker, search bar, snackbar; v2: text field, picker /
+  multi-select / date-range sheets, amount keypad, slider, photo picker, scanner, signature pad, stat tiles + KPI carousel,
+  scrub charts, timeline, receipt, count badge, filter chips, top tabs, long-press menu, full-screen modal, alert, A–Z index,
+  onboarding pager, banner, upload row, chat). Registry groups Bars, Lists, Sheets, Touch inputs, Data, Feedback, Flows
+  (section `mobile`, pages `/mobile/<name>`). They import each other relatively
   (`./mobile-sheet`) and ui parts by `@/components/ui/…`; the kit rewrites `../mobile/` to `./` because every file installs
   into the app's ui folder. Shared parts get a touch size instead of a copy (`Segmented size="touch"`, `QuantityStepper
-  size="touch"`, listed as `mobile-segmented` / `mobile-stepper`). `ui/drawer.tsx` and `ui/bottom-nav.tsx` are re-export
+  size="touch"`, `InputOTP size="touch"`, `Steps size="touch"`,
+  listed as `mobile-segmented` / `mobile-stepper` / `mobile-otp` / `mobile-steps`; `ProposedChange size="touch"` in the app). `ui/drawer.tsx` and `ui/bottom-nav.tsx` are re-export
   shims; their registry items carry `alias`, install the shim and redirect their page.
 - `src/site/`: landing (hero, `bento.tsx` = the original components in 19 real ERP cards, `MoreBento` from
   `showcase-more.tsx` = the shadcn-parity tiles in category bands, then the AI and Backgrounds bands, then the closing
@@ -42,7 +46,12 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   pages); `/components` and `/mobile` render the same `GalleryIndex` so the switch slides. Mobile demos use
   `stage: "phone"`: `PhoneFrame` (390 × 844, status bar, home indicator, `--ad-safe-top/bottom` 47/34 px, `?keyboard=1`
   draws a keyboard and sets `--ad-keyboard`) is the containing block for fixed bars and the `MobileLayer` portal target for
-  sheets. `/mobile/app` (outside the site layout) is the example app full screen on a phone, framed on desktop.
+  sheets. `/mobile/app` and `/mobile/app/<screen>` (outside the site layout) are the example app full screen on a phone,
+  framed on desktop (`?state=empty|offline|error` forces a state; other query keys are the screen's params). The app:
+  `mobile-app.tsx` (`SCREENS`: id, tab, parent, parts; a stack per tab, pushes slide in, full-screen flows cover the tabs),
+  `mobile-app-kit.tsx` (`useNav`), screens in `mobile-screens-a/b/c.tsx`, invented data in `mobile-data.ts` (drawn product
+  photos are SVG, `grey-ok`). `/mobile/screens` (`mobile-screens-page.tsx`) is every screen as a live phone (`lazy-phone.tsx`
+  mounts phones near the viewport) linking to its route; the overview links it and shows app tiles for the v2 parts.
 - `api/`: Vercel functions. `kit.ts` (`/api/kit`), `checklist.ts` (`/ui-checklist.md`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
   `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
   component sources from disk (`includeFiles` in `vercel.json`).
@@ -66,6 +75,8 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
   (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
   `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
+- Mobile v2 shots: `./scripts/review-mobile-v2-shots` (~1 GB, ~15 min; `ONLY="C1|P3|F2"`) into `output/mobile-v2/` (C components,
+  P sample screens, F flow steps, G site pages; dark | light; `index.md` there is written by hand).
 - v5.4 review shots: `./scripts/review-v5.4-shots` (before = the live site or `BEFORE=<url>`, classic scrollbars) into
   `output/review-v5.4/` (A toolbar tile, B carousel, C Chat band, D right edge 1440/1720, E/G Display, F Sales row).
 - v5 review shots: `./scripts/review-v5-shots [before] [ONLY]` (before = the live site into `before/`) into
@@ -103,7 +114,7 @@ taste.md wins over anything here. Build to his taste, not library defaults.
   `#root` keeps the global tokens. Cleanup removes both.
 - Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
   a step above the page, so it still stands out.
-- Routes: `/components` (was `/gallery`, which redirects) and `/mobile` (its Mobile half, plus `/mobile/app`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
+- Routes: `/components` (was `/gallery`, which redirects) and `/mobile` (its Mobile half, plus `/mobile/screens` and `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
   tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
 - /components is a bento like the landing (12 columns, `gap-4` = 13 px gaps): per category, tiles that compose its components
   in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
