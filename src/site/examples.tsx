@@ -110,7 +110,7 @@ function useLoading() {
 }
 
 const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
+  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
   { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
   { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
 ];
@@ -261,7 +261,7 @@ function Dashboard() {
           Export
         </Button>
       </PageHeader>
-      <Alert tone="neutral" title="2 shops haven't synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
+      <Alert tone="neutral" title="2 shops haven’t synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
       <div className="flex flex-wrap gap-4">
         <MetricCard primary loading={loading} label="Sales today" unit="Rp" value={48240000} delta={{ value: "9,7%", direction: "up" }} />
         <MetricCard loading={loading} label="Orders" value={312} />

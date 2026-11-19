@@ -636,7 +636,7 @@ function AlertsTile({ className }: { className?: string }) {
   return (
     <Tile className={className}>
       <Mark name="alert" className="grid gap-2">
-        <Alert tone="attention" title="2 shops haven't synced" action={<Button size="sm">Sync</Button>} />
+        <Alert tone="attention" title="2 shops haven’t synced" action={<Button size="sm">Sync</Button>} />
         <Alert tone="danger" title="Payout failed">
           The bank rejected the account number.
         </Alert>
@@ -918,7 +918,7 @@ function PhoneShellTile({ className }: { className?: string }) {
 /* ------------------------------------------------------------ Niche */
 
 const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
+  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
   { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
   { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
 ];

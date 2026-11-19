@@ -397,7 +397,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
         items={[
           { value: "payout", title: "When does Shopee pay out?", content: "Two days after the buyer confirms, at 09:00. Weekends move to Monday." },
           { value: "cancel", title: "Can I cancel a packed order?", content: "Yes, until the courier scans it." },
-          { value: "fees", title: "Why is the admin fee 4,5%?", meta: "Shopee", content: "It's the Star seller rate." },
+          { value: "fees", title: "Why is the admin fee 4,5%?", meta: "Shopee", content: "It’s the Star seller rate." },
         ]}
       />
     ),
@@ -551,7 +551,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
           Can we move clay mugs from Dago to Kemang before the weekend?
         </Message>
         <Message from={{ name: "Alora", agent: true }} time="13:52">
-          Yes. Dago has 9 and needs 3 for its open orders, so I'm moving 6 to Kemang.
+          Yes. Dago has 9 and needs 3 for its open orders, so I’m moving 6 to Kemang.
         </Message>
         <BubbleGroup>
           <Bubble align="end" variant={p.bubble as "soft"}>
@@ -608,7 +608,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
         steps={[
           { id: "s", title: "Read stock at Dago and Kemang", description: "Stock table", time: "0,8 s", icon: Database, detail: "Gelas kopi tanah liat: Dago 9, Kemang 2." },
           { id: "o", title: "Checked open orders", time: "0,4 s" },
-          { id: "e", title: "Couldn't reach the courier", status: "error", time: "2,0 s" },
+          { id: "e", title: "Couldn’t reach the courier", status: "error", time: "2,0 s" },
           { id: "t", title: "Booking a transfer", status: "running" },
           { id: "n", title: "Tell the Kemang team", status: "pending" },
         ]}

@@ -453,7 +453,7 @@ function PaletteCard({ className }: { className?: string }) {
 /* ------------------------------------------------------------ B4 the app's sidebar */
 
 const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
+  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
   { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
   { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
 ];
@@ -1050,7 +1050,7 @@ function SyncCard({ className }: { className?: string }) {
           </Tooltip>
         }
       />
-      <Alert title="2 shops haven't synced since 09:40" />
+      <Alert title="2 shops haven’t synced since 09:40" />
       <div className="grid grid-cols-3 gap-2">
         {rings.map(([m, l, v]) => (
           <div key={m} className="grid justify-items-center gap-2 rounded-item bg-fill py-3">

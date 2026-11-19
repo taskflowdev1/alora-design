@@ -633,7 +633,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
   "notification-bell": {
     render: () => {
       const [list, setList] = React.useState<Notice[]>([
-        { id: "1", title: "2 shops haven't synced since 09:40", time: "Today, 10:10", unread: true },
+        { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
         { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
         { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45", unread: true },
         { id: "4", title: "Dewi changed the courier for Dago", time: "Yesterday, 15:20" },

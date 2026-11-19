@@ -12,7 +12,7 @@ import { ThinkingOrbs } from "@/components/ai/thinking-orbs";
 
 const SUGGESTIONS = [
   { icon: Clock, text: "Which orders are late this week?" },
-  { icon: TrendingUp, text: "Summarize today's sales" },
+  { icon: TrendingUp, text: "Summarize today’s sales" },
   { icon: Inbox, text: "Draft a restock list for Dago" },
 ];
 
@@ -60,9 +60,9 @@ export function useCycle<T>(list: T[], ms: number, ref: React.RefObject<HTMLElem
 /** Earlier exchanges in the running chat (question, answer), so the thread fills a real chat-app height. */
 const EXCHANGES: { me: string; agent: string; wide?: boolean }[] = [
   { me: "Any returns today?", agent: "Two, both at Senopati: a cracked mug and a taplak in the wrong size. Both refunds are queued.", wide: true },
-  { me: "Did the Shopee payout land?", agent: "Yes, Rp 12.400.000 at 09:12. TikTok's Rp 4.180.000 is due tomorrow.", wide: true },
+  { me: "Did the Shopee payout land?", agent: "Yes, Rp 12.400.000 at 09:12. TikTok’s Rp 4.180.000 is due tomorrow.", wide: true },
   { me: "How did Rimba Kemang do yesterday?", agent: "42 orders for Rp 8.960.000, up 12% on the Sunday before. Taplak meja tenun ikat sold out by 15:00." },
-  { me: "Restock it from Dago?", agent: "Dago has 9 left. I moved 6 to Kemang and kept 3 for Dago's open orders." },
+  { me: "Restock it from Dago?", agent: "Dago has 9 left. I moved 6 to Kemang and kept 3 for Dago’s open orders." },
 ];
 
 /** The user's turn: a soft bubble on the right, sized to its text. */

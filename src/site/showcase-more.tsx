@@ -414,7 +414,7 @@ function HelpTile({ className }: { className?: string }) {
           items={[
             { value: "payout", title: "When does Shopee pay out?", content: "Two days after the buyer confirms, at 09:00. Weekends move to Monday." },
             { value: "cancel", title: "Can I cancel a packed order?", content: "Yes, until the courier scans it. The stock goes back to the shop that packed it." },
-            { value: "fees", title: "Why is the admin fee 4,5%?", content: "It's Shopee's Star seller rate. TikTok Shop charges 4% on the same items." },
+            { value: "fees", title: "Why is the admin fee 4,5%?", content: "It’s Shopee’s Star seller rate. TikTok Shop charges 4% on the same items." },
             { value: "shop", title: "How do I add a shop?", content: "Settings, Shops, Add shop. Marketplace shops connect with one sign-in." },
           ]}
         />
@@ -567,12 +567,12 @@ function AgentChatTile({ className }: { className?: string }) {
                 ]}
               />
             </Mark>
-            <p>Yes. Dago has 9 and needs 3 for its open orders, so I'm moving 6 to Kemang.</p>
+            <p>Yes. Dago has 9 and needs 3 for its open orders, so I’m moving 6 to Kemang.</p>
           </Message>
           <Marker icon={Truck}>Transfer TRF-0412 booked, pickup 15:00</Marker>
           <Mark name="message">
             <Message from={{ name: "Dewi Anggraini" }} mine>
-              <span>Perfect. Here's the shelf photo and the list.</span>
+              <span>Perfect. Here’s the shelf photo and the list.</span>
             </Message>
           </Mark>
           <Mark name="attachment" className="ml-auto w-fit max-w-full">
@@ -583,7 +583,7 @@ function AgentChatTile({ className }: { className?: string }) {
             </AttachmentGroup>
           </Mark>
           <Message from={{ name: "Alora", agent: true }} time="13:54">
-            <p>Here are the rows I'll import:</p>
+            <p>Here are the rows I’ll import:</p>
             <Mark name="code-block" className="mt-2">
               <CodeBlock title="restock-dago.csv" lineNumbers code={"sku,from,to,qty\nRMB-GL-014,Dago,Kemang,6\nRMB-MB-005,Dago,Kemang,4"} onCopy={say("Copied")} />
             </Mark>

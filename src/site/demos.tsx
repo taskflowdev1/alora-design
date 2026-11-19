@@ -707,14 +707,14 @@ export const DEMOS: Record<string, Demo> = {
     ],
     render: (p) => (
       <div className="grid w-full max-w-md gap-3">
-        <Alert tone={p.tone as never} title="2 shops haven't synced since 09:40" action={p.action ? <Button size="sm">Sync</Button> : undefined} />
+        <Alert tone={p.tone as never} title="2 shops haven’t synced since 09:40" action={p.action ? <Button size="sm">Sync</Button> : undefined} />
         <Alert tone="danger" title="Payout failed" action={p.action ? <Button size="sm">Open</Button> : undefined}>
           The bank rejected the account number. Check it in Settings.
         </Alert>
       </div>
     ),
     usage: (p) =>
-      `// One line: icon, text and action share one centre line.\n<Alert tone="${p.tone}" title="2 shops haven't synced since 09:40"${p.action ? ` action={<Button size="sm">Sync</Button>}` : ""} />\n\n// Two lines: the icon stays on the first line.\n<Alert tone="danger" title="Payout failed">\n  The bank rejected the account number. Check it in Settings.\n</Alert>`,
+      `// One line: icon, text and action share one centre line.\n<Alert tone="${p.tone}" title="2 shops haven’t synced since 09:40"${p.action ? ` action={<Button size="sm">Sync</Button>}` : ""} />\n\n// Two lines: the icon stays on the first line.\n<Alert tone="danger" title="Payout failed">\n  The bank rejected the account number. Check it in Settings.\n</Alert>`,
   },
   progress: {
     render: () => (
