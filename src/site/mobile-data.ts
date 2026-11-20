@@ -71,7 +71,7 @@ export const CUSTOMERS: Customer[] = NAMES.map((name, i) => ({
 
 /* ------------------------------------------------------------ marketplace chats */
 
-export interface ChatLine {
+interface ChatLine {
   id: string;
   mine?: boolean;
   text: string;

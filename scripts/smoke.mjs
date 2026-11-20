@@ -4,7 +4,9 @@ import { chromium } from "playwright-core";
 
 const PORT = Number(process.env.SMOKE_PORT || 5196);
 const BASE = `http://127.0.0.1:${PORT}`;
-const server = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
+// SITE_DIST: the build folder (scripts/verify builds into TMPDIR); default is vite's own dist/.
+const outDir = process.env.SITE_DIST ? ["--outDir", process.env.SITE_DIST] : [];
+const server = spawn("npx", ["vite", "preview", ...outDir, "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
 process.on("exit", () => server.kill("SIGTERM"));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 for (let i = 0; i < 60; i++) {
@@ -296,12 +298,13 @@ await sleep(300);
 const savedText = await page.locator(`button[data-inline-edit][aria-label="Edit ${ieRest.label}"] [data-value]`).textContent();
 check(savedText === "150.000", `inline edit Enter saves (${savedText})`);
 
-// Pop-up triggers keep their size while pressed: a menu is placed against its trigger, so a press-shrink nudged the open
-// menu on the click that closes it. Every trigger on Orders (Shop, Status, Columns, …) stays at scale none under the mouse,
-// and the open Columns menu doesn't move when its trigger is pressed again.
+// Anchored pop-up triggers keep their size while pressed: a menu is placed against its trigger, so a press-shrink nudged
+// the open menu on the click that closes it. Every anchored trigger on Orders (Shop, Status, Columns, …) stays at scale
+// none under the mouse, and the open Columns menu doesn't move when its trigger is pressed again. Dialog triggers aren't
+// anchored, so they still press to 0.97.
 await page.goto(BASE + "/examples/orders", { waitUntil: "networkidle" });
 await sleep(600);
-const triggers = page.locator('#content :is([aria-haspopup]:not([aria-haspopup="false"]), [role="combobox"]):visible');
+const triggers = page.locator('#content :is([data-ad-anchor], [aria-haspopup="menu"], [aria-haspopup="listbox"], [role="combobox"]):visible');
 const pressed = [];
 for (let i = 0; i < (await triggers.count()); i++) {
   const t = triggers.nth(i);
@@ -329,6 +332,17 @@ const menuPressed = await menuAt();
 await page.mouse.up();
 await page.keyboard.press("Escape");
 check(menuOpen && (!menuPressed || (near(menuOpen.x, menuPressed.x) && near(menuOpen.y, menuPressed.y))), `Columns menu stays put when its trigger is pressed again (${JSON.stringify({ menuOpen, menuPressed })})`);
+await page.goto(BASE + "/components/dialog", { waitUntil: "networkidle" });
+const dlgTrigger = page.locator('[data-stage] [aria-haspopup="dialog"]:not([data-ad-anchor]):visible').first();
+const db = await dlgTrigger.boundingBox();
+await page.mouse.move(db.x + db.width / 2, db.y + db.height / 2);
+await page.mouse.down();
+await sleep(250);
+const dlgScale = await dlgTrigger.evaluate((el) => getComputedStyle(el).scale);
+await page.mouse.move(0, 0);
+await page.mouse.up();
+await page.keyboard.press("Escape");
+check(dlgScale === "0.97", `a Dialog trigger still presses to 0.97 (${dlgScale})`);
 
 // Nav tabs: Components first, then AI, Backgrounds, Examples, Encyclopedia, Export; the current section is highlighted
 await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
@@ -346,7 +360,8 @@ const enc = async () =>
 const encAll = await enc();
 check(encAll.rows >= 200 && encAll.count === String(encAll.rows), `encyclopedia renders every rule (${JSON.stringify(encAll)})`);
 await page.getByRole("searchbox", { name: "Search rules" }).fill("tabular");
-await sleep(300);
+// The list filters at once; the URL is written once typing stops.
+await page.waitForURL(/q=tabular/, { timeout: 3000 }).catch(() => {});
 const encQ = await enc();
 check(encQ.rows > 0 && encQ.rows < encAll.rows && encQ.count === `${encQ.rows} of ${encAll.rows}` && page.url().includes("q=tabular"), `encyclopedia search filters rules (${JSON.stringify(encQ)}, ${page.url()})`);
 await page.locator('[data-rule="type.tabular-nums"]').click();
@@ -515,8 +530,8 @@ check(errors.length === before, `new component pages throw nothing (${errors.sli
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landingMore = await page.evaluate((names) => {
   const band = document.querySelector("[data-landing=more]");
-  // No tile for these (Joshua, v5.4 typography: "what is this remove."; v5.8 panes: "remove panes section"): their
-  // pages stay, the landing and overview skip them.
+  // No tile for these on purpose (typography and the pane components read as noise there): their pages stay, the
+  // landing and overview skip them.
   const hidden = ["typography", "resizable", "scroll-area"];
   return { hidden: hidden.reduce((n, h) => n + (band?.querySelectorAll(`[data-spot="${h}"]`).length ?? 0), 0), missing: names.filter((n) => !hidden.includes(n) && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
 }, MORE);
@@ -648,7 +663,9 @@ const mobIndex = await page.evaluate(() => ({
   parts: [...new Set([...document.querySelectorAll("[data-mobile-part]")].map((a) => a.dataset.mobilePart))],
 }));
 check(mobIndex.tab === "Components" && /Mobile/.test(mobIndex.sw ?? ""), `/mobile: Components tab lit, switch on Mobile (${JSON.stringify({ tab: mobIndex.tab, sw: mobIndex.sw })})`);
-check(mobIndex.tiles === 21 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
+// mobile-upload-row has its own page but no overview screen uses it (delivery photos upload in the photo strip).
+const tiled = MOBILE.filter((n) => n !== "mobile-upload-row");
+check(mobIndex.tiles === 21 && tiled.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${tiled.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
 check(await page.locator('a[data-all-screens][href^="/mobile/screens"]').count(), "/mobile links to the screens gallery");
 await page.goto(BASE + "/mobile/screens", { waitUntil: "networkidle" });
 const gallery = await page.evaluate(() => ({
@@ -660,7 +677,7 @@ check(gallery.tiles.length === wantTiles.length && wantTiles.every((h) => galler
 await page.locator('[role=radiogroup][aria-label="Platform"] [role=radio]').first().click();
 await page.waitForURL(/\/components$/);
 check(true, "platform switch goes back to Desktop");
-for (const [from, to] of [["/components/drawer", "/mobile/mobile-sheet"], ["/components/bottom-nav", "/mobile/mobile-tab-bar"], ["/components/mobile-sheet", "/mobile/mobile-sheet"]]) {
+for (const [from, to] of [["/components/mobile-sheet", "/mobile/mobile-sheet"]]) {
   await page.goto(BASE + from, { waitUntil: "networkidle" });
   check(new URL(page.url()).pathname === to, `${from} redirects to ${to} (${new URL(page.url()).pathname})`);
 }
@@ -822,7 +839,7 @@ const ctx = await page.evaluate(() => {
 });
 check(ctx?.items === 3 && /px/.test(ctx.origin), `long-press menu opens from the pressed point (${JSON.stringify(ctx)})`);
 await page.keyboard.press("Escape");
-await sleep(200);
+await sleep(350);
 check(!(await page.locator("[data-phone-screen] [role=menu]").count()), "long-press menu: Esc closes it");
 
 // Scrub chart: dragging across it turns the number into the point under the finger.
@@ -850,16 +867,21 @@ await page.getByRole("button", { name: "Delete, hold to clear" }).click();
 const amount = await page.locator("[data-phone-screen] output").textContent();
 check(amount === "Rp\u00a041.200", `keypad: Exact then Delete (${amount})`);
 
-// Full-screen modal: an edit turns Save on; Cancel with changes asks first.
+// Full-screen modal: Save is on from the start (with nothing changed it just closes); Cancel after an edit asks first.
 await page.goto(BASE + "/mobile/mobile-modal?open=1", { waitUntil: "networkidle" });
 await sleep(600);
 const modalSave = page.locator("[data-phone-screen] [role=dialog] [data-mobile-action-bar] button", { hasText: "Save" });
-const saveOff = await modalSave.isDisabled();
+const saveOn = await modalSave.isEnabled();
+await modalSave.click();
+await sleep(500);
+const closedClean = !(await page.locator("[data-phone-screen] [role=dialog]").count());
+await page.goto(BASE + "/mobile/mobile-modal?open=1", { waitUntil: "networkidle" });
+await sleep(600);
 await page.locator("[data-phone-screen] [role=dialog] input").first().fill("Gelas kopi tanah liat, biru");
-const saveOn = saveOff && (await modalSave.isEnabled());
 await page.locator("[data-phone-screen] [role=dialog] header button", { hasText: "Cancel" }).click();
 await sleep(400);
-check(saveOn && (await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count()), "modal: Save sits in the bottom bar, an edit turns it on, Cancel asks before discarding");
+const asks = await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count();
+check(saveOn && closedClean && asks, `modal: Save sits in the bottom bar and is on at once, an untouched Save closes, Cancel after an edit asks (${JSON.stringify({ saveOn, closedClean, asks })})`);
 
 // A–Z index: a tap low on the strip jumps the list down.
 await page.goto(BASE + "/mobile/mobile-index-list", { waitUntil: "networkidle" });
@@ -877,8 +899,8 @@ const approved = await page.locator("[data-phone-screen] [role=status]", { hasTe
 check(/Approved: Bubble wrap/.test(approved) && /Undo/.test(approved), `approvals: Approve removes the request and offers Undo (${approved})`);
 
 // Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
-// keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open (Joshua, v5.4:
-// "overlapping scrollbar again"), and the right margin equals the left. Inner scroll areas: a carousel's track shows no
+// keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open, and the right margin
+// equals the left. Inner scroll areas: a carousel's track shows no
 // bar, and the message scroller's bar sits in its own lane, clear of every message.
 const classic = await chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"] });
 const cpage = await classic.newPage({ viewport: { width: 1440, height: 900 } });

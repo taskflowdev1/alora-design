@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { cn } from "@/lib/ad";
-import { usePopupOpen } from "@/lib/ad-hooks";
+import { usePopupOpen, usePressOpen } from "@/lib/ad-hooks";
 
 const Group = React.createContext<{ open: string | null; setOpen: (id: string | null) => void } | null>(null);
 
@@ -36,22 +36,8 @@ export function Popover({ trigger, children, align = "start", side = "bottom", o
       onOpenChange?.(o);
     },
   });
-  // Mouse: open (or close) on pointer down, like Menu and the pickers; touch and pen keep the click. The click that
-  // follows is cancelled so Radix doesn't toggle it back.
-  const pressed = React.useRef(false);
-  const press = {
-    onPointerDown: (e: React.PointerEvent) => {
-      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
-      pressed.current = true;
-      e.preventDefault();
-      setOpen(!open);
-    },
-    onClick: (e: React.MouseEvent) => {
-      if (!pressed.current) return;
-      pressed.current = false;
-      e.preventDefault();
-    },
-  };
+  // Mouse: open (or close) on pointer down, like Menu and the pickers; touch and pen keep the click.
+  const press = usePressOpen(open, setOpen);
   return (
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger asChild data-ad-anchor="" {...press}>

@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Typecheck, lint, docs drift (README + docs/components.md), grey ramp, build, headless smoke on its own port. Cheapest first; stops at the first failure.
-# Heavy: run through the job queue (see AGENTS.md).
+# Typecheck, lint, unit, docs drift (README + docs/components.md), grey ramp, dead exports, build, headless smoke on its own port.
+# Cheapest first; stops at the first failure. Heavy: run it as a background job (see AGENTS.md).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 . scripts/env.sh
+export SITE_DIST="${TMPDIR:-/tmp}/alora-design-verify-site"
+trap 'rm -rf "$SITE_DIST"' EXIT
 step() { echo "== $1"; }
 step typecheck; npx tsc -p tsconfig.json --noEmit
+step unit; node scripts/unit.mjs
 step lint; npx eslint .
 step docs; node scripts/gen-docs.mjs --check
 step greys; node scripts/greys.mjs --check
-step build; npx vite build --logLevel warn
+step knip; npx knip --no-progress
+step build; npx vite build --logLevel warn --outDir "$SITE_DIST" --emptyOutDir
 step smoke; node scripts/smoke.mjs
 echo "VERIFY PASS"

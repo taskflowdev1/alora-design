@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/main.tsx", "src/components/**/*.tsx", "src/lib/ad.ts", "src/lib/ad-hooks.ts", "api/*.ts", "scripts/*.mjs", "vite.config.ts"],
+  "entry": ["src/components/**/*.tsx", "src/lib/ad.ts", "src/lib/ad-hooks.ts", "api/*.ts", "scripts/*.mjs"],
   "project": ["src/**/*.{ts,tsx}", "api/**/*.ts", "scripts/**/*.mjs"],
   "ignoreExportsUsedInFile": false
 }

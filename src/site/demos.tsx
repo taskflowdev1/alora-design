@@ -77,7 +77,7 @@ import { Steps } from "@/components/ui/steps";
 import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
 import { Timeline } from "@/components/ui/timeline";
 
-export type Control =
+type Control =
   | { key: string; type: "select"; label: string; options: string[]; labels?: string[]; default: string }
   | { key: string; type: "toggle"; label: string; default: boolean };
 

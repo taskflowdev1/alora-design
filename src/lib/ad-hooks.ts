@@ -118,15 +118,38 @@ export function usePopupOpen({ open, defaultOpen = false, onOpenChange, guard = 
 }
 
 /**
- * True for `ms` after `open` turns true: a backdrop or shade can ignore the second tap of the double tap that opened it.
- * Returns a function, so the check reads the time of the tap, not of the render.
+ * Trigger props for an anchored pop-up: a mouse opens and closes it on press, as a menu does; touch, pen and keys keep
+ * the click. The click that follows a handled press is dropped, so Radix doesn't toggle it back.
+ */
+export function usePressOpen(open: boolean, setOpen: (open: boolean) => void) {
+  const swallow = React.useRef(false);
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      swallow.current = false;
+      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
+      e.preventDefault();
+      swallow.current = true;
+      setOpen(!open);
+    },
+    onClick: (e: React.MouseEvent) => {
+      if (!swallow.current || e.detail === 0) return;
+      swallow.current = false;
+      e.preventDefault();
+    },
+  };
+}
+
+/**
+ * `early(t)` is true for a pointerdown (pass its `timeStamp`) less than `ms` after `open` turned true: the second tap
+ * of the double tap that opened an overlay lands on its new backdrop and must not close it. Use the pointerdown's time:
+ * it is when the finger touched, while a click's time is when a busy main thread got round to it.
  */
 export function useJustOpened(open: boolean, ms = 350) {
   const at = React.useRef(-Infinity);
   const was = React.useRef(false);
   if (open && !was.current) at.current = typeof performance === "undefined" ? 0 : performance.now();
   was.current = open;
-  return React.useCallback(() => performance.now() - at.current < ms, [ms]);
+  return React.useCallback((t: number = performance.now()) => t - at.current < ms, [ms]);
 }
 
 /**

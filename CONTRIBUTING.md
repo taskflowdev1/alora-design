@@ -25,7 +25,7 @@ Playwright headless shell the first time).
 2. **A registry entry** in `ITEMS` in `src/lib/registry.ts`: `name`, `title`, `group`, `files`, npm `deps` and
    `registryDeps` for the components it imports. `npm run unit` fails when they don't match the imports.
 3. **A demo** for its page in `src/site/demos*.tsx`, and **a place on /components**: wrap a real use of it in a `Mark`
-   inside a tile (`src/site/showcase.tsx`). The smoke test checks every component appears exactly once. An item with
+   inside a tile (`src/site/showcase/`, one file per band). The smoke test checks every component appears exactly once. An item with
    no natural tile takes `showcase: false`.
 4. **Docs**: `npm run docs` regenerates the README tables, `docs/components.md` and `docs/ui-checklist.md`. Write a
    one-line doc comment on the component and on each prop; that is where the docs come from.

@@ -3,34 +3,13 @@ import { Popover as P } from "radix-ui";
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight } from "react-feather";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { addDays, cn, formatDate, MONTHS, MONTHS_LONG, monthGrid, sameDay, startOfDay, WEEKDAYS_2 } from "@/lib/ad";
-import { usePopupOpen } from "@/lib/ad-hooks";
+import { usePopupOpen, usePressOpen } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { dropdownSurface, triggerClass } from "@/components/ui/select";
 import { Tooltip } from "@/components/ui/tooltip";
 
 export type DateRange = { from: Date; to: Date };
 export type RangePreset = { key: string; label: string; range: (today: Date) => DateRange };
-
-/**
- * A mouse opens and closes the panel on press, as a menu does; touch and keys keep the click. `swallow` drops the click
- * that follows a handled press.
- */
-function pressOpen(open: boolean, setOpen: (open: boolean) => void, swallow: React.RefObject<boolean>) {
-  return {
-    onPointerDown: (e: React.PointerEvent) => {
-      swallow.current = false;
-      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
-      e.preventDefault();
-      swallow.current = true;
-      setOpen(!open);
-    },
-    onClick: (e: React.MouseEvent) => {
-      if (!swallow.current || e.detail === 0) return;
-      swallow.current = false;
-      e.preventDefault();
-    },
-  };
-}
 
 export const DEFAULT_PRESETS: RangePreset[] = [
   { key: "today", label: "Today", range: (t) => ({ from: startOfDay(t), to: startOfDay(t) }) },
@@ -75,7 +54,6 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
   const [focus, setFocus] = React.useState<Date>(() => startOfDay(value.to));
   const grid = React.useRef<HTMLDivElement>(null);
   const moved = React.useRef(false);
-  const swallow = React.useRef(false);
   // The trigger keeps the range it had when the panel opened until the panel has finished leaving: a longer label
   // would grow the trigger and drag the fading panel sideways with it.
   const [held, setHeld] = React.useState<DateRange | null>(null);
@@ -90,6 +68,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
       }
     },
   });
+  const press = usePressOpen(open, setOpen);
   const label = held ?? value;
   React.useEffect(() => {
     if (moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
@@ -128,7 +107,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
 
   return (
     <P.Root open={open} onOpenChange={setOpen}>
-      <P.Trigger data-ad-anchor="" {...pressOpen(open, setOpen, swallow)} className={cn(triggerClass, className)}>
+      <P.Trigger data-ad-anchor="" {...press} className={cn(triggerClass, className)}>
         <Calendar size={16} className="shrink-0 text-ink-muted" />
         <span className="truncate">{labelPreset ? labelPreset.label : formatRange(label)}</span>
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />

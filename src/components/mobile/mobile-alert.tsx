@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { cn } from "@/lib/ad";
-import { MobileLayer, useOpenedRecently, useReturnFocus } from "./mobile-sheet";
+import { useJustOpened } from "@/lib/ad-hooks";
+import { MobileLayer, useReturnFocus } from "./mobile-sheet";
 
 export interface MobileAlertAction {
   label: string;
@@ -30,7 +31,7 @@ export interface MobileAlertProps {
  */
 export function MobileAlert({ open, onOpenChange, title, message, actions, className }: MobileAlertProps) {
   const layer = React.useContext(MobileLayer);
-  const early = useOpenedRecently(open);
+  const early = useJustOpened(open);
   const restoreFocus = useReturnFocus(open);
   const content = React.useRef<HTMLDivElement>(null);
   const tone = {

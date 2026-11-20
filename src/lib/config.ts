@@ -3,8 +3,11 @@
 
 import { accentShades, contrast, hexToOklch, oklchToHex } from "./color.js";
 
+/** @public */
 export type Corner = "square" | "round" | "squircle";
+/** @public */
 export type Tone = "cool" | "neutral" | "warm";
+/** @public */
 export type Theme = "light" | "dark";
 
 export interface Config {
@@ -163,11 +166,14 @@ const rgba = (hex: string, a: number) => {
 /**
  * The grey ramp: six named steps per theme, and every neutral token is one of them. Hover on a surface is fill, hover
  * on a fill is fill-strong; selected on a plain surface is fill-strong. The tone setting (`g`) tints every step; dark
- * keeps only a hint of it.
+ * keeps only a hint of it. Scripts read the ramp too (gen-docs, greys).
+ *
+ * @public
  */
 export const GREY_STEPS = ["page", "surface", "fill", "fill-strong", "ink-muted", "ink"] as const;
 type GreyStep = (typeof GREY_STEPS)[number];
 
+/** @public */
 export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
   const g = (l: number, s: number) => grey(tone, l, dark ? s * DARK_TINT : s);
   return dark

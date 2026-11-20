@@ -71,7 +71,7 @@ Files: `src/components/ui/menu.tsx`.
 | --- | --- | --- | --- |
 | `icon` | `ComponentType<{ size?: string \| number \| undefined; className?: string \| undefined; }>` |  |  |
 | `children` (required) | `ReactNode` |  |  |
-| `shortcut` | `string` |  |  |
+| `shortcut` | `string \| string[]` |  | Keys such as ["mod", "N"]: "mod" shows as ⌘ on Apple devices ("⌘N") and Ctrl elsewhere ("Ctrl+N"). A string is shown as is. |
 | `onSelect` | `(() => void)` |  |  |
 | `disabled` | `boolean` |  |  |
 
@@ -152,7 +152,7 @@ Files: `src/components/ui/save-bar.tsx`. Installs too: `button`.
 npx shadcn@latest add "https://design.alorawork.com/r/button-group.json"
 ```
 
-Files: `src/components/ui/button-group.tsx`. Installs too: `button`.
+Files: `src/components/ui/button-group.tsx`.
 
 `ButtonGroup`: Related buttons as one control: they share one soft track and sit one nest gap inside it, so the corners stay concentric (track radius = button radius + gap). No dividers between them. Put secondary or ghost Buttons inside.
 
@@ -180,6 +180,8 @@ Files: `src/components/ui/input.tsx`.
 | `wrapperClassName` | `string` |  |  |
 
 Also takes the native props of the element it renders.
+
+`useFieldControl`: Ties a control to the Field around it: the id its label points at, the error that describes it. Own props win.
 
 ### Textarea
 
@@ -296,9 +298,9 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/field.json"
 ```
 
-Files: `src/components/ui/field.tsx`.
+Files: `src/components/ui/field.tsx`. Installs too: `input`.
 
-`Field`
+`Field`: A label and its control, plus a validation message under the control. Clicking the label focuses the control, which takes the label as its accessible name and the message as its description.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -307,7 +309,7 @@ Files: `src/components/ui/field.tsx`.
 | `layout` | `"row" \| "stack"` | `"stack"` | "stack" puts the label above; "row" puts it beside the control. |
 | `className` | `string` |  |  |
 | `children` (required) | `ReactNode` |  |  |
-| `htmlFor` | `string` |  |  |
+| `htmlFor` | `string` |  | The control's id, when it sets its own. Without it the Field gives one to the control inside. |
 
 ### Select
 
@@ -349,6 +351,10 @@ Files: `src/components/ui/select.tsx`.
 | `aria-label` | `string` |  |  |
 | `renderValue` | `((option: Option \| undefined) => ReactNode)` |  | Custom trigger content; defaults to icon + label. |
 
+`usePressOpen`: Mouse: open (or close) a popover trigger on pointer down, so the list is already there when the button comes up, as native menus do. Touch and pen keep the click (a tap that starts a scroll must not open it), and the keyboard is unchanged. Spread onto a Radix Popover.Trigger; the click that follows is cancelled, so Radix doesn't toggle it back.
+
+`useListNav`: Arrow keys, Home/End and type-to-find over a list of options.
+
 ### Multi-select
 
 <a id="multi-select"></a>Page: https://design.alorawork.com/components/multi-select
@@ -367,7 +373,7 @@ Files: `src/components/ui/multi-select.tsx`. Installs too: `select`.
 | `onValueChange` (required) | `(value: string[]) => void` |  |  |
 | `options` (required) | `Option[]` |  |  |
 | `placeholder` | `string` | `"Select"` |  |
-| `maxChips` | `number` | `2` | Chips shown inside the trigger before collapsing into "+n". |
+| `maxChips` | `number` | `2` | Chips shown inside the trigger before collapsing into "+n". 0 shows "Status · 3" instead, so the trigger keeps one width while you pick (a toolbar filter). |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -402,7 +408,7 @@ Files: `src/components/ui/combobox.tsx`. Installs too: `select`.
 npx shadcn@latest add "https://design.alorawork.com/r/calendar.json"
 ```
 
-Files: `src/components/ui/calendar.tsx`. Installs too: `button`.
+Files: `src/components/ui/calendar.tsx`. Installs too: `button`, `tooltip`.
 
 `Calendar`: A month grid on its own: weeks start Monday, the chosen day is solid ink, arrow keys move by day and week, Enter picks. Labels read "7 Nov 2026". The date picker opens this in a popover.
 
@@ -512,6 +518,12 @@ Files: `src/components/ui/sliding-pill.tsx`.
 | --- | --- | --- | --- |
 | `selector` (required) | `string` |  | CSS selector for the selected option inside the parent, e.g. `[aria-checked="true"]`, `[data-state="active"]`, `[aria-current="page"]`. The parent must be positioned (`relative`); options that should sit above the pill need `relative` too. |
 | `className` | `string` |  | Fill and radius of the pill: `bg-sel shadow-sel rounded-item` in a track, `bg-fill-strong rounded-control` on a surface. |
+
+`HoldLabel`: A label laid out twice in one cell, the hidden copy at medium weight, so an option turning medium when chosen never changes its width or moves its neighbours (and the pill under it). Uses `.ad-hold` from the theme.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
 
 ### Tabs
 
@@ -658,7 +670,7 @@ Files: `src/components/ui/number-dial.tsx`.
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `value` (required) | `number` |  |  |
-| `format` | `((n: number) => string)` | `(n) => n.toLocaleString("id-ID")` | Formats the value; each character gets its own slot, aligned from the right. Default: locale grouping. |
+| `format` | `((n: number) => string)` | `formatNumber` | Formats the value; each character gets its own slot, aligned from the right. Default: locale grouping. |
 | `blur` | `boolean` |  | A 2 px motion blur on the rolling digits. Showcase pages only; product screens keep it off. |
 | `instant` | `boolean` |  | Swap digits without rolling (a change from the keyboard: key repeat would keep it rolling nonstop). |
 | `className` | `string` |  |  |
@@ -721,7 +733,7 @@ Files: `src/components/ui/theme-switch.tsx`. Installs too: `segmented`.
 | `onValueChange` (required) | `(value: ThemeChoice) => void` |  | Called inside the transition: set the theme synchronously here (state, class or URL). |
 | `system` | `boolean` | `true` | Leave out "system" for a two-way switch. |
 | `iconOnly` | `boolean` |  | Icons only, with the names as accessible labels. |
-| `within` | `RefObject<Element \| null>` |  | When the switch themes only part of the page (a preview), that part: the circle ends at its far corner. |
+| `within` | `RefObject<Element \| null>` |  | When the switch themes only part of the page (a preview), that part: the circle crosses just it (minus the switch). |
 | `className` | `string` |  |  |
 
 ### Step form
@@ -879,7 +891,7 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/attention-list.json"
 ```
 
-Files: `src/components/ui/attention-list.tsx`. Installs too: `thumb`.
+Files: `src/components/ui/attention-list.tsx`.
 
 `AttentionList`: Items that need attention. Each is its own soft card; no lines between them.
 
@@ -894,7 +906,7 @@ Files: `src/components/ui/attention-list.tsx`. Installs too: `thumb`.
 | --- | --- | --- | --- |
 | `media` | `ReactNode` |  | A Thumb or Avatar. |
 | `title` (required) | `ReactNode` |  |  |
-| `meta` | `ReactNode` |  | One short fact, e.g. "2 left". |
+| `meta` | `ReactNode` |  | One short fact, e.g. "2 left". Wrap a code (a SKU, an order number) in `<span translate="no">`. |
 | `value` | `ReactNode` |  | The value that matters, right-aligned. |
 | `action` | `ReactNode` |  |  |
 | `onClick` | `(() => void)` |  |  |
@@ -1222,14 +1234,14 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/carousel.json"
 ```
 
-Files: `src/components/ui/carousel.tsx`. Installs too: `button`.
+Files: `src/components/ui/carousel.tsx`. Installs too: `button`, `tooltip`.
 
 `Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse can drag it too. Pulling past either end (mouse drag or trackpad) meets resistance that grows the further you pull, then springs back keeping the release speed. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `children` (required) | `ReactNode[]` |  |  |
-| `perView` | `number` | `1` | Slides visible at once from sm up (phones always show one and a peek of the next). |
+| `perView` | `number` | `1` | Slides fully visible at once from sm up, plus a 24 px peek of the next (phones show one and a wider peek). |
 | `gap` | `number` | `12` | Gap between slides in px. |
 | `arrows` | `boolean` | `true` | Show the previous/next buttons. |
 | `dots` | `boolean` | `true` | Show the dots. |
@@ -1344,7 +1356,7 @@ Files: `src/components/ui/chart.tsx`.
 | `kind` | `"area" \| "line"` | `"line"` |  |
 | `height` | `number` | `200` |  |
 | `curve` | `"smooth" \| "linear"` | `"smooth"` | Smooth curves (monotone, never overshooting) or straight segments. |
-| `grid` | `boolean` | `false` | Faint horizontal gridlines at the ticks. Off by default: charts run end to end (Joshua, 2026-11-09). |
+| `grid` | `boolean` | `false` | Faint horizontal gridlines at the ticks. Off by default: charts run end to end, with nothing ruled across them. |
 | `axis` | `boolean` | `false` | Value ticks on the left. Off by default: the tooltip and the headline carry the values. |
 | `dots` | `boolean` | `false` | Dots at every point (the last point always gets one). |
 | `stacked` | `boolean` | `false` | Area only: stack the series on top of each other. |
@@ -1358,6 +1370,8 @@ Files: `src/components/ui/chart.tsx`.
 | `onActiveSeriesChange` | `((key: string \| null) => void)` |  | Hovering a line or its legend item reports its key. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
+
+`useWidth`: The element's content width, kept current; 0 until measured. The shared hook, under the name charts use.
 
 ### Line chart
 
@@ -1378,7 +1392,7 @@ Files: `src/components/ui/line-chart.tsx`. Installs too: `chart`.
 | `height` | `number` |  |  |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
-| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. Off by default: charts run end to end (Joshua, 2026-11-09). |
+| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. Off by default: charts run end to end, with nothing ruled across them. |
 | `series` (required) | `Series[]` |  |  |
 | `curve` | `"smooth" \| "linear"` |  | Smooth curves (monotone, never overshooting) or straight segments. |
 | `axis` | `boolean` |  | Value ticks on the left. Off by default: the tooltip and the headline carry the values. |
@@ -1410,7 +1424,7 @@ Files: `src/components/ui/area-chart.tsx`. Installs too: `chart`.
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 | `fill` | `number` |  | Area only: wash strength, 0 to 0.4. |
-| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. Off by default: charts run end to end (Joshua, 2026-11-09). |
+| `grid` | `boolean` |  | Faint horizontal gridlines at the ticks. Off by default: charts run end to end, with nothing ruled across them. |
 | `stacked` | `boolean` |  | Area only: stack the series on top of each other. |
 | `series` (required) | `Series[]` |  |  |
 | `curve` | `"smooth" \| "linear"` |  | Smooth curves (monotone, never overshooting) or straight segments. |
@@ -1500,7 +1514,9 @@ Files: `src/components/ui/radial-chart.tsx`. Installs too: `chart`.
 npx shadcn@latest add "https://design.alorawork.com/r/brush.json"
 ```
 
-Files: `src/components/ui/brush.tsx`. Installs too: `line-chart`, `table`.
+Files: `src/components/ui/brush.tsx`.
+
+`useBrush`: Brushing and linking: one hover state shared by a chart and a table, so pointing at a day on the chart lights up its row, a row moves the chart's crosshair, and a series (legend item, line, column header) emphasises its column and its line together. Fills only: no outlines. Keyboard focus on a row links the same way.
 
 ## Navigation
 
@@ -1588,7 +1604,7 @@ Files: `src/components/ui/pagination.tsx`. Installs too: `button`, `sliding-pill
 npx shadcn@latest add "https://design.alorawork.com/r/dialog.json"
 ```
 
-Files: `src/components/ui/dialog.tsx`. Installs too: `button`.
+Files: `src/components/ui/dialog.tsx`. Installs too: `button`, `tooltip`.
 
 `Dialog`
 
@@ -1602,6 +1618,8 @@ Files: `src/components/ui/dialog.tsx`. Installs too: `button`.
 | `footer` | `ReactNode` |  | Buttons, bottom right. Their radius + the dialog padding = the dialog radius. |
 | `className` | `string` |  |  |
 
+`useReturnFocus`: Focus return for a dialog opened from state rather than a Radix Trigger (a toolbar button, a shortcut, a row): Radix only restores focus to its own Trigger, so without this focus falls to the page body on close. Pass the result to `onCloseAutoFocus`.
+
 ### Side pane
 
 <a id="sheet"></a>Page: https://design.alorawork.com/components/sheet
@@ -1610,7 +1628,7 @@ Files: `src/components/ui/dialog.tsx`. Installs too: `button`.
 npx shadcn@latest add "https://design.alorawork.com/r/sheet.json"
 ```
 
-Files: `src/components/ui/sheet.tsx`. Installs too: `button`, `dialog`.
+Files: `src/components/ui/sheet.tsx`. Installs too: `button`, `dialog`, `tooltip`.
 
 `Sheet`: Side pane for details and create forms on desktop. Floats with margin, eases in from the right.
 
@@ -1670,7 +1688,7 @@ Files: `src/components/ui/tooltip.tsx`.
 | --- | --- | --- | --- |
 | `children` (required) | `ReactNode` |  |  |
 
-`Tooltip`
+`Tooltip`: A short label over a control. Props other than these go to the trigger, so a Tooltip can itself be the child of another `asChild` trigger (a popover's or a menu's) and pass its handlers on to the button inside.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1678,6 +1696,9 @@ Files: `src/components/ui/tooltip.tsx`.
 | `children` (required) | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  |  |
 | `side` | `"top" \| "right" \| "bottom" \| "left"` | `"top"` |  |
 | `open` | `boolean` |  |  |
+| `className` | `string` |  | Classes for the tooltip bubble. |
+
+Also takes the native props of the element it renders.
 
 ### Toast
 
@@ -1690,6 +1711,10 @@ npx shadcn@latest add "https://design.alorawork.com/r/toast.json"
 Files: `src/components/ui/toast.tsx`.
 
 `Toaster`: Toasts sit at the far right and never cover actions: they rise above any bottom bar marked data-toast-avoid, and move left of an open side pane (data-toast-avoid="side").
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `className` | `string` |  |  |
 
 `ToastView`: The toast itself, for showing one in place (a preview, a docs page). Toaster uses it too.
 
@@ -1904,7 +1929,7 @@ Files: `src/components/ui/trace.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/attachment.json"
 ```
 
-Files: `src/components/ui/attachment.tsx`. Installs too: `button`, `progress`.
+Files: `src/components/ui/attachment.tsx`. Installs too: `button`, `progress`, `tooltip`.
 
 `Attachment`: A file on a soft card: preview or icon, the name (it truncates cleanly), one muted line, a remove button. Uploading shows a slim bar in place of the meta; an error says so in words, quietly.
 
@@ -1954,7 +1979,7 @@ Files: `src/components/ui/questionnaire.tsx`. Installs too: `button`, `input`.
 npx shadcn@latest add "https://design.alorawork.com/r/code-block.json"
 ```
 
-Files: `src/components/ui/code-block.tsx`. Installs too: `button`.
+Files: `src/components/ui/code-block.tsx`. Installs too: `button`, `tooltip`.
 
 `CodeBlock`: Code on a soft card in the mono face (the one place a second face appears). A copy button sits in the corner one nest gap in, concentric; it flips to a check for a moment. Long lines scroll sideways inside, never the page.
 
@@ -2092,6 +2117,8 @@ Files: `src/components/ui/command-palette.tsx`. Installs too: `dialog`, `kbd`.
 | `inline` | `boolean` |  | Render the panel in place (no dialog, no overlay, no autofocus), e.g. on a page or in a side card. |
 | `className` | `string` |  |  |
 
+`useCommandShortcut`: Opens on Cmd+K / Ctrl+K anywhere on the page.
+
 ### Date range picker
 
 <a id="date-range-picker"></a>Page: https://design.alorawork.com/components/date-range-picker
@@ -2100,7 +2127,7 @@ Files: `src/components/ui/command-palette.tsx`. Installs too: `dialog`, `kbd`.
 npx shadcn@latest add "https://design.alorawork.com/r/date-range-picker.json"
 ```
 
-Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `select`, `sliding-pill`.
+Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `select`, `sliding-pill`, `tooltip`.
 
 `DateRangePicker`: Presets on the left, one month on the right. Click a start day, then an end day; the range previews under the pointer. The trigger names the preset when one matches.
 
@@ -2194,7 +2221,7 @@ Files: `src/components/ui/diff.tsx`.
 | --- | --- | --- | --- |
 | `value` (required) | `number` |  | The difference: expected minus actual, or this period minus the last. |
 | `unit` | `string` |  | Prefix such as "Rp". |
-| `format` | `((abs: number) => string)` | `(n) => Math.round(n).toLocaleString("id-ID")` | Format the absolute value. Defaults to id-ID grouping. |
+| `format` | `((abs: number) => string)` | `(n) => formatNumber(Math.round(n))` | Format the absolute value. Defaults to id-ID grouping. |
 | `tolerance` | `number` | `0` | Values within ± tolerance count as no difference. |
 | `zero` | `ReactNode` | `"—"` | Shown for no difference. |
 | `className` | `string` |  |  |
@@ -2300,7 +2327,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/toggle-group.json"
 
 Files: `src/components/ui/toggle-group.tsx`. Installs too: `sliding-pill`.
 
-`ToggleGroup`
+`ToggleGroup`: On/off choices in one track: several at once (default), or one of N with `type="single"`. Pressed items get the raised pill (sel + shadow-sel) on the grey track, in ink and medium; the rest stay muted and regular. Track and pills are concentric.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2570,9 +2597,9 @@ Files: `src/components/ui/comment-thread.tsx`. Installs too: `avatar`, `button`,
 npx shadcn@latest add "https://design.alorawork.com/r/dropzone.json"
 ```
 
-Files: `src/components/ui/dropzone.tsx`. Installs too: `button`, `progress`.
+Files: `src/components/ui/dropzone.tsx`. Installs too: `button`, `progress`, `tooltip`.
 
-`Dropzone`: A soft area, no dashed border. Dragging over it deepens the fill. Files list under it with progress.
+`Dropzone`: A soft area, no dashed border. The whole area opens the file picker and deepens on hover; dragging over it deepens the fill too. Browse stays as the visible (and keyboard) way in. Files list under it with progress.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2632,7 +2659,7 @@ Files: `src/components/ui/avatar-group.tsx`. Installs too: `avatar`, `tooltip`.
 npx shadcn@latest add "https://design.alorawork.com/r/notification-bell.json"
 ```
 
-Files: `src/components/ui/notification-bell.tsx`. Installs too: `button`, `popover`.
+Files: `src/components/ui/notification-bell.tsx`. Installs too: `button`, `popover`, `tooltip`.
 
 `NotificationBell`: Bell with an unread count; the list opens under it. The count is neutral (ink), never a loud red.
 
@@ -2745,7 +2772,7 @@ Files: `src/components/mobile/mobile-nav-bar.tsx`.
 | `title` (required) | `string` |  |  |
 | `barTitle` | `string` |  | The bar's small title when it differs from the large one (the list's current filter once the title has scrolled). |
 | `large` | `boolean` | `true` | A large title under the bar that shrinks into it as you scroll. Off: the small title only (detail screens). |
-| `back` | `{ label: string; onClick: () => void; }` |  | Back to the previous screen: a chevron and the previous screen's name. |
+| `back` | `{ label: string; onClick: () => void; }` |  | Back to the previous screen: a chevron and the previous screen's name. A double tap goes back once. |
 | `leading` | `ReactNode` |  | Instead of back, on a screen that ends a flow: one text button on the left ("Done"). |
 | `trailing` | `ReactNode` |  | Up to two icon buttons on the right (MobileBarButton). |
 | `header` | `ReactNode` |  | Under the large title and scrolling with it: a search bar, a segmented control. |
@@ -2753,6 +2780,7 @@ Files: `src/components/mobile/mobile-nav-bar.tsx`.
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 | `ref` | `Ref<HTMLDivElement>` |  | The scroll area, for scrolling to top or restoring a position. |
+| `translateTitle` | `boolean` | `true` | false when the title is a code or name a browser must not translate (an order id, a SKU). |
 
 `MobileBarTextButton`: A short text button for the nav bar ("Clear all", "Done"): 44 px tall, medium weight, a fill on keyboard focus.
 
@@ -2770,7 +2798,7 @@ Also takes the native props of the element it renders.
 npx shadcn@latest add "https://design.alorawork.com/r/mobile-action-bar.json"
 ```
 
-Files: `src/components/mobile/mobile-action-bar.tsx`. Installs too: `button`.
+Files: `src/components/mobile/mobile-action-bar.tsx`.
 
 `MobileBarScrim`: Content scrolls under a floating bar: this fades it into the page from the screen's bottom edge to 16 px above the bar, so no row peeks out below the bar or under the home indicator. No blur.
 
@@ -2779,7 +2807,7 @@ Files: `src/components/mobile/mobile-action-bar.tsx`. Installs too: `button`.
 | `height` (required) | `string` |  |  |
 | `className` | `string` |  |  |
 
-`MobileActionBar`: The main action of a form or detail screen, pinned at the bottom in thumb reach: a floating card with full-width 44 px buttons (at most one accent, primary last on the right; one secondary may share the bar). List screens with a main action use MobileFab instead. It rides on top of the keyboard when one is open and clears the home indicator otherwise. Buttons keep the control radius like every other button on the screen; the card is that radius plus its inset, so the corners stay concentric. Give the screen bottomInset="action-bar" so the last row stays visible.
+`MobileActionBar`: The main action of a form or detail screen, pinned at the bottom in thumb reach: a floating card with full-width 44 px buttons (at most one accent, primary last on the right; one secondary may share the bar). List screens with a main action use MobileFab instead. It rides on top of the keyboard when one is open and clears the home indicator otherwise. Buttons keep the control radius like every other button on the screen; the card is that radius plus its inset, so the corners stay concentric. Give the screen bottomInset="action-bar" so the last row stays visible. A second tap within 400 ms of the last one is dropped, so a double tap never saves, pays or submits twice.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2796,6 +2824,8 @@ Files: `src/components/mobile/mobile-action-bar.tsx`. Installs too: `button`.
 | `above` | `"none" \| "tab-bar"` | `"tab-bar"` | What it floats above: the tab bar (default) or nothing (a pushed list screen). |
 
 Also takes the native props of the element it renders.
+
+`useKeyboardInset`: Tracks the on-screen keyboard and writes its height to `--ad-keyboard` on <html>, so bars and sheets can sit on top of it (visualViewport). Call it once near the root of a phone app.
 
 ### Grouped list
 
@@ -2838,9 +2868,9 @@ Files: `src/components/mobile/mobile-list.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/mobile-swipe-row.json"
 ```
 
-Files: `src/components/mobile/mobile-swipe-row.tsx`. Installs too: `mobile-list`.
+Files: `src/components/mobile/mobile-swipe-row.tsx`.
 
-`SwipeRow`: Swipe a row sideways to reveal its actions. The row follows the finger only after the gesture is clearly sideways, so vertical scrolling is never stolen. On release it opens or closes by position and speed, on a spring that keeps the throw; a long swipe left runs the first trailing action. Past the actions the first one stretches to fill the gap, and once letting go would run it (60 % of the row) the others fold away, so you know before you lift the finger. A tap on an open row closes it. Swiping is a shortcut: put the same actions in the row's detail screen or a "more" button, so nobody has to discover the gesture. What a full swipe runs happens in one motion, so offer Undo for it (a MobileSnackbar with an Undo action).
+`SwipeRow`: Swipe a row sideways to reveal its actions. The row follows the finger only after the gesture is clearly sideways, so vertical scrolling is never stolen. On release it opens or closes by position and speed, on a spring that keeps the throw; a long swipe left runs the first trailing action. Past the actions the first one stretches to fill the gap, and once letting go would run it (60 % of the row) the others fold away, so you know before you lift the finger. A tap on an open row closes it. Swiping is a shortcut: put the same actions in the row's detail screen or a "more" button, so nobody has to discover the gesture. What a full swipe runs happens in one motion, so offer Undo for it (a MobileSnackbar with an Undo action). After a full swipe the row folds shut (200 ms) before the action runs, so the rows below close the gap smoothly instead of jumping when the owner removes it.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2857,7 +2887,7 @@ Files: `src/components/mobile/mobile-swipe-row.tsx`. Installs too: `mobile-list`
 npx shadcn@latest add "https://design.alorawork.com/r/mobile-pull-refresh.json"
 ```
 
-Files: `src/components/mobile/mobile-pull-refresh.tsx`. Installs too: `mobile-nav-bar`.
+Files: `src/components/mobile/mobile-pull-refresh.tsx`.
 
 `PullToRefresh`: Pull down at the top of a list to reload. The list follows the finger against growing resistance while three dots fill in one by one (how far to pull); past the line they darken (let go now). On release the list rests a little lower while the dots wave, then springs back once the data is in. No spinner. Put it inside the scroll area (a MobileScreen); it only engages when that area is already at the top, so normal scrolling is untouched.
 
@@ -2899,6 +2929,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-empty-state.json"
 
 Files: `src/components/ui/empty-state.tsx`.
 
+Same file as [Empty state](#empty-state); see its props there.
+
 ### Bottom sheet
 
 <a id="mobile-sheet"></a>Page: https://design.alorawork.com/mobile/mobile-sheet
@@ -2909,7 +2941,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-sheet.json"
 
 Files: `src/components/mobile/mobile-sheet.tsx`.
 
-`MobileSheet`: The phone's bottom sheet. It floats with a margin and full rounding, rises from the bottom and rests at its detents. Drag the handle, the title row, or the content when it is scrolled to its top: it follows the finger 1:1, stretches against a rubber band past the top detent (its bottom stays put), and on release a flick steps to the next detent the way it was thrown, a slow drag settles on the nearest one, and a flick down from the smallest one closes it. Every move is a spring that keeps the release speed and can be grabbed again mid-flight. Esc, the backdrop and a Close button close it too (the gesture is never the only way). It sits above the keyboard (`--ad-keyboard`) and the home indicator, and contains its own scroll.
+`MobileSheet`: The phone's bottom sheet. It floats with a margin and full rounding, rises from the bottom and rests at its detents. Drag the handle, the title row, or the content when it is scrolled to its top: it follows the finger 1:1, stretches against a rubber band past the top detent (its bottom stays put), and on release a flick steps to the next detent the way it was thrown, a slow drag settles on the nearest one, and a flick down from the smallest one closes it. Every move is a spring that keeps the release speed and can be grabbed again mid-flight. Esc, the backdrop and a Close button close it too (the gesture is never the only way). It sits above the keyboard (`--ad-keyboard`) and the home indicator, and contains its own scroll. While it leaves it keeps showing what it showed (an owner may clear its content on close), lets taps through to the screen, and hands focus back to whatever had it.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2935,7 +2967,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-action-sheet.json"
 
 Files: `src/components/mobile/mobile-action-sheet.tsx`. Installs too: `mobile-sheet`.
 
-`MobileActionSheet`: A short list of actions for one thing, rising from the bottom in thumb reach: the actions on one card, Cancel on its own card under it (the safest action is the easiest to hit). Rows are 56 px, icon then label; the backdrop, Esc and Cancel all close it. Each card's corners follow the sheet radius, rows sit one nest gap inside, concentric.
+`MobileActionSheet`: A short list of actions for one thing, rising from the bottom in thumb reach: the actions on one card, Cancel on its own card under it (the safest action is the easiest to hit). Rows are 56 px, icon then label; the backdrop, Esc and Cancel all close it. Each card's corners follow the sheet radius, rows sit one nest gap inside, concentric. A pick runs once: the sheet stops taking taps as it starts to close.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2944,6 +2976,7 @@ Files: `src/components/mobile/mobile-action-sheet.tsx`. Installs too: `mobile-sh
 | `title` | `string` |  | What the actions act on ("ORD-1043"). Short; no sentence. |
 | `actions` (required) | `MobileAction[]` |  |  |
 | `cancelLabel` | `string` | `"Cancel"` |  |
+| `className` | `string` |  |  |
 
 ### Wheel date picker
 
@@ -2994,6 +3027,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-segmented.json"
 
 Files: `src/components/ui/segmented.tsx`. Installs too: `sliding-pill`.
 
+Same file as [Segmented control](#segmented); see its props there.
+
 ### Search bar
 
 <a id="mobile-search-bar"></a>Page: https://design.alorawork.com/mobile/mobile-search-bar
@@ -3024,6 +3059,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-stepper.json"
 
 Files: `src/components/ui/quantity-stepper.tsx`.
 
+Same file as [Quantity stepper](#quantity-stepper); see its props there.
+
 ### Snackbar
 
 <a id="mobile-snackbar"></a>Page: https://design.alorawork.com/mobile/mobile-snackbar
@@ -3034,7 +3071,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-snackbar.json"
 
 Files: `src/components/mobile/mobile-snackbar.tsx`. Installs too: `mobile-sheet`.
 
-`MobileSnackbar`: Feedback after an action, on a phone: a dark bar that rises just above the tab bar (never over the buttons you need next), says what happened in a few words, and offers Undo. It leaves after 4 s, or drag it down. Announced to screen readers.
+`MobileSnackbar`: Feedback after an action, on a phone: a dark bar that rises just above the tab bar (never over the buttons you need next), says what happened in a few words, and offers Undo. It leaves after 4 s, or drag it down. Announced to screen readers. While it leaves it keeps its words (an owner may clear them on close) and takes no taps.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3043,7 +3080,8 @@ Files: `src/components/mobile/mobile-snackbar.tsx`. Installs too: `mobile-sheet`
 | `message` (required) | `ReactNode` |  |  |
 | `action` | `{ label: string; onClick: () => void; }` |  | One short action, usually Undo. |
 | `duration` | `number` | `4000` | ms before it leaves on its own; paused while a finger is on it. |
-| `above` | `"none" \| "tab-bar" \| "action-bar"` | `"tab-bar"` | What it must stay above: the tab bar (default), an action bar, or nothing. |
+| `above` | `"none" \| "tab-bar" \| "tab-bar-fab" \| "action-bar"` | `"tab-bar"` | What it must stay above: the tab bar (default), a floating button over the tab bar, an action bar, or nothing. |
+| `className` | `string` |  |  |
 
 ### Filter chips
 
@@ -3073,7 +3111,7 @@ Files: `src/components/mobile/mobile-chip-row.tsx`. Installs too: `sliding-pill`
 npx shadcn@latest add "https://design.alorawork.com/r/mobile-top-tabs.json"
 ```
 
-Files: `src/components/mobile/mobile-top-tabs.tsx`. Installs too: `sliding-pill`.
+Files: `src/components/mobile/mobile-top-tabs.tsx`.
 
 `MobileTopTabs`: Tabs at the top of a phone screen when there are more than a segmented control holds: one track that scrolls sideways, a raised pill that slides to the tab you pick (and the track scrolls it into view). Pair it with MobileTabPager so the content under it can be swiped too; the two stay in step, and while you swipe the pages the pill moves with your finger, between the two tabs, then lands when the page settles.
 
@@ -3085,7 +3123,7 @@ Files: `src/components/mobile/mobile-top-tabs.tsx`. Installs too: `sliding-pill`
 | `aria-label` (required) | `string` |  |  |
 | `className` | `string` |  |  |
 
-`MobileTabPager`: The content under top tabs, one page per tab, side by side: swipe sideways to change tab (native scroll snap, so a flick glides to the next page), and picking a tab scrolls its page in. The screen still scrolls up and down.
+`MobileTabPager`: The content under top tabs, one page per tab, side by side: swipe sideways to change tab (native scroll snap, so a flick glides to the next page), and picking a tab scrolls its page in. The screen still scrolls up and down. Only a swipe drives the tabs' pill; a scroll the pager runs itself (after a tap on a tab) leaves the pill to its own slide.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3207,6 +3245,7 @@ Files: `src/components/mobile/mobile-picker-sheet.tsx`. Installs too: `button`, 
 | `options` (required) | `PickerOption[]` |  |  |
 | `value` (required) | `string` |  |  |
 | `onValueChange` (required) | `(value: string) => void` |  |  |
+| `className` | `string` |  |  |
 
 `MobileMultiSelectSheet`: Pick several: the chosen ones collect as chips at the top of the sheet (tap a chip to drop it), every row is a check row. The sheet edits a draft; Done keeps it, Clear empties it, closing any other way changes nothing.
 
@@ -3219,6 +3258,7 @@ Files: `src/components/mobile/mobile-picker-sheet.tsx`. Installs too: `button`, 
 | `value` (required) | `string[]` |  |  |
 | `onValueChange` (required) | `(value: string[]) => void` |  |  |
 | `doneLabel` | `((count: number) => string)` | `(n) => (n ? `Done · ${n}` : "Done")` | The primary button, given the draft count: (n) => `Show ${n} shops`. |
+| `className` | `string` |  |  |
 
 ### Multi-select sheet
 
@@ -3230,6 +3270,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-multi-select.json"
 
 Files: `src/components/mobile/mobile-picker-sheet.tsx`. Installs too: `button`, `sliding-pill`, `mobile-sheet`, `mobile-search-bar`, `mobile-choice-rows`.
 
+Same file as [Picker sheet](#mobile-picker-sheet); see its props there.
+
 ### Date range sheet
 
 <a id="mobile-date-range"></a>Page: https://design.alorawork.com/mobile/mobile-date-range
@@ -3240,7 +3282,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-date-range.json"
 
 Files: `src/components/mobile/mobile-date-range.tsx`. Installs too: `button`, `mobile-sheet`, `mobile-filter-chips`.
 
-`MobileDateRangeSheet`: A date range on a phone: quick ranges on top, then one month. Tap a start day, then an end day; the days between fill as one soft band with rounded ends, the two ends in ink. Swipe the month sideways (or use the arrows) to move: the month follows the finger, and lets go to the next one past 48 px or on a flick, or springs back. The sheet edits a draft; the button names the range it will show. Future days are off.
+`MobileDateRangeSheet`: A date range on a phone: quick ranges on top, then one month. Tap a start day, then an end day; the days between fill as one soft band with rounded ends, the two ends in ink. Swipe the month sideways (or use the arrows) to move: the month follows the finger, and lets go to the next one past 48 px or on a flick, or springs back. Every month takes six rows, so the sheet never changes height under your thumb. The sheet edits a draft; the button names the range it will show. Future days are off.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3250,6 +3292,8 @@ Files: `src/components/mobile/mobile-date-range.tsx`. Installs too: `button`, `m
 | `value` (required) | `DateRange` |  |  |
 | `onValueChange` (required) | `(value: DateRange) => void` |  |  |
 | `today` | `Date` | `new Date()` | Today (pinned in demos). Later days can't be picked. |
+| `presets` | `MobileRangePreset[]` | `MOBILE_RANGE_PRESETS` | The quick ranges on top (default: today, 7 days, 30 days, this month). |
+| `className` | `string` |  |  |
 
 ### Long-press menu
 
@@ -3261,7 +3305,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-context-menu.json"
 
 Files: `src/components/mobile/mobile-context-menu.tsx`. Installs too: `mobile-sheet`.
 
-`MobileContextMenu`: Press and hold for a thing's actions. While the finger is down the item dips a little; at the hold mark the item lifts above the dimmed screen (so you see what you are acting on) and the menu grows out of it towards the finger, attached below the item or above it when there is no room, never off screen. Lifting the finger keeps it open; a tap outside, Esc or picking an action closes it. Holding is a shortcut: give the same actions a visible button too (open it with `open`), and right-click opens it on a desktop.
+`MobileContextMenu`: Press and hold for a thing's actions. While the finger is down the item dips a little; at the hold mark the item lifts above the dimmed screen (so you see what you are acting on) and the menu grows out of it towards the finger, attached below the item or above it when there is no room, never off screen. Lifting the finger keeps it open; a tap outside, Esc or picking an action closes it, and everything fades back out together. Holding is a shortcut: give the same actions a visible button too (open it with `open`), and right-click opens it on a desktop. By keyboard the arrows, Home and End move through the actions, and focus returns to the button on close.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3281,19 +3325,20 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-modal.json"
 
 Files: `src/components/mobile/mobile-modal.tsx`. Installs too: `mobile-sheet`, `mobile-alert`, `mobile-action-bar`.
 
-`MobileModal`: A focused task that needs the whole screen (edit a product, a new customer): it rises from the bottom over everything, with Cancel on the left of the 44 px bar and the title in the middle. Save is the screen's main action, so it sits at the bottom in thumb reach (a pinned bar that rides the keyboard), off until something changed. With unsaved changes, Cancel (and Esc) ask first. The body scrolls on its own and stays clear of the bar and keyboard.
+`MobileModal`: A focused task that needs the whole screen (edit a product, a new customer): it rises from the bottom over everything, with Cancel on the left of the 44 px bar and the title in the middle. Save is the screen's main action, so it sits at the bottom in thumb reach (a pinned bar that rides the keyboard). It is never pre-disabled: with nothing changed it just closes, and an invalid form says what's wrong when you press it. Enter in a field saves. With unsaved changes, Cancel (and Esc) ask first. The body scrolls on its own and stays clear of the bar and keyboard. Focus moves into it on open and back to where it was on close.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `open` (required) | `boolean` |  |  |
 | `onOpenChange` (required) | `(open: boolean) => void` |  |  |
 | `title` (required) | `string` |  |  |
-| `onSave` (required) | `() => void \| Promise<unknown>` |  | Save: may return a promise; the button keeps its label and ignores taps until it settles, then the modal closes. |
+| `onSave` (required) | `() => false \| void \| Promise<unknown>` |  | Save: may return a promise; the button keeps its label and ignores taps until it settles, then the modal closes. Return `false` (or resolve to it) to stay open, after showing the error and focusing the first invalid field. |
 | `saveLabel` | `string` | `"Save"` |  |
-| `dirty` | `boolean` | `false` | Unsaved changes: Cancel asks before throwing them away, and Save is on. |
+| `dirty` | `boolean` | `false` | Unsaved changes: Cancel asks before throwing them away. With none, Save just closes. |
 | `discardTitle` | `string` | `"Discard your changes?"` | The question Cancel asks when dirty. |
 | `savePlacement` | `"top" \| "bottom"` | `"bottom"` | Where Save sits. "bottom" (default): a full-width button pinned above the keyboard, in thumb reach, for a form that fits one screen. "top": a text button in the bar's right, only for long forms that scroll a lot. |
 | `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
 
 ### Alert dialog
 
@@ -3305,7 +3350,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-alert.json"
 
 Files: `src/components/mobile/mobile-alert.tsx`. Installs too: `mobile-sheet`.
 
-`MobileAlert`: Ask before something that can't be undone: a small card in the middle of the screen over a dimmed backdrop, the question as the title, and 44 px buttons. It eases in from 96 % (no bounce). Esc and the backdrop count as the cancel action. Use it for confirmations only; feedback after the fact is a snackbar.
+`MobileAlert`: Ask before something that can't be undone: a small card in the middle of the screen over a dimmed backdrop, the question as the title, and 44 px buttons. It eases in from 96 % (no bounce). Esc and the backdrop count as the cancel action. Use it for confirmations only; feedback after the fact is a snackbar. Focus moves into it on open and back on close; a double tap neither closes it at once nor runs an action twice.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3314,6 +3359,7 @@ Files: `src/components/mobile/mobile-alert.tsx`. Installs too: `mobile-sheet`.
 | `title` (required) | `string` |  | A question that names the thing: "Discard the changes to Gelas kopi?" |
 | `message` | `ReactNode` |  | One short line, only when the title can't carry it. |
 | `actions` (required) | `MobileAlertAction[]` |  | Two sit side by side (safe one first); three or more stack. |
+| `className` | `string` |  |  |
 
 ### Text field
 
@@ -3350,7 +3396,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-keypad.json"
 
 Files: `src/components/mobile/mobile-keypad.tsx`. Installs too: `button`, `mobile-sheet`.
 
-`MobileAmountKeypad`: Money on a phone without the system keyboard: the amount in rupiah, formatted as you type (Rp 125.000), over a 3 × 4 pad with a 000 key (prices end in thousands). Delete removes one digit; hold it to clear. Keys dip when pressed. A hardware keyboard works too (digits, Backspace) while the pad has focus.
+`MobileAmountKeypad`: Money on a phone without the system keyboard: the amount in rupiah, formatted as you type (Rp 125.000), over a 3 × 4 pad with a 000 key (prices end in thousands). Delete removes one digit; hold it to clear. Keys dip when pressed. After a one-tap amount the first digit starts a new amount, as typing into a selected field does. A key that would pass `max` shakes the amount once instead of doing nothing. A hardware keyboard works too (digits, Backspace) while the pad has focus.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3369,11 +3415,12 @@ Files: `src/components/mobile/mobile-keypad.tsx`. Installs too: `button`, `mobil
 | `onOpenChange` (required) | `(open: boolean) => void` |  |  |
 | `title` (required) | `string` |  |  |
 | `doneLabel` | `string` | `"Done"` | The button label; default "Done". |
-| `label` | `string` |  | Above the amount, muted ("Price", "Cash received"). |
-| `max` | `number` |  | Largest amount it takes. |
 | `value` (required) | `number` |  |  |
 | `onValueChange` (required) | `(value: number) => void` |  |  |
+| `label` | `string` |  | Above the amount, muted ("Price", "Cash received"). |
+| `max` | `number` |  | Largest amount it takes. |
 | `quick` | `{ label: string; value: number; }[]` |  | One-tap amounts above the keys ("Exact", Rp 50.000…). |
+| `className` | `string` |  |  |
 
 ### Slider
 
@@ -3385,7 +3432,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-slider.json"
 
 Files: `src/components/mobile/mobile-slider.tsx`.
 
-`MobileSlider`: A slider for a thumb, not a cursor: a 44 px tall track and a 28 px thumb. The value reads in the label row above the track (where the finger doesn't cover it) and updates live while you drag. Touching the thumb grabs it at once; touching the track elsewhere waits for a sideways move (a vertical one scrolls the page and leaves the thumb alone), and a plain tap there jumps the thumb to it. The thumb follows the finger 1:1, then snaps to the nearest step. Arrow keys step, Page keys jump by ten steps.
+`MobileSlider`: A slider for a thumb, not a cursor: a 44 px tall track and a 28 px thumb. The value reads in the label row above the track (where the finger doesn't cover it) and updates live while you drag. Touching the thumb grabs it at once; touching the track elsewhere waits for a sideways move (a vertical one scrolls the page and leaves the thumb alone), and a plain tap there glides the thumb to it (150 ms). The thumb follows the finger 1:1, then settles on the nearest step. Arrow keys step, Page keys jump by ten steps; keyboard focus shows as a fill behind the track.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3395,7 +3442,8 @@ Files: `src/components/mobile/mobile-slider.tsx`.
 | `min` (required) | `number` |  |  |
 | `max` (required) | `number` |  |  |
 | `step` | `number` | `1` |  |
-| `format` | `((v: number) => string)` | `String` | How the value reads ("20%", "Rp 50.000"). |
+| `display` | `((v: number) => string)` |  | How the value reads ("20%", "Rp 50.000"); the same prop name as the desktop Slider. |
+| `format` | `((v: number) => string)` |  |  |
 | `className` | `string` |  |  |
 
 ### Photo picker
@@ -3428,10 +3476,11 @@ Files: `src/components/mobile/mobile-photo-picker.tsx`. Installs too: `button`, 
 | `onPick` (required) | `(ids: string[]) => void` |  | Called with the picked ids when Add is tapped. |
 | `title` | `string` | `"Photos"` |  |
 | `max` | `number` |  |  |
+| `className` | `string` |  |  |
 | `photos` (required) | `Photo[]` |  |  |
 | `onAdd` | `((photos: Photo[]) => void)` |  | Adds a camera tile first; picked files come back as photos (add them to `photos` and select them). |
 
-`MobilePhotoStrip`: A product's photos on an edit screen: one row that scrolls sideways, the first marked Cover, an Add tile at the end.
+`MobilePhotoStrip`: A product's photos on an edit screen: one row that scrolls sideways, the first marked Cover, an Add tile at the end. A photo that is still uploading is a tile from the start, with its progress drawn over it (and Retry if it fails), so nothing below the strip moves as uploads start and finish.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3440,6 +3489,7 @@ Files: `src/components/mobile/mobile-photo-picker.tsx`. Installs too: `button`, 
 | `onAddClick` (required) | `() => void` |  |  |
 | `max` | `number` | `9` |  |
 | `cover` | `boolean` | `true` | Label the first photo "Cover" (product photos). Off for photos that aren't a product's (proof of delivery). |
+| `onRetry` | `((id: string) => void)` |  | A failed upload's Retry. |
 | `className` | `string` |  |  |
 
 ### Barcode scanner
@@ -3476,7 +3526,8 @@ Files: `src/components/mobile/mobile-signature.tsx`.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `onChange` | `((png: string \| null) => void)` |  | Called after every stroke: a PNG data URL of the signature, or null once it is cleared. |
+| `onValueChange` | `((png: string \| null) => void)` |  | Called after every stroke: a PNG data URL of the signature, or null once it is cleared. |
+| `onChange` | `((png: string \| null) => void)` |  |  |
 | `placeholder` | `string` | `"Sign here"` | The faint word in the empty pad. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
@@ -3490,6 +3541,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-otp.json"
 ```
 
 Files: `src/components/ui/input-otp.tsx`.
+
+Same file as [One-time code](#input-otp); see its props there.
 
 ### Stat tiles
 
@@ -3596,6 +3649,8 @@ npx shadcn@latest add "https://design.alorawork.com/r/mobile-steps.json"
 
 Files: `src/components/ui/steps.tsx`.
 
+Same file as [Step progress](#steps); see its props there.
+
 ### Receipt
 
 <a id="mobile-receipt"></a>Page: https://design.alorawork.com/mobile/mobile-receipt
@@ -3670,6 +3725,8 @@ Files: `src/components/mobile/mobile-banner.tsx`.
 | `tone` | `"neutral" \| "info"` | `"neutral"` | neutral (default): a grey card. info: a soft accent card, for news worth a look. |
 | `className` | `string` |  |  |
 
+`useOnline`: True while the device has a network connection (navigator.onLine, kept live).
+
 ### Upload progress
 
 <a id="mobile-upload-row"></a>Page: https://design.alorawork.com/mobile/mobile-upload-row
@@ -3691,6 +3748,7 @@ Files: `src/components/mobile/mobile-upload-row.tsx`.
 | `media` | `ReactNode` |  | A thumbnail (Thumb or img). |
 | `onCancel` | `(() => void)` |  |  |
 | `onRetry` | `(() => void)` |  |  |
+| `className` | `string` |  |  |
 
 ### Onboarding pager
 
@@ -3741,34 +3799,6 @@ Files: `src/components/mobile/mobile-chat.tsx`.
 | `suggestions` | `string[]` |  | Quick replies above the field; a tap sends one. |
 | `busy` | `boolean` |  | While a reply streams in: send is off. |
 
-### Bottom nav
-
-<a id="bottom-nav"></a>Page: https://design.alorawork.com/mobile/bottom-nav
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/bottom-nav.json"
-```
-
-Files: `src/components/ui/bottom-nav.tsx`. Installs too: `mobile-tab-bar`.
-
-`Fab`: A floating main action. Kept for existing screens; new phone screens put their one main action in MobileActionBar (pinned at the bottom, above the keyboard) instead.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `icon` (required) | `ComponentType<{ size?: string \| number \| undefined; }>` |  |  |
-| `label` (required) | `string` |  |  |
-| `onClick` | `(() => void)` |  |  |
-
-### Drawer
-
-<a id="drawer"></a>Page: https://design.alorawork.com/mobile/drawer
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/drawer.json"
-```
-
-Files: `src/components/ui/drawer.tsx`. Installs too: `mobile-sheet`.
-
 ## AI
 
 ### Thinking orbs
@@ -3793,14 +3823,14 @@ Sliders on its page:
 | Colour | `tone` | `ink` | `ink`, `accent`, `muted` |
 | Running | `active` | `true` | toggle |
 
-`ThinkingOrbs`: The thinking loader from the Alora Board assistant: a ring of orbs turning in 3D. Animates only while `active` and on screen; with reduced motion it draws one still frame. A still frame follows theme and accent changes.
+`ThinkingOrbs`: The thinking loader of an agent assistant: a ring of orbs turning in 3D. Animates only while `active` and on screen; with reduced motion it draws one still frame. A still frame follows theme and accent changes.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `active` | `boolean` | `true` | Animates while true; false hides the orbs but keeps their space. |
 | `size` | `number` | `22` | The box, in px. The orbs overflow it a little so the larger ones never clip. |
 | `count` | `number` | `3` | How many orbs ride the ring. |
-| `speed` | `number` | `1` | 1 = the Board's pace. |
+| `speed` | `number` | `1` | 1 = the default pace. |
 | `orb` | `number` | `0.154` | Each orb's radius at the ring's centre depth, as a fraction of the box. |
 | `ring` | `number` | `0.32` | The ring's radius, as a fraction of the box. |
 | `tone` | `OrbTone` | `"ink"` | Text colour, accent, or muted text. |
@@ -3827,15 +3857,15 @@ Sliders on its page:
 | Orb colour | `tone` | `ink` | `ink`, `accent`, `muted` |
 | Running | `active` | `true` | toggle |
 
-`RunStatus`: The agent's live line where its reply will start (Alora Board assistant): turning orbs and shimmering text while work runs, plain text once settled. No bubble. The shimmer pauses off screen; reduced motion shows plain text.
+`RunStatus`: The agent's live line where its reply will start (an agent assistant): turning orbs and shimmering text while work runs, plain text once settled. No bubble. The shimmer pauses off screen; reduced motion shows plain text.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `text` (required) | `string` |  | What the agent is doing, e.g. "Reading the Board…". Empty hides the line. |
+| `text` (required) | `string` |  | What the agent is doing, e.g. "Reading the orders…". Empty hides the line. |
 | `active` | `boolean` | `true` | Orbs turn and the text shimmers while true; plain text once settled. |
 | `size` | `number` | `22` | Orb box in px. |
 | `shimmer` | `number` | `2.2` | One shimmer sweep, in seconds. |
-| `speed` | `number` | `1` | Orb speed, 1 = the Board's pace. |
+| `speed` | `number` | `1` | Orb speed, 1 = the default pace. |
 | `tone` | `OrbTone` | `"ink"` |  |
 | `className` | `string` |  |  |
 
@@ -3847,7 +3877,7 @@ Sliders on its page:
 npx shadcn@latest add "https://design.alorawork.com/r/composer-glow.json"
 ```
 
-Files: `src/components/ai/composer-glow.tsx`. Installs too: `button`.
+Files: `src/components/ai/composer-glow.tsx`. Installs too: `button`, `tooltip`.
 
 Sliders on its page:
 
@@ -3859,7 +3889,7 @@ Sliders on its page:
 | Ring | `ring` | `0.48` | 0–1 |
 | Working | `working` | `false` | toggle |
 
-`Composer`: The message box, one row: attach | text | send (Alora Board's assistant). The buttons are the control height and one line of text is padded to the same height, so the placeholder and both buttons share one centre. Longer text grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls. The inset is the same on every side and the radius is the button radius plus that inset.
+`Composer`: The message box, one row: attach | text | send (an agent assistant's composer). The buttons are the control height and one line of text is padded to the same height, so the placeholder and both buttons share one centre. Longer text grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls. The inset is the same on every side and the radius is the button radius plus that inset.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3874,7 +3904,7 @@ Sliders on its page:
 | `disabled` | `boolean` |  |  |
 | `className` | `string` |  |  |
 
-`ComposerGlow`: The AI composer's glow (Alora Board, "G2 aura"): a soft grainy aura in the accent around the box, a ring lit from the top on its edge, and a slow pulse. Wrap the message box with it. Only opacity and translate animate; it pauses off screen, and reduced motion keeps the glow but stops the motion.
+`ComposerGlow`: The AI composer's glow (from an agent assistant): a soft grainy aura in the accent around the box, a ring lit from the top on its edge, and a slow pulse. Wrap the message box with it. Only opacity and translate animate; it pauses off screen, and reduced motion keeps the glow but stops the motion.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3912,7 +3942,7 @@ Sliders on its page:
 | Grain | `grain` | `0.11` | 0–0.6 |
 | Light theme depth | `lightStrength` | `0.39` | 0.1–0.8 |
 
-`SandField`: The Alora Board assistant's new-chat background: the plain ground at rest; moving the mouse paints soft drifting accent colour a moment behind the cursor, which holds, then sand fills back in. Light on dark grounds, deeper on light ones. It fills its parent (give the parent `position: relative`), listens there, never takes the pointer and draws nothing while idle or off screen. No WebGL, reduced motion or touch-only devices leave the plain ground.
+`SandField`: An agent assistant's new-chat background: the plain ground at rest; moving the mouse paints soft drifting accent colour a moment behind the cursor, which holds, then sand fills back in. Light on dark grounds, deeper on light ones. It fills its parent (give the parent `position: relative`), listens there, never takes the pointer and draws nothing while idle or off screen. No WebGL, reduced motion or touch-only devices leave the plain ground.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

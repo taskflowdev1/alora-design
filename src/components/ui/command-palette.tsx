@@ -101,8 +101,25 @@ function CommandPanel({
 
   const filtered = React.useMemo(() => {
     const t = q.trim().toLowerCase();
+    if (!t) return groups;
+    // Word-start matches first ("bar" finds Bar chart before Scrollbar), then the label before keywords; ties keep order.
+    const rank = (i: Command) => {
+      const label = ` ${i.label.toLowerCase()}`;
+      const keywords = ` ${(i.keywords ?? "").toLowerCase()}`;
+      if (label.startsWith(` ${t}`)) return 0;
+      if (label.includes(` ${t}`)) return 1;
+      if (keywords.includes(` ${t}`)) return 2;
+      return label.includes(t) || keywords.includes(t) ? 3 : -1;
+    };
     return groups
-      .map((g) => ({ ...g, items: g.items.filter((i) => !t || `${i.label} ${i.keywords ?? ""}`.toLowerCase().includes(t)) }))
+      .map((g) => ({
+        ...g,
+        items: g.items
+          .map((i) => [i, rank(i)] as const)
+          .filter(([, r]) => r >= 0)
+          .sort((x, y) => x[1] - y[1])
+          .map(([i]) => i),
+      }))
       .filter((g) => g.items.length);
   }, [groups, q]);
   const flat = filtered.flatMap((g) => g.items);

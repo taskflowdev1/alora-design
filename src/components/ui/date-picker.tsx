@@ -2,30 +2,9 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { Calendar as CalendarIcon, ChevronDown } from "react-feather";
 import { cn, formatDate, formatSmartDate } from "@/lib/ad";
-import { usePopupOpen } from "@/lib/ad-hooks";
+import { usePopupOpen, usePressOpen } from "@/lib/ad-hooks";
 import { Calendar } from "@/components/ui/calendar";
 import { triggerClass } from "@/components/ui/select";
-
-/**
- * A mouse opens and closes the panel on press, as a menu does; touch and keys keep the click. `swallow` drops the click
- * that follows a handled press.
- */
-function pressOpen(open: boolean, setOpen: (open: boolean) => void, swallow: React.RefObject<boolean>) {
-  return {
-    onPointerDown: (e: React.PointerEvent) => {
-      swallow.current = false;
-      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
-      e.preventDefault();
-      swallow.current = true;
-      setOpen(!open);
-    },
-    onClick: (e: React.MouseEvent) => {
-      if (!swallow.current || e.detail === 0) return;
-      swallow.current = false;
-      e.preventDefault();
-    },
-  };
-}
 
 export interface DatePickerProps {
   value: Date | null;
@@ -40,15 +19,15 @@ export interface DatePickerProps {
 
 /** Dates read "7 Nov 2026" when shown and when chosen. Never 07/11/2026. The month grid is the Calendar. */
 export function DatePicker({ value, onValueChange, placeholder = "Pick a date", smart = true, today = new Date(), className }: DatePickerProps) {
-  const swallow = React.useRef(false);
   // The trigger keeps the date it had when the panel opened until the panel has left, so a longer label can't grow
   // the trigger and drag the fading panel with it.
   const [held, setHeld] = React.useState<{ d: Date | null } | null>(null);
   const [open, setOpen] = usePopupOpen({ onOpenChange: (o) => o && setHeld({ d: value }) });
+  const press = usePressOpen(open, setOpen);
   const shown = held ? held.d : value;
   return (
     <P.Root open={open} onOpenChange={setOpen}>
-      <P.Trigger data-ad-anchor="" {...pressOpen(open, setOpen, swallow)} className={cn(triggerClass, className)}>
+      <P.Trigger data-ad-anchor="" {...press} className={cn(triggerClass, className)}>
         <CalendarIcon size={16} className="shrink-0 text-ink-muted" />
         {shown ? <span className="truncate">{smart ? formatSmartDate(shown, today) : formatDate(shown)}</span> : <span className="text-ink-muted">{placeholder}</span>}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />

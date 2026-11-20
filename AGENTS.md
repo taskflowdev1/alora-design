@@ -30,8 +30,9 @@ tracked); read it before deploying or running heavy jobs.
   relatively and the kit rewrites `../mobile/` to `./`. Shared parts take `size="touch"` instead of a copy.
   `src/components/ai/` and `src/components/backgrounds/`: ported from an agent assistant and self-contained by design
   (keyframes in the file); don't extract shared hooks from them.
-- `src/site/`: landing (`landing.tsx`, `bento.tsx`, `showcase-more.tsx`), Components (`gallery.tsx`, `showcase.tsx`,
-  `mark.tsx`, `demos*.tsx`), AI/Backgrounds (`collections.tsx`, `agent.tsx`), examples (`examples.tsx`), mobile
+- `src/site/`: landing (`landing.tsx`, `bento/`, `showcase-more.tsx`), Components (`gallery.tsx`, `showcase/`,
+  `mark.tsx`, `demos*.tsx`), AI/Backgrounds (`collections.tsx`, `agent.tsx`), examples (`examples/`, one file per
+  page), shared demo data and formatters (`data.ts`), mobile
   (`mobile-overview.tsx`, `phone.tsx`, `mobile-app*.tsx`, `mobile-screens-*.tsx`, `mobile-data.ts`), `encyclopedia.tsx`
   (+ lazy `encyclopedia-demos.tsx`), `export.tsx`, `layout.tsx` (header, footer, Customize flap).
 - `api/`: Vercel functions (`kit.ts`, `checklist.ts`, `r.ts`, `tokens.ts`) that import `src/lib/*` and read component

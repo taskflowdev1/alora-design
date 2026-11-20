@@ -1918,7 +1918,7 @@ export const RULES: Rule[] = [
     title: "Feedback you can feel, in motion",
     rule: "Without haptics, motion carries the feel: a press dips, a release springs back, a choice slides, a drop snaps.",
     why: "On glass there is no click; motion is what tells the finger it worked.",
-    how: "The tab icon dips to 0.86 while pressed and the pill slides; rows dip to 0.99 with an instant fill; sheets and swipe rows settle on springs that keep the release speed. All of it short and off under reduced motion.",
+    how: "The tab icon dips to 0.86 while pressed and the pill slides; rows fill at once (no dip); sheets and swipe rows settle on springs that keep the release speed. All of it short and off under reduced motion.",
     check: "Press and hold a tab and a row at 390 px on a real phone (headless touch emulation never shows `:active` while held): each shows its press state at once.",
     sources: ["apple", "emil", "charles"],
   },

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { cn, prefersReducedMotion, SAFE_BOTTOM, SAFE_TOP } from "@/lib/ad";
+import { useJustOpened } from "@/lib/ad-hooks";
 
 /**
  * Where phone overlays (sheets, action sheets, snackbars) mount. An app leaves it empty and they go to <body>; a phone
@@ -24,19 +25,6 @@ export function useReturnFocus(open: boolean) {
     const p = prev.current;
     if (p?.isConnected) p.focus({ preventScroll: true });
   }, []);
-}
-
-/**
- * `early(t)` is true for a pointerdown (pass its `timeStamp`) less than `ms` after `open` turned true: the second tap
- * of the double tap that opened an overlay lands on its new backdrop and must not close it. Use the pointerdown's time:
- * it is when the finger touched, while a click's time is when a busy main thread got round to it.
- */
-export function useOpenedRecently(open: boolean, ms = 350) {
-  const at = React.useRef(-Infinity);
-  const was = React.useRef(false);
-  if (open && !was.current) at.current = typeof performance === "undefined" ? 0 : performance.now();
-  was.current = open;
-  return React.useCallback((t: number = performance.now()) => t - at.current < ms, [ms]);
 }
 
 /** A resting height: a fraction of the screen (0.5, 0.92) or "fit" (as tall as its content, up to 88 %). */
@@ -91,7 +79,7 @@ export function MobileSheet({
   const layer = React.useContext(MobileLayer);
   const [own, setOwn] = React.useState(false);
   const open = openProp ?? own;
-  const early = useOpenedRecently(open);
+  const early = useJustOpened(open);
   const isOpen = React.useRef(open);
   isOpen.current = open;
   // The second tap of the double tap that opened it lands on the new backdrop: that is not a tap outside. A closing
