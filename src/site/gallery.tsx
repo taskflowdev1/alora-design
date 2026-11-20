@@ -161,8 +161,9 @@ function SteadyCentre({ stage, measureKey, children }: { stage: React.RefObject<
     if (!el || !box) return;
     const place = () => {
       el.style.marginTop = "0px";
+      // The stage's own height: at least its min-height, or the row's when the controls beside it are taller.
       const cs = getComputedStyle(box);
-      const room = parseFloat(cs.minHeight) - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const room = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
       el.style.marginTop = `${Math.max(0, Math.round((room - el.offsetHeight) / 2))}px`;
     };
     place();

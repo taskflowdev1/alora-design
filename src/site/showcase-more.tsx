@@ -511,7 +511,7 @@ function ConfirmTile({ className }: { className?: string }) {
               <Button variant="ghost" onClick={say("Kept")}>
                 Keep
               </Button>
-              <Button className="bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" onClick={() => toast("3 orders cancelled")}>
+              <Button variant="strong" onClick={() => toast("3 orders cancelled")}>
                 Cancel orders
               </Button>
             </div>

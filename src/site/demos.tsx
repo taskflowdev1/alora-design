@@ -251,7 +251,6 @@ export const DEMOS: Record<string, Demo> = {
     stage: "page",
     render: () => {
       const [q, setQ] = React.useState("");
-      const [shop, setShop] = React.useState("all");
       const [range, setRange] = React.useState("week");
       return (
         <div className="grid w-full max-w-4xl gap-4">
@@ -259,7 +258,6 @@ export const DEMOS: Record<string, Demo> = {
           <PageHeader title="Orders" />
           <Toolbar>
             <Search value={q} onValueChange={setQ} placeholder="Order or product" />
-            <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
             <Popover trigger={<Button>Filter</Button>}>
               <div className="grid w-56 gap-2.5">
                 <CheckboxField label="Unpaid" defaultChecked />
@@ -275,27 +273,30 @@ export const DEMOS: Record<string, Demo> = {
               </div>
             </Popover>
             <ToolbarSpacer />
-            <Segmented
-              aria-label="Range"
-              value={range}
-              onValueChange={setRange}
-              options={[
-                { value: "day", label: "Day" },
-                { value: "week", label: "Week" },
-                { value: "month", label: "Month" },
-              ]}
-            />
-            <Button>Export</Button>
-            <Button variant="primary">
-              <Plus />
-              Add order
-            </Button>
+            {/* The right end stays together when the row wraps. */}
+            <div className="ml-auto flex items-center gap-gap">
+              <Segmented
+                aria-label="Range"
+                value={range}
+                onValueChange={setRange}
+                options={[
+                  { value: "day", label: "Day" },
+                  { value: "week", label: "Week" },
+                  { value: "month", label: "Month" },
+                ]}
+              />
+              <Button>Export</Button>
+              <Button variant="primary">
+                <Plus />
+                Add order
+              </Button>
+            </div>
           </Toolbar>
         </div>
       );
     },
     usage: () =>
-      `<PageHeader title="Orders" />\n<Toolbar>\n  <Search value={q} onValueChange={setQ} />\n  <Select prefix="Shop" value={shop} onValueChange={setShop} options={shops} />\n  <Popover trigger={<Button>Filter</Button>}>…</Popover>\n  <Popover trigger={<Button>Columns</Button>}>…</Popover>\n  <ToolbarSpacer />\n  <Segmented value={range} onValueChange={setRange} options={ranges} />\n  <Button>Export</Button>\n  <Button variant="primary"><Plus />Add order</Button>\n</Toolbar>`,
+      `<PageHeader title="Orders" />\n<Toolbar>\n  <Search value={q} onValueChange={setQ} />\n  <Popover trigger={<Button>Filter</Button>}>…</Popover>\n  <Popover trigger={<Button>Columns</Button>}>…</Popover>\n  <ToolbarSpacer />\n  <Segmented value={range} onValueChange={setRange} options={ranges} />\n  <Button>Export</Button>\n  <Button variant="primary"><Plus />Add order</Button>\n</Toolbar>`,
   },
   "save-bar": {
     stage: "page",
@@ -631,7 +632,7 @@ export const DEMOS: Record<string, Demo> = {
           {PRODUCTS.filter((p) => p.stock < 5)
             .slice(0, 4)
             .map((p) => (
-              <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
+              <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={<span translate="no">{p.sku}</span>} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
             ))}
         </AttentionList>
       </Card>
@@ -809,7 +810,7 @@ export const DEMOS: Record<string, Demo> = {
             </DialogClose>
             <DialogClose asChild>
               {/* A destructive confirm stays ink, like AlertDialog's action: negatives stay quiet, the accent is for "Add". */}
-              <Button className="bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" onClick={() => toast("Order cancelled")}>
+              <Button variant="strong" onClick={() => toast("Order cancelled")}>
                 Cancel order
               </Button>
             </DialogClose>
@@ -822,7 +823,7 @@ export const DEMOS: Record<string, Demo> = {
       </Dialog>
     ),
     usage: () =>
-      `<Dialog\n  title="Cancel order RMB-24817?"\n  trigger={<Button>Cancel order</Button>}\n  footer={\n    <>\n      <DialogClose asChild><Button variant="ghost">Keep order</Button></DialogClose>\n      <DialogClose asChild><Button className="bg-on text-on-ink hover:bg-ink-muted">Cancel order</Button></DialogClose>\n    </>\n  }\n>\n  <Field label="Reason">\n    <Select value={reason} onValueChange={setReason} options={reasons} />\n  </Field>\n</Dialog>`,
+      `<Dialog\n  title="Cancel order RMB-24817?"\n  trigger={<Button>Cancel order</Button>}\n  footer={\n    <>\n      <DialogClose asChild><Button variant="ghost">Keep order</Button></DialogClose>\n      <DialogClose asChild><Button variant="strong">Cancel order</Button></DialogClose>\n    </>\n  }\n>\n  <Field label="Reason">\n    <Select value={reason} onValueChange={setReason} options={reasons} />\n  </Field>\n</Dialog>`,
   },
   sheet: {
     render: () => {
