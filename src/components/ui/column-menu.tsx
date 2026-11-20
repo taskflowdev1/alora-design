@@ -31,7 +31,7 @@ export function ColumnMenu({ columns, visible, onVisibleChange, defaults, classN
       align="end"
       className="w-60"
       trigger={
-        <Button className={className}>
+        <Button data-ad-anchor="" className={className}>
           <Columns />
           Columns
           <span className="tabular-nums text-ink-muted">
@@ -55,10 +55,10 @@ export function ColumnMenu({ columns, visible, onVisibleChange, defaults, classN
         ))}
       </div>
       <div className="mt-2 flex gap-1">
-        <Button variant="ghost" size="sm" onClick={() => onVisibleChange(all)}>
+        <Button size="sm" onClick={() => onVisibleChange(all)}>
           Show all
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => onVisibleChange(reset)}>
+        <Button size="sm" onClick={() => onVisibleChange(reset)}>
           Reset
         </Button>
       </div>

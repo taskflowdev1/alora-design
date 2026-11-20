@@ -154,13 +154,13 @@ export function InlineEdit({
 
   const right = align === "right";
   const box = cn(
-    "-mx-2 flex h-item w-[calc(100%+1rem)] min-w-0 items-center gap-1.5 rounded-control px-2 text-body tabular-nums transition-colors duration-[160ms]",
+    "-mx-2 flex h-item w-[calc(100%+1rem)] min-w-0 items-center gap-1.5 rounded-control px-2 text-body tabular-nums",
     right && "flex-row-reverse",
     className,
   );
   const text = editingNow ? draft : format(value);
   const affix = (s: string, side: "pre" | "post") => (
-    <span className={cn("shrink-0 whitespace-pre transition-colors duration-[160ms]", editingNow ? "text-ink-muted" : "text-ink")}>
+    <span className={cn("shrink-0 whitespace-pre transition-colors", editingNow ? "text-ink-muted" : "text-ink")}>
       {side === "pre" ? `${s}\u00a0` : `\u00a0${s}`}
     </span>
   );
@@ -214,7 +214,7 @@ export function InlineEdit({
         <Edit2
           size={14}
           className={cn(
-            "absolute text-ink-muted opacity-0 transition-opacity duration-[160ms]",
+            "absolute text-ink-muted opacity-0 transition-opacity",
             !editingNow && !saved && "group-hover:opacity-100 group-focus-visible:opacity-100",
           )}
         />

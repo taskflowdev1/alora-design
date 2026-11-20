@@ -1,11 +1,12 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface CarouselProps {
   children: React.ReactNode[];
-  /** Slides visible at once from sm up (phones always show one and a peek of the next). */
+  /** Slides fully visible at once from sm up, plus a 24 px peek of the next (phones show one and a wider peek). */
   perView?: number;
   /** Gap between slides in px. */
   gap?: number;
@@ -17,7 +18,7 @@ export interface CarouselProps {
   "aria-label"?: string;
 }
 
-/** Fades the cut edge of the track, only on a side with more slides to scroll to. */
+/** Fades an edge of the track only where a slide is cut by it, so a slide that is fully in view never looks dirty. */
 function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSProperties {
   if (!start && !end) return {};
   const mask = `linear-gradient(90deg, ${start ? "transparent" : "#000"}, #000 16px, #000 calc(100% - 16px), ${end ? "transparent" : "#000"})`;
@@ -51,7 +52,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
     p.over = 0;
     const x0 = p.shown;
     if (!x0) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return show(0);
+    if (prefersReducedMotion()) return show(0);
     const w = 16;
     const t0 = performance.now();
     const step = (now: number) => {
@@ -75,8 +76,12 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
       const shown = Math.max(1, Math.round((el.clientWidth + gap) / step));
       setPages(Math.max(1, children.length - shown + 1));
       setIndex(Math.min(children.length - 1, Math.round(el.scrollLeft / step)));
-      const start = el.scrollLeft > 1;
-      const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+      // A slide straddles an edge (the peek of the next one, or any slide mid-scroll).
+      const a = el.scrollLeft;
+      const b = a + el.clientWidth;
+      const slides = Array.from(el.children as HTMLCollectionOf<HTMLElement>, (c) => [c.offsetLeft - el.offsetLeft, c.offsetLeft - el.offsetLeft + c.offsetWidth]);
+      const start = slides.some(([l, r]) => l < a - 1 && r > a + 1);
+      const end = slides.some(([l, r]) => l < b - 1 && r > b + 1);
       setEdges((p) => (p.start === start && p.end === end ? p : { start, end }));
     };
     measure();
@@ -88,7 +93,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
   const go = (i: number) => {
     const el = track.current;
     const target = el?.children[Math.max(0, Math.min(pages - 1, i))] as HTMLElement | undefined;
-    if (el && target) el.scrollTo({ left: target.offsetLeft - el.offsetLeft, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    if (el && target) el.scrollTo({ left: target.offsetLeft - el.offsetLeft, behavior: prefersReducedMotion() ? "instant" : "smooth" });
   };
   return (
     <section aria-roledescription="carousel" aria-label={aria["aria-label"]} className={cn("grid min-w-0 gap-3", className)}>
@@ -175,7 +180,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${children.length}`}
-            className="min-w-0 shrink-0 snap-start basis-[calc(88%-var(--gap))] [translate:var(--ad-pull,0px)_0] sm:basis-[calc((100%-var(--gap)*(var(--per)-1))/var(--per))] [&_img]:pointer-events-none"
+            className="min-w-0 shrink-0 snap-start basis-[calc(88%-var(--gap))] [translate:var(--ad-pull,0px)_0] sm:basis-[calc((100%-24px-var(--gap)*var(--per))/var(--per))] [&_img]:pointer-events-none"
           >
             {c}
           </div>
@@ -185,7 +190,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
         <div className="flex items-center justify-between gap-2">
           {dots ? (
             // Each dot sits in a 24 px target (the button), so the dots themselves stay small.
-            <div className="-mx-[9px] flex items-center">
+            <div className="-mx-[9.5px] flex items-center">
               {Array.from({ length: pages }, (_, i) => (
                 <button
                   key={i}
@@ -193,7 +198,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
                   aria-label={`Slide ${i + 1}`}
                   aria-current={i === index || undefined}
                   onClick={() => go(i)}
-                  className="group/dot grid h-[24px] cursor-pointer place-items-center px-[9px]"
+                  className="group/dot grid h-[24px] min-w-[24px] cursor-pointer place-items-center px-[9px]"
                 >
                   <span
                     data-shape="round"
@@ -210,12 +215,21 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
           )}
           {arrows ? (
             <div className="flex gap-1">
-              <Button variant="ghost" size="sm" icon aria-label="Previous" disabled={index === 0} onClick={() => go(index - 1)}>
-                <ChevronLeft />
-              </Button>
-              <Button variant="ghost" size="sm" icon aria-label="Next" disabled={index >= pages - 1} onClick={() => go(index + 1)}>
-                <ChevronRight />
-              </Button>
+              {/* The span lets a disabled arrow still show why it is disabled. */}
+              <Tooltip content={index === 0 ? "Already at the start" : "Previous"}>
+                <span>
+                  <Button variant="ghost" size="sm" icon aria-label="Previous" disabled={index === 0} onClick={() => go(index - 1)}>
+                    <ChevronLeft />
+                  </Button>
+                </span>
+              </Tooltip>
+              <Tooltip content={index >= pages - 1 ? "Already at the end" : "Next"}>
+                <span>
+                  <Button variant="ghost" size="sm" icon aria-label="Next" disabled={index >= pages - 1} onClick={() => go(index + 1)}>
+                    <ChevronRight />
+                  </Button>
+                </span>
+              </Tooltip>
             </div>
           ) : null}
         </div>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Home, Truck, User } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 import { MarketMark, type Market } from "@/components/ui/marketplace-mark";
 
 export type Payer = "buyer" | "platform" | "shop";
@@ -42,7 +42,7 @@ export function FeeRow({ payer, market = "shopee", label, amount, unit = "Rp", s
       <span className="min-w-0 flex-1 truncate text-ink">{label}</span>
       <span className={cn("shrink-0 tabular-nums", amount > 0 ? "text-success" : amount < 0 ? "text-danger" : "text-ink-muted")}>
         {amount > 0 ? "+" : amount < 0 ? "−" : ""}
-        {unit} {Math.abs(Math.round(amount)).toLocaleString("id-ID")}
+        {unit} {formatNumber(Math.abs(Math.round(amount)))}
       </span>
     </div>
   );
@@ -55,7 +55,7 @@ export function FeeTotal({ label, amount, unit = "Rp", className }: { label: Rea
       <span>{label}</span>
       <span className="tabular-nums">
         {amount < 0 ? "−" : ""}
-        {unit} {Math.abs(Math.round(amount)).toLocaleString("id-ID")}
+        {unit} {formatNumber(Math.abs(Math.round(amount)))}
       </span>
     </div>
   );

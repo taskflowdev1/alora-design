@@ -2,7 +2,29 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown, Search } from "react-feather";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 import { OptionList, dropdownSurface, triggerClass, useListNav, type Option } from "@/components/ui/select";
+
+/**
+ * A mouse opens and closes the panel on press, as a menu does; touch and keys keep the click. `swallow` drops the click
+ * that follows a handled press.
+ */
+function pressOpen(open: boolean, setOpen: (open: boolean) => void, swallow: React.RefObject<boolean>) {
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      swallow.current = false;
+      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
+      e.preventDefault();
+      swallow.current = true;
+      setOpen(!open);
+    },
+    onClick: (e: React.MouseEvent) => {
+      if (!swallow.current || e.detail === 0) return;
+      swallow.current = false;
+      e.preventDefault();
+    },
+  };
+}
 
 export interface ComboboxProps {
   value: string | null;
@@ -27,8 +49,8 @@ export function Combobox({
   ...aria
 }: ComboboxProps) {
   const id = React.useId();
-  const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const swallow = React.useRef(false);
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return q ? options.filter((o) => o.label.toLowerCase().includes(q)) : options;
@@ -37,24 +59,22 @@ export function Combobox({
     const o = filtered[i];
     if (!o) return;
     onValueChange(o.value);
-    setOpen(false);
+    setOpen(false, true);
   };
   const nav = useListNav(filtered, pick);
+  const [open, setOpen] = usePopupOpen({
+    onOpenChange: (o) => {
+      if (!o) return;
+      setQuery("");
+      nav.setActive(Math.max(0, options.findIndex((x) => x.value === value)));
+    },
+  });
   const current = options.find((o) => o.value === value);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
-    <P.Root
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        if (o) {
-          setQuery("");
-          nav.setActive(Math.max(0, options.findIndex((x) => x.value === value)));
-        }
-      }}
-    >
-      <P.Trigger aria-haspopup="listbox" aria-label={aria["aria-label"]} className={cn(triggerClass, className)}>
+    <P.Root open={open} onOpenChange={setOpen}>
+      <P.Trigger data-ad-anchor="" aria-haspopup="listbox" {...pressOpen(open, setOpen, swallow)} aria-label={aria["aria-label"]} className={cn(triggerClass, className)}>
         {current ? (
           <>
             {current.icon ? <span className="flex shrink-0 items-center text-ink-muted">{current.icon}</span> : null}

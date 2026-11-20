@@ -2,7 +2,7 @@ import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { Search as SearchIcon } from "react-feather";
 import { cn } from "@/lib/ad";
-import { overlayClass } from "@/components/ui/dialog";
+import { overlayClass, useReturnFocus } from "@/components/ui/dialog";
 import { Shortcut } from "@/components/ui/kbd";
 
 export interface Command {
@@ -53,6 +53,8 @@ export interface CommandPaletteProps {
  * Groups are separated by space and a quiet label, never by lines.
  */
 export function CommandPalette({ open = false, onOpenChange, inline, className, ...panel }: CommandPaletteProps) {
+  // Opened from state (a button or the shortcut), so Radix has no Trigger to hand focus back to on Esc.
+  const returnFocus = useReturnFocus(open && !inline);
   if (inline) return <CommandPanel {...panel} inline className={cn("flex flex-col rounded-card bg-raised p-nest text-ink", className)} />;
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
@@ -66,8 +68,10 @@ export function CommandPalette({ open = false, onOpenChange, inline, className, 
             e.preventDefault();
             (e.target as HTMLElement | null)?.focus();
           }}
+          onCloseAutoFocus={returnFocus}
           className={cn(
-            "fixed left-1/2 top-[14dvh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog",
+            // A dialog over a dimmed page, so in dark it takes the dialog step, not the menu one (which would sit on the page grey).
+            "fixed left-1/2 top-[14dvh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog dark:bg-surface",
             // Opened many times a day, so it appears at once; it only fades on the way out.
             "data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]",
             className,

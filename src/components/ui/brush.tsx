@@ -41,6 +41,7 @@ export function useBrush(): Brush {
       ...(point === i ? { "data-brushed": true as const, className: "[&>td]:bg-fill" } : {}),
     }),
     head: (key) => ({ onPointerEnter: () => setSeries(key), onPointerLeave: () => setSeries((s) => (s === key ? null : s)) }),
-    cell: (key) => cn("transition-[color,opacity] duration-[160ms] ease-ad", series != null && (series === key ? "text-ink" : "opacity-45")),
+    // The other columns step down to muted ink, never to a faded opacity: their numbers must stay readable (4.5:1).
+    cell: (key) => cn("transition-colors duration-[160ms] ease-ad", series != null && (series === key ? "text-ink" : "text-ink-muted")),
   };
 }

@@ -12,6 +12,14 @@ export interface AlertProps {
   className?: string;
 }
 
+// On a coloured box a grey pill reads as dirt, so the action is the raised step (white in light, the darkest step in
+// dark) and darkens or lifts a notch on hover.
+const onColour = cn(
+  "[&_[data-variant=secondary]]:bg-raised [&_[data-variant=secondary]]:transition-[background-color,filter,scale]",
+  "[&_[data-variant=secondary]:hover]:brightness-[0.95] [&_[data-variant=secondary]:focus-visible]:brightness-[0.95]",
+  "dark:[&_[data-variant=secondary]:hover]:bg-surface dark:[&_[data-variant=secondary]:hover]:brightness-100 dark:[&_[data-variant=secondary]:focus-visible]:bg-surface dark:[&_[data-variant=secondary]:focus-visible]:brightness-100",
+);
+
 const tones = {
   // The box is fill, the same as a secondary button, so its action steps off it as the raised pill in a track does:
   // sel at rest (white in light, fill-strong in dark), fill-strong on hover in light, a slight lift in dark.
@@ -19,13 +27,13 @@ const tones = {
     box: cn(
       "bg-fill text-ink [&_[data-variant=secondary]]:bg-sel",
       "[&_[data-variant=secondary]:hover]:bg-fill-strong [&_[data-variant=secondary]:focus-visible]:bg-fill-strong",
-      "dark:[&_[data-variant=secondary]]:transition-[background-color,filter,transform] dark:[&_[data-variant=secondary]:hover]:brightness-[1.18] dark:[&_[data-variant=secondary]:focus-visible]:brightness-[1.18]",
+      "dark:[&_[data-variant=secondary]]:transition-[background-color,filter,scale] dark:[&_[data-variant=secondary]:hover]:brightness-[1.18] dark:[&_[data-variant=secondary]:focus-visible]:brightness-[1.18]",
     ),
     icon: "text-ink-muted",
     Icon: Info,
   },
-  attention: { box: "bg-brand-soft text-ink", icon: "text-brand-soft-ink", Icon: Info },
-  danger: { box: "bg-danger-soft text-ink", icon: "text-danger", Icon: AlertCircle },
+  attention: { box: cn("bg-brand-soft text-ink", onColour), icon: "text-brand-soft-ink", Icon: Info },
+  danger: { box: cn("bg-danger-soft text-ink", onColour), icon: "text-danger", Icon: AlertCircle },
 };
 
 /**

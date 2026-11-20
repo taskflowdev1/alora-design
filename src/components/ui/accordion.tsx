@@ -32,7 +32,7 @@ export function Accordion({ items, type = "single", defaultValue, cards, classNa
       <A.Header>
         <A.Trigger
           className={cn(
-            "group flex h-row w-full cursor-pointer select-none items-center gap-2 text-left text-body font-medium text-ink transition-colors duration-[160ms] ease-ad",
+            "group flex h-row w-full cursor-pointer select-none items-center gap-2 text-left text-body font-medium text-ink",
             cards ? "rounded-card px-pad hover:bg-fill-strong focus-visible:bg-fill-strong" : "rounded-item px-2.5 hover:bg-fill focus-visible:bg-fill",
           )}
         >

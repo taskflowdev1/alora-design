@@ -30,7 +30,7 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
       className={cn(
         "grid gap-2.5 rounded-card p-3 text-body shadow-card",
         attention ? "bg-brand-soft" : "bg-surface",
-        onClick && "cursor-pointer transition-[transform,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised focus-visible:-translate-y-0.5 focus-visible:shadow-raised active:scale-[0.99]",
+        onClick && "cursor-pointer transition-[translate,scale,box-shadow] duration-[150ms] ease-ad hover:-translate-y-0.5 hover:shadow-raised focus-visible:-translate-y-0.5 focus-visible:shadow-raised active:scale-[0.99]",
         className,
       )}
     >
@@ -39,7 +39,11 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
         {media != null ? <span className="shrink-0 [&>*]:!rounded-[max(4px,calc(var(--ad-radius-card)-0.75rem))]">{media}</span> : null}
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 font-medium leading-5 text-ink">{title}</p>
-          {id ? <p className="text-small tabular-nums text-ink-muted">{id}</p> : null}
+          {id ? (
+            <p translate="no" className="text-small tabular-nums text-ink-muted">
+              {id}
+            </p>
+          ) : null}
         </div>
       </div>
       {tags.length || people.length || due ? (
@@ -67,7 +71,7 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
 /** A board column: a soft lane with its title and count, cards stacked with even gaps. */
 export function KanbanColumn({ title, count, children, className }: { title: React.ReactNode; count?: number; children: React.ReactNode; className?: string }) {
   return (
-        // Cards inside are rounded-card at a nest inset, so the lane is card + nest: the corners run concentric.
+    // Cards inside are rounded-card at a nest inset, so the lane is card + nest: the corners run concentric.
     <section className={cn("grid min-w-64 content-start gap-2 rounded-[calc(var(--ad-radius-card)+var(--ad-nest))] bg-fill p-nest", className)}>
       <header className="flex h-item items-center justify-between gap-2 px-3">
         <h3 className="truncate text-body font-semibold">{title}</h3>

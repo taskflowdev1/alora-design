@@ -27,7 +27,7 @@ const EMOJI = ["👍", "🙏", "🎉", "👀", "✅", "😂"];
 function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: string; onReact: (emoji: string) => void }) {
   const pill = (mine: boolean) =>
     cn(
-      "inline-flex h-[24px] cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,filter,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+      "inline-flex h-[24px] cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,color,filter,scale] duration-[150ms] ease-ad active:scale-[0.97]",
       // Yours: the plain-surface selected pill (fill-strong, ink, medium). It is already the strongest fill, so hover and
       // keyboard focus darken it slightly (lighten in dark) instead of stepping to another grey.
       mine
@@ -51,7 +51,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
         ))}
       <Popover
         trigger={
-          <button type="button" aria-label="Add reaction" className={cn(pill(false), "min-w-[24px] justify-center px-1.5")}>
+          <button type="button" data-ad-anchor="" aria-label="Add reaction" className={cn(pill(false), "min-w-[24px] justify-center px-1.5")}>
             <Smile size={14} />
           </button>
         }
@@ -63,7 +63,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
               type="button"
               aria-label={`React ${e}`}
               onClick={() => onReact(e)}
-              className="grid size-8 cursor-pointer place-items-center rounded-control text-[16px] transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
+              className="grid size-8 cursor-pointer place-items-center rounded-control text-[16px] ad-press hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
             >
               {e}
             </button>

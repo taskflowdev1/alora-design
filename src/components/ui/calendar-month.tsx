@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
 import { Tooltip } from "@/components/ui/tooltip";
-import { cn, MONTHS } from "@/lib/ad";
+import { cn, MONTHS, MONTHS_LONG, monthGrid, WEEKDAYS_3 } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 
@@ -13,8 +13,6 @@ export interface CalendarEvent {
   tone?: "neutral" | "accent";
 }
 
-const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 export interface CalendarMonthProps {
@@ -38,11 +36,9 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
     for (const e of events) m.set(key(e.date), [...(m.get(key(e.date)) ?? []), e]);
     return m;
   }, [events]);
-  const first = new Date(month.getFullYear(), month.getMonth(), 1);
-  const start = new Date(first);
-  start.setDate(1 - ((first.getDay() + 6) % 7));
-  const weeks = Math.ceil((((first.getDay() + 6) % 7) + new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()) / 7);
-  const days = Array.from({ length: weeks * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+  const days = monthGrid(month, "fit");
+  const prev = MONTHS_LONG[(month.getMonth() + 11) % 12];
+  const next = MONTHS_LONG[(month.getMonth() + 1) % 12];
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -50,18 +46,22 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
         <h3 className="mr-auto text-title font-semibold">
           {MONTHS_LONG[month.getMonth()]} {month.getFullYear()}
         </h3>
-        <Button variant="ghost" icon aria-label={MONTHS_LONG[(month.getMonth() + 11) % 12]} onClick={() => onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>
-          <ChevronLeft />
-        </Button>
+        <Tooltip content={prev}>
+          <Button variant="ghost" icon aria-label={prev} onClick={() => onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>
+            <ChevronLeft />
+          </Button>
+        </Tooltip>
         <Button variant="ghost" onClick={() => onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))}>
           Today
         </Button>
-        <Button variant="ghost" icon aria-label={MONTHS_LONG[(month.getMonth() + 1) % 12]} onClick={() => onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>
-          <ChevronRight />
-        </Button>
+        <Tooltip content={next}>
+          <Button variant="ghost" icon aria-label={next} onClick={() => onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>
+            <ChevronRight />
+          </Button>
+        </Tooltip>
       </div>
       <div className="grid grid-cols-7 gap-1">
-        {DAYS.map((d) => (
+        {WEEKDAYS_3.map((d) => (
           <span key={d} className="px-2 text-small text-ink-muted">
             {d}
           </span>
@@ -83,7 +83,7 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
               </span>
               {list.slice(0, max).map((e) => (
                 <Tooltip key={e.id} content={`${e.title}, ${d.getDate()} ${MONTHS[d.getMonth()]}`}>
-                  <EventPill event={e} onClick={() => onEventClick?.(e)} />
+                  <EventPill event={e} onClick={() => onEventClick?.(e)} wrap={list.length === 1} />
                 </Tooltip>
               ))}
               {list.length > max ? (
@@ -93,8 +93,9 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                   trigger={
                     <button
                       type="button"
+                      data-ad-anchor=""
                       aria-label={`${list.length - max} more on ${d.getDate()} ${MONTHS[d.getMonth()]}`}
-                      className="flex h-[24px] cursor-pointer items-center whitespace-nowrap rounded-item px-1.5 text-left text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink data-[state=open]:bg-fill-strong data-[state=open]:text-ink"
+                      className="flex h-[24px] cursor-pointer items-center whitespace-nowrap rounded-item px-1.5 text-left text-small text-ink-muted hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink data-[state=open]:bg-fill-strong data-[state=open]:text-ink"
                     >
                       +{list.length - max}
                       <span className="max-sm:hidden">&nbsp;more</span>
@@ -117,8 +118,11 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
   );
 }
 
-/** One event: a soft pill with a dot. Below sm the day cell is too narrow for a title, so only the dot shows. */
-function EventPill({ event: e, onClick, full, ...props }: { event: CalendarEvent; onClick: () => void; full?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+/**
+ * One event: a soft pill with a dot. Below sm the day cell is too narrow for a title, so only the dot shows. `wrap` lets
+ * a day's only event take two lines rather than cut its title short.
+ */
+function EventPill({ event: e, onClick, full, wrap, ...props }: { event: CalendarEvent; onClick: () => void; full?: boolean; wrap?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"
@@ -126,7 +130,8 @@ function EventPill({ event: e, onClick, full, ...props }: { event: CalendarEvent
       onClick={onClick}
       aria-label={full ? undefined : e.title}
       className={cn(
-        "flex h-[24px] min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
+        "flex min-w-0 cursor-pointer gap-1.5 rounded-item px-1.5 text-left text-small",
+        wrap ? "min-h-[24px] items-start py-[3px] leading-[18px] max-sm:h-[24px] max-sm:items-center max-sm:py-0" : "h-[24px] items-center",
         !full && "max-sm:justify-center max-sm:px-0",
         e.tone === "accent"
           ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80 focus-visible:bg-brand-soft/80"
@@ -135,8 +140,10 @@ function EventPill({ event: e, onClick, full, ...props }: { event: CalendarEvent
             : "bg-surface text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
       )}
     >
-      <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
-      <span className={cn("truncate", !full && "max-sm:sr-only")}>{e.title}</span>
+      <span className={cn("flex shrink-0 items-center", wrap && "h-[18px]")}>
+        <span data-shape="round" className={cn("size-1.5 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
+      </span>
+      <span className={cn(wrap ? "line-clamp-2 break-words" : "truncate", !full && "max-sm:sr-only")}>{e.title}</span>
     </button>
   );
 }

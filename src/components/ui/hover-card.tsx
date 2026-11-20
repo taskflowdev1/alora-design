@@ -18,7 +18,9 @@ export function HoverCard({
 }) {
   return (
     <H.Root openDelay={250} closeDelay={120}>
-      <H.Trigger asChild>{trigger}</H.Trigger>
+      <H.Trigger asChild data-ad-anchor="">
+        {trigger}
+      </H.Trigger>
       <H.Portal>
         <H.Content
           side={side}

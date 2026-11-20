@@ -23,6 +23,8 @@ export interface DataColumn<T> {
   hidden?: boolean;
   /** Long text truncates at this width. */
   maxWidth?: number;
+  /** false for codes (order numbers, SKUs, tracking numbers) that a page translator must leave alone. */
+  translate?: false;
 }
 
 export interface DataTableProps<T> {
@@ -51,7 +53,7 @@ export interface DataTableProps<T> {
   className?: string;
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-transparent";
+const pulse = "animate-ad-pulse rounded-small bg-fill text-transparent";
 
 /**
  * The full table: search, filters and the column menu in one row of equal-height controls; sortable headers; a
@@ -123,7 +125,7 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
                     type="button"
                     onClick={() => setSort((s) => (s?.key !== c.key ? { key: c.key, dir: 1 } : s.dir === 1 ? { key: c.key, dir: -1 } : null))}
                     aria-sort={sort?.key === c.key ? (sort.dir === 1 ? "ascending" : "descending") : undefined}
-                    className={cn("ad-hit -mx-1.5 inline-flex cursor-pointer items-center gap-1 rounded-small px-1.5 py-0.5 align-middle transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink", sort?.key === c.key && "text-ink", c.align === "right" && "flex-row-reverse")}
+                    className={cn("ad-hit -mx-1.5 inline-flex cursor-pointer items-center gap-1 rounded-small px-1.5 py-0.5 align-middle transition-colors hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink", sort?.key === c.key && "text-ink", c.align === "right" && "flex-row-reverse")}
                   >
                     {c.header}
                     {sort?.key === c.key ? sort.dir === 1 ? <ArrowUp size={14} /> : <ArrowDown size={14} /> : <ArrowUp size={14} aria-hidden className="invisible" />}
@@ -175,7 +177,7 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
                     ) : null}
                     {shown.map((c) => (
                       <TD key={c.key} align={c.align} maxWidth={c.maxWidth}>
-                        {c.cell ? c.cell(r) : String(valueOf(c, r) ?? "")}
+                        {c.translate === false ? <span translate="no">{c.cell ? c.cell(r) : String(valueOf(c, r) ?? "")}</span> : c.cell ? c.cell(r) : String(valueOf(c, r) ?? "")}
                       </TD>
                     ))}
                   </TRow>

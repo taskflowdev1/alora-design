@@ -37,7 +37,7 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
                     <button
                       type="button"
                       aria-label={`${items.length - 3} more levels`}
-                      className="ad-hit grid h-7 w-7 cursor-pointer place-items-center rounded-small text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink"
+                      className="ad-hit grid h-7 w-7 cursor-pointer place-items-center rounded-small text-ink-muted transition-colors hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -58,11 +58,11 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
                   href={c.href}
                   onClick={(e) => {
                     if (c.onClick) {
-            e.preventDefault();
-            c.onClick();
-          }
+                      e.preventDefault();
+                      c.onClick();
+                    }
                   }}
-                  className="block max-w-40 cursor-pointer truncate rounded-small px-1.5 py-0.5 text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
+                  className="block max-w-40 cursor-pointer truncate rounded-small px-1.5 py-0.5 text-ink-muted transition-colors hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
                 >
                   {c.label}
                 </a>

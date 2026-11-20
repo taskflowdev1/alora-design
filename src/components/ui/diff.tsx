@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 
 export interface DiffProps {
   /** The difference: expected minus actual, or this period minus the last. */
@@ -16,7 +16,7 @@ export interface DiffProps {
 }
 
 /** A difference: green or red only when there is one. No difference is plain grey. */
-export function Diff({ value, unit, format = (n) => Math.round(n).toLocaleString("id-ID"), tolerance = 0, zero = "—", className }: DiffProps) {
+export function Diff({ value, unit, format = (n) => formatNumber(Math.round(n)), tolerance = 0, zero = "—", className }: DiffProps) {
   const none = Math.abs(value) <= tolerance;
   if (none) return <span className={cn("tabular-nums text-ink-muted", className)}>{zero}</span>;
   const up = value > 0;

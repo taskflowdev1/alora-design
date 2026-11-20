@@ -2,25 +2,42 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight } from "react-feather";
 import { SlidingPill } from "@/components/ui/sliding-pill";
-import { cn, MONTHS } from "@/lib/ad";
+import { addDays, cn, formatDate, MONTHS, MONTHS_LONG, monthGrid, sameDay, startOfDay, WEEKDAYS_2 } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { dropdownSurface, triggerClass } from "@/components/ui/select";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export type DateRange = { from: Date; to: Date };
 export type RangePreset = { key: string; label: string; range: (today: Date) => DateRange };
 
-const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const day = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const add = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-const same = (a: Date, b: Date) => day(a).getTime() === day(b).getTime();
+/**
+ * A mouse opens and closes the panel on press, as a menu does; touch and keys keep the click. `swallow` drops the click
+ * that follows a handled press.
+ */
+function pressOpen(open: boolean, setOpen: (open: boolean) => void, swallow: React.RefObject<boolean>) {
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      swallow.current = false;
+      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
+      e.preventDefault();
+      swallow.current = true;
+      setOpen(!open);
+    },
+    onClick: (e: React.MouseEvent) => {
+      if (!swallow.current || e.detail === 0) return;
+      swallow.current = false;
+      e.preventDefault();
+    },
+  };
+}
 
 export const DEFAULT_PRESETS: RangePreset[] = [
-  { key: "today", label: "Today", range: (t) => ({ from: day(t), to: day(t) }) },
-  { key: "yesterday", label: "Yesterday", range: (t) => ({ from: add(t, -1), to: add(t, -1) }) },
-  { key: "7d", label: "Last 7 days", range: (t) => ({ from: add(t, -6), to: day(t) }) },
-  { key: "30d", label: "Last 30 days", range: (t) => ({ from: add(t, -29), to: day(t) }) },
-  { key: "month", label: "This month", range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth(), 1), to: day(t) }) },
+  { key: "today", label: "Today", range: (t) => ({ from: startOfDay(t), to: startOfDay(t) }) },
+  { key: "yesterday", label: "Yesterday", range: (t) => ({ from: addDays(t, -1), to: addDays(t, -1) }) },
+  { key: "7d", label: "Last 7 days", range: (t) => ({ from: addDays(t, -6), to: startOfDay(t) }) },
+  { key: "30d", label: "Last 30 days", range: (t) => ({ from: addDays(t, -29), to: startOfDay(t) }) },
+  { key: "month", label: "This month", range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth(), 1), to: startOfDay(t) }) },
   {
     key: "last-month",
     label: "Last month",
@@ -31,7 +48,7 @@ export const DEFAULT_PRESETS: RangePreset[] = [
 /** "3–9 Nov 2026", "28 Oct – 3 Nov 2026", "16 Nov 2026". */
 export function formatRange({ from, to }: DateRange) {
   const d = (x: Date) => `${x.getDate()} ${MONTHS[x.getMonth()]}`;
-  if (same(from, to)) return `${d(from)} ${from.getFullYear()}`;
+  if (sameDay(from, to)) return `${d(from)} ${from.getFullYear()}`;
   if (from.getFullYear() !== to.getFullYear()) return `${d(from)} ${from.getFullYear()} – ${d(to)} ${to.getFullYear()}`;
   if (from.getMonth() === to.getMonth()) return `${from.getDate()}–${d(to)} ${to.getFullYear()}`;
   return `${d(from)} – ${d(to)} ${to.getFullYear()}`;
@@ -51,34 +68,50 @@ export interface DateRangePickerProps {
  * the range previews under the pointer. The trigger names the preset when one matches.
  */
 export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESETS, today = new Date(), className }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false);
   const [view, setView] = React.useState(() => new Date(value.to.getFullYear(), value.to.getMonth(), 1));
   const [anchor, setAnchor] = React.useState<Date | null>(null);
   const [hover, setHover] = React.useState<Date | null>(null);
   // Keyboard: one day is the Tab stop; arrows move it by day and week (across months), Enter or Space picks it.
-  const [focus, setFocus] = React.useState<Date>(() => day(value.to));
+  const [focus, setFocus] = React.useState<Date>(() => startOfDay(value.to));
   const grid = React.useRef<HTMLDivElement>(null);
   const moved = React.useRef(false);
+  const swallow = React.useRef(false);
+  // The trigger keeps the range it had when the panel opened until the panel has finished leaving: a longer label
+  // would grow the trigger and drag the fading panel sideways with it.
+  const [held, setHeld] = React.useState<DateRange | null>(null);
+  const [open, setOpen] = usePopupOpen({
+    onOpenChange: (o) => {
+      setAnchor(null);
+      moved.current = false;
+      if (o) {
+        setHeld(value);
+        setView(new Date(value.to.getFullYear(), value.to.getMonth(), 1));
+        setFocus(startOfDay(value.to));
+      }
+    },
+  });
+  const label = held ?? value;
   React.useEffect(() => {
     if (moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
   }, [focus]);
   const shift = (n: number) => {
     moved.current = true;
-    const d = add(focus, n);
+    const d = addDays(focus, n);
     setFocus(d);
     if (anchor) setHover(d);
     if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()) setView(new Date(d.getFullYear(), d.getMonth(), 1));
   };
-  const preset = presets.find((p) => {
-    const r = p.range(today);
-    return same(r.from, value.from) && same(r.to, value.to);
-  });
+  const presetOf = (r: DateRange) =>
+    presets.find((p) => {
+      const x = p.range(today);
+      return sameDay(x.from, r.from) && sameDay(x.to, r.to);
+    });
+  const preset = presetOf(value);
+  const labelPreset = presetOf(label);
 
-  const days = React.useMemo(() => {
-    const first = new Date(view.getFullYear(), view.getMonth(), 1);
-    const start = add(first, -((first.getDay() + 6) % 7));
-    return Array.from({ length: 42 }, (_, i) => add(start, i));
-  }, [view]);
+  const days = React.useMemo(() => monthGrid(view), [view]);
+  const prev = MONTHS_LONG[(view.getMonth() + 11) % 12];
+  const next = MONTHS_LONG[(view.getMonth() + 1) % 12];
 
   const shown: DateRange = anchor ? (hover ? (hover < anchor ? { from: hover, to: anchor } : { from: anchor, to: hover }) : { from: anchor, to: anchor }) : value;
 
@@ -90,29 +123,18 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
     const r = d < anchor ? { from: d, to: anchor } : { from: anchor, to: d };
     setAnchor(null);
     onValueChange(r);
-    setOpen(false);
+    setOpen(false, true);
   };
 
   return (
-    <P.Root
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        setAnchor(null);
-        moved.current = false;
-        if (o) {
-          setView(new Date(value.to.getFullYear(), value.to.getMonth(), 1));
-          setFocus(day(value.to));
-        }
-      }}
-    >
-      <P.Trigger className={cn(triggerClass, className)}>
+    <P.Root open={open} onOpenChange={setOpen}>
+      <P.Trigger data-ad-anchor="" {...pressOpen(open, setOpen, swallow)} className={cn(triggerClass, className)}>
         <Calendar size={16} className="shrink-0 text-ink-muted" />
-        <span className="truncate">{preset ? preset.label : formatRange(value)}</span>
+        <span className="truncate">{labelPreset ? labelPreset.label : formatRange(label)}</span>
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>
-        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "flex gap-nest max-sm:flex-col")}>
+        <P.Content align="start" sideOffset={6} collisionPadding={8} onCloseAutoFocus={() => setHeld(null)} className={cn(dropdownSurface, "flex gap-nest max-sm:flex-col")}>
           <div className="relative grid content-start gap-px sm:w-36" role="listbox" aria-label="Presets">
             <SlidingPill selector='[aria-selected="true"]' className="rounded-control bg-fill-strong" />
             {presets.map((p) => (
@@ -123,7 +145,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                 aria-selected={preset?.key === p.key}
                 onClick={() => {
                   onValueChange(p.range(today), p.key);
-                  setOpen(false);
+                  setOpen(false, true);
                 }}
                 className={cn(
                   "relative flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body",
@@ -136,15 +158,19 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
           </div>
           <div>
             <div className="flex items-center justify-between gap-2">
-              <Button variant="ghost" size="sm" icon aria-label={MONTHS_LONG[(view.getMonth() + 11) % 12]} onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}>
-                <ChevronLeft />
-              </Button>
+              <Tooltip content={prev}>
+                <Button variant="ghost" size="sm" icon aria-label={prev} onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}>
+                  <ChevronLeft />
+                </Button>
+              </Tooltip>
               <span className="text-body font-semibold">
                 {MONTHS_LONG[view.getMonth()]} {view.getFullYear()}
               </span>
-              <Button variant="ghost" size="sm" icon aria-label={MONTHS_LONG[(view.getMonth() + 1) % 12]} onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}>
-                <ChevronRight />
-              </Button>
+              <Tooltip content={next}>
+                <Button variant="ghost" size="sm" icon aria-label={next} onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}>
+                  <ChevronRight />
+                </Button>
+              </Tooltip>
             </div>
             <div
               ref={grid}
@@ -162,15 +188,15 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                 }
               }}
             >
-              {DAYS.map((d) => (
+              {WEEKDAYS_2.map((d) => (
                 <span key={d} className="grid h-7 place-items-center text-small text-ink-muted">
                   {d}
                 </span>
               ))}
               {days.map((d) => {
                 const inMonth = d.getMonth() === view.getMonth();
-                const start = same(d, shown.from);
-                const end = same(d, shown.to);
+                const start = sameDay(d, shown.from);
+                const end = sameDay(d, shown.to);
                 const inside = d > shown.from && d < shown.to;
                 const edge = start || end;
                 const col = (d.getDay() + 6) % 7;
@@ -180,7 +206,7 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                     className={cn(
                       "relative grid h-item place-items-center",
                       // The band is fill, so a day inside it still shows the fill-strong hover.
-                      (inside || (edge && !same(shown.from, shown.to))) && "bg-fill",
+                      (inside || (edge && !sameDay(shown.from, shown.to))) && "bg-fill",
                       start && !end && "rounded-l-control",
                       end && !start && "rounded-r-control",
                       inside && col === 0 && "rounded-l-control",
@@ -189,20 +215,21 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                   >
                     <button
                       type="button"
-                      aria-label={`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`}
+                      aria-label={formatDate(d)}
                       aria-pressed={edge}
-                      tabIndex={same(d, focus) ? 0 : -1}
-                      data-focus={same(d, focus)}
+                      tabIndex={sameDay(d, focus) ? 0 : -1}
+                      data-focus={sameDay(d, focus)}
                       onClick={() => {
-                        setFocus(day(d));
+                        setFocus(startOfDay(d));
                         pick(d);
                       }}
                       onPointerEnter={() => anchor && setHover(d)}
                       className={cn(
-                        "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-                        edge ? "bg-on text-on-ink" : "hover:bg-fill-strong focus-visible:bg-fill-strong",
+                        "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums ad-press active:scale-[0.97]",
+                        // The ends darken a notch on hover and focus too, like the Calendar's chosen day.
+                        edge ? "bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" : "hover:bg-fill-strong focus-visible:bg-fill-strong",
                         !inMonth && !edge && "text-ink-muted",
-                        same(d, today) && !edge && "font-semibold",
+                        sameDay(d, today) && !edge && "font-semibold",
                       )}
                     >
                       {d.getDate()}

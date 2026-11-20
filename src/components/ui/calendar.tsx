@@ -1,11 +1,8 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
-import { cn, formatDate } from "@/lib/ad";
+import { addDays, cn, formatDate, monthGrid, MONTHS_LONG, sameDay, startOfDay, WEEKDAYS_2 } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
-
-const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const same = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface CalendarProps {
   value: Date | null;
@@ -29,38 +26,40 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
   const grid = React.useRef<HTMLDivElement>(null);
   const moved = React.useRef(false);
 
-  const days = React.useMemo(() => {
-    const first = new Date(view.getFullYear(), view.getMonth(), 1);
-    const start = new Date(first);
-    start.setDate(1 - ((first.getDay() + 6) % 7));
-    return Array.from({ length: 42 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
-  }, [view]);
+  const days = React.useMemo(() => monthGrid(view), [view]);
 
   React.useEffect(() => {
-    if (autoFocus || moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
+    // Opening focus only with a mouse or trackpad: on touch it would paint a focus fill on a day nobody chose.
+    if ((autoFocus && matchMedia("(pointer: fine)").matches) || moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
   }, [autoFocus, focus]);
 
   const shift = (n: number) => {
     moved.current = true;
-    const d = new Date(focus.getFullYear(), focus.getMonth(), focus.getDate() + n);
+    const d = addDays(focus, n);
     setFocus(d);
     if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()) setView(new Date(d.getFullYear(), d.getMonth(), 1));
   };
   const month = (n: number) => setView(new Date(view.getFullYear(), view.getMonth() + n, 1));
-  const blocked = (d: Date) => !!min && d < new Date(min.getFullYear(), min.getMonth(), min.getDate());
+  const blocked = (d: Date) => !!min && d < startOfDay(min);
+  const prev = MONTHS_LONG[(view.getMonth() + 11) % 12];
+  const next = MONTHS_LONG[(view.getMonth() + 1) % 12];
 
   return (
     <div className={cn("w-fit", className)}>
       <div className="flex items-center justify-between gap-2">
-        <Button variant="ghost" size="sm" icon aria-label={MONTHS_LONG[(view.getMonth() + 11) % 12]} onClick={() => month(-1)}>
-          <ChevronLeft />
-        </Button>
+        <Tooltip content={prev}>
+          <Button variant="ghost" size="sm" icon aria-label={prev} onClick={() => month(-1)}>
+            <ChevronLeft />
+          </Button>
+        </Tooltip>
         <span className="text-body font-semibold">
           {MONTHS_LONG[view.getMonth()]} {view.getFullYear()}
         </span>
-        <Button variant="ghost" size="sm" icon aria-label={MONTHS_LONG[(view.getMonth() + 1) % 12]} onClick={() => month(1)}>
-          <ChevronRight />
-        </Button>
+        <Tooltip content={next}>
+          <Button variant="ghost" size="sm" icon aria-label={next} onClick={() => month(1)}>
+            <ChevronRight />
+          </Button>
+        </Tooltip>
       </div>
       <div
         ref={grid}
@@ -77,20 +76,20 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
           }
         }}
       >
-        {DAYS.map((d) => (
+        {WEEKDAYS_2.map((d) => (
           <span key={d} className="grid h-7 place-items-center text-small text-ink-muted">
             {d}
           </span>
         ))}
         {days.map((d) => {
           const inMonth = d.getMonth() === view.getMonth();
-          const selected = value ? same(d, value) : false;
+          const selected = value ? sameDay(d, value) : false;
           return (
             <button
               key={d.toISOString()}
               type="button"
-              tabIndex={same(d, focus) ? 0 : -1}
-              data-focus={same(d, focus)}
+              tabIndex={sameDay(d, focus) ? 0 : -1}
+              data-focus={sameDay(d, focus)}
               aria-label={formatDate(d)}
               aria-pressed={selected}
               disabled={blocked(d)}
@@ -99,10 +98,11 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
                 onValueChange(d);
               }}
               className={cn(
-                "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35",
-                selected ? "bg-on text-on-ink" : "hover:bg-fill focus-visible:bg-fill",
+                "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums ad-press active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35",
+                // The chosen day darkens a notch too, so hover and keyboard focus never vanish on the one day that matters.
+                selected ? "bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" : "hover:bg-fill focus-visible:bg-fill",
                 !inMonth && !selected && "text-ink-muted",
-                same(d, today) && !selected && "font-semibold",
+                sameDay(d, today) && !selected && "font-semibold",
               )}
             >
               {d.getDate()}

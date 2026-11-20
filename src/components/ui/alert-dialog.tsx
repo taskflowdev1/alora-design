@@ -2,7 +2,7 @@ import * as React from "react";
 import { AlertDialog as AD } from "radix-ui";
 import { cn } from "@/lib/ad";
 import { buttonClass } from "@/components/ui/button";
-import { overlayClass } from "@/components/ui/dialog";
+import { overlayClass, useReturnFocus } from "@/components/ui/dialog";
 
 export interface AlertDialogProps {
   open?: boolean;
@@ -25,12 +25,14 @@ export interface AlertDialogProps {
  * action is a solid ink button (not red: negatives stay quiet), buttons bottom right, concentric with the dialog.
  */
 export function AlertDialog({ open, onOpenChange, trigger, title, children, action, onAction, cancel = "Keep", className }: AlertDialogProps) {
+  const returnFocus = useReturnFocus(!!open);
   return (
     <AD.Root open={open} onOpenChange={onOpenChange}>
       {trigger ? <AD.Trigger asChild>{trigger}</AD.Trigger> : null}
       <AD.Portal>
         <AD.Overlay className={overlayClass} />
         <AD.Content
+          onCloseAutoFocus={trigger ? undefined : returnFocus}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 grid w-[min(400px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 gap-3 rounded-sheet bg-surface p-pad text-ink shadow-dialog",
             "data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",
@@ -41,7 +43,7 @@ export function AlertDialog({ open, onOpenChange, trigger, title, children, acti
           {children ? <AD.Description className="text-body leading-relaxed text-ink-muted">{children}</AD.Description> : <AD.Description className="sr-only">{title}</AD.Description>}
           <div className="mt-2 flex flex-wrap justify-end gap-gap">
             <AD.Cancel className={buttonClass({ variant: "ghost" })}>{cancel}</AD.Cancel>
-            <AD.Action className={cn(buttonClass({ variant: "secondary" }), "bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted")} onClick={onAction}>
+            <AD.Action className={buttonClass({ variant: "strong" })} onClick={onAction}>
               {action}
             </AD.Action>
           </div>

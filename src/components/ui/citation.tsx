@@ -2,6 +2,7 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ExternalLink } from "react-feather";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 
 export interface CitationSource {
   title: React.ReactNode;
@@ -26,23 +27,49 @@ export interface CitationProps {
  * the last word, the number and its punctuation in `whitespace-nowrap`.
  */
 export function Citation({ n, source, className }: CitationProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = usePopupOpen();
+  // How the card is open: "hover" closes when the pointer leaves, "pin" (a click or tap) stays until a second click,
+  // Escape or a click outside. Clicking a card that hover opened pins it instead of closing it.
+  const via = React.useRef<"hover" | "pin" | null>(null);
   const t = React.useRef<number | undefined>(undefined);
   React.useEffect(() => () => window.clearTimeout(t.current), []);
   const later = (o: boolean, ms: number) => {
     window.clearTimeout(t.current);
-    t.current = window.setTimeout(() => setOpen(o), ms);
+    t.current = window.setTimeout(() => {
+      if (o && via.current === null) {
+        via.current = "hover";
+        setOpen(true);
+      } else if (!o && via.current === "hover") {
+        via.current = null;
+        setOpen(false, true);
+      }
+    }, ms);
   };
   const hover = { onPointerEnter: (e: React.PointerEvent) => e.pointerType === "mouse" && later(true, 300), onPointerLeave: (e: React.PointerEvent) => e.pointerType === "mouse" && later(false, 160) };
   return (
-    <P.Root open={open} onOpenChange={setOpen}>
+    <P.Root
+      open={open}
+      onOpenChange={(o) => {
+        window.clearTimeout(t.current);
+        via.current = o ? "pin" : null;
+        setOpen(o);
+      }}
+    >
       <P.Trigger
         {...hover}
+        data-ad-anchor=""
+        onClick={(e) => {
+          if (via.current !== "hover") return;
+          // Skip Radix's toggle: the click pins the card hover opened.
+          e.preventDefault();
+          window.clearTimeout(t.current);
+          via.current = "pin";
+        }}
         aria-label={`Source ${n}`}
         className={cn(
           // Sits on the text's x-height without opening the line spacing; the hit area is bigger than it looks.
           "relative ml-0.5 inline-grid h-4 min-w-4 cursor-pointer select-none place-items-center rounded-full bg-fill px-1 align-[0.15em] text-[0.8em] font-medium leading-none tabular-nums text-ink-muted",
-          "transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-1.5 hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong active:scale-[0.97] data-[state=open]:bg-fill-strong data-[state=open]:text-ink",
+          "ad-press after:absolute after:-inset-1.5 hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong active:scale-[0.97] data-[state=open]:bg-fill-strong data-[state=open]:text-ink",
           className,
         )}
       >

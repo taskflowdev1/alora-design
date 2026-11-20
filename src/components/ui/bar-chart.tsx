@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 
 export type Bar = { label: string; value: number; /** Shown on hover, e.g. "Rp 12,4 jt". */ display?: string };
 
@@ -16,7 +16,7 @@ export interface BarChartProps {
   "aria-label"?: string;
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill";
+const pulse = "animate-ad-pulse bg-fill";
 
 /** Slim bars in shades of the one accent, one shared bar radius. No gridlines, no axes. */
 export function BarChart({ data, height = 140, current, labelEvery = 1, loading, className, ...aria }: BarChartProps) {
@@ -51,7 +51,7 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, loading,
           className="pointer-events-none absolute top-0 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-item bg-tip px-2 py-1 text-small tabular-nums text-tip-ink shadow-raised"
           style={{ left: `${((shown + 0.5) / data.length) * 100}%` }}
         >
-          {data[shown].label} · {data[shown].display ?? data[shown].value.toLocaleString("id-ID")}
+          {data[shown].label} · {data[shown].display ?? formatNumber(data[shown].value)}
         </figcaption>
       ) : null}
     </figure>
@@ -91,7 +91,7 @@ export function BarList({ data, selected, onSelect, loading, className }: BarLis
               <span className={cn("h-2 rounded-small", loading ? pulse : "bg-fill")}>
                 {loading ? null : <span className="block h-full rounded-small bg-chart-2" style={{ width: `${(d.value / max) * 100}%` }} />}
               </span>
-              <span className={cn("tabular-nums text-ink", loading && cn(pulse, "rounded-small text-transparent"))}>{d.display ?? d.value.toLocaleString("id-ID")}</span>
+              <span className={cn("tabular-nums text-ink", loading && cn(pulse, "rounded-small text-transparent"))}>{d.display ?? formatNumber(d.value)}</span>
             </button>
           </li>
         );

@@ -2,6 +2,29 @@ import * as React from "react";
 import { Check, Copy } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
+
+/**
+ * Copies text and resolves only once it is really on the clipboard, so the check never shows for a write the browser
+ * refused (http, an iframe without permission). Falls back to the older selection copy where the async API is missing
+ * or refuses.
+ */
+function copyText(text: string) {
+  const legacy = () => {
+    const back = document.activeElement as HTMLElement | null;
+    const t = document.createElement("textarea");
+    t.value = text;
+    t.setAttribute("readonly", "");
+    t.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+    document.body.append(t);
+    t.select();
+    const ok = document.execCommand("copy");
+    t.remove();
+    back?.focus({ preventScroll: true });
+    return ok ? Promise.resolve() : Promise.reject(new Error("Copy failed"));
+  };
+  return navigator.clipboard?.writeText ? navigator.clipboard.writeText(text).catch(legacy) : legacy();
+}
 
 export interface CodeBlockProps {
   code: string;
@@ -41,26 +64,32 @@ export function CodeBlock({ code, title, lineNumbers, maxHeight = 420, onCopy, c
             : code}
         </code>
       </pre>
-      <Button
-        variant="ghost"
-        icon
-        size="sm"
-        aria-label={copied ? "Copied" : "Copy code"}
-        className="absolute right-nest top-nest"
-        onClick={() => {
-          void navigator.clipboard?.writeText(code);
-          onCopy?.(code);
-          setCopied(true);
-          window.clearTimeout(timer.current);
-          timer.current = window.setTimeout(() => setCopied(false), 1400);
-        }}
-      >
-        {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
-        <span className="relative grid size-[16px] place-items-center [&>svg]:absolute [&>svg]:transition-[opacity,scale,filter] [&>svg]:duration-[160ms] [&>svg]:ease-ad">
-          <Copy className={cn(copied && "opacity-0 scale-[0.8] blur-[2px]")} />
-          <Check className={cn(!copied && "opacity-0 scale-[0.8] blur-[2px]")} />
-        </span>
-      </Button>
+      <Tooltip content={copied ? "Copied" : "Copy code"}>
+        <Button
+          variant="ghost"
+          icon
+          size="sm"
+          aria-label={copied ? "Copied" : "Copy code"}
+          className="absolute right-nest top-nest"
+          onClick={() => {
+            copyText(code).then(
+              () => {
+                onCopy?.(code);
+                setCopied(true);
+                window.clearTimeout(timer.current);
+                timer.current = window.setTimeout(() => setCopied(false), 1400);
+              },
+              () => {},
+            );
+          }}
+        >
+          {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
+          <span className="relative grid size-[16px] place-items-center [&>svg]:absolute [&>svg]:transition-[opacity,scale,filter] [&>svg]:duration-[160ms] [&>svg]:ease-ad">
+            <Copy className={cn(copied && "opacity-0 scale-[0.8] blur-[2px]")} />
+            <Check className={cn(!copied && "opacity-0 scale-[0.8] blur-[2px]")} />
+          </span>
+        </Button>
+      </Tooltip>
     </div>
   );
 }

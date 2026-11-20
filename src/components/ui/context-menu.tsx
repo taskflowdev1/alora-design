@@ -8,7 +8,8 @@ import { Shortcut } from "@/components/ui/kbd";
 /** Right click (or long press) on the child opens the menu at the pointer. */
 export function ContextMenu({ children, menu, className }: { children: React.ReactElement; menu: React.ReactNode; className?: string }) {
   return (
-    <C.Root>
+    // Not modal: a second right click elsewhere reaches the page, so the menu reopens at the new spot as an OS menu does.
+    <C.Root modal={false}>
       <C.Trigger asChild>{children}</C.Trigger>
       <C.Portal>
         <C.Content

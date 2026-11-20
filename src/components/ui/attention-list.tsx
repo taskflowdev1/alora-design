@@ -10,7 +10,7 @@ export interface AttentionItemProps {
   /** A Thumb or Avatar. */
   media?: React.ReactNode;
   title: React.ReactNode;
-  /** One short fact, e.g. "2 left". */
+  /** One short fact, e.g. "2 left". Wrap a code (a SKU, an order number) in `<span translate="no">`. */
   meta?: React.ReactNode;
   /** The value that matters, right-aligned. */
   value?: React.ReactNode;
@@ -23,7 +23,7 @@ export function AttentionItem({ media, title, meta, value, action, onClick }: At
   return (
     <li
       className={cn(
-        "relative flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5 transition-colors duration-[150ms] ease-ad",
+        "relative flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5",
         action && "pr-1.5",
         onClick && "cursor-pointer hover:bg-fill-strong has-[>button:focus-visible]:bg-fill-strong",
       )}

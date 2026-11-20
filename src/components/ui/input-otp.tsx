@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 
 export type InputOTPStatus = "idle" | "checking" | "invalid" | "success";
 /** How the boxes show a correct code. */
@@ -36,7 +36,7 @@ export interface InputOTPProps {
 }
 
 const css = `
-@keyframes ad-otp-digit { from { opacity: 0; transform: translateY(4px) scale(0.85); } }
+@keyframes ad-otp-digit { from { opacity: 0.35; transform: translateY(2px) scale(0.96); } }
 @keyframes ad-otp-wave { 0%, 100% { background-color: var(--ad-fill); } 40% { background-color: var(--ad-fill-strong); } }
 @keyframes ad-otp-seal {
   0% { opacity: 0; clip-path: inset(0 0 round var(--ad-radius-control)); }
@@ -83,7 +83,7 @@ export function InputOTP({
   const row = React.useRef<HTMLDivElement>(null);
   const prev = React.useRef(s);
   React.useEffect(() => {
-    if (s === "invalid" && prev.current !== "invalid" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    if (s === "invalid" && prev.current !== "invalid" && !prefersReducedMotion())
       row.current?.animate([{ translate: "0" }, { translate: "-6px" }, { translate: "5px" }, { translate: "-3px" }, { translate: "2px" }, { translate: "0" }], {
         duration: 380,
         easing: "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -155,7 +155,7 @@ export function InputOTP({
             )}
           >
             {chars[i] ? (
-              <span key={chars[i] + i} className={cn(s === "idle" && "animate-[ad-otp-digit_160ms_var(--ad-ease)]")}>
+              <span key={chars[i] + i} className={cn(s === "idle" && "animate-[ad-otp-digit_120ms_var(--ad-ease)]")}>
                 {chars[i]}
               </span>
             ) : null}

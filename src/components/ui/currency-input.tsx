@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 import { fieldBoxClass } from "@/components/ui/input";
 
 export interface CurrencyInputProps {
@@ -15,7 +15,7 @@ export interface CurrencyInputProps {
   "aria-label"?: string;
 }
 
-const group = (n: number) => n.toLocaleString("id-ID");
+const group = (n: number) => formatNumber(n);
 
 /** Types as "Rp 12.400.000": dots appear while typing and the caret stays on its digit. */
 export function CurrencyInput({ value, onValueChange, currency = "Rp", placeholder = "0", invalid, max = 999_999_999_999, className, ...aria }: CurrencyInputProps) {

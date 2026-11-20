@@ -1,5 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, formatCompact } from "@/lib/ad";
+import { useElementWidth } from "@/lib/ad-hooks";
 
 /*
  * The chart system every chart shares: series colours (shades of the one accent, in a fixed order), the width hook,
@@ -22,14 +23,9 @@ export interface Series {
 
 export type Datum = { label: string } & Record<string, number | string>;
 
-/** "12,4 jt", "980 rb", "1,2 M": short Indonesian amounts for axes and tight places. */
+/** "12,4 jt", "980 rb", "1,2 M": short Indonesian amounts for axes and tight places (one decimal, plain space). */
 export function formatShort(n: number) {
-  const a = Math.abs(n);
-  const f = (v: number, u: string) => `${(Math.round(v * 10) / 10).toLocaleString("id-ID")} ${u}`;
-  if (a >= 1e9) return f(n / 1e9, "M");
-  if (a >= 1e6) return f(n / 1e6, "jt");
-  if (a >= 1e4) return f(n / 1e3, "rb");
-  return n.toLocaleString("id-ID");
+  return formatCompact(n, { space: " ", digits: 1 });
 }
 
 /** Round tick values from 0 to at least `max`: 0 / 5 / 10 / 15, never 0 / 4.3 / 8.6. */
@@ -42,21 +38,8 @@ export function niceTicks(max: number, count = 4) {
   return Array.from({ length: Math.round(top / step) + 1 }, (_, i) => Math.round(i * step * 1e6) / 1e6);
 }
 
-/** The element's content width, kept current; 0 until measured. */
-export function useWidth<T extends HTMLElement>() {
-  const ref = React.useRef<T>(null);
-  const [w, setW] = React.useState(0);
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const set = () => setW(Math.round(el.getBoundingClientRect().width));
-    set();
-    const ro = new ResizeObserver(set);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, w] as const;
-}
+/** The element's content width, kept current; 0 until measured. The shared hook, under the name charts use. */
+export const useWidth = useElementWidth;
 
 /**
  * The one tooltip: a small card with a title and one row per series (colour key, label, value). Ink in light; in dark
@@ -95,11 +78,19 @@ export function ChartLegend({ items, active, onActiveChange, className }: ChartL
           key={i}
           onPointerEnter={onActiveChange && (() => onActiveChange(i))}
           onPointerLeave={onActiveChange && (() => onActiveChange(null))}
-          className={cn("inline-flex items-center gap-1.5 transition-opacity duration-[160ms] ease-ad", active != null && active !== i && "opacity-45")}
+          // The item pointed at turns ink; the others dim their dot only, so every name and value stays readable.
+          className={cn(
+            "inline-flex items-center gap-1.5 transition-colors duration-[160ms] ease-ad [&>[data-dot]]:transition-opacity [&>[data-dot]]:duration-[160ms]",
+            active != null && (active === i ? "text-ink" : "[&>[data-dot]]:opacity-45 [&>[data-value]]:text-ink-muted"),
+          )}
         >
-          <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: it.color }} />
+          <span aria-hidden data-dot className="size-2 shrink-0 rounded-full" style={{ background: it.color }} />
           {it.label}
-          {it.value != null ? <span className="tabular-nums text-ink">{it.value}</span> : null}
+          {it.value != null ? (
+            <span data-value className="tabular-nums text-ink">
+              {it.value}
+            </span>
+          ) : null}
         </li>
       ))}
     </ul>
@@ -113,7 +104,7 @@ export interface CartesianChartProps {
   height?: number;
   /** Smooth curves (monotone, never overshooting) or straight segments. */
   curve?: "smooth" | "linear";
-  /** Faint horizontal gridlines at the ticks. Off by default: charts run end to end (Joshua, 2026-11-09). */
+  /** Faint horizontal gridlines at the ticks. Off by default: charts run end to end, with nothing ruled across them. */
   grid?: boolean;
   /** Value ticks on the left. Off by default: the tooltip and the headline carry the values. */
   axis?: boolean;
@@ -197,18 +188,26 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
   const h = hover != null ? data[hover] : null;
   const last = data.length - 1;
   // The tooltip sits beside the crosshair on the side with room, and always inside the plot: never over the value axis.
+  // It moves by transform (no layout shift per pointer move) and only ever widens during a sweep, so its far edge
+  // doesn't jitter as values of different lengths go by.
   const tip = React.useRef<HTMLDivElement>(null);
+  const widest = React.useRef(0);
   React.useLayoutEffect(() => {
     const el = tip.current;
-    if (!el || hover == null) return;
-    const w = el.offsetWidth;
+    if (!el || hover == null) {
+      widest.current = 0;
+      return;
+    }
+    widest.current = Math.max(widest.current, el.offsetWidth);
+    el.style.minWidth = `${widest.current}px`;
+    const w = widest.current;
     const px = x(hover);
     const lo = pad.l + 4;
     const hi = width - pad.r - w;
     const right = px + 12;
     const left = px - 12 - w;
     const at = px > width / 2 ? (left >= lo ? left : right <= hi ? right : left) : right <= hi ? right : left >= lo ? left : right;
-    el.style.left = `${Math.max(lo, Math.min(hi, at))}px`;
+    el.style.transform = `translateX(${Math.max(lo, Math.min(hi, at))}px)`;
   });
   const legendRow =
     legend && series.length > 1 ? (
@@ -292,7 +291,7 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             ref={tip}
             title={h.label}
             rows={series.map((s, si) => ({ color: series.length > 1 ? seriesColor(si) : undefined, label: s.label, value: format(val(h, s.key)) }))}
-            style={{ top: pad.t, left: x(hover) + 12 }}
+            style={{ top: pad.t, left: 0, transform: `translateX(${x(hover) + 12}px)` }}
           />
         ) : null}
       </div>
