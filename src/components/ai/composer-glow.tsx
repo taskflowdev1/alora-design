@@ -2,6 +2,7 @@ import * as React from "react";
 import { ArrowUp, Plus, Square } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface ComposerGlowProps {
   children: React.ReactNode;
@@ -48,7 +49,7 @@ export interface ComposerProps {
 }
 
 /**
- * The message box, one row: attach | text | send (Alora Board's assistant). The buttons are the control height and
+ * The message box, one row: attach | text | send (an agent assistant's composer). The buttons are the control height and
  * one line of text is padded to the same height, so the placeholder and both buttons share one centre. Longer text
  * grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls.
  * The inset is the same on every side and the radius is the button radius plus that inset.
@@ -81,9 +82,14 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
       }}
       className={cn("flex items-end gap-1 bg-surface p-[var(--composer-pad)] shadow-card", className)}
     >
-      <Button variant="ghost" icon aria-label="Attach files" disabled={disabled} onClick={onAttach} className="text-ink-muted hover:text-ink">
-        <Plus />
-      </Button>
+      <Tooltip content="Attach files">
+        {/* A disabled button gets no pointer events, so the tooltip hangs on this wrapper. */}
+        <span className="inline-flex">
+          <Button variant="ghost" icon aria-label="Attach files" disabled={disabled} onClick={onAttach} className="text-ink-muted hover:text-ink">
+            <Plus />
+          </Button>
+        </span>
+      </Tooltip>
       <textarea
         ref={ref}
         aria-label="Message"
@@ -100,13 +106,20 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
         className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-muted max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
       />
       {working && empty ? (
-        <Button icon aria-label="Stop" onClick={onStop}>
-          <Square />
-        </Button>
+        <Tooltip content="Stop">
+          <Button icon aria-label="Stop" onClick={onStop}>
+            <Square />
+          </Button>
+        </Tooltip>
       ) : (
-        <Button type="submit" variant="primary" icon aria-label="Send" disabled={empty || disabled}>
-          <ArrowUp />
-        </Button>
+        // Send stays disabled while the box is empty; the tooltip says why.
+        <Tooltip content={empty && !disabled ? "Type a message first" : "Send"}>
+          <span className="inline-flex">
+            <Button type="submit" variant="primary" icon aria-label="Send" disabled={empty || disabled}>
+              <ArrowUp />
+            </Button>
+          </span>
+        </Tooltip>
       )}
     </form>
   );
@@ -139,7 +152,7 @@ const CSS = `
 }`;
 
 /**
- * The AI composer's glow (Alora Board, "G2 aura"): a soft grainy aura in the accent around the box, a ring lit from
+ * The AI composer's glow (from an agent assistant): a soft grainy aura in the accent around the box, a ring lit from
  * the top on its edge, and a slow pulse. Wrap the message box with it. Only opacity and translate animate; it pauses
  * off screen, and reduced motion keeps the glow but stops the motion.
  */

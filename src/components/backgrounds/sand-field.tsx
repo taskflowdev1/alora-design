@@ -33,7 +33,7 @@ const SEEDS = Array.from({ length: SPOTS }, (_, i) => {
   return { a: 0.16 + r(1) * 0.22, b: 0.34 + r(2) * 0.34, c: 0.14 + r(3) * 0.2, d: 0.3 + r(4) * 0.36, e: 0.12 + r(5) * 0.2, p: [r(6), r(7), r(8), r(9), r(10)].map((v) => v * 6.283), j: [r(11), r(12), r(13)] };
 });
 
-/** Eight shades around the accent (one per drifting spot), brightest channel near 1, like the Board's blues. */
+/** Eight shades around the accent (one per drifting spot), brightest channel near 1, so the spots glow without washing out. */
 function palette(css: string): number[] {
   const hex = css.trim().match(/^#([0-9a-f]{6})$/i)?.[1];
   const rgb = hex ? [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) : (css.match(/[\d.]+/g) ?? ["60", "111", "224"]).slice(0, 3).map((v) => Number(v) / 255);
@@ -406,7 +406,7 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
 }
 
 /**
- * The Alora Board assistant's new-chat background: the plain ground at rest; moving the mouse paints soft drifting
+ * An agent assistant's new-chat background: the plain ground at rest; moving the mouse paints soft drifting
  * accent colour a moment behind the cursor, which holds, then sand fills back in. Light on dark grounds, deeper on
  * light ones. It fills its parent (give the parent `position: relative`), listens there, never takes the pointer and
  * draws nothing while idle or off screen. No WebGL, reduced motion or touch-only devices leave the plain ground.

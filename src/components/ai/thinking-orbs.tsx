@@ -10,7 +10,7 @@ export interface ThinkingOrbsProps {
   size?: number;
   /** How many orbs ride the ring. */
   count?: number;
-  /** 1 = the Board's pace. */
+  /** 1 = the default pace. */
   speed?: number;
   /** Each orb's radius at the ring's centre depth, as a fraction of the box. */
   orb?: number;
@@ -73,7 +73,7 @@ function draw(canvas: HTMLCanvasElement, box: number, t: number, count: number, 
 }
 
 /**
- * The thinking loader from the Alora Board assistant: a ring of orbs turning in 3D.
+ * The thinking loader of an agent assistant: a ring of orbs turning in 3D.
  * Animates only while `active` and on screen; with reduced motion it draws one still frame.
  * A still frame follows theme and accent changes.
  */

@@ -3,7 +3,7 @@ import { cn } from "@/lib/ad";
 import { ThinkingOrbs, type OrbTone } from "./thinking-orbs";
 
 export interface RunStatusProps {
-  /** What the agent is doing, e.g. "Reading the Board…". Empty hides the line. */
+  /** What the agent is doing, e.g. "Reading the orders…". Empty hides the line. */
   text: string;
   /** Orbs turn and the text shimmers while true; plain text once settled. */
   active?: boolean;
@@ -11,7 +11,7 @@ export interface RunStatusProps {
   size?: number;
   /** One shimmer sweep, in seconds. */
   shimmer?: number;
-  /** Orb speed, 1 = the Board's pace. */
+  /** Orb speed, 1 = the default pace. */
   speed?: number;
   tone?: OrbTone;
   className?: string;
@@ -33,7 +33,7 @@ const CSS = `
 }`;
 
 /**
- * The agent's live line where its reply will start (Alora Board assistant): turning orbs and shimmering text while
+ * The agent's live line where its reply will start (an agent assistant): turning orbs and shimmering text while
  * work runs, plain text once settled. No bubble. The shimmer pauses off screen; reduced motion shows plain text.
  */
 export function RunStatus({ text, active = true, size = 22, shimmer = 2.2, speed = 1, tone = "ink", className }: RunStatusProps) {
