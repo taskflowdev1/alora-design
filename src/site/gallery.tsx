@@ -21,6 +21,7 @@ import { Segmented } from "@/components/ui/segmented";
 import { PhoneFrame } from "./phone";
 import { MobileOverview } from "./mobile-overview";
 import { useEdgeFade } from "./layout";
+import { useOpenOnEmptyClick } from "./mark";
 
 const sources = import.meta.glob("../components/*/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
 /** Lazy source text of an item's first file, for its Source tab. */
@@ -35,7 +36,7 @@ export function useSource(item?: Item) {
   return source;
 }
 
-export type Platform = "desktop" | "mobile";
+type Platform = "desktop" | "mobile";
 const platformOf = (pathname: string): Platform => (pathname.startsWith("/mobile") ? "mobile" : "desktop");
 
 /**
@@ -147,6 +148,35 @@ function DemoRender({ demo, p, config }: { demo: Demo; p: Props; config: Config 
   return <>{demo.render(p, config)}</>;
 }
 
+/**
+ * The demo sits centred in the stage when it loads, then stays put while it grows or shrinks (a search that filters
+ * rows, an accordion that opens): the stage aligns it to the top, with a top margin measured once per demo and
+ * control state. Centring live re-centred it on every height change, so the field you typed in moved under you.
+ */
+function SteadyCentre({ stage, measureKey, children }: { stage: React.RefObject<HTMLElement | null>; measureKey: string; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const box = stage.current;
+    if (!el || !box) return;
+    const place = () => {
+      el.style.marginTop = "0px";
+      const cs = getComputedStyle(box);
+      const room = parseFloat(cs.minHeight) - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      el.style.marginTop = `${Math.max(0, Math.round((room - el.offsetHeight) / 2))}px`;
+    };
+    place();
+    // Fonts and lazy parts can settle after the first frame; place once more, then leave it alone.
+    const id = requestAnimationFrame(place);
+    return () => cancelAnimationFrame(id);
+  }, [stage, measureKey]);
+  return (
+    <div ref={ref} className="flex w-full min-w-0 justify-center-safe">
+      {children}
+    </div>
+  );
+}
+
 /** Control defaults, overridden by matching URL params (?variant=scale), so any state has a link. */
 function defaults(demo?: Demo, params?: URLSearchParams): Props {
   return Object.fromEntries(
@@ -158,24 +188,18 @@ function defaults(demo?: Demo, params?: URLSearchParams): Props {
   );
 }
 
-const INTERACTIVE = "a,button,input,textarea,select,label,[role=button],[role=combobox],[role=slider],[role=switch],[role=checkbox],[role=radio],[role=tab],[role=option],[role=menuitem],[contenteditable=true]";
-
 /**
  * One live component on a section page, with no box around it. Hover (or focus inside) shows a soft fill and a chip
  * with its name that opens its page with the sliders; a click on its empty space does the same. The component itself
  * stays fully interactive. On touch screens the chip always shows.
  */
-export function Spot({ item, className, flush, children }: { item: Item; className?: string; flush?: boolean; children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const href = useHref(itemPath(item));
+function Spot({ item, className, flush, children }: { item: Item; className?: string; flush?: boolean; children: React.ReactNode }) {
+  // A table row inside a spot is not a control here: a click on it opens the page like any empty space.
+  const open = useOpenOnEmptyClick(useHref(itemPath(item)), { rows: false });
   return (
     <div
       data-spot={item.name}
-      onClick={(e) => {
-        const t = e.target as Element;
-        if (!e.currentTarget.contains(t) || t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
-        navigate(href);
-      }}
+      onClick={open}
       className={cn(
         "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet",
         // A full-bleed stage (a background behind a screen) is its own card: it sits on the content edge, the chip on top of it.
@@ -203,17 +227,12 @@ export function Spot({ item, className, flush, children }: { item: Item; classNa
  * corner, which opens the item's sliders; a click on the tile's empty space does the same.
  */
 export function TileSpot({ item, className, children }: { item: Item; className?: string; children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const href = useHref(itemPath(item));
+  const open = useOpenOnEmptyClick(useHref(itemPath(item)), { rows: false });
   return (
     <Card
       data-spot={item.name}
       inset="none"
-      onClick={(e) => {
-        const t = e.target as Element;
-        if (t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
-        navigate(href);
-      }}
+      onClick={open}
       className={cn("group/tile relative flex min-h-[232px] min-w-0 cursor-pointer flex-col p-[calc(var(--ad-nest)*2)] transition-shadow duration-[220ms] ease-ad hover:shadow-raised", className)}
     >
       <SLink
@@ -314,6 +333,30 @@ export function CodeBlock({ code, className }: { code: string; className?: strin
   return <UICodeBlock code={code} className={className} onCopy={() => toast("Copied", "neutral")} />;
 }
 
+/** Usage, Source (once the file's text has loaded) and Install, under an item's stage. */
+export function ItemTabs({ usage, source, install }: { usage: string; source?: string; install: string }) {
+  return (
+    <Tabs defaultValue="usage" className="mt-6">
+      <TabsList>
+        <TabsTrigger value="usage">Usage</TabsTrigger>
+        {source ? <TabsTrigger value="source">Source</TabsTrigger> : null}
+        <TabsTrigger value="install">Install</TabsTrigger>
+      </TabsList>
+      <TabsContent value="usage">
+        <CodeBlock code={usage} />
+      </TabsContent>
+      {source ? (
+        <TabsContent value="source">
+          <CodeBlock code={source} />
+        </TabsContent>
+      ) : null}
+      <TabsContent value="install">
+        <CodeBlock code={install} />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
 export function installCommand(name: string, c: Config) {
   const q = serializeConfig(c);
   return `npx shadcn@latest add "${SITE}/r/${name}.json${q ? `?${q}` : ""}"`;
@@ -337,6 +380,17 @@ export function useBodyTokens(merged: Config, global: Config) {
   }, [merged, global]);
 }
 
+function Stage({ config, className, measureKey, children }: { config: Config; className?: string; measureKey: string; children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  return (
+    <TokenScope ref={ref} data-stage config={config} className={cn("flex min-h-[380px] items-start overflow-auto rounded-sheet p-6 sm:p-10", className)}>
+      <SteadyCentre stage={ref} measureKey={measureKey}>
+        {children}
+      </SteadyCentre>
+    </TokenScope>
+  );
+}
+
 export function GalleryItem() {
   const { name = "" } = useParams();
   const { pathname } = useLocation();
@@ -357,7 +411,7 @@ export function GalleryItem() {
   useBodyTokens(merged, global);
 
   const mobile = !!item && sectionOf(item) === "mobile";
-  // Old names (drawer, bottom-nav) open their replacement; a page asked for under the wrong half moves to the right one.
+  // A renamed item's old name opens its replacement; a page asked for under the wrong half moves to the right one.
   const target = item?.alias ? findItem(item.alias) : item;
   if (target && (target !== item || !pathname.startsWith(itemPath(target)))) return <Navigate to={`${itemPath(target)}${window.location.search}`} replace />;
 
@@ -375,24 +429,19 @@ export function GalleryItem() {
       <div className="mb-5 flex min-h-control flex-wrap items-center gap-3">
         <h1 className="mr-auto text-heading font-semibold">{item.title}</h1>
       </div>
-      <div className="grid gap-4 xl:grid-cols-[1fr_288px]">
-        <TokenScope
-          data-stage
-          config={merged}
-          className={cn(
-            "flex min-h-[380px] items-center justify-center rounded-sheet",
-            stage === "phone" ? "bg-fill px-3 py-6 sm:p-8" : "overflow-auto p-6 sm:p-10",
-            stage === "page" ? "bg-page shadow-card" : stage === "surface" ? "bg-surface shadow-card" : null,
-          )}
-        >
-          {stage === "phone" ? (
+      {/* A phone stage needs ~454 px, which 1024 has beside the controls, so you can flip a control and watch the phone. */}
+      <div className={cn("grid gap-4", stage === "phone" ? "lg:grid-cols-[1fr_288px]" : "xl:grid-cols-[1fr_288px]")}>
+        {stage === "phone" ? (
+          <TokenScope data-stage config={merged} className="flex min-h-[380px] items-center justify-center rounded-sheet bg-fill px-3 py-6 sm:p-8">
             <PhoneFrame keyboard={!!props.keyboard}>
               <DemoRender key={name} demo={demo} p={props} config={merged} />
             </PhoneFrame>
-          ) : (
+          </TokenScope>
+        ) : (
+          <Stage config={merged} className={stage === "page" ? "bg-page shadow-card" : stage === "surface" ? "bg-surface shadow-card" : undefined} measureKey={`${name} ${JSON.stringify(props)}`}>
             <DemoRender key={name} demo={demo} p={props} config={merged} />
-          )}
-        </TokenScope>
+          </Stage>
+        )}
         <Card className="grid content-start gap-4 self-start">
           {(demo.controls ?? []).map((c) =>
             c.type === "select" ? (
@@ -421,24 +470,7 @@ export function GalleryItem() {
           />
         </Card>
       </div>
-      <Tabs defaultValue="usage" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="usage">Usage</TabsTrigger>
-          {source ? <TabsTrigger value="source">Source</TabsTrigger> : null}
-          <TabsTrigger value="install">Install</TabsTrigger>
-        </TabsList>
-        <TabsContent value="usage">
-          <CodeBlock code={demo.usage(props)} />
-        </TabsContent>
-        {source ? (
-          <TabsContent value="source">
-            <CodeBlock code={source} />
-          </TabsContent>
-        ) : null}
-        <TabsContent value="install">
-          <CodeBlock code={installCommand(item.files.length ? item.name : "theme", merged)} />
-        </TabsContent>
-      </Tabs>
+      <ItemTabs usage={demo.usage(props)} source={source} install={installCommand(item.files.length ? item.name : "theme", merged)} />
     </GalleryLayout>
   );
 }

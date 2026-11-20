@@ -13,10 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TokenScope, useConfig } from "./config";
 import { ConfigPanel } from "./config-panel";
-import { CodeBlock, GalleryLayout, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
+import { GalleryLayout, ItemTabs, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
 import { Composer } from "@/components/ai/composer-glow";
 import { AgentApp, NewChat } from "./agent";
 
@@ -30,7 +29,7 @@ const MODULES = import.meta.glob("../components/{ai,backgrounds}/*.tsx", { eager
 const componentOf = (item: Item) => MODULES[`../components/${item.dir}/${item.files[0]}`]?.[item.export ?? ""] as AnyComponent | undefined;
 
 export type CollectionSection = Exclude<Section, "components" | "mobile">;
-export const SECTION_TITLE: Record<CollectionSection, string> = { ai: "AI", backgrounds: "Backgrounds" };
+const SECTION_TITLE: Record<CollectionSection, string> = { ai: "AI", backgrounds: "Backgrounds" };
 const itemsOf = (section: Section) => ITEMS.filter((i) => sectionOf(i) === section);
 
 /** Param defaults, overridden by matching URL params (?size=48), so any state has a link. */
@@ -51,7 +50,7 @@ function paramValues(item: Item, params?: URLSearchParams): Values {
 }
 
 /** The item live, in the setting it is made for: alone, around a message box, or behind a new-chat screen. */
-export function CollectionPreview({ item, values, tall }: { item: Item; values: Values; tall?: boolean }) {
+function CollectionPreview({ item, values, tall }: { item: Item; values: Values; tall?: boolean }) {
   const C = componentOf(item);
   if (!C) return null;
   if (item.stage === "composer")
@@ -206,24 +205,7 @@ export function CollectionItem({ section }: { section: CollectionSection }) {
           <ConfigPanel value={merged} onChange={(p) => setOverrides((o) => ({ ...o, ...p }))} fields={["accent"]} onReset={Object.keys(overrides).length ? () => setOverrides({}) : undefined} />
         </Card>
       </div>
-      <Tabs defaultValue="usage" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="usage">Usage</TabsTrigger>
-          {source ? <TabsTrigger value="source">Source</TabsTrigger> : null}
-          <TabsTrigger value="install">Install</TabsTrigger>
-        </TabsList>
-        <TabsContent value="usage">
-          <CodeBlock code={usageOf(item, values)} />
-        </TabsContent>
-        {source ? (
-          <TabsContent value="source">
-            <CodeBlock code={source} />
-          </TabsContent>
-        ) : null}
-        <TabsContent value="install">
-          <CodeBlock code={installCommand(item.name, merged)} />
-        </TabsContent>
-      </Tabs>
+      <ItemTabs usage={usageOf(item, values)} source={source} install={installCommand(item.name, merged)} />
     </GalleryLayout>
   );
 }

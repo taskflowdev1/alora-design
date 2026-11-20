@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, Outlet, ScrollRestoration, useLocation, useNavigate } from "react-router";
-import { Box, Cpu, Download, Grid, Home, Image, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Sun, X } from "react-feather";
-import { cn } from "@/lib/ad";
+import { BookOpen, Box, Cpu, Download, Grid, Home, Image, Layout, Moon, RotateCcw, Search as SearchIcon, Sliders, Smartphone, Sun, X } from "react-feather";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
@@ -11,7 +11,7 @@ import { CommandPalette, useCommandShortcut } from "@/components/ui/command-pale
 import { Shortcut } from "@/components/ui/kbd";
 import { GROUPS, ITEMS, findItem, itemPath, type Group } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
-import { ConfigTokens, SLink, useConfig } from "./config";
+import { ConfigTokens, SLink, useConfig, useLiveConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
 import { Wordmark } from "./logo";
 
@@ -64,8 +64,8 @@ function PhoneTabs() {
 }
 
 /** Phones and small tablets: the header button and its popover. From md up the left flap replaces it. */
-export function CustomizeButton({ label = true, className }: { label?: boolean; className?: string }) {
-  const [config, setConfig] = useConfig();
+function CustomizeButton({ label = true, className }: { label?: boolean; className?: string }) {
+  const [config, setConfig] = useLiveConfig();
   return (
     <Popover
       align="end"
@@ -96,8 +96,8 @@ function OwnScrollBox({ className, children }: { className?: string; children: R
   );
 }
 
-export function ThemeButton() {
-  const [config, setConfig] = useConfig();
+function ThemeButton() {
+  const [config, setConfig] = useLiveConfig();
   const dark = config.theme === "dark";
   return (
     <Tooltip content={dark ? "Light theme" : "Dark theme"}>
@@ -107,6 +107,16 @@ export function ThemeButton() {
     </Tooltip>
   );
 }
+
+const EXAMPLE_PAGES = [
+  ["dashboard", "Dashboard"],
+  ["orders", "Orders"],
+  ["products", "Products"],
+  ["promotions", "Promotions"],
+  ["cancellations", "Cancellations"],
+  ["team", "Team"],
+  ["settings", "Settings"],
+] as const;
 
 function HeaderSearch() {
   const [open, setOpen] = React.useState(false);
@@ -124,9 +134,16 @@ function HeaderSearch() {
           { id: "components", label: "Components", icon: Grid, onSelect: () => go("/components") },
           { id: "ai", label: "AI", icon: Cpu, onSelect: () => go("/ai") },
           { id: "backgrounds", label: "Backgrounds", icon: Image, onSelect: () => go("/backgrounds") },
+          { id: "mobile", label: "Mobile components", keywords: "phone touch", icon: Smartphone, onSelect: () => go("/mobile") },
+          { id: "mobile-screens", label: "Mobile screens", keywords: "phone app", icon: Smartphone, onSelect: () => go("/mobile/screens") },
           { id: "examples", label: "Examples", icon: Layout, onSelect: () => go("/examples/dashboard") },
-          { id: "export", label: "Export", icon: Download, onSelect: () => go("/export") },
+          { id: "encyclopedia", label: "Encyclopedia", keywords: "rules checklist guidelines", icon: BookOpen, onSelect: () => go("/encyclopedia") },
+          { id: "export", label: "Export", keywords: "install tokens kit", icon: Download, onSelect: () => go("/export") },
         ],
+      },
+      {
+        label: "Examples",
+        items: EXAMPLE_PAGES.map(([page, label]) => ({ id: `example-${page}`, label: `Examples › ${label}`, keywords: page, icon: Layout, onSelect: () => go(`/examples/${page}`) })),
       },
       ...[...GROUPS, "AI", "Backgrounds"].map((g) => ({
         label: g,
@@ -178,7 +195,7 @@ function SkipLink() {
 }
 
 /** One header for every page: same position, width and height on landing, gallery, examples and export. */
-export function SiteHeader() {
+function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-page">
       <div className="relative mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
@@ -219,7 +236,7 @@ export function Credit({ className }: { className?: string }) {
 }
 
 /** One quiet line at the bottom of every page, on the page's left edge. The landing ends with its closing card instead. */
-export function SiteFooter() {
+function SiteFooter() {
   const { pathname } = useLocation();
   // The landing ends with its closing card; the example app fills the window and scrolls inside itself.
   if (pathname === "/" || pathname.startsWith("/examples/")) return null;
@@ -261,7 +278,7 @@ function canScroll(el: Element, dx: number, dy: number) {
  * Wheel over the panel's header goes to the list. Popovers opened from the panel are portalled outside it, so
  * they scroll as usual.
  */
-export function useOwnScroll(panelRef: React.RefObject<HTMLElement | null>, listRef: React.RefObject<HTMLElement | null>, on = true) {
+function useOwnScroll(panelRef: React.RefObject<HTMLElement | null>, listRef: React.RefObject<HTMLElement | null>, on = true) {
   React.useEffect(() => {
     const panel = panelRef.current;
     const list = listRef.current;
@@ -372,7 +389,7 @@ function useViewportWidth() {
  * outside, or focus leaving.
  */
 function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | null> }) {
-  const [config, setConfig] = useConfig();
+  const [config, setConfig] = useLiveConfig();
   const vw = useViewportWidth();
   const enabled = vw >= FLAP_MIN;
   const W = panelWidth(vw);
@@ -476,7 +493,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
     el.getAnimations().forEach((a) => a.cancel());
     el.style.marginLeft = target;
     const x1 = probe?.getBoundingClientRect().left ?? 0;
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const still = prefersReducedMotion();
     if (toggled && !still && Math.abs(x0 - x1) > 0.5) el.animate([{ transform: `translateX(${x0 - x1}px)` }, { transform: "translateX(0)" }], { duration: SLIDE_MS, easing: EASE });
   }, [open, push, W, pageRef]);
 
@@ -503,12 +520,14 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
           if (e.detail === 0) requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("button,[href],input,[role=slider],[role=radio],[tabindex='0']")?.focus({ preventScroll: true }));
         }}
         className={cn(
+          // The hit area runs from the screen edge to past the flap (::after), so a pointer thrown to x = 0 still lands on it.
           "fixed left-1 top-1/2 z-40 flex w-5 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 rounded-full bg-surface py-3 text-ink-muted shadow-card",
+          "after:absolute after:inset-y-0 after:-left-1 after:w-8 after:content-['']",
           "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink",
           open && "pointer-events-none opacity-0",
         )}
       >
-        <Sliders size={14} className="rotate-90" />
+        <Sliders size={16} className="rotate-90" />
         <span className="text-small font-medium [writing-mode:vertical-rl] rotate-180">Customize</span>
       </button>
       <div
@@ -523,7 +542,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
         onBlur={(e) => {
           if (mode.current === "pinned" && e.relatedTarget && !inside(e.relatedTarget, panelRef.current, flapRef.current)) hide();
         }}
-        className="fixed inset-y-0 left-0 z-50 p-3 pr-0 will-change-transform"
+        className="fixed inset-y-0 left-0 z-50 p-3 pr-0"
         style={{ width: W, transform: open ? "translateX(0)" : "translateX(calc(-100% - 64px))", transition: `transform ${SLIDE_MS}ms ${EASE}` }}
       >
         <div

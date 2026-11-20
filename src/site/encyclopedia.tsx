@@ -147,36 +147,96 @@ function useSlowMotion(on: boolean) {
   }, [on]);
 }
 
-export function EncyclopediaPage() {
+type Filters = { q: string; cat: string; level: LevelFilter; platform: PlatformFilter; demos: boolean };
+const NO_FILTERS: Filters = { q: "", cat: "all", level: "all", platform: "all", demos: false };
+
+function readFilters(params: URLSearchParams): Filters {
+  const p = params.get("platform");
+  return {
+    q: params.get("q") ?? "",
+    cat: CATEGORIES.some((c) => c.id === params.get("cat")) ? params.get("cat")! : "all",
+    level: LEVELS.some((l) => l.id === params.get("level")) ? (params.get("level") as Level) : "all",
+    platform: p === "desktop" || p === "mobile" ? p : "all",
+    demos: params.get("demos") === "1",
+  };
+}
+
+function writeFilters(params: URLSearchParams, f: Filters) {
+  const next = new URLSearchParams(params);
+  const put = (k: string, v: string | null) => (v ? next.set(k, v) : next.delete(k));
+  put("q", f.q || null);
+  put("cat", f.cat === "all" ? null : f.cat);
+  put("level", f.level === "all" ? null : f.level);
+  put("platform", f.platform === "all" ? null : f.platform);
+  put("demos", f.demos ? "1" : null);
+  return next;
+}
+
+const filterKey = (f: Filters) => JSON.stringify(f);
+
+/**
+ * The filters as local state, mirrored into the URL. Controls read the local copy, so a key or a segment lands on the
+ * next frame; the 300-rule list follows a deferred copy, and the URL is written after typing pauses. Writing the URL
+ * on every key made the field edit a stale value and drop letters when typed fast.
+ */
+function useFilters() {
   const [params, setParams] = useSearchParams();
-  const q = params.get("q") ?? "";
-  const cat = CATEGORIES.some((c) => c.id === params.get("cat")) ? params.get("cat")! : "all";
-  const level: LevelFilter = LEVELS.some((l) => l.id === params.get("level")) ? (params.get("level") as Level) : "all";
-  const demosOnly = params.get("demos") === "1";
-  const platform: PlatformFilter = params.get("platform") === "desktop" || params.get("platform") === "mobile" ? (params.get("platform") as PlatformFilter) : "all";
+  const fromUrl = readFilters(params);
+  const urlKey = filterKey(fromUrl);
+  const [filters, setFilters] = React.useState(fromUrl);
+  const written = React.useRef(urlKey);
+  const timer = React.useRef<number>(undefined);
+  // The URL changed from outside (back, a link): take it over.
+  React.useEffect(() => {
+    if (urlKey === written.current) return;
+    written.current = urlKey;
+    window.clearTimeout(timer.current);
+    setFilters(JSON.parse(urlKey) as Filters);
+  }, [urlKey]);
+  React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  const commit = React.useCallback(
+    (f: Filters, extra?: (p: URLSearchParams) => void) => {
+      written.current = filterKey(f);
+      React.startTransition(() =>
+        setParams(
+          (p) => {
+            const next = writeFilters(p, f);
+            extra?.(next);
+            return next;
+          },
+          { replace: true, preventScrollReset: true },
+        ),
+      );
+    },
+    [setParams],
+  );
+  const update = (patch: Partial<Filters>, extra?: (p: URLSearchParams) => void) => {
+    const next = { ...filters, ...patch };
+    setFilters(next);
+    window.clearTimeout(timer.current);
+    // Typing writes the URL once it pauses; a pick writes it at once.
+    if ("q" in patch && !extra) timer.current = window.setTimeout(() => commit(next), 250);
+    else commit(next, extra);
+  };
+  return [filters, update, params] as const;
+}
+
+export function EncyclopediaPage() {
+  const [filters, update, params] = useFilters();
+  const { q, cat, level, platform, demos: demosOnly } = filters;
   const [openRule, setOpenRule] = React.useState(() => resolveRuleId(params.get("rule") ?? "") ?? null);
   const [slow, setSlow] = React.useState(false);
   useSlowMotion(slow);
 
-  const set = (key: string, value: string | null) =>
-    setParams(
-      (p) => {
-        const next = new URLSearchParams(p);
-        if (value) next.set(key, value);
-        else next.delete(key);
-        return next;
-      },
-      { replace: true, preventScrollReset: true },
-    );
-
-  const deferredQ = React.useDeferredValue(q);
-  const terms = deferredQ.toLowerCase().split(/\s+/).filter(Boolean);
+  // The list follows a deferred copy, so the field and the segments answer first.
+  const deferred = React.useDeferredValue(filters);
+  const terms = deferred.q.toLowerCase().split(/\s+/).filter(Boolean);
   const shown = RULES.filter(
     (r) =>
-      (cat === "all" || r.category === cat) &&
-      (level === "all" || r.level === level) &&
-      (platform === "all" || forPlatform(r, platform)) &&
-      (!demosOnly || DEMOS[r.id]) &&
+      (deferred.cat === "all" || r.category === deferred.cat) &&
+      (deferred.level === "all" || r.level === deferred.level) &&
+      (deferred.platform === "all" || forPlatform(r, deferred.platform)) &&
+      (!deferred.demos || DEMOS[r.id]) &&
       terms.every((t) => haystack.get(r.id)!.includes(t)),
   );
   const sections = CATEGORIES.map((c) => ({ ...c, rules: rulesIn(c.id, shown) })).filter((c) => c.rules.length);
@@ -188,15 +248,7 @@ export function EncyclopediaPage() {
 
   /** Opens a rule from the old-id list: clears filters that would hide it, then opens and scrolls to it. */
   const goTo = (id: string) => {
-    setParams(
-      (p) => {
-        const next = new URLSearchParams();
-        for (const [k, v] of p) if (!["q", "cat", "level", "platform", "demos", "rule"].includes(k)) next.set(k, v);
-        next.set("rule", id);
-        return next;
-      },
-      { replace: true, preventScrollReset: true },
-    );
+    update(NO_FILTERS, (p) => p.set("rule", id));
     setOpenRule(id);
   };
 
@@ -204,7 +256,7 @@ export function EncyclopediaPage() {
     <Segmented<LevelFilter>
       aria-label="Level"
       value={level}
-      onValueChange={(v) => set("level", v === "all" ? null : v)}
+      onValueChange={(v) => update({ level: v })}
       options={[{ value: "all", label: "All" }, ...LEVELS.map((l) => ({ value: l.id, label: l.title }))]}
     />
   );
@@ -212,7 +264,7 @@ export function EncyclopediaPage() {
     <Segmented<PlatformFilter>
       aria-label="Platform"
       value={platform}
-      onValueChange={(v) => set("platform", v === "all" ? null : v)}
+      onValueChange={(v) => update({ platform: v })}
       options={[
         { value: "all", label: "Any" },
         { value: "desktop", label: "Desktop" },
@@ -221,7 +273,7 @@ export function EncyclopediaPage() {
     />
   );
   const demosToggle = (
-    <Toggle pressed={demosOnly} onPressedChange={(on) => set("demos", on ? "1" : null)} className={TOOL_TOGGLE}>
+    <Toggle pressed={demosOnly} onPressedChange={(on) => update({ demos: on })} className={TOOL_TOGGLE}>
       <Play />
       Demos
     </Toggle>
@@ -241,11 +293,11 @@ export function EncyclopediaPage() {
         }
       />
       <Toolbar>
-        <Search value={q} onValueChange={(v) => set("q", v || null)} placeholder="Search rules" aria-label="Search rules" wrapperClassName="w-full sm:w-64" />
+        <Search value={q} onValueChange={(v) => update({ q: v })} placeholder="Search rules" aria-label="Search rules" wrapperClassName="w-full sm:w-64" />
         <Select
           aria-label="Category"
           value={cat}
-          onValueChange={(v) => set("cat", v === "all" ? null : v)}
+          onValueChange={(v) => update({ cat: v })}
           options={[{ value: "all", label: "All categories" }, ...CATEGORIES.map((c) => ({ value: c.id, label: c.title }))]}
         />
         {/* Phones: level, platform and demos fold into one Filter popover, so the toolbar is two rows, not five. */}
@@ -298,10 +350,13 @@ export function EncyclopediaPage() {
                     </span>
                   ),
                   meta: (
-                    <span className="flex items-center gap-3">
-                      {DEMOS[r.id] ? <span>Demo</span> : null}
-                      {platformOf(r) !== "both" ? <span data-platform={platformOf(r)}>{platformOf(r) === "mobile" ? "Mobile" : "Desktop"}</span> : null}
-                      {r.level !== "should" ? <span>{levelTitle(r.level)}</span> : null}
+                    // Three fixed slots from sm up, so Demo, Platform and Level each keep their own column row to row.
+                    <span className="flex items-center gap-3 sm:gap-2">
+                      <span className="empty:hidden sm:w-10 sm:empty:block">{DEMOS[r.id] ? "Demo" : null}</span>
+                      <span data-platform={platformOf(r) !== "both" ? platformOf(r) : undefined} className="empty:hidden sm:w-14 sm:empty:block">
+                        {platformOf(r) === "both" ? null : platformOf(r) === "mobile" ? "Mobile" : "Desktop"}
+                      </span>
+                      <span className="empty:hidden sm:w-16 sm:empty:block">{r.level !== "should" ? levelTitle(r.level) : null}</span>
                     </span>
                   ),
                   content: <RuleBody rule={r} />,

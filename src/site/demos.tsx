@@ -64,7 +64,7 @@ import { Menu, MenuGroup, MenuItem, MenuLabel, MenuSub } from "@/components/ui/m
 import { Toolbar, ToolbarSpacer, PageHeader } from "@/components/ui/toolbar";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
-import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime } from "./data";
+import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime, type OrderStatus } from "./data";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
 import { MOBILE_DEMOS } from "./demos-mobile";
@@ -928,8 +928,10 @@ export const DEMOS: Record<string, Demo> = {
   },
 };
 
-export function OrderDetail({ id }: { id: string }) {
-  const o = ORDERS.find((x) => x.id === id) ?? ORDERS[0];
+/** One order in a side pane. `status` overrides the stored one (an example page that has just packed it). */
+export function OrderDetail({ id, status }: { id: string; status?: OrderStatus }) {
+  const found = ORDERS.find((x) => x.id === id) ?? ORDERS[0];
+  const o = status ? { ...found, status } : found;
   const step = { Unpaid: 0, Paid: 1, Packed: 2, Shipped: 3, Cancelled: 0 }[o.status];
   const market = o.shop === "TikTok Shop" ? "tiktok" : "shopee";
   const rows: [string, React.ReactNode][] = [

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Check, Copy, Download, ExternalLink } from "react-feather";
+import { cn } from "@/lib/ad";
 import { serializeConfig, tokensCss, tokensJson } from "@/lib/config";
 import { kitMarkdown, registryUrl, tailwindCss } from "@/lib/kit";
 import { REGISTRY_ITEMS, SITE } from "@/lib/registry";
@@ -7,25 +8,48 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/toolbar";
+import { toast } from "@/components/ui/toast";
 import themeCss from "@/styles/theme.css?raw";
 import baseCss from "@/styles/base.css?raw";
 import { useConfig } from "./config";
 import { CodeBlock } from "./gallery";
 
-/** Copies and confirms on the button itself: the icon turns into a check for a moment (no far-away toast). */
+/**
+ * Copies and confirms on the button itself: the icon turns into a check for a moment (no far-away toast). Only a
+ * write that worked shows the check; a refused one says so.
+ */
 function useCopy() {
   const [done, setDone] = React.useState(false);
   const t = React.useRef<number>(undefined);
   React.useEffect(() => () => window.clearTimeout(t.current), []);
   const copy = (text: string) => {
-    void navigator.clipboard?.writeText(text);
-    setDone(true);
-    window.clearTimeout(t.current);
-    t.current = window.setTimeout(() => setDone(false), 1500);
+    const failed = () => toast("Couldn’t copy. Select the text and copy it.", "neutral");
+    if (!navigator.clipboard) return failed();
+    navigator.clipboard.writeText(text).then(() => {
+      setDone(true);
+      window.clearTimeout(t.current);
+      t.current = window.setTimeout(() => setDone(false), 1500);
+    }, failed);
   };
   return [done, copy] as const;
+}
+
+/** Copy turns into a check the way CopyChip's does: the outgoing icon shrinks and blurs as it fades. */
+function CopyIcon({ done }: { done: boolean }) {
+  const swap = "absolute transition-[opacity,scale,filter] duration-[160ms] ease-ad";
+  return (
+    <span className="relative grid size-4 shrink-0 place-items-center">
+      <Copy className={cn(swap, done && "scale-[0.8] opacity-0 blur-[2px]")} />
+      <Check className={cn(swap, !done && "scale-[0.8] opacity-0 blur-[2px]")} />
+    </span>
+  );
+}
+
+/** The kit lists every must rule; the encyclopedia loads only when you ask for the file, so it stays out of the page. */
+async function downloadKit(config: Parameters<typeof kitMarkdown>[0]) {
+  const { RULES } = await import("@/lib/encyclopedia");
+  download("alora-design-kit.md", "text/markdown", kitMarkdown(config, RULES));
 }
 
 function download(name: string, type: string, body: string) {
@@ -43,7 +67,7 @@ function LinkRow({ label, value, open }: { label: string; value: string; open?: 
       <div className="flex gap-gap">
         <Input aria-label={label} readOnly value={value} wrapperClassName="flex-1" className="truncate" onFocus={(e) => e.currentTarget.select()} />
         <Button icon aria-label={done ? "Copied" : `Copy ${label.toLowerCase()}`} onClick={() => copy(value)}>
-          {done ? <Check /> : <Copy />}
+          <CopyIcon done={done} />
         </Button>
         {open ? (
           <Button icon aria-label={`Open ${label.toLowerCase()}`} asChild>
@@ -124,14 +148,20 @@ export function ExportPage() {
                 <Download />
                 Tailwind v4 theme
               </Button>
-              <Button onClick={() => download("alora-design-kit.md", "text/markdown", kitMarkdown(config))}>
+              <Button onClick={() => void downloadKit(config)}>
                 <Download />
                 Kit (markdown)
               </Button>
             </div>
           </Card>
           <Card className="grid gap-3">
-            <CardHeader title="Install with shadcn" action={<Badge>{REGISTRY_ITEMS.length}</Badge>} />
+            <CardHeader
+              title={
+                <>
+                  Install with shadcn <span className="font-normal tabular-nums text-ink-muted">{REGISTRY_ITEMS.length}</span>
+                </>
+              }
+            />
             <Combobox
               aria-label="Component"
               value={component}
@@ -142,7 +172,7 @@ export function ExportPage() {
             <CodeBlock code={`npx shadcn@latest add "${registryUrl(component ?? "button", config)}"`} />
             <div className="flex">
               <Button onClick={() => copyAll(all)}>
-                {copiedAll ? <Check /> : <Copy />}
+                <CopyIcon done={copiedAll} />
                 Copy command for all components
               </Button>
             </div>

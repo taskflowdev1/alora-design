@@ -18,7 +18,7 @@ import {
   Users,
   XCircle,
 } from "react-feather";
-import { cn, formatRp } from "@/lib/ad";
+import { cn, formatNumber, formatRp, sameDay, startOfDay } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, MetricCard } from "@/components/ui/card";
@@ -47,18 +47,18 @@ import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { Loading, LoadingText, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
-import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
+import { MobileTab, MobileTabBar } from "@/components/mobile/mobile-tab-bar";
 import { Alert } from "@/components/ui/alert";
 import { ColumnMenu } from "@/components/ui/column-menu";
 import { ShopPicker } from "@/components/ui/shop-picker";
-import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
+import { NotificationBell } from "@/components/ui/notification-bell";
 import { InlineEdit, grouped } from "@/components/ui/inline-edit";
 import { Sparkline } from "@/components/ui/sparkline";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
-import { ProgressRing } from "@/components/ui/progress-ring";
+import { Progress } from "@/components/ui/progress";
 import { MarketMark } from "@/components/ui/marketplace-mark";
 import { DateRangePicker, formatRange, type DateRange } from "@/components/ui/date-range-picker";
 import { ToggleGroup } from "@/components/ui/toggle-group";
@@ -79,6 +79,7 @@ import {
   DAILY,
   HOURLY,
   MARKET_SHOPS,
+  NOTICES,
   NOW,
   ORDERS,
   PRODUCTS,
@@ -109,11 +110,58 @@ function useLoading() {
   return params.get("loading") === "1";
 }
 
-const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
-  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
-  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
-];
+/** Names, ids and codes that a browser's page translation must leave alone. */
+const NoTranslate = ({ children }: { children: React.ReactNode }) => <span translate="no">{children}</span>;
+
+function useWide(query = "(min-width: 1280px)") {
+  const [on, setOn] = React.useState(() => typeof matchMedia === "function" && matchMedia(query).matches);
+  React.useEffect(() => {
+    const m = matchMedia(query);
+    const set = () => setOn(m.matches);
+    set();
+    m.addEventListener("change", set);
+    return () => m.removeEventListener("change", set);
+  }, [query]);
+  return on;
+}
+
+/** The side pane starts under the site header (h-16, plus the h-11 tab row below lg), so search and the theme button stay usable. */
+const PANE_CLASS = "sm:top-[calc(4rem+2.75rem+0.75rem)] lg:top-[calc(4rem+0.75rem)]";
+
+/**
+ * Where there is room beside the open side pane (xl and up), the table's card ends where the pane starts, so the
+ * selected row's money stays in view instead of under the pane.
+ */
+function usePaneRoom(open: boolean, selector: string) {
+  const wide = useWide();
+  const [room, setRoom] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (!el || !open || !wide) return setRoom(0);
+    const paneLeft = document.documentElement.clientWidth - 12 - 440;
+    // Measured without the current margin, so a second open (another row) gives the same answer.
+    const right = el.getBoundingClientRect().right + (parseFloat(el.style.marginRight) || 0);
+    setRoom(Math.max(0, Math.round(right - paneLeft + 12)));
+  }, [open, wide, selector]);
+  return room;
+}
+
+/** The phone layout's floating create action, above the tab bar. */
+function Fab({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ size?: number | string }>; label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className={cn(
+        "fixed bottom-[calc(92px+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog",
+        "ad-press hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]",
+      )}
+    >
+      <Icon size={20} />
+    </button>
+  );
+}
 
 /**
  * A sidebar link. SidebarItem asChild clones its child around the row and also prints its children as the label; the
@@ -171,7 +219,8 @@ function AppSidebar({ page }: { page: Page }) {
           tone="dark"
           side="top"
           trigger={
-            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
+            // A fill behind the avatar for hover and keyboard focus (the avatar itself is already filled).
+            <button type="button" aria-label="Account" className="-ml-0.5 cursor-pointer rounded-full p-0.5 transition-colors duration-[150ms] ease-ad hover:bg-side-fill focus-visible:bg-side-fill">
               <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
           }
@@ -196,23 +245,23 @@ function PhoneNavBar({ page }: { page: Page }) {
   const more: Page[] = ["promotions", "cancellations", "team", "settings"];
   return (
     <div className="lg:hidden">
-      <BottomNav>
+      <MobileTabBar>
         <SLink to="/examples/dashboard" className="flex flex-1">
-          <BottomNavItem icon={Home} label="Home" active={page === "dashboard"} />
+          <MobileTab icon={Home} label="Home" active={page === "dashboard"} />
         </SLink>
         <SLink to="/examples/orders" className="flex flex-1">
-          <BottomNavItem icon={ShoppingBag} label="Orders" active={page === "orders"} />
+          <MobileTab icon={ShoppingBag} label="Orders" active={page === "orders"} />
         </SLink>
         <SLink to="/examples/products" className="flex flex-1">
-          <BottomNavItem icon={Package} label="Products" active={page === "products"} />
+          <MobileTab icon={Package} label="Products" active={page === "products"} />
         </SLink>
-        <Menu side="top" align="end" trigger={<span className="flex flex-1"><BottomNavItem icon={MoreHorizontal} label="More" active={more.includes(page)} /></span>}>
+        <Menu side="top" align="end" trigger={<span className="flex flex-1"><MobileTab icon={MoreHorizontal} label="More" active={more.includes(page)} /></span>}>
           <MenuItem icon={Tag} onSelect={() => go("promotions")}>Promotions</MenuItem>
           <MenuItem icon={XCircle} onSelect={() => go("cancellations")}>Cancellations</MenuItem>
           <MenuItem icon={Users} onSelect={() => go("team")}>Team</MenuItem>
           <MenuItem icon={SettingsIcon} onSelect={() => go("settings")}>Settings</MenuItem>
         </Menu>
-      </BottomNav>
+      </MobileTabBar>
       {page === "orders" ? <Fab icon={Plus} label="Add order" onClick={() => toast("New order")} /> : null}
     </div>
   );
@@ -230,7 +279,8 @@ export function Examples() {
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
       <AppSidebar page={p} />
       <div ref={app} data-app className="ad-fade-y min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24">
-        <div key={p} className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
+        {/* key: a fresh page (its own state and scroll) per switch; it swaps in one frame, no fade from blank. */}
+        <div key={p} className="px-0 py-1 sm:px-4 sm:py-2">
           {p === "dashboard" ? (
             <Dashboard />
           ) : p === "orders" ? (
@@ -255,21 +305,47 @@ export function Examples() {
 
 /* ------------------------------------------------------------ dashboard */
 
-/** Sales today per shop, in Rp jt: the four shops only (marketplaces have their own picker), largest first. */
-const BY_SHOP: [string, number][] = [
-  ["Kemang", 12.4],
-  ["Senopati", 9.8],
-  ["Dago", 7.1],
-  ["Darmo", 5.2],
-];
+/** Sales today per shop, in Rp jt (they add up to the day's total), largest first. Ids match MARKET_SHOPS. */
+const BY_SHOP: Record<string, number> = {
+  kemang: 12.4,
+  senopati: 9.8,
+  "shopee-official": 8.6,
+  dago: 7.1,
+  tiktok: 5.9,
+  "shopee-outlet": 3.0,
+  tokopedia: 1.4,
+};
+const DAY_TOTAL = Object.values(BY_SHOP).reduce((a, v) => a + v, 0);
+
+/** Each range scales today's numbers by how many days of sales it holds. */
+const RANGES = {
+  day: { label: "today", days: DAILY.slice(-1), cancelled: 4 },
+  week: { label: "this week", days: DAILY.slice(-7), cancelled: 23 },
+  month: { label: "this month", days: DAILY, cancelled: 97 },
+};
+
+/** Orders carry the shop's name; marketplace shops file under their marketplace. */
+const orderShopOf = (id: string) => {
+  const s = MARKET_SHOPS.find((x) => x.id === id);
+  return !s ? null : s.market === "offline" ? s.name : s.market === "shopee" ? "Shopee" : s.market === "tiktok" ? "TikTok Shop" : null;
+};
 
 function Dashboard() {
   const loading = useLoading();
-  const [range, setRange] = React.useState("day");
+  const [range, setRange] = React.useState<keyof typeof RANGES>("day");
   const [shops, setShops] = React.useState(MARKET_SHOPS.map((s) => s.id));
   const [shop, setShop] = React.useState<string | null>(null);
+  const r = RANGES[range];
+  // The picker narrows every number on the page to the shops it keeps; a bar in By shop narrows the lists below to one.
+  const share = shops.reduce((a, id) => a + (BY_SHOP[id] ?? 0), 0) / DAY_TOTAL;
+  const sales = Math.round((range === "day" ? DAY_TOTAL : r.days.reduce((a, d) => a + d.value, 0)) * share * 1e4) * 100;
+  const orders = Math.round(sales / 154600);
+  const inScope = (orderShop: string) => (shop ? orderShopOf(shop) === orderShop : shops.some((id) => orderShopOf(id) === orderShop));
   const low = PRODUCTS.filter((p) => p.stock < 5);
-  const unpaid = ORDERS.filter((o) => o.status === "Unpaid").slice(0, 4);
+  const unpaid = ORDERS.filter((o) => o.status === "Unpaid" && inScope(o.shop)).slice(0, 4);
+  const byShop = MARKET_SHOPS.filter((s) => shops.includes(s.id)).sort((a, b) => BY_SHOP[b.id] - BY_SHOP[a.id]);
+  const scale = range === "day" ? 1 : r.days.reduce((a, d) => a + d.value, 0) / DAY_TOTAL;
+  const chart = range === "day" ? null : r.days.map((d) => ({ ...d, value: Math.round(d.value * share * 10) / 10, display: `Rp ${formatNumber(Math.round(d.value * share * 10) / 10)} jt` }));
   // Attention rows sit on a fill, so their skeleton bars take the next step up to show.
   const L = ({ children }: { children: React.ReactNode }) => (
     <LoadingText loading={loading} onFill>
@@ -279,7 +355,7 @@ function Dashboard() {
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Dashboard">
-        <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={setShops} />
+        <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={(v) => (setShops(v), setShop(null))} />
         <Segmented
           aria-label="Range"
           value={range}
@@ -297,19 +373,27 @@ function Dashboard() {
       </PageHeader>
       <Alert tone="neutral" title="2 shops haven’t synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
       <div className="flex flex-wrap gap-4">
-        <MetricCard primary loading={loading} label="Sales today" unit="Rp" value={48240000} delta={{ value: "9,7%", direction: "up" }} />
-        <MetricCard loading={loading} label="Orders" value={312} />
+        <MetricCard primary loading={loading} label={`Sales ${r.label}`} unit="Rp" value={sales} delta={{ value: "9,7%", direction: "up" }} />
+        <MetricCard loading={loading} label="Orders" value={orders} />
         <MetricCard loading={loading} label="Basket" unit="Rp" value={154600} />
-        <MetricCard loading={loading} label="To ship" value={18} />
-        <MetricCard loading={loading} label="Cancelled" value={4} />
+        <MetricCard loading={loading} label="To ship" value={Math.round(18 * share)} />
+        <MetricCard loading={loading} label="Cancelled" value={Math.round(r.cancelled * share)} />
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Card>
-          <CardHeader title={range === "day" ? "Sales by hour" : "Sales, last 30 days"} />
-          {range === "day" ? (
-            <BarChart data={HOURLY} current={6} labelEvery={1} height={150} loading={loading} className="mt-4" aria-label="Sales by hour" />
+          <CardHeader title={chart ? `Sales, last ${chart.length} days` : "Sales by hour"} />
+          {chart ? (
+            <BarChart key={range} data={chart} current={chart.length - 1} labelEvery={range === "week" ? 1 : 5} height={150} loading={loading} className="mt-4" aria-label={`Sales, last ${chart.length} days`} />
           ) : (
-            <BarChart data={DAILY} current={29} labelEvery={5} height={150} loading={loading} className="mt-4" aria-label="Sales, last 30 days" />
+            <BarChart
+              data={HOURLY.map((h) => ({ ...h, value: Math.round(h.value * share * 10) / 10, display: `Rp ${formatNumber(Math.round(h.value * share * 10) / 10)} jt` }))}
+              current={6}
+              labelEvery={1}
+              height={150}
+              loading={loading}
+              className="mt-4"
+              aria-label="Sales by hour"
+            />
           )}
         </Card>
         <Card inset="nest">
@@ -318,12 +402,16 @@ function Dashboard() {
             loading={loading}
             selected={shop}
             onSelect={setShop}
-            data={BY_SHOP.map(([s, v]) => ({ key: s, label: s, value: v, display: `Rp ${v.toLocaleString("id-ID")} jt` }))}
+            data={byShop.map((s) => {
+              const v = Math.round(BY_SHOP[s.id] * scale * 10) / 10;
+              return { key: s.id, label: s.name, value: v, display: `Rp ${formatNumber(v)} jt` };
+            })}
           />
         </Card>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         <Card inset="nest">
+          {/* Stock is counted for the whole business, so the shop filters leave this list as it is. */}
           <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
           <AttentionList className="mt-1">
             {low.map((p) => (
@@ -331,7 +419,11 @@ function Dashboard() {
                 key={p.sku}
                 media={loading ? <Skeleton onFill className="size-[32px] rounded-small" /> : <Thumb alt={p.name} />}
                 title={<L>{p.name}</L>}
-                meta={<L>{p.sku}</L>}
+                meta={
+                  <L>
+                    <NoTranslate>{p.sku}</NoTranslate>
+                  </L>
+                }
                 value={<L>{p.stock === 0 ? "Out" : `${p.stock} left`}</L>}
                 onClick={() => toast(`Restock ${p.name}`, "neutral")}
               />
@@ -340,18 +432,26 @@ function Dashboard() {
         </Card>
         <Card inset="nest">
           <CardHeader title="Unpaid over 24 hours" action={<Badge>{unpaid.length}</Badge>} className="px-2 pt-2" />
-          <AttentionList className="mt-1">
-            {unpaid.map((o) => (
-              <AttentionItem
-                key={o.id}
-                media={loading ? <Skeleton onFill className="size-8 rounded-full" /> : <Avatar name={o.customer} size="md" className="bg-surface" />}
-                title={<L>{o.customer}</L>}
-                meta={<L>{`${o.id} · ${o.shop}`}</L>}
-                value={<L>{formatRp(o.total)}</L>}
-                onClick={() => toast("Reminder sent", "neutral")}
-              />
-            ))}
-          </AttentionList>
+          {unpaid.length ? (
+            <AttentionList className="mt-1">
+              {unpaid.map((o) => (
+                <AttentionItem
+                  key={o.id}
+                  media={loading ? <Skeleton onFill className="size-8 rounded-full" /> : <Avatar name={o.customer} size="md" className="bg-surface" />}
+                  title={<L>{o.customer}</L>}
+                  meta={
+                    <L>
+                      <NoTranslate>{`${o.id} · ${o.shop}`}</NoTranslate>
+                    </L>
+                  }
+                  value={<L>{formatRp(o.total)}</L>}
+                  onClick={() => toast("Reminder sent", "neutral")}
+                />
+              ))}
+            </AttentionList>
+          ) : (
+            <EmptyState icon={ShoppingBag} title="Nothing unpaid" className="py-8" />
+          )}
         </Card>
       </div>
     </div>
@@ -382,20 +482,23 @@ function Orders() {
   const [page, setPage] = React.useState(1);
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [cols, setCols] = React.useState(["time", "shop", "customer", "items", "payment", "fee"]);
+  // Orders marked as packed from the pane: their status moves on in the table and in the pane's steps.
+  const [packed, setPacked] = React.useState<string[]>([]);
+  const statusOf = (o: (typeof ORDERS)[number]): OrderStatus => (packed.includes(o.id) ? "Packed" : o.status);
+  const wide = useWide();
   const [busy, setBusy] = React.useState(false);
   const loading = forcedLoading || busy;
   const first = React.useRef(true);
-  const show = (k: string) => cols.includes(k);
 
   const rows = React.useMemo(() => {
     const t = q.trim().toLowerCase();
     return ORDERS.filter(
       (o) =>
         (shop === "all" || o.shop === shop) &&
-        (!status.length || status.includes(o.status)) &&
+        (!status.length || status.includes(packed.includes(o.id) ? "Packed" : o.status)) &&
         (!t || o.id.toLowerCase().includes(t) || o.items.toLowerCase().includes(t) || o.customer.toLowerCase().includes(t)),
     );
-  }, [q, shop, status]);
+  }, [q, shop, status, packed]);
   const pageRows = rows.slice((page - 1) * 50, page * 50);
 
   // A filter or page change shows the skeleton, the same shape as the rows that arrive.
@@ -412,6 +515,12 @@ function Orders() {
   React.useEffect(() => setPage(1), [q, shop, status]);
 
   const open = ORDERS.find((o) => o.id === openId);
+  const openStatus = open ? statusOf(open) : null;
+  const room = usePaneRoom(!!open, "[data-orders]");
+  // Below xl, Payment and Fee give way so Status and Total stay in view; the menu lists only what can show.
+  const menuCols = wide ? ORDER_COLS : ORDER_COLS.filter((c) => c.key !== "payment" && c.key !== "fee");
+  // Beside the open pane the table is narrower: the pane already shows the time and the payment.
+  const show = (k: string) => cols.includes(k) && !(room && (k === "payment" || k === "time"));
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
 
   return (
@@ -420,11 +529,12 @@ function Orders() {
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />
         <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
-        <MultiSelect aria-label="Status" placeholder="Status" value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} />
+        {/* One fixed width: picking statuses while the menu is open must not grow the trigger and shove the row. */}
+        <MultiSelect aria-label="Status" placeholder="Status" maxChips={1} value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} className="w-[12.5rem]" />
         <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
         {/* Columns, Export and Add stay together at the right end, also when the row wraps (1024). */}
         <div className="ml-auto flex items-center gap-gap">
-          <ColumnMenu columns={ORDER_COLS} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
+          <ColumnMenu columns={menuCols} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
           <Button>
             <Download />
             Export
@@ -435,7 +545,7 @@ function Orders() {
           </Button>
         </div>
       </Toolbar>
-      <Card inset="nest" className="flex min-h-0 flex-1 flex-col max-lg:min-h-[480px]" data-orders>
+      <Card inset="nest" className="flex min-h-0 flex-1 flex-col max-lg:min-h-[480px]" style={room ? { marginRight: room } : undefined} data-orders>
         {rows.length === 0 ? (
           <EmptyState icon={SearchIcon} title="No orders match" className="flex-1" />
         ) : (
@@ -452,14 +562,20 @@ function Orders() {
                   {show("payment") ? <TH className="max-xl:hidden">Payment</TH> : null}
                   <TH>Status</TH>
                   <TH align="right">Total</TH>
-                  {show("fee") ? <TH align="right">Fee</TH> : null}
+                  {show("fee") ? (
+                    <TH align="right" className="max-xl:hidden">
+                      Fee
+                    </TH>
+                  ) : null}
                 </tr>
               </THead>
               <TBody>
                 {pageRows.map((o) => (
                   <TRow key={o.id} selected={o.id === openId} onActivate={() => setOpenId(o.id)}>
                     <TD>
-                      <L>{o.id}</L>
+                      <NoTranslate>
+                        <L>{o.id}</L>
+                      </NoTranslate>
                     </TD>
                     {show("time") ? (
                       <TD className="text-ink-muted">
@@ -468,17 +584,23 @@ function Orders() {
                     ) : null}
                     {show("shop") ? (
                       <TD>
-                        <L>{o.shop}</L>
+                        <NoTranslate>
+                          <L>{o.shop}</L>
+                        </NoTranslate>
                       </TD>
                     ) : null}
                     {show("customer") ? (
                       <TD>
-                        <L>{o.customer}</L>
+                        <NoTranslate>
+                          <L>{o.customer}</L>
+                        </NoTranslate>
                       </TD>
                     ) : null}
                     {show("items") ? (
                       <TD maxWidth={220}>
-                        <L>{o.items}</L>
+                        <NoTranslate>
+                          <L>{o.items}</L>
+                        </NoTranslate>
                       </TD>
                     ) : null}
                     {show("payment") ? (
@@ -488,16 +610,16 @@ function Orders() {
                     ) : null}
                     <TD>
                       {loading ? (
-                        <L>{o.status}</L>
+                        <L>{statusOf(o)}</L>
                       ) : (
-                        <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{o.status}</Status>
+                        <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{statusOf(o)}</Status>
                       )}
                     </TD>
                     <TD align="right">
                       <L>{formatRp(o.total)}</L>
                     </TD>
                     {show("fee") ? (
-                      <TD align="right" className="text-ink-muted">
+                      <TD align="right" className="text-ink-muted max-xl:hidden">
                         <L>{formatRp(o.fee)}</L>
                       </TD>
                     ) : null}
@@ -514,19 +636,28 @@ function Orders() {
         onOpenChange={(o) => !o && setOpenId(null)}
         modal={false}
         keepOpenOn="[data-orders]"
-        title={open?.id}
+        title={open ? <NoTranslate>{open.id}</NoTranslate> : null}
+        className={PANE_CLASS}
         footer={
           <>
-            <Button variant="ghost" onClick={() => toast("Invoice sent", "neutral")}>
-              Send invoice
-            </Button>
-            <Button variant="primary" onClick={() => toast(`${open?.id} marked as packed`)}>
-              Mark as packed
-            </Button>
+            <Button onClick={() => toast("Invoice sent", "neutral")}>Send invoice</Button>
+            {/* Only a paid order can be packed; the action goes once it is done. */}
+            {openStatus === "Paid" ? (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (!open) return;
+                  setPacked((p) => [...p, open.id]);
+                  toast(`${open.id} marked as packed`);
+                }}
+              >
+                Mark as packed
+              </Button>
+            ) : null}
           </>
         }
       >
-        {open ? <OrderDetail id={open.id} /> : null}
+        {open ? <OrderDetail id={open.id} status={openStatus ?? undefined} /> : null}
       </Sheet>
     </div>
   );
@@ -729,29 +860,28 @@ function Products() {
 
 /* ------------------------------------------------------------ promotions */
 
+/** A promotion: what and when, where it runs, then how much of its budget is spent (a bar, never a ring). */
 function PromotionCard({ p }: { p: Promotion }) {
-  const pct = p.budget ? Math.round((p.used / p.budget) * 100) : 0;
   return (
-    <Card interactive className="flex items-center gap-4" onClick={() => toast(p.name, "neutral")}>
-      <ProgressRing value={pct} size={52} aria-label={`${p.name}, budget used`} />
-      <div className="grid min-w-0 flex-1 gap-0.5">
-        <div className="flex min-w-0 items-center gap-2">
+    <Card interactive className="grid gap-3" onClick={() => toast(p.name, "neutral")}>
+      <div className="flex items-start gap-4">
+        <div className="grid min-w-0 flex-1 gap-0.5">
           <span className="truncate text-title font-semibold">{p.name}</span>
-          {p.status === "Live" ? <Pill>Live</Pill> : null}
+          <span className="truncate text-body text-ink-muted">
+            {p.discount} · {formatRange({ from: p.from, to: p.to })}
+          </span>
         </div>
-        <span className="truncate text-body text-ink-muted">
-          {p.discount} · {formatRange({ from: p.from, to: p.to })}
-        </span>
-      </div>
-      <div className="grid shrink-0 justify-items-end gap-1.5">
-        <span className="flex -space-x-1">
+        <span className="flex shrink-0 -space-x-1 pt-0.5">
           {p.markets.map((m) => (
             <MarketMark key={m} market={m} className="shadow-[0_0_0_2px_var(--ad-surface)]" />
           ))}
         </span>
+      </div>
+      <div className="grid gap-1.5">
         <span className="text-small tabular-nums text-ink-muted">
           {formatRp(p.used)} of {formatRp(p.budget)}
         </span>
+        <Progress value={p.used} max={p.budget || 1} aria-label={`${p.name}, budget used`} />
       </div>
     </Card>
   );
@@ -929,10 +1059,15 @@ function Cancellations() {
   const [reason, setReason] = React.useState<string | null>(null);
   const [range, setRange] = React.useState<DateRange>({ from: new Date(2026, 10, 10), to: NOW });
   const [openId, setOpenId] = React.useState<string | null>(null);
-  const rows = CANCELLATIONS.filter((c) => !reason || c.reason === reason);
-  const counts = CANCEL_REASONS.map((r) => CANCELLATIONS.filter((c) => c.reason === r).length);
+  // The date range narrows everything on the page; a reason bar narrows the table further.
+  const from = startOfDay(range.from);
+  const to = startOfDay(range.to ?? range.from);
+  const inRange = CANCELLATIONS.filter((c) => startOfDay(c.at) >= from && startOfDay(c.at) <= to);
+  const rows = inRange.filter((c) => !reason || c.reason === reason);
+  const counts = CANCEL_REASONS.map((r) => inRange.filter((c) => c.reason === r).length);
   const open = CANCELLATIONS.find((c) => c.id === openId);
-  const lost = CANCELLATIONS.reduce((a, c) => a + c.feeDiff, 0);
+  const lost = inRange.reduce((a, c) => a + c.feeDiff, 0);
+  const room = usePaneRoom(!!open, "[data-cancels]");
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Cancellations">
@@ -942,16 +1077,30 @@ function Cancellations() {
           Export
         </Button>
       </PageHeader>
+      {/* The counts first, then the money: one card shape per run, not interleaved. */}
       <div className="flex flex-wrap gap-4">
-        <MetricCard loading={loading} label="Today" value={4} />
-        <MetricCard loading={loading} label="This week" value={CANCELLATIONS.length} />
-        <MetricCard loading={loading} label="Refunded" unit="Rp" value={CANCELLATIONS.reduce((a, c) => a + c.refund, 0)} />
-        <MetricCard loading={loading} label="Disputed" value={CANCELLATIONS.filter((c) => c.status === "Disputed").length} />
+        <MetricCard loading={loading} label="Today" value={inRange.filter((c) => sameDay(c.at, NOW)).length} />
+        <MetricCard loading={loading} label="Cancelled" value={inRange.length} />
+        <MetricCard loading={loading} label="Disputed" value={inRange.filter((c) => c.status === "Disputed").length} />
+        <MetricCard loading={loading} label="Refunded" unit="Rp" value={inRange.reduce((a, c) => a + c.refund, 0)} />
         <MetricCard loading={loading} label="Fees not returned" unit="Rp" value={Math.abs(lost)} />
       </div>
-      {/* Stacked at every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
+      {/* The summary that filters the table sits above it, as on the dashboard, so its effect is in view. Stacked at
+          every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
       <div className="grid items-start gap-4">
-        <Card inset="nest" data-cancels>
+        <Card inset="nest">
+          <CardHeader title="By reason" className="px-2 pt-2" action={reason ? <Button variant="ghost" size="sm" onClick={() => setReason(null)}>All reasons</Button> : undefined} />
+          <BarList
+            selected={reason}
+            onSelect={setReason}
+            loading={loading}
+            data={CANCEL_REASONS.map((r, i) => ({ key: r, label: r, value: counts[i], display: String(counts[i]) }))}
+          />
+        </Card>
+        <Card inset="nest" data-cancels style={room ? { marginRight: room } : undefined}>
+          {rows.length === 0 ? (
+            <EmptyState icon={SearchIcon} title="No cancellations in these days" className="py-16" />
+          ) : (
           <Table>
             <THead>
               <tr>
@@ -967,10 +1116,12 @@ function Cancellations() {
             <TBody>
               {rows.map((c) => (
                 <TRow key={c.id} selected={c.id === openId} onActivate={() => setOpenId(c.id)}>
-                  <TD>{c.id}</TD>
+                  <TD>
+                    <NoTranslate>{c.id}</NoTranslate>
+                  </TD>
                   <TD className="text-ink-muted">{smartTime(c.at)}</TD>
                   <TD>
-                    <span className="inline-flex items-center gap-2">
+                    <span translate="no" className="inline-flex items-center gap-2">
                       <MarketMark market={c.market} />
                       {c.shop}
                     </span>
@@ -985,15 +1136,7 @@ function Cancellations() {
               ))}
             </TBody>
           </Table>
-        </Card>
-        <Card inset="nest">
-          <CardHeader title="By reason" className="px-2 pt-2" action={reason ? <Button variant="ghost" size="sm" onClick={() => setReason(null)}>All reasons</Button> : undefined} />
-          <BarList
-            selected={reason}
-            onSelect={setReason}
-            loading={loading}
-            data={CANCEL_REASONS.map((r, i) => ({ key: r, label: r, value: counts[i], display: String(counts[i]) }))}
-          />
+          )}
         </Card>
       </div>
       <Sheet
@@ -1001,7 +1144,8 @@ function Cancellations() {
         onOpenChange={(o) => !o && setOpenId(null)}
         modal={false}
         keepOpenOn="[data-cancels]"
-        title={open?.id}
+        title={open ? <NoTranslate>{open.id}</NoTranslate> : null}
+        className={PANE_CLASS}
         footer={
           <SplitButton
             onClick={() => toast("Dispute sent to the platform")}
@@ -1028,6 +1172,7 @@ function Team() {
   const loading = useLoading();
   const [roles, setRoles] = React.useState(Object.fromEntries(TEAM_DETAIL.map((t) => [t.email, t.role])));
   const [inviting, setInviting] = React.useState(false);
+  const [inviteRole, setInviteRole] = React.useState("Cashier");
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
     <div className="grid grid-cols-1 gap-5">
@@ -1040,7 +1185,8 @@ function Team() {
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card inset="nest" className="grid gap-px">
           {TEAM_DETAIL.map((t) => (
-            <div key={t.email} className="flex min-h-[calc(var(--ad-row-h)+16px)] items-center gap-3 rounded-item px-2.5 py-1.5 hover:bg-fill">
+            // No hover fill: the row itself does nothing (its role select is the control).
+            <div key={t.email} className="flex min-h-[calc(var(--ad-row-h)+16px)] items-center gap-3 rounded-item px-2.5 py-1.5">
               {loading ? <Skeleton className="size-8 rounded-full" /> : <Avatar name={t.name} />}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-body font-medium">
@@ -1055,7 +1201,7 @@ function Team() {
               </span>
               <span className="w-28 max-md:hidden">
                 <Loading loading={loading}>
-                  {t.active === "Online" ? <Status tone="attention">Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
+                  {t.active === "Online" ? <Status>Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
                 </Loading>
               </span>
               {/* One width for every role, so the shop and last-active columns line up row to row. */}
@@ -1103,7 +1249,7 @@ function Team() {
               <Button variant="ghost">Cancel</Button>
             </DialogClose>
             <DialogClose asChild>
-              <Button variant="primary" onClick={() => toast("Invite sent")}>
+              <Button variant="primary" onClick={() => toast(`Invite sent, as ${inviteRole}`)}>
                 Send invite
               </Button>
             </DialogClose>
@@ -1115,7 +1261,7 @@ function Team() {
             <Input aria-label="Email" placeholder="name@rimba.example" type="email" />
           </Field>
           <Field label="Role">
-            <Select aria-label="Role" value="Cashier" onValueChange={() => {}} options={["Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))} />
+            <Select aria-label="Role" value={inviteRole} onValueChange={setInviteRole} options={["Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))} />
           </Field>
         </div>
       </Dialog>
@@ -1163,16 +1309,21 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 /** While the settings load, every row's value pulses in place (the labels are the page's own copy, not data). */
 const SettingsLoading = React.createContext(false);
 
-function Row({ label, children, onClick }: { label: React.ReactNode; children: React.ReactNode; onClick?: () => void }) {
+/**
+ * A settings row. `onClick`: the whole row is one button. `toggle`: the row is the switch's label, so a click anywhere
+ * flips it while the switch stays the one Tab stop (no button inside a button).
+ */
+function Row({ label, children, onClick, toggle }: { label: React.ReactNode; children: React.ReactNode; onClick?: () => void; toggle?: boolean }) {
   const loading = React.useContext(SettingsLoading);
-  const Comp = onClick ? "button" : "div";
+  const Comp = onClick ? "button" : toggle ? "label" : "div";
   return (
     <Comp
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={cn(
         "flex min-h-[calc(var(--ad-row-h)+8px)] w-full items-center justify-between gap-4 rounded-item px-2.5 py-1 text-left text-body",
-        onClick && "cursor-pointer transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill",
+        onClick && "cursor-pointer transition-colors duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill",
+        toggle && "cursor-pointer transition-colors duration-[150ms] ease-ad hover:bg-fill has-[:focus-visible]:bg-fill",
       )}
     >
       <span className="min-w-0 truncate text-ink">{label}</span>
@@ -1187,10 +1338,19 @@ function Settings() {
   const loading = useLoading();
   const [saved, setSaved] = React.useState(INITIAL);
   const [form, setForm] = React.useState(INITIAL);
+  const [team, setTeam] = React.useState(TEAM);
   const [member, setMember] = React.useState<(typeof TEAM)[number] | null>(null);
+  const [role, setRole] = React.useState("Admin");
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
   const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && currentLocation.pathname !== nextLocation.pathname);
+  // A reload or closing the tab asks too, not only a link inside the app.
+  React.useEffect(() => {
+    if (!dirty) return;
+    const ask = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", ask);
+    return () => window.removeEventListener("beforeunload", ask);
+  }, [dirty]);
 
   return (
     <SettingsLoading.Provider value={loading}>
@@ -1238,8 +1398,8 @@ function Settings() {
               ["reason", "Ask why a sale is cancelled"],
             ] as const
           ).map(([k, label]) => (
-            <Row key={k} label={label} onClick={() => set(k, !form[k])}>
-              <Switch checked={form[k]} onCheckedChange={(v) => set(k, v)} onClick={(e) => e.stopPropagation()} tabIndex={-1} aria-label={label} />
+            <Row key={k} label={label} toggle>
+              <Switch checked={form[k]} onCheckedChange={(v) => set(k, v)} aria-label={label} />
             </Row>
           ))}
         </Group>
@@ -1267,10 +1427,10 @@ function Settings() {
           </Row>
         </Group>
         <Group title="Team">
-          {TEAM.map((t) => (
+          {team.map((t) => (
             <Row
               key={t.email}
-              onClick={() => setMember(t)}
+              onClick={() => (setMember(t), setRole(t.role))}
               label={
                 <span className="flex items-center gap-3">
                   <Avatar name={t.name} size="sm" />
@@ -1300,7 +1460,14 @@ function Settings() {
                 <Button variant="ghost">Cancel</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button variant="primary" onClick={() => toast("Role updated")}>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    if (!member) return;
+                    setTeam(team.map((t) => (t.email === member.email ? { ...t, role } : t)));
+                    toast(`${member.name.split(" ")[0]} is now ${role}`);
+                  }}
+                >
                   Save role
                 </Button>
               </DialogClose>
@@ -1310,8 +1477,8 @@ function Settings() {
           <Field label="Role">
             <Select
               aria-label="Role"
-              value={member?.role ?? "Admin"}
-              onValueChange={() => {}}
+              value={role}
+              onValueChange={setRole}
               options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
             />
           </Field>

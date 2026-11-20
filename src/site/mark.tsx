@@ -15,8 +15,26 @@ import { ORDERS } from "./data";
 /** Inside this, marks keep their layout but drop the hover chip and link (the landing shows components bare). */
 export const PlainMarks = React.createContext(false);
 
-export const INTERACTIVE =
-  "a,button,input,textarea,select,label,[role=button],[role=combobox],[role=slider],[role=switch],[role=checkbox],[role=radio],[role=tab],[role=option],[role=menuitem],[role=row],[contenteditable=true]";
+const CONTROLS =
+  "a,button,input,textarea,select,label,[role=button],[role=combobox],[role=slider],[role=switch],[role=checkbox],[role=radio],[role=tab],[role=option],[role=menuitem],[contenteditable=true]";
+const POPUPS = "[data-radix-popper-content-wrapper],[role=dialog]";
+
+/**
+ * A click on a mark's or spot's empty space opens `href`; a click on a control inside it (or in a pop-up opened from
+ * it) doesn't. `innermost`: only the innermost `[data-spot]` answers. `rows`: table rows count as controls (off where
+ * a row click should still open the page).
+ */
+export function useOpenOnEmptyClick(href: string, { innermost = false, rows = true }: { innermost?: boolean; rows?: boolean } = {}) {
+  const navigate = useNavigate();
+  return (e: React.MouseEvent<HTMLElement>) => {
+    const t = e.target as Element;
+    // Pop-ups are portalled: their clicks bubble here through React, but they aren't inside in the DOM.
+    if (!e.currentTarget.contains(t)) return;
+    if (innermost && t.closest("[data-spot]") !== e.currentTarget) return;
+    if (t.closest(rows ? `${CONTROLS},[role=row]` : CONTROLS) || t.closest(POPUPS)) return;
+    navigate(href);
+  };
+}
 
 /**
  * One component inside a tile. Hover (only the innermost mark) shows a soft fill and its name chip just above it; the
@@ -25,8 +43,7 @@ export const INTERACTIVE =
  */
 export function Mark({ name, className, children }: { name: string; className?: string; children: React.ReactNode }) {
   const item = findItem(name);
-  const navigate = useNavigate();
-  const href = useHref(item ? itemPath(item) : "/components");
+  const open = useOpenOnEmptyClick(useHref(item ? itemPath(item) : "/components"), { innermost: true });
   const plain = React.useContext(PlainMarks);
   if (!item) return <>{children}</>;
   if (plain)
@@ -38,11 +55,7 @@ export function Mark({ name, className, children }: { name: string; className?: 
   return (
     <div
       data-spot={name}
-      onClick={(e) => {
-        const t = e.target as Element;
-        if (t.closest("[data-spot]") !== e.currentTarget || t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
-        navigate(href);
-      }}
+      onClick={open}
       className={cn("ad-mark -m-1.5 min-w-0 cursor-pointer p-1.5", className)}
     >
       {/* Keyboard focus shows the chip too (index.css hides it until hover), with the focus fill. */}
@@ -85,7 +98,6 @@ export const S = {
   8: "md:col-span-2 lg:col-span-8",
   12: "md:col-span-2 lg:col-span-12",
 } as const;
-
 
 /** A quiet page behind an overlay drawn open in place. */
 export function BackPage({ rows = 6, compact }: { rows?: number; compact?: boolean }) {

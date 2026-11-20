@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 // Accent choices, not UI greys (the last is a slate accent). grey-ok
-export const SWATCHES = ["#3c6fe0", "#dc467d", "#5b5bd6", "#7c4ddb", "#0f8a8a", "#2f8a57", "#d9622b", "#3f4450"]; // grey-ok
+const SWATCHES = ["#3c6fe0", "#dc467d", "#5b5bd6", "#7c4ddb", "#0f8a8a", "#2f8a57", "#d9622b", "#3f4450"]; // grey-ok
 
-export type Field = keyof Config;
+type Field = keyof Config;
 export const ALL_FIELDS: Field[] = ["corner", "smoothing", "radius", "padding", "height", "accent", "tone", "shadow", "font", "theme"];
 export const COMPONENT_FIELDS: Field[] = ["corner", "smoothing", "radius", "padding", "height", "accent", "shadow"];
 
@@ -42,7 +42,7 @@ function Labelled({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-export function CornerControl({ value, onChange }: ControlProps) {
+function CornerControl({ value, onChange }: ControlProps) {
   return (
     <Labelled label="Corner shape">
       <Segmented
@@ -57,7 +57,7 @@ export function CornerControl({ value, onChange }: ControlProps) {
   );
 }
 
-export function SmoothingControl({ value, onChange }: ControlProps) {
+function SmoothingControl({ value, onChange }: ControlProps) {
   if (value.corner !== "squircle") return null;
   return (
     <Slider
@@ -67,12 +67,12 @@ export function SmoothingControl({ value, onChange }: ControlProps) {
       max={LIMITS.smoothing[1]}
       step={0.1}
       onValueChange={(smoothing) => onChange({ smoothing: Math.round(smoothing * 10) / 10 })}
-      display={`superellipse(${value.smoothing.toFixed(1)})`}
+      display={value.smoothing.toFixed(1)}
     />
   );
 }
 
-export function RadiusControl({ value, onChange, label = "Radius" }: ControlProps & { label?: string }) {
+function RadiusControl({ value, onChange, label = "Radius" }: ControlProps & { label?: string }) {
   const off = value.corner === "square";
   return (
     <div className={cn("transition-opacity duration-[220ms]", off && "pointer-events-none opacity-40")} aria-disabled={off}>
@@ -94,7 +94,17 @@ const FontControl = ({ value, onChange }: ControlProps) => (
   <Slider label="Text size" value={value.font} min={LIMITS.font[0]} max={LIMITS.font[1]} onValueChange={(font) => onChange({ font })} display={`${value.font} px`} />
 );
 
+const HEX = /^#?[0-9a-f]{6}$/i;
+const normHex = (v: string) => (v.startsWith("#") ? v : `#${v}`).toLowerCase();
+
 function AccentControl({ value, onChange, large }: ControlProps & { large?: boolean }) {
+  // The field holds what you type; only a full hex reaches the config, and a half-typed one goes back on blur.
+  const [hex, setHex] = React.useState(value.accent);
+  const [synced, setSynced] = React.useState(value.accent);
+  if (synced !== value.accent) {
+    setSynced(value.accent);
+    if (!HEX.test(hex.trim()) || normHex(hex.trim()) !== value.accent) setHex(value.accent);
+  }
   return (
     <Labelled label="Accent">
       <div className={cn("flex flex-wrap items-center", large ? "gap-2" : "gap-1.5")}>
@@ -119,10 +129,18 @@ function AccentControl({ value, onChange, large }: ControlProps & { large?: bool
       </div>
       <Input
         aria-label="Accent hex"
-        value={value.accent}
+        value={hex}
+        spellCheck={false}
+        autoComplete="off"
+        autoCapitalize="off"
+        maxLength={9}
         onChange={(e) => {
+          setHex(e.target.value);
           const v = e.target.value.trim();
-          if (/^#?[0-9a-f]{6}$/i.test(v)) onChange({ accent: v.startsWith("#") ? v.toLowerCase() : `#${v.toLowerCase()}` });
+          if (HEX.test(v)) onChange({ accent: normHex(v) });
+        }}
+        onBlur={() => {
+          if (!HEX.test(hex.trim())) setHex(value.accent);
         }}
         wrapperClassName="h-item w-32"
         icon={() => <span data-shape="round" className="size-3.5 shrink-0 rounded-full" style={{ background: value.accent }} />}
