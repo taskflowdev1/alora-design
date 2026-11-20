@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Thumb } from "@/components/ui/thumb";
 import { toast } from "@/components/ui/toast";
 import { MenuItem, MenuSub } from "@/components/ui/menu";
+import { Shortcut } from "@/components/ui/kbd";
 import { ChartLegend, ChartTooltip, seriesColor } from "@/components/ui/chart";
 import { LineChart } from "@/components/ui/line-chart";
 import { AreaChart } from "@/components/ui/area-chart";
@@ -237,7 +238,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
               label: "File",
               content: (
                 <>
-                  <MenuItem icon={FileText} shortcut="⌘N" onSelect={say("New template")}>
+                  <MenuItem icon={FileText} shortcut={["mod", "N"]} onSelect={say("New template")}>
                     New template
                   </MenuItem>
                   <MenuItem icon={Save} onSelect={say("Saved")}>
@@ -260,7 +261,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
         />
       </div>
     ),
-    usage: () => `<Menubar menus={[\n  { label: "File", content: <><MenuItem shortcut="⌘N" onSelect={newTemplate}>New template</MenuItem></> },\n  { label: "Insert", content: <MenuSub label="Shop details">…</MenuSub> },\n]} />`,
+    usage: () => `<Menubar menus={[\n  { label: "File", content: <><MenuItem shortcut={["mod", "N"]} onSelect={newTemplate}>New template</MenuItem></> },\n  { label: "Insert", content: <MenuSub label="Shop details">…</MenuSub> },\n]} />`,
   },
   pagination: {
     controls: [
@@ -289,7 +290,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
         <InputGroup start="https://" end={<Button size="sm" variant="ghost" onClick={say("Copied")}>Copy</Button>}>
           <input aria-label="Shop link" defaultValue="rimba.example/kemang" />
         </InputGroup>
-        <InputGroup start={<SearchIcon />} end={<kbd className="text-small">⌘K</kbd>}>
+        <InputGroup start={<SearchIcon />} end={<Shortcut keys={["mod", "K"]} />}>
           <input aria-label="Search" placeholder="Search orders" />
         </InputGroup>
       </div>

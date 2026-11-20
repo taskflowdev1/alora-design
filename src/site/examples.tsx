@@ -537,8 +537,8 @@ function Orders() {
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />
         <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
-        {/* One fixed width: picking statuses while the menu is open must not grow the trigger and shove the row. */}
-        <MultiSelect aria-label="Status" placeholder="Status" maxChips={1} value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} className="w-[12.5rem]" />
+        {/* "Status · 3" at one fixed width: picking statuses while the menu is open must not grow the trigger and shove the row. */}
+        <MultiSelect aria-label="Status" placeholder="Status" maxChips={0} value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} className="w-32" />
         <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
         {/* Columns, Export and Add stay together at the right end, also when the row wraps (1024). */}
         <div className="ml-auto flex items-center gap-gap">

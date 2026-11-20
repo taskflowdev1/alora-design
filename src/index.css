@@ -24,7 +24,7 @@ body {
   --fade-b: 32px;
 }
 
-/* Site-only: a component inside a Components-page tile (Mark in showcase.tsx). Only the innermost hovered mark shows its
+/* Site-only: a component inside a Components-page tile (Mark in mark.tsx). Only the innermost hovered mark shows its
    soft fill and its name chip; the chip sits just above the mark and opens the component's sliders. */
 .ad-mark {
   position: relative;

@@ -267,7 +267,7 @@ function ReceiptEditorTile({ className }: { className?: string }) {
               label: "Print",
               content: (
                 <>
-                  <MenuItem icon={FileText} shortcut="⌘P" onSelect={say("Packing slip sent to printer")}>
+                  <MenuItem icon={FileText} shortcut={["mod", "P"]} onSelect={say("Packing slip sent to printer")}>
                     Packing slip
                   </MenuItem>
                   <MenuSub label="Label" icon={Tag}>

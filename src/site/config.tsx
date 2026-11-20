@@ -95,7 +95,6 @@ export function TokenScope({
   className?: string;
   children: React.ReactNode;
   "data-stage"?: boolean;
-  ref?: React.Ref<HTMLDivElement>;
 }) {
   const style = React.useMemo(() => inlineTokens(config, shapedSupported()) as React.CSSProperties, [config]);
   return (

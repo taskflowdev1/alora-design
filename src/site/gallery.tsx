@@ -153,11 +153,12 @@ function DemoRender({ demo, p, config }: { demo: Demo; p: Props; config: Config 
  * rows, an accordion that opens): the stage aligns it to the top, with a top margin measured once per demo and
  * control state. Centring live re-centred it on every height change, so the field you typed in moved under you.
  */
-function SteadyCentre({ stage, measureKey, children }: { stage: React.RefObject<HTMLElement | null>; measureKey: string; children: React.ReactNode }) {
+function SteadyCentre({ measureKey, children }: { measureKey: string; children: React.ReactNode }) {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
     const el = ref.current;
-    const box = stage.current;
+    // The stage is the parent (a parent's ref isn't attached yet when a child's layout effect runs).
+    const box = el?.parentElement;
     if (!el || !box) return;
     const place = () => {
       el.style.marginTop = "0px";
@@ -170,7 +171,7 @@ function SteadyCentre({ stage, measureKey, children }: { stage: React.RefObject<
     // Fonts and lazy parts can settle after the first frame; place once more, then leave it alone.
     const id = requestAnimationFrame(place);
     return () => cancelAnimationFrame(id);
-  }, [stage, measureKey]);
+  }, [measureKey]);
   return (
     <div ref={ref} className="flex w-full min-w-0 justify-center-safe">
       {children}
@@ -382,10 +383,9 @@ export function useBodyTokens(merged: Config, global: Config) {
 }
 
 function Stage({ config, className, measureKey, children }: { config: Config; className?: string; measureKey: string; children: React.ReactNode }) {
-  const ref = React.useRef<HTMLDivElement>(null);
   return (
-    <TokenScope ref={ref} data-stage config={config} className={cn("flex min-h-[380px] items-start overflow-auto rounded-sheet p-6 sm:p-10", className)}>
-      <SteadyCentre stage={ref} measureKey={measureKey}>
+    <TokenScope data-stage config={config} className={cn("flex min-h-[380px] items-start overflow-auto rounded-sheet p-6 sm:p-10", className)}>
+      <SteadyCentre measureKey={measureKey}>
         {children}
       </SteadyCentre>
     </TokenScope>
