@@ -1,6 +1,7 @@
 // The UI encyclopedia: the rules Alora Design's components follow and our coding agents check before review.
 // Written in our own words; each rule credits the sources it draws on (SOURCES, at the bottom). Shown at /encyclopedia,
 // and turned into docs/ui-checklist.md and /ui-checklist.md by checklistMarkdown() below.
+import { SITE } from "./registry.js";
 
 /** must: blocks review. should: the default unless there's a stated reason. showcase: decoration, allowed only on showcase and demo pages. */
 export type Level = "must" | "should" | "showcase";
@@ -41,12 +42,6 @@ export interface Source {
   url: string;
   licence: string;
 }
-
-export const PLATFORMS: { id: Platform; title: string }[] = [
-  { id: "desktop", title: "Desktop" },
-  { id: "mobile", title: "Mobile" },
-  { id: "both", title: "Both" },
-];
 
 /** Rules about hover, pointer precision, keyboard shortcuts and scrollbars: they don't exist on a phone. */
 const DESKTOP_RULES = new Set([
@@ -163,7 +158,7 @@ export const RULES: Rule[] = [
     rule: "Respect `prefers-reduced-motion`. Replace movement (translate, scale, blur) with a short fade, or nothing.",
     why: "Motion can cause nausea and distraction.",
     how: "Base.css sets every animation and transition to 0.01 ms, one iteration and instant scrolling under `prefers-reduced-motion: reduce`. JS scrolling passes `behavior: \"instant\"` then. Keep only opacity where a cue is needed.",
-    check: "Playwright `page.emulateMedia({ reducedMotion: 'reduce' })`, open each overlay, and confirm `el.getAnimations()` animates no `transform`, `translate` or `scale`.",
+    check: "Playwright `page.emulateMedia({ reducedMotion: 'reduce' })`, open each overlay, and confirm no animation of `transform`, `translate` or `scale` runs longer than 1 ms (base.css cuts every animation to 0.01 ms, so a keyframe that still lists a scale doesn't move).",
     sources: ["vercel", "emil", "comeau", "apple", "wcag"],
   },
   {
@@ -188,7 +183,7 @@ export const RULES: Rule[] = [
     how: "`duration-[220ms] ease-ad` (`--ad-dur` 220 ms, `--ad-ease` `cubic-bezier(0.22, 1, 0.36, 1)`). Sheets enter over 260 ms. Tweens never pass 300 ms.",
     check: "`rg -n \"duration-(3[5-9][0-9]|[4-9][0-9]{2}|[0-9]{4})|duration:\\s*0?\\.([4-9]|3[5-9])|transition[^;]*\\b([4-9][0-9]{2}|[0-9]{4})ms\"`.",
     context: "Elsewhere you’ll see 200 ms as the ceiling for interactions, and 400–500 ms for toasts and drawers. Here 220 ms is the base for everything; a drawer settling after a drag on a phone may run longer.",
-    exempt: "Springs after a drag or flick (judged by when they are within 2 px), hold feedback that runs as long as its hold (the long-press dip), the one wrong-code shake (≤ 360 ms), a success sequence that plays once, a page-level push such as the Customize flap (≤ 320 ms), and the theme reveal circle (520 ms ease-in-out: faster, it flashed).",
+    exempt: "Springs after a drag or flick (judged by when they are within 2 px), hold feedback that runs as long as its hold (the long-press dip), the one wrong-code shake (≤ 360 ms), a success sequence that plays once, a page-level push such as the Customize flap (≤ 320 ms), AI glow and loader fades (≤ 500 ms, ambient), and the theme reveal circle (450–520 ms with soft ends, from the nearest edge of the area that changes: faster, it flashed). A page-wide theme toggle may swap at once; only a switch that themes part of a page uses the reveal.",
     sources: ["emil", "uiw", "vercel", "charles"],
   },
   {
@@ -242,7 +237,7 @@ export const RULES: Rule[] = [
     title: "Never transition all",
     rule: "Never write `transition: all` or Tailwind `transition-all`. List the properties.",
     why: "It animates layout properties by accident and costs performance.",
-    how: "`transition-[opacity,transform]`, `transition-colors`, `transition-transform`. In Tailwind v4 `transition-transform` covers `transform`, `translate`, `scale` and `rotate`.",
+    how: "`transition-[opacity,transform]`, `transition-colors`, `transition-transform`. In Tailwind v4 `transition-transform` covers `transform`, `translate`, `scale` and `rotate`; an arbitrary list such as `transition-[background-color,transform]` doesn’t cover `scale`, so presses use `ad-press`.",
     check: "`rg -n \"transition-all|transition:\\s*all\"`.",
     sources: ["vercel", "rauno"],
   },
@@ -254,7 +249,8 @@ export const RULES: Rule[] = [
     rule: "Pop-ups enter from scale 0.95–0.97 with opacity 0, never from scale 0.",
     why: "Nothing real grows from nothing. Scale 0 looks like a cheap pop.",
     how: "Base.css `@keyframes ad-in { from { opacity: 0; transform: scale(0.97) } }`, used as `data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)]`. CSS-only: `@starting-style { opacity: 0; scale: .97 }`.",
-    check: "`rg -n \"scale\\(0(\\.([0-8]|9[0-4])[0-9]*)?\\)|scale:\\s*0[,; }]|scale-0\\b|zoom-in-[0-8]?[0-9]\\b\"` has no hits (a long-press menu from `scale(0.6)` fails too).",
+    check: "`rg -n \"scale\\(0(\\.([0-8]|9[0-4])[0-9]*)?\\)|scale:\\s*0[,; }]|scale-0\\b|zoom-in-[0-8]?[0-9]\\b\"` has no hits on a pop-up’s keyframes (a long-press menu from `scale(0.6)` fails too).",
+    exempt: "Things that aren’t pop-ups: a typed OTP digit settling in, a count badge’s first appearance.",
     sources: ["emil", "vercel", "charles"],
   },
   {
@@ -401,8 +397,8 @@ export const RULES: Rule[] = [
     title: "Interruptible animation",
     rule: "Any animation can be reversed or redirected mid-way by new input.",
     why: "Forcing someone to wait for an animation to finish feels broken.",
-    how: "State changes that can reverse (hover, toggle, pill, accordion) use CSS transitions, which retarget mid-way. Enter and exit keyframes (`ad-in`, `ad-out`) are fine where the presence layer handles reversal. Never disable a control until an animation ends.",
-    check: "Toggle a popover open and closed within 50 ms in Playwright. There must be no stuck or jumping state.",
+    how: "State changes that can reverse (hover, toggle, pill, accordion) use CSS transitions, which retarget mid-way. Enter and exit keyframes (`ad-in`, `ad-out`) are fine where the presence layer handles reversal. A close from the trigger within 300 ms of opening is ignored, so a double click ends open instead of flashing the panel. Never disable a control until an animation ends.",
+    check: "Double-click every pop-up trigger in Playwright: the panel ends open, with no frame at full opacity before its enter finishes. Hover a control in and out within 50 ms: no stuck or jumping state.",
     exempt: "Overlay enter and exit keyframes, reversed by the presence layer.",
     sources: ["emil", "krehel", "rauno-craft", "apple", "vercel"],
   },
@@ -489,11 +485,11 @@ export const RULES: Rule[] = [
     category: "physics",
     level: "must",
     title: "Press shrinks slightly",
-    rule: "Buttons, chips, cards, tabs and icon buttons shrink while pressed: 0.97 over 150 ms ease-out, 0.98–0.99 for cards and wide triggers. On desktop the colour doesn’t change on press.",
+    rule: "Buttons, chips, cards, tabs and icon buttons shrink while pressed: 0.97 over 150 ms ease-out, 0.98–0.99 for cards, wide triggers and edge-to-edge rows. On desktop the colour doesn’t change on press.",
     why: "Instant touch feedback makes the UI feel physical.",
-    how: "`active:scale-[0.97] transition-transform duration-[150ms] ease-ad`; Card 0.99, select triggers 0.98.",
-    check: "After `mouse.down()` on a button, its computed transform scale is between 0.96 and 0.99 and its background is unchanged; a table row stays at `transform: none`.",
-    exempt: "Triggers that open a menu, select or popover don’t scale (base.css): the pop-up is placed against the trigger, so a shrinking trigger nudged it on every open and close. Table rows, menu items, list options, inputs and inline links don’t scale. On touch, edge-to-edge rows press with an instant fill (`mobile.no-hover-only`).",
+    how: "`ad-press active:scale-[0.97]`: the base.css `ad-press` utility eases background, colour, `transform` and `scale` over 150 ms. Tailwind v4’s `active:scale-*` sets `scale`, so a transition list without it snaps. Card 0.99, select triggers 0.98.",
+    check: "After `mouse.down()` on a button, its computed `scale` passes through in-between values to 0.96–0.99 over about 150 ms and its background is unchanged; a table row stays at `scale: none`.",
+    exempt: "Triggers whose pop-up is anchored to them (popover, menu, select, combobox, date pickers, hover and context menus) carry `data-ad-anchor` and don’t scale (base.css): a shrinking trigger nudged its pop-up on every open and close. Dialog, alert dialog and sheet triggers press normally. On a phone, glyph-only 44 px icon buttons dip to 0.92 and the tab bar dips only its icon, to 0.86. Table rows, menu items, list options, inputs and inline links don’t scale. On touch, edge-to-edge rows press with an instant fill (`mobile.no-hover-only`).",
     sources: ["emil", "uiw", "vercel", "charles"],
   },
   {
@@ -527,8 +523,8 @@ export const RULES: Rule[] = [
     why: "The slide shows where the choice went, so the eye follows it instead of hunting for the new highlight.",
     how: "Wrap the options in a positioned parent with `<SlidingPill selector='[aria-checked=\"true\"]' />` (or `aria-current`, `aria-pressed`, `data-state`). It springs (stiffness about 520, damping just under critical), carries its speed into a second click, places itself without motion on the first paint, on resize and on font load, snaps for keyboard changes and reduced motion, and measures with offsetLeft so RTL holds. Hover fills stay inside the track: in a track, hover only darkens the label.",
     check: "Click from the first option to the last: the `[data-sliding-pill]` element's transform passes through in-between x values over about 250 ms. Reload: it starts on the chosen option, not at x = 0. Grep pickers for a selected `bg-fill-strong`/`bg-sel` on the option itself: there should be none.",
-    context: "\"Frequent actions don’t animate\" would leave a picker static. Joshua asked for the slide on every picker (2026-11-19); it is short and interruptible, so it never makes anyone wait.",
-    exempt: "Vertical option lists (select options, time columns, radio and questionnaire choices) and value presets that light up from typing (keypad quick amounts).",
+    context: "\"Frequent actions don’t animate\" would leave a picker static. House rule: every one-of-N picker slides; the slide is short and interruptible, so it never makes anyone wait.",
+    exempt: "Vertical option lists (select options, time columns, radio and questionnaire choices), value presets that light up from typing (keypad quick amounts), and page dots (a carousel’s or onboarding’s position indicator, not a picker).",
     sources: ["emil", "charles"],
   },
   {
@@ -706,6 +702,7 @@ export const RULES: Rule[] = [
     how: "Wrap the disabled icon button in a `<span tabIndex={0}>` and hang the Tooltip on the span.",
     check: "Every icon-only `Button` (prop `icon`) sits inside a `Tooltip` or has visible text next to it.",
     context: "Elsewhere you’ll see \"never put tooltips on disabled buttons\". Here icon-only steppers keep theirs, through a focusable wrapper.",
+    exempt: "Glyphs inside a field with their standard meaning (the search clear ×, the password eye, a chip’s remove ×): they have an aria-label and no tooltip. Everything else (a bell, Close, Attach, Send) keeps one.",
     sources: ["rauno"],
   },
   {
@@ -773,7 +770,7 @@ export const RULES: Rule[] = [
     why: "Share, refresh and Back must restore the view.",
     how: "`useSearchParams` from React Router. Settings on this site live in the query (`?r=14&a=…`).",
     check: "Playwright: change a filter, reload, and the filter is still applied.",
-    exempt: "View and debug toggles (Slow motion, an open Customize panel). Settings and filters still go in the URL.",
+    exempt: "View and debug toggles (Slow motion, an open Customize panel, the docs demo toggles such as Open, Detents, Kind and Keyboard). Settings and filters still go in the URL.",
     sources: ["vercel"],
   },
   {
@@ -839,9 +836,9 @@ export const RULES: Rule[] = [
     category: "interaction",
     level: "must",
     title: "No double submit",
-    rule: "Once submitted, a button ignores further clicks until the request ends. Keep the label and show progress.",
+    rule: "Once submitted, a button ignores further clicks until the request ends, and shows it’s busy in the same width (`state.loading-button`).",
     why: "Double clicks create duplicate records.",
-    how: "`disabled={pending}` with `aria-busy`, the label turns to \"Saving…\" in the same width. Send an idempotency key.",
+    how: "`disabled={pending}` with `aria-busy`, busy as `state.loading-button` says. Send an idempotency key.",
     check: "Playwright: double-click Save and count the network requests (must be 1).",
     sources: ["rauno", "vercel"],
   },
@@ -954,7 +951,7 @@ export const RULES: Rule[] = [
     rule: "Every input gets some visible response within 100 ms (press state, highlight, optimistic change).",
     why: "Under 0.1 s feels like direct manipulation.",
     how: "Press scale, instant highlight, optimistic state.",
-    check: "Playwright `performance.now()` from click to the first DOM change, under 100 ms. INP under 200 ms.",
+    check: "Playwright: pointerdown to the first DOM mutation, under 100 ms, on an idle machine and next to a baseline (opening a menu). On a loaded host, judge the ratio to the baseline, not the raw number. INP under 200 ms.",
     sources: ["nngroup", "lawsofux", "uiw"],
   },
   {
@@ -1176,7 +1173,8 @@ export const RULES: Rule[] = [
     rule: "Icons are Feather at 16 px beside 13–14 px text, 1.75 stroke with round caps, in the same colour as the text, with no container behind them.",
     why: "A thin icon next to bold text, or the reverse, looks mismatched.",
     how: "`react-feather` icons at `size={16}` (px: Tailwind `size-4` is only 13 px on the 13 px root); base.css sets `stroke-width: var(--ad-icon-stroke, 1.75)`. Glyph buttons inside a field (clear, remove, reveal) use 14 px in a 24 px hit area. Empty states use one 40 px icon at 1.5 stroke.",
-    check: "Computed icon width is 16 px beside body text and 14 px for in-field glyphs; no icon sits in a filled circle or square.",
+    check: "Computed icon width is 16 px beside body text and 14 px for in-field glyphs (on a phone: 20 px beside 15–17 px text in rows, 22 px in bars and tabs, 24 px for the back chevron); no icon sits in a filled circle or square.",
+    exempt: "The Thumb placeholder for a missing image is an image slot with an icon in it, not an icon in a container.",
     context: "Elsewhere you’ll see \"tune the stroke to the text weight\". Here that is fixed: one icon set, one stroke, one size beside text.",
     sources: ["vercel", "charles"],
   },
@@ -1347,10 +1345,11 @@ export const RULES: Rule[] = [
     category: "colour",
     level: "should",
     title: "Multiply product shots",
-    rule: "Product photos on white backgrounds use `mix-blend-mode: multiply` on light surfaces, so the white box disappears.",
+    rule: "Product photos on pure white use `mix-blend-mode: multiply` on light surfaces, so the white box disappears.",
     why: "No visible white rectangles on an off-white page.",
     how: "`mix-blend-multiply dark:mix-blend-normal`, with a rounded soft card behind in dark mode.",
     check: "A visual check in both themes.",
+    exempt: "Illustrated thumbnails on a deliberate coloured backdrop.",
     sources: ["charles"],
   },
   {
@@ -1362,7 +1361,7 @@ export const RULES: Rule[] = [
     why: "Mismatched curves look off and lumpy.",
     how: "Control radius R, nest gap G = round(R/3): card = R + G, item = R − G, sheet = R + padding. The button radius is fixed: a container that holds buttons takes button radius + inset, never the reverse. With `corner-shape` support, corners are squircles and R is scaled to look the same.",
     check: "For each rounded child inset by p ≤ its parent’s radius, child radius ≈ parent radius − p (±1 px).",
-    exempt: "A control well inside a padded card keeps the control radius.",
+    exempt: "A control well inside a padded card keeps the control radius. Message and comment bubbles keep the bubble radius inside their card. Marketplace marks, flags and avatars are artwork, not nested surfaces.",
     sources: ["uiw", "krehel", "vercel", "charles"],
   },
   {
@@ -1382,7 +1381,7 @@ export const RULES: Rule[] = [
     level: "must",
     title: "Spacing from the tokens",
     rule: "Spacing comes from the tokens (`p-pad`, `gap-gap`, `px-bubble`) and Tailwind’s steps, which are rem on the 13 px body root: `gap-1` = 3.25 px, `gap-2` = 6.5 px, `size-4` = 13 px. No px literals for spacing.",
-    why: "One scale keeps the rhythm, and the 13 px root is the density Joshua approved.",
+    why: "One scale keeps the rhythm, and the 13 px root is the house density: dense enough for ERP tables, still readable.",
     how: "Cards `p-pad` (16 px by default); controls side by side, wrapped or stacked `gap-gap` (half the card padding, 8 px) in both axes; pills `px-bubble`. Don’t override `--spacing`. Sizes that must be exact are px: icons 16 px, hit areas 24 px on desktop and 44 px on touch.",
     check: "`rg -n \"(p|m|gap)-\\[[0-9]+px\\]\" src/components` (review each hit); icons measure 16 px and hit areas 24 / 44 px.",
     context: "Elsewhere you’ll see a 4 px base. Here the steps are rem on a 13 px root (3.25 px each), and the tokens carry the gaps that matter.",
@@ -1422,7 +1421,7 @@ export const RULES: Rule[] = [
     how: "Cards stand apart by a soft shadow in light and a lighter surface in dark. Controls are soft fills. Images sit on a fill tile instead of an outline.",
     check: "`./scripts/shots` flags visible borders; `rg -n \"border-|divide-|ring-|outline-\" src/components` (review each hit against the exemptions).",
     context: "Elsewhere you’ll see translucent hairline borders on cards and a thin light edge on dark-mode cards. Here edges come from shadow and surface steps only.",
-    exempt: "Chart axes and faint gridlines, the radar web, link underlines, progress and step bars, a 2 px rail between timeline and stepper dots, the AvatarGroup cutout (a ring in the surface colour), and the AI Composer glow.",
+    exempt: "Chart axes and faint gridlines, the radar web, link underlines, progress and step bars, a 2 px rail between timeline and stepper dots, the AvatarGroup and stacked marketplace-mark cutouts (a ring in the surface colour), and the AI Composer glow.",
     sources: ["uiw", "vercel", "krehel", "charles"],
   },
   {
@@ -1442,7 +1441,7 @@ export const RULES: Rule[] = [
     level: "should",
     title: "Dark mode: cards lighter, floating layers darker",
     rule: "In dark mode, cards sit one step lighter than the page, and floating layers (tooltips, menus, selects, popovers, hover cards, previews, toasts) are darker than what they float over: the page grey, separated by the raised shadow.",
-    why: "Joshua (2026-11-09): popovers darker than the page. A dark layer over a lighter card reads as on top without an edge; a lighter one blends into the card.",
+    why: "A dark layer over a lighter card reads as on top without an edge; a lighter one blends into the card.",
     how: "Tokens: `bg-raised` (menus, selects, popovers, hover cards), `bg-tip` and `bg-pop` are the page step in dark, with `shadow-raised`. Cards are `bg-surface`. No seventh grey, no top highlight or hairline.",
     check: "In dark, an open menu, select, popover, hover card and toast compute to the page token, darker than the card under them.",
     context: "Elsewhere (Material, most dark themes) higher layers get lighter. Here only cards step up; anything floating steps down to the page grey.",
@@ -1530,7 +1529,7 @@ export const RULES: Rule[] = [
     category: "layout",
     level: "should",
     title: "Size to content",
-    rule: "Triggers, stat cards and table columns are as wide as their content needs, not stretched.",
+    rule: "Triggers, stat cards and table columns are as wide as their content needs, not stretched. A table fills its card; its columns size to content and the slack goes to the one main text column (Product, Items).",
     why: "Stretched controls waste space and look empty.",
     how: "`w-fit` on triggers; date and select triggers size to their value.",
     check: "A visual check.",
@@ -1613,7 +1612,7 @@ export const RULES: Rule[] = [
     why: "Expected keyboard behaviour.",
     how: "`<form onSubmit>`. Textarea `onKeyDown` checks `(e.metaKey || e.ctrlKey) && e.key === 'Enter'`.",
     check: "Playwright: press Enter in the last field and confirm a submit request.",
-    exempt: "Chat composers: Enter sends and Shift+Enter adds a line (Board’s assistant).",
+    exempt: "Chat composers: Enter sends and Shift+Enter adds a line, as in every chat app.",
     sources: ["rauno", "vercel"],
   },
   {
@@ -1689,8 +1688,9 @@ export const RULES: Rule[] = [
     title: "Don’t pre-disable submit",
     rule: "Keep Submit enabled until it’s pressed, so pressing it reveals what’s missing.",
     why: "A disabled button gives no reason.",
-    how: "Validate on submit.",
+    how: "Validate on submit: focus the first invalid field, whose error shows inline.",
     check: "`rg -n \"disabled=\\{!isValid\"`.",
+    exempt: "A disabled main action whose label says what’s missing (“Add a photo”, “Sign to finish”).",
     sources: ["vercel"],
   },
   {
@@ -1749,7 +1749,7 @@ export const RULES: Rule[] = [
     why: "People edit tables in bursts. If the value jumps, loses its dots or hides its currency the moment it’s clicked, every edit starts with re-reading the cell.",
     how: "`InlineEdit` with `prefix=\"Rp\" {...grouped}`: the value and the input share one grid cell sized by the text, the pencil’s slot is always reserved, and the caret lands where you clicked. Editing is the field focus fill (`fill-strong`), a refused value the `danger-soft` fill and its message only after a save attempt, and a save a quiet check in the pencil’s slot, not a toast.",
     check: "Playwright: screenshot the cell, click it, hide the caret and screenshot again. The text pixels are identical and no other cell in the row moved.",
-    context: "Spreadsheets mark the edited cell with a 1 px ring. We keep the grey focus fill instead, with no ring (Joshua’s I7 answer is still open).",
+    context: "Spreadsheets mark the edited cell with a 1 px ring. Here the cell keeps the grey focus fill instead, with no ring, like every other focused part.",
     sources: [],
   },
   {
@@ -1793,7 +1793,8 @@ export const RULES: Rule[] = [
     rule: "Show strength or progress as a shape that completes, a short row of segments or a bar that fills, rather than a “weak/strong” label. Never a ring: it reads as a spinner.",
     why: "Closure. A finished shape reads as done without words.",
     how: "A row of 3–4 short segments, or a bar, that fills as criteria are met.",
-    check: "Strength and progress meters are segments or bars; none is a ring or circle.",
+    check: "Strength meters and progress loaders are segments or bars; none is a ring or circle.",
+    exempt: "A KPI ring that shows its number in the middle (ProgressRing: budget used, orders packed) never spins and reads as a gauge.",
     sources: ["charles", "lawsofux"],
   },
   {
@@ -1846,9 +1847,9 @@ export const RULES: Rule[] = [
     category: "mobile",
     level: "should",
     title: "Show what the finger hides",
-    rule: "When a finger covers the content being adjusted, show a magnified value above it.",
+    rule: "When a finger covers the content being adjusted, show its value where the finger isn’t: above it, or in the label row.",
     why: "A thumb hides the value.",
-    how: "A slider shows its value bubble above the thumb while dragging.",
+    how: "A slider shows its value in the label row beside its name, live while dragging, or in a bubble above the thumb.",
     check: "A visual check.",
     sources: ["rauno-craft"],
   },
@@ -1918,7 +1919,7 @@ export const RULES: Rule[] = [
     rule: "Without haptics, motion carries the feel: a press dips, a release springs back, a choice slides, a drop snaps.",
     why: "On glass there is no click; motion is what tells the finger it worked.",
     how: "The tab icon dips to 0.86 while pressed and the pill slides; rows dip to 0.99 with an instant fill; sheets and swipe rows settle on springs that keep the release speed. All of it short and off under reduced motion.",
-    check: "Press and hold a tab and a row at 390 px: each shows its press state at once.",
+    check: "Press and hold a tab and a row at 390 px on a real phone (headless touch emulation never shows `:active` while held): each shows its press state at once.",
     sources: ["apple", "emil", "charles"],
   },
   {
@@ -1930,7 +1931,7 @@ export const RULES: Rule[] = [
     why: "Both sit where the thumb already is. On a list the floating button stays put while rows scroll; on a form the pinned bar says what it does in words and never covers a field.",
     how: "Lists: a floating button at the bottom right above the tab bar, with the screen on `bottomInset=\"tab-bar-fab\"` so the last row clears it. Forms and details: `<MobileActionBar>` with the screen on `bottomInset=\"action-bar\"`; primary last, on the right. At most one accent button per screen; one secondary may share the bar at half width.",
     check: "Each list screen with a create action has one floating button; each form and detail screen has its action bar; no screen has two accent buttons.",
-    context: "Material puts a floating button on most screens; iOS puts actions in the nav bar. Here it splits by screen (taste.md Phone, Joshua’s pick P5): floating on lists, pinned on forms and details.",
+    context: "Material puts a floating button on most screens; iOS puts actions in the nav bar. Here it splits by screen: floating on lists, where it must not hide rows for long, and pinned on forms and details, where the action ends the task.",
     sources: ["material", "apple"],
   },
   {
@@ -1983,7 +1984,7 @@ export const RULES: Rule[] = [
     category: "states",
     level: "must",
     title: "Skeleton first, for every fetch",
-    rule: "Every real fetch, filter changes that refetch included, shows its skeleton at once. Loads stay under 0.5 s.",
+    rule: "Every real fetch, filter changes that refetch included, shows its skeleton at once. Loads stay under 0.5 s; mocked loads in demos take 300–400 ms, so the skeleton is seen.",
     why: "The same loading shape every time reads as calm; a mix of instant swaps and delayed loaders reads as jumpy.",
     how: "Swap content for its skeleton as soon as a request starts.",
     check: "Change a filter that fetches on an example page (or hold it with `?loading=1`): the list shows its skeleton, then the result, with no shift. A filter on loaded rows swaps them in the same frame.",
@@ -2018,7 +2019,7 @@ export const RULES: Rule[] = [
     category: "states",
     level: "must",
     title: "Busy buttons keep their width",
-    rule: "A busy button keeps its width and changes its label (\"Saving…\"). No spinner.",
+    rule: "A busy button keeps its width and shows it’s working: its label changes (\"Saving…\"), or on a phone’s pinned action bar the label stays and the button pulses. No spinner.",
     why: "A label that disappears or a width jump disorients.",
     how: "Both labels share one grid cell so the width is fixed (SaveBar does this); `aria-busy` while pending.",
     check: "The button width is unchanged between idle and pending.",
@@ -2221,7 +2222,7 @@ export const RULES: Rule[] = [
     level: "must",
     title: "Page long tables",
     rule: "Tables longer than a page get the bottom bar: count and pager, 50 per page. Never “show more”. Long read-only lists may virtualise.",
-    why: "Joshua (2026-11-11): one way through long data, and the count says how much there is.",
+    why: "One way through long data, and the count says how much there is.",
     how: "Table bottom bar with count and pager; `content-visibility: auto` for long read-only lists.",
     check: "A table with 1,000 rows renders 50 and its bar reads “1–50 of 1.000”.",
     sources: ["vercel"],
@@ -2289,9 +2290,9 @@ export const RULES: Rule[] = [
     title: "Focus is a fill, never a ring",
     rule: "Keyboard focus is visible on every focusable part, desktop and mobile, as a fill: `fill` on a surface, `fill-strong` on a fill, and on an already-filled selected item a slight darkening. Never a ring, outline or border-colour change.",
     why: "Focus must be seen, and a fill fits the soft, line-free style; rings add the only hard edge on the screen.",
-    how: "`focus-visible:bg-fill` beside `hover:bg-fill` (on a fill: `fill-strong`); a selected pill or row that is already filled darkens one step on `focus-visible` only. base.css removes outlines. Use `scroll-margin` so sticky bars don’t cover focus.",
+    how: "`focus-visible:bg-fill` beside `hover:bg-fill` (on a fill: `fill-strong`); a selected pill or row that is already filled darkens one step on `focus-visible` only. A scroll region or tab panel is a Tab stop only when it holds no focusable children (then `focus-visible:bg-fill`); otherwise it takes `tabIndex={-1}`. base.css removes outlines. Use `scroll-margin` so sticky bars don’t cover focus.",
     check: "Tab through each page: every focused part’s background differs from its rest and its selected state, and no outline, ring or border appears.",
-    context: "Elsewhere you’ll see a visible focus ring as the rule. Here focus is a fill change, kept clearly visible; because focus and hover share a token, a resting mouse can look like focus, a trade-off Joshua accepted.",
+    context: "Elsewhere you’ll see a visible focus ring as the rule. Here focus is a fill change, kept clearly visible; because focus and hover share a token, a resting mouse can look like focus, an accepted trade-off.",
     sources: ["vercel", "wcag"],
   },
   {
@@ -2448,7 +2449,7 @@ export const RULES: Rule[] = [
     rule: "Test on iOS Low Power Mode, Safari, and a throttled CPU.",
     why: "Animations and blur degrade there first.",
     how: "DevTools 4× CPU throttle.",
-    check: "Record a profile.",
+    check: "Record a profile with 4× throttling and compare each control with a baseline (opening a menu): one that takes several times longer is the problem, whatever the absolute numbers.",
     sources: ["vercel"],
   },
   {
@@ -2472,7 +2473,7 @@ export const RULES: Rule[] = [
     how: "One primary button per view; a card’s or row’s secondary actions in a single Menu.",
     check: "Count primary buttons per view: one at most.",
     context: "Elsewhere Hick’s law is used to justify removing options. Here features stay; they are grouped and ordered.",
-    exempt: "Toolbar tools (search, filters, columns, export, import) stay visible in one row (Joshua, 2026-11-18).",
+    exempt: "Toolbar tools (search, filters, columns, export, import) stay visible in one row: they are the table’s controls, not competing actions.",
     sources: ["lawsofux", "uiw", "charles"],
   },
   {
@@ -2602,8 +2603,8 @@ export const SOURCES: Source[] = [
 ];
 
 /**
- * Old ids that still resolve, so earlier reviews and citations keep working: merged into a host or renamed (refine v2,
- * 2026-11-20, audit F). Cite the current id.
+ * Old ids that still resolve, so earlier reviews and citations keep working: merged into a host or renamed. Cite the
+ * current id.
  */
 export const ALIASES: Record<string, string> = {
   "motion.duration-by-size": "motion.consistent-timing",
@@ -2639,12 +2640,12 @@ export const ALIASES: Record<string, string> = {
   "layout.alpha-borders": "layout.no-lines",
 };
 
-/** Rules dropped in refine v2 (2026-11-20, audit F), with the reason. Don't cite them. */
+/** Rules dropped, with the reason. Don't cite them. */
 export const DROPPED: Record<string, string> = {
   "type.small-caps-acronyms": "The system stack fakes or lacks small caps per OS, and it adds a second type style. ERP acronyms are short.",
   "type.uppercase-tracking": "The house has no uppercase labels (`type.few-faces`), so there is nothing to track.",
   "type.hyphens-narrow": "Table cells stay on one line, and `lang=\"en\"` hyphenates Indonesian names wrongly.",
-  "color.accent-by-contrast": "The accent is a per-product pick by Joshua, not a hue formula.",
+  "color.accent-by-contrast": "The accent is a per-product pick, not a hue formula.",
   "form.continuity-monospace": "It contradicted `type.few-faces`: mono only in code blocks.",
   "law.pareto": "Not checkable per change; `law.hick` already keeps every feature.",
   "law.aesthetic-usability": "Not a UI rule; `data.handle-long-content` already tests with ugly data.",
@@ -2655,8 +2656,6 @@ export const DROPPED: Record<string, string> = {
 export const resolveRuleId = (id: string) => (RULES.some((r) => r.id === id) ? id : ALIASES[id]);
 /** Old ids that now point at a rule. */
 export const aliasesOf = (id: string) => Object.keys(ALIASES).filter((k) => ALIASES[k] === id);
-
-export const SITE_URL = "https://design.alorawork.com";
 
 const RANK: Record<Level, number> = { must: 0, should: 1, showcase: 2 };
 
@@ -2673,10 +2672,10 @@ export function checklistMarkdown() {
     "# UI checklist",
     "",
     "Generated from `src/lib/encyclopedia.ts` by `node scripts/gen-docs.mjs`; do not edit by hand.",
-    `Why, how (with values) and sources for every rule: ${SITE_URL}/encyclopedia`,
+    `Why, how (with values) and sources for every rule: ${SITE}/encyclopedia`,
     "",
     "Run every UI change through this list before review. Cite a rule by its id. *Exempt:* names the parts a rule doesn’t apply to; don’t hold them to it.",
-    "Each rule is tagged *desktop*, *mobile* or *both*: a phone screen runs the mobile and both rules, a desktop screen the desktop and both rules.",
+    "Each rule is tagged *desktop*, *mobile* or *both*: a phone screen runs the mobile and both rules, a desktop screen the desktop and both rules. Content drawn inside a phone frame (`PhoneFrame`) on a desktop page is a phone screen.",
     `**must** (${count("must")}) blocks review. **should** (${count("should")}) is the default unless the PR says why not. ` +
       `**showcase** (${count("showcase")}) is decoration, allowed only on showcase and demo pages, never in product screens.`,
     "",
