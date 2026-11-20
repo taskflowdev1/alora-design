@@ -54,8 +54,12 @@ export function Reactions({ items, onToggle, onError, className }: ReactionsProp
             }
           }}
           className={cn(
-            "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-            r.mine ? "bg-sel font-medium text-ink shadow-sel" : "text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong",
+            // h-6 is about 20 px at the 13 px body; a transparent ::after pad takes the hit area to 24 px.
+            "relative inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad after:absolute after:-inset-y-[3px] after:inset-x-0 active:scale-[0.97]",
+            // Yours + keyboard focus: the raised pill darkens a notch, so focus never disappears on it.
+            r.mine
+              ? "bg-sel font-medium text-ink shadow-sel focus-visible:brightness-[0.88] dark:focus-visible:brightness-[0.78]"
+              : "text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong",
           )}
         >
           <span aria-hidden>{r.emoji}</span>

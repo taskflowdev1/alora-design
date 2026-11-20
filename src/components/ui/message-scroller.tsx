@@ -10,6 +10,26 @@ export interface MessageScrollerProps {
   className?: string;
 }
 
+/** Fades the cut edges (16 px), only on a side with more to scroll to, so a message cut at the edge reads as "more". */
+function useEdgeFade(ref: React.RefObject<HTMLElement | null>) {
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const top = el.scrollTop > 1;
+      const bottom = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+      const mask = top || bottom ? `linear-gradient(to bottom, ${top ? "transparent" : "#000"}, #000 16px, #000 calc(100% - 16px), ${bottom ? "transparent" : "#000"})` : "";
+      el.style.maskImage = mask;
+    };
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => (el.removeEventListener("scroll", measure), ro.disconnect());
+  }, [ref]);
+}
+
 /**
  * A conversation's scroll area: it starts at the latest message, follows new ones while you're at the bottom, and
  * stays put when you've scrolled up to read, showing a "Latest" button instead. Short threads sit at the bottom.
@@ -20,6 +40,7 @@ export function MessageScroller({ children, watch, className }: MessageScrollerP
   const box = React.useRef<HTMLDivElement>(null);
   const pinned = React.useRef(true);
   const [away, setAway] = React.useState(false);
+  useEdgeFade(box);
   const toBottom = (smooth?: boolean) =>
     box.current?.scrollTo({ top: box.current.scrollHeight, behavior: smooth && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant" });
   React.useLayoutEffect(() => {

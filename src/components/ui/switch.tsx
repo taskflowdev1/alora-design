@@ -4,6 +4,7 @@ import { cn } from "@/lib/ad";
 
 // Whole pixels, not rem steps: the root font is the body size (13 px by default), so rem sizes land on fractions
 // (a 1.625 px inset) and the thumb snaps off centre. Inset 2 px on every side; travel = track - thumb - 2 x inset.
+// A transparent 2 px ::after pad takes the 20 px track's hit area to 24 px without changing how it looks.
 const sizes = {
   default: { root: "h-[20px] w-[36px]", thumb: "size-[16px] data-[state=checked]:translate-x-[16px]" },
   /** Beside 36 px controls in settings rows. */
@@ -19,8 +20,11 @@ export function Switch({ size = "default", className, ...props }: React.Componen
   return (
     <S.Root
       className={cn(
-        "group inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] [transition:background-color_220ms_var(--ad-ease),transform_150ms_var(--ad-ease)] active:scale-[0.97]",
-        "bg-fill-strong data-[state=checked]:bg-switch-on focus-visible:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted dark:data-[state=checked]:focus-visible:bg-ink disabled:pointer-events-none disabled:opacity-45",
+        "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] after:absolute after:-inset-[2px] after:rounded-full [transition:background-color_220ms_var(--ad-ease),transform_150ms_var(--ad-ease)] active:scale-[0.97]",
+        "bg-fill-strong data-[state=checked]:bg-switch-on disabled:pointer-events-none disabled:opacity-45",
+        // Hover and keyboard focus take the next ramp step: off fill-strong -> ink-muted; on ink -> ink-muted (light),
+        // on ink-muted -> ink (dark).
+        "hover:bg-ink-muted focus-visible:bg-ink-muted data-[state=checked]:hover:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted dark:data-[state=checked]:hover:bg-ink dark:data-[state=checked]:focus-visible:bg-ink",
         sizes[size].root,
         className,
       )}

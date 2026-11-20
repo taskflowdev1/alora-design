@@ -21,9 +21,31 @@ export const dropdownSurface = cn(
 
 export const triggerClass = cn(
   "inline-flex h-control min-w-0 cursor-pointer select-none items-center gap-2 rounded-control bg-fill pl-3 pr-2 text-body text-ink",
-  "transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.98]",
+  "transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.97]",
   "disabled:pointer-events-none disabled:opacity-45",
 );
+
+/**
+ * Mouse: open (or close) a popover trigger on pointer down, so the list is already there when the button comes up, as
+ * native menus do. Touch and pen keep the click (a tap that starts a scroll must not open it), and the keyboard is
+ * unchanged. Spread onto a Radix Popover.Trigger; the click that follows is cancelled, so Radix doesn't toggle it back.
+ */
+export function usePressOpen(open: boolean, setOpen: (open: boolean) => void) {
+  const pressed = React.useRef(false);
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
+      pressed.current = true;
+      e.preventDefault();
+      setOpen(!open);
+    },
+    onClick: (e: React.MouseEvent) => {
+      if (!pressed.current) return;
+      pressed.current = false;
+      e.preventDefault();
+    },
+  };
+}
 
 export function optionClass(active: boolean, disabled?: boolean) {
   return cn(
@@ -153,16 +175,16 @@ export function Select({
   const nav = useListNav(options, pick, selectedIndex);
   const listRef = React.useRef<HTMLDivElement>(null);
   const current = options.find((o) => o.value === value);
+  const openChange = (o: boolean) => {
+    setOpen(o);
+    if (o) nav.setActive(selectedIndex);
+  };
+  const press = usePressOpen(open, openChange);
 
   return (
-    <P.Root
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        if (o) nav.setActive(selectedIndex);
-      }}
-    >
+    <P.Root open={open} onOpenChange={openChange}>
       <P.Trigger
+        {...press}
         disabled={disabled}
         aria-haspopup="listbox"
         aria-label={aria["aria-label"]}

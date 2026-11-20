@@ -79,7 +79,7 @@ export function ThemeSwitch({ value, onValueChange, system = true, iconOnly, cla
           value: o.value,
           "aria-label": iconOnly ? o.label : undefined,
           label: (
-            <span className="inline-flex items-center gap-1.5 [&_svg]:size-4">
+            <span className="inline-flex items-center gap-1.5 [&_svg]:size-[16px]">
               <o.icon />
               {iconOnly ? null : o.label}
             </span>

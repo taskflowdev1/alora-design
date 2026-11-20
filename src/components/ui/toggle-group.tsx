@@ -37,16 +37,20 @@ export function ToggleGroup(props: ToggleGroupProps) {
       value={o.value}
       aria-label={o["aria-label"]}
       className={cn(
-        "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
+        "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:font-medium data-[state=on]:text-ink",
-        // Multiple: each pressed item carries its own pill. Single: one shared pill slides under the choice.
-        single ? "data-[state=on]:focus-visible:bg-fill-strong" : "focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel",
+        // Multiple: each pressed item carries its own pill. Single: one shared pill slides under the choice (SlidingPill
+        // darkens itself when the chosen item has keyboard focus). Off + focus takes the hover step on a track
+        // (fill-strong); on + focus darkens the raised pill a notch, so focus never disappears.
+        single
+          ? "data-[state=off]:focus-visible:bg-fill-strong"
+          : "data-[state=off]:focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",
       )}
     >
       {hold(o.label)}
     </T.Item>
   );
-  const track = cn("relative inline-flex h-control shrink-0 items-stretch gap-0.5 rounded-control bg-track p-nest", className);
+  const track = cn("relative inline-flex h-control shrink-0 items-stretch gap-nest rounded-control bg-track p-nest", className);
   if (props.type === "single") {
     const { value, onValueChange } = props;
     return (

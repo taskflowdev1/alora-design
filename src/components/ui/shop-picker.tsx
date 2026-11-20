@@ -1,9 +1,10 @@
+import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown } from "react-feather";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { cn } from "@/lib/ad";
 import { Checkbox } from "@/components/ui/checkbox";
-import { dropdownSurface, triggerClass } from "@/components/ui/select";
+import { dropdownSurface, triggerClass, usePressOpen } from "@/components/ui/select";
 import { MarketMark, marketLabel, type Market } from "@/components/ui/marketplace-mark";
 
 export interface Shop {
@@ -39,6 +40,8 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   });
   const markets = [...new Set(shops.filter((s) => value.includes(s.id)).map((s) => s.market))];
   const label = all ? "All shops" : only ? `${marketLabel(only)} only` : value.length === 1 ? shops.find((s) => s.id === value[0])?.name : value.length ? `${value.length} shops` : "No shops";
+  const [open, setOpen] = React.useState(false);
+  const press = usePressOpen(open, setOpen);
   const toggle = (id: string) => onValueChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
   const quickBtn = (active: boolean) =>
     cn(
@@ -47,9 +50,10 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
     );
 
   return (
-    <P.Root>
-      <P.Trigger className={cn(triggerClass, className)} aria-label="Shops">
-        <span className="flex shrink-0 items-center gap-0.5">
+    <P.Root open={open} onOpenChange={setOpen}>
+      <P.Trigger {...press} className={cn(triggerClass, className)} aria-label="Shops">
+        {/* 4 px apart, so the marks read as separate shops rather than one strip. */}
+        <span className="flex shrink-0 items-center gap-[4px]">
           {(all || !markets.length ? [...new Set(shops.map((s) => s.market))] : markets).slice(0, 3).map((m) => (
             <MarketMark key={m} market={m} />
           ))}
@@ -58,7 +62,7 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>
-        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-80")}>
+        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-[320px]")}>
           <div className="relative flex flex-wrap gap-1 pb-nest">
             <SlidingPill selector='[aria-pressed="true"]' className="rounded-control bg-fill-strong" />
             <button type="button" aria-pressed={all} className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>

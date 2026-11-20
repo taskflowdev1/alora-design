@@ -114,7 +114,7 @@ export function ToastView({
   return (
     <div
       {...props}
-      className={cn("flex h-control w-fit items-center gap-2 rounded-card bg-on px-3.5 text-body text-on-ink shadow-raised", className)}
+      className={cn("flex h-control w-fit items-center gap-2 rounded-card bg-tip px-3.5 text-body text-tip-ink shadow-raised", className)}
     >
       {tone === "success" ? <Check size={16} /> : <Info size={16} />}
       {children}

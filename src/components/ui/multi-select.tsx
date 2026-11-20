@@ -2,7 +2,7 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown, X } from "react-feather";
 import { cn } from "@/lib/ad";
-import { OptionList, dropdownSurface, triggerClass, useListNav, type Option } from "@/components/ui/select";
+import { OptionList, dropdownSurface, triggerClass, useListNav, usePressOpen, type Option } from "@/components/ui/select";
 
 export interface MultiSelectProps {
   value: string[];
@@ -19,6 +19,7 @@ export interface MultiSelectProps {
 export function MultiSelect({ value, onValueChange, options, placeholder = "Select", maxChips = 2, className, ...aria }: MultiSelectProps) {
   const id = React.useId();
   const [open, setOpen] = React.useState(false);
+  const press = usePressOpen(open, setOpen);
   const toggle = (v: string) => onValueChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v]);
   const nav = useListNav(options, (i) => toggle(options[i].value));
   const listRef = React.useRef<HTMLDivElement>(null);
@@ -29,6 +30,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
   return (
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger
+        {...press}
         aria-haspopup="listbox"
         aria-label={aria["aria-label"]}
         className={cn(triggerClass, chosen.length ? "pl-nest" : "", className)}
@@ -59,7 +61,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
                   e.stopPropagation();
                   toggle(o.value);
                 }}
-                className="grid size-5 place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
+                className="relative grid size-[16px] place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[4px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
               >
                 <X size={12} />
               </span>

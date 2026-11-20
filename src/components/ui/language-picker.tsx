@@ -3,12 +3,15 @@ import { cn } from "@/lib/ad";
 
 /* Round flags, drawn inline so they look the same on every OS. */
 function Flag({ code, className }: { code: string; className?: string }) {
-  const c = "size-4 shrink-0 overflow-hidden rounded-full";
+  const c = "size-[16px] shrink-0 overflow-hidden rounded-full";
+  // The flag's own faint inner edge (part of the image), so a white half never melts into a light trigger.
+  const edge = <circle cx="8" cy="8" r="7.75" fill="none" stroke="#000" strokeOpacity=".14" strokeWidth=".5" />;
   if (code === "id")
     return (
       <svg viewBox="0 0 16 16" className={cn(c, className)} data-shape="round" aria-hidden>
         <rect width="16" height="8" fill="#e12a31" />
         <rect y="8" width="16" height="8" fill="#f4f4f4" />
+        {edge}
       </svg>
     );
   if (code === "cn")
@@ -20,6 +23,7 @@ function Flag({ code, className }: { code: string; className?: string }) {
         <circle cx="10.8" cy="4.8" r=".7" fill="#ffde00" />
         <circle cx="10.8" cy="7" r=".7" fill="#ffde00" />
         <circle cx="9.5" cy="8.7" r=".7" fill="#ffde00" />
+        {edge}
       </svg>
     );
   return (
@@ -29,6 +33,7 @@ function Flag({ code, className }: { code: string; className?: string }) {
       <path d="M0 0L16 16M16 0L0 16" stroke="#cf1b2b" strokeWidth="1.2" />
       <path d="M8 0v16M0 8h16" stroke="#fff" strokeWidth="5" />
       <path d="M8 0v16M0 8h16" stroke="#cf1b2b" strokeWidth="2.8" />
+      {edge}
     </svg>
   );
 }

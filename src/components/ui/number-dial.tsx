@@ -7,18 +7,18 @@ const KEYFRAMES = `@keyframes ad-digit-in { from { opacity: 0; transform: transl
 const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** One digit slot: when its character changes, the old one leaves and the new one arrives in the direction of change. */
-function Digit({ ch, dir }: { ch: string; dir: 1 | -1 }) {
+function Digit({ ch, dir, instant }: { ch: string; dir: 1 | -1; instant?: boolean }) {
   const [s, setS] = React.useState({ cur: ch, prev: null as string | null, n: 0, dir });
   // Derived during render (React's documented pattern): only a changed digit gets a new key, so only it animates.
   if (s.cur !== ch) setS({ cur: ch, prev: s.cur, n: s.n + 1, dir });
   return (
     <span className="relative inline-block" style={{ ["--ad-dir" as string]: s.dir }}>
-      {s.prev != null && s.n > 0 ? (
+      {s.prev != null && s.n > 0 && !instant ? (
         <span key={`o${s.n}`} aria-hidden className="absolute inset-0 animate-[ad-digit-out_160ms_var(--ad-ease)_forwards]">
           {s.prev}
         </span>
       ) : null}
-      <span key={`i${s.n}`} className={cn("inline-block", s.n > 0 && "animate-[ad-digit-in_200ms_var(--ad-ease)]")}>
+      <span key={`i${s.n}`} className={cn("inline-block", s.n > 0 && !instant && "animate-[ad-digit-in_200ms_var(--ad-ease)]")}>
         {s.cur}
       </span>
     </span>
@@ -31,6 +31,8 @@ export interface RollingNumberProps {
   format?: (n: number) => string;
   /** A 2 px motion blur on the rolling digits. Showcase pages only; product screens keep it off. */
   blur?: boolean;
+  /** Swap digits without rolling (a change from the keyboard: key repeat would keep it rolling nonstop). */
+  instant?: boolean;
   className?: string;
 }
 
@@ -38,7 +40,7 @@ export interface RollingNumberProps {
  * A number that changes digit by digit: only the digits that changed roll, up when the value grows and down when it
  * shrinks. Tabular figures and overflow clipping keep the width and the line still.
  */
-export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID"), blur, className }: RollingNumberProps) {
+export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID"), blur, instant, className }: RollingNumberProps) {
   const prev = React.useRef(value);
   const dir: 1 | -1 = value >= prev.current ? 1 : -1;
   React.useEffect(() => {
@@ -57,7 +59,7 @@ export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID")
       <span aria-hidden className="inline-flex">
         {chars.map((c, i) => (
           // Keyed from the right, so 99 → 100 keeps the ones and tens slots and adds a hundreds slot.
-          <Digit key={chars.length - i} ch={c} dir={dir} />
+          <Digit key={chars.length - i} ch={c} dir={dir} instant={instant} />
         ))}
       </span>
     </span>
@@ -96,6 +98,8 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   const raf = React.useRef(0);
   const drag = React.useRef<{ x: number; t: number; v: number; raw: number } | null>(null);
   const typed = React.useRef({ s: "", t: 0 });
+  // Changes from the keyboard swap the digits at once; a drag or wheel goes back to rolling.
+  const [keyed, setKeyed] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const cb = React.useRef({ onValueChange, onTick });
   cb.current = { onValueChange, onTick };
@@ -175,7 +179,7 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   return (
     <div className={cn("grid select-none gap-2", className)}>
       <div className="flex items-baseline justify-center gap-1.5">
-        <RollingNumber value={value} format={String} blur={blur} className="text-[calc(var(--ad-text-number)*1.6)] font-semibold leading-none text-ink" />
+        <RollingNumber value={value} format={String} blur={blur} instant={keyed} className="text-[calc(var(--ad-text-number)*1.6)] font-semibold leading-none text-ink" />
         {unit ? <span className="text-body text-ink-muted">{unit}</span> : null}
       </div>
       <div
@@ -189,6 +193,7 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
         aria-valuetext={unit && typeof unit === "string" ? `${value} ${unit}` : undefined}
         onPointerDown={(e) => {
           if (e.button !== 0) return;
+          setKeyed(false);
           cancelAnimationFrame(raf.current);
           drag.current = { x: e.clientX, t: performance.now(), v: 0, raw: pos.current };
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -220,6 +225,7 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
         }}
         onPointerCancel={() => ((drag.current = null), setDragging(false), settle(clamp(Math.round(pos.current))))}
         onKeyDown={(e) => {
+          if (!keyed) setKeyed(true);
           const k = e.key;
           const by = k === "ArrowRight" || k === "ArrowUp" ? 1 : k === "ArrowLeft" || k === "ArrowDown" ? -1 : k === "PageUp" ? majorEvery : k === "PageDown" ? -majorEvery : 0;
           if (by) set(value + by);

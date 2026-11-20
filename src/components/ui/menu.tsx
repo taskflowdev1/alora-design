@@ -174,6 +174,8 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
   const [viz, setViz] = React.useState<[Pt, Pt, Pt] | null>(null);
   const container = React.useRef<HTMLDivElement>(null);
   const viaKeyboard = React.useRef(false);
+  // Mouse: open on pointer down (the menu is there when the button comes up); touch and pen keep the click.
+  const pressed = React.useRef(false);
   const root = React.useMemo<RootCtx>(() => ({ close: () => setOpen(false), setViz: showSafeArea ? setViz : () => {} }), [showSafeArea]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -182,7 +184,19 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
         <P.Trigger
           asChild
           aria-haspopup="menu"
-          onPointerDown={() => (viaKeyboard.current = false)}
+          onPointerDown={(e) => {
+            viaKeyboard.current = false;
+            if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
+            pressed.current = true;
+            e.preventDefault();
+            setOpen(!open);
+          }}
+          onClick={(e) => {
+            // The click after a mouse press is already handled; cancel it so Radix doesn't toggle the menu back.
+            if (!pressed.current) return;
+            pressed.current = false;
+            e.preventDefault();
+          }}
           onKeyDown={(e) => {
             viaKeyboard.current = true;
             if (e.key === "ArrowDown") {
@@ -230,9 +244,19 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
 
 function LevelKeys({ children }: { children: React.ReactNode }) {
   const level = useLevel();
+  const ref = React.useRef<HTMLDivElement>(null);
+  // When any item at this level has an icon, items without one get an empty icon slot, so every label starts on one line.
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (el) el.toggleAttribute("data-icons", !!el.querySelector(":scope > [data-icon], :scope > [data-menu-group] > [data-icon]"));
+  });
   return (
     <div
-      className="grid gap-px"
+      ref={ref}
+      className={cn(
+        "grid gap-px",
+        "data-[icons]:[&>[role=menuitem]:not([data-icon])]:pl-[calc(1.25rem+16px)] data-[icons]:[&>[data-menu-group]>[role=menuitem]:not([data-icon])]:pl-[calc(1.25rem+16px)]",
+      )}
       onKeyDown={(e) => {
         if (levelKeys(e, level.container.current, level.id)) e.stopPropagation();
       }}
@@ -263,6 +287,7 @@ export function MenuItem({ icon: Icon, children, shortcut, onSelect, disabled }:
       tabIndex={-1}
       data-menu-level={level.id}
       aria-disabled={disabled || undefined}
+      data-icon={Icon ? "" : undefined}
       className={itemClass}
       onPointerMove={(e) => {
         if (e.pointerType !== "mouse" || level.suppressed()) return;
@@ -293,7 +318,11 @@ export function MenuLabel({ children }: { children: React.ReactNode }) {
 
 /** Groups are separated by space, never by a line. */
 export function MenuGroup({ children }: { children: React.ReactNode }) {
-  return <div className="mt-1.5 grid gap-px first:mt-0">{children}</div>;
+  return (
+    <div data-menu-group className="mt-1.5 grid gap-px first:mt-0">
+      {children}
+    </div>
+  );
 }
 
 export interface MenuSubProps {
@@ -337,6 +366,7 @@ export function MenuSub({ label, icon: Icon, children }: MenuSubProps) {
         data-menu-level={level.id}
         data-sub={id}
         data-open={open}
+        data-icon={Icon ? "" : undefined}
         className={itemClass}
         onPointerMove={(e) => {
           if (e.pointerType !== "mouse" || level.suppressed()) return;

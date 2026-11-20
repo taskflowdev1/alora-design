@@ -58,11 +58,12 @@ const swap = "absolute transition-[opacity,scale,filter] duration-[160ms] ease-a
 const off = "opacity-0 scale-[0.8] blur-[2px]";
 
 /**
- * A new-password field that rewards early and complains late: a small progress ring (a faint full track and the
- * filled part) closes as the password gets stronger, with no weak/strong label, and a check draws inside it once it is
- * strong. Nothing complains while you type: "too short" or "too common" shows once you leave the field (or submit),
+ * A new-password field that rewards early and complains late: four small segments fill as the password gets stronger,
+ * with no weak/strong label, and all turn ink once it is strong. Nothing complains while you type: "too short" or "too common" shows once you leave the field (or submit),
  * then clears live as you fix it. A weak password never tints the field (only an `error` from outside does). Reveal turns each dot into its
- * letter in place (monospace, so nothing moves). While empty it offers a generated password in groups of four.
+ * letter in place. The field keeps monospace on purpose: each
+ * cell holds a dot and a letter on top of the (transparent) real input, so the caret only lines up when every glyph has
+ * the same width. While empty it offers a generated password in groups of four.
  */
 export function PasswordInput({ value, onValueChange, minLength = 8, suggest = true, error, submitted, className, wrapperClassName, onBlur, onFocus, ...props }: PasswordInputProps) {
   const [shown, setShown] = React.useState(false);
@@ -134,7 +135,7 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
                 setShown(true);
                 onValueChange(p);
               }}
-              className="absolute inset-y-1 left-0 inline-flex cursor-pointer items-center gap-1.5 rounded-item bg-surface px-bubble-sm font-sans text-small font-medium text-ink shadow-sel transition-transform duration-[150ms] ease-ad active:scale-[0.97] animate-[ad-in_180ms_var(--ad-ease)] [&_svg]:size-3.5"
+              className="absolute inset-y-1 left-0 inline-flex cursor-pointer items-center gap-1.5 rounded-item bg-surface px-bubble-sm font-sans text-small font-medium text-ink shadow-sel transition-transform duration-[150ms] ease-ad active:scale-[0.97] animate-[ad-in_180ms_var(--ad-ease)] [&_svg]:size-[14px]"
             >
               <Key />
               Use a suggested password
@@ -154,7 +155,7 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
                 window.clearTimeout(timer.current);
                 timer.current = window.setTimeout(() => setCopied(false), 1400);
               }}
-              className="relative grid size-6 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
+              className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
             >
               <Copy size={14} className={cn(swap, copied && off)} />
               <Check size={14} className={cn(swap, !copied && off)} />
@@ -165,34 +166,27 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             aria-label={shown ? "Hide password" : "Show password"}
             aria-pressed={shown}
             onClick={(e) => (e.stopPropagation(), setShown((x) => !x))}
-            className="relative grid size-6 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
+            className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
           >
             <Eye size={14} className={cn(swap, shown && off)} />
             <EyeOff size={14} className={cn(swap, !shown && off)} />
           </button>
-          {/* Strength as progress that closes: a faint full track, the filled part running round, then a check drawn inside. */}
-          <span role="img" aria-label={!value ? "Password strength" : s.strong ? "Strong password" : `Password strength ${Math.round(s.score * 100)}%`} className="ml-1 grid size-4 place-items-center">
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
-              <circle cx="12" cy="12" r="9.5" className="stroke-ink-muted" opacity={0.4} />
-              <circle
-                cx="12"
-                cy="12"
-                r="9.5"
-                pathLength={1}
-                strokeDasharray={`${value ? s.score : 0} 1`}
-                transform="rotate(-90 12 12)"
-                opacity={value ? 1 : 0}
-                className="stroke-ink transition-[stroke-dasharray] duration-[220ms] ease-ad"
+          {/* Strength as a short row of segments that fill, all ink once strong. Hidden while empty (its width stays, so
+              nothing shifts), so an empty field never shows a mark that reads as a radio or a spinner. */}
+          <span
+            role="img"
+            aria-label={!value ? "Password strength" : s.strong ? "Strong password" : `Password strength ${Math.round(s.score * 100)}%`}
+            className={cn("ml-1.5 mr-0.5 flex items-center gap-[2px] transition-opacity duration-[160ms] ease-ad", !value && "opacity-0")}
+          >
+            {[0, 1, 2, 3].map((i) => (
+              <span
+                key={i}
+                className={cn(
+                  "h-[4px] w-[6px] rounded-full transition-colors duration-[160ms] ease-ad",
+                  s.strong ? "bg-ink" : i < Math.min(3, Math.ceil(s.score * 4)) ? "bg-ink-muted" : "bg-fill-strong",
+                )}
               />
-              <path
-                d="M8 12.25l2.75 2.75L16 9.75"
-                pathLength={1}
-                strokeDasharray="1 1"
-                strokeDashoffset={s.strong ? 0 : 1}
-                opacity={s.strong ? 1 : 0}
-                className={cn("stroke-ink transition-[stroke-dashoffset,opacity] ease-ad", s.strong ? "delay-[120ms] duration-[160ms]" : "duration-[120ms]")}
-              />
-            </svg>
+            ))}
           </span>
         </span>
       </label>

@@ -22,7 +22,7 @@ const hold = (label: React.ReactNode) => (
 
 /**
  * Raised pill on a grey track: the track sits at the control radius, the sliding pill (sel + shadow-sel, a soft drop, no
- * edge or ring) one nest gap inside it, concentric; a new choice slides the pill over on a spring (SlidingPill). Active text is ink and medium, the rest muted and regular.
+ * edge or ring) one nest gap inside it, concentric; a new choice slides the pill over on a spring (SlidingPill), and keyboard focus darkens it a notch. Active text is ink and medium, the rest muted and regular.
  */
 export function Segmented<T extends string>({ value, onValueChange, options, size = "default", className, ...aria }: SegmentedProps<T>) {
   const touch = size === "touch";
@@ -62,9 +62,9 @@ export function Segmented<T extends string>({ value, onValueChange, options, siz
           tabIndex={o.value === value ? 0 : -1}
           onClick={() => onValueChange(o.value)}
           className={cn(
-            "relative z-10 inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-            touch ? "min-w-touch flex-1 text-[15px] [&_svg]:size-5" : "text-body [&_svg]:size-4",
-            o.value === value ? "font-medium text-ink focus-visible:bg-fill-strong" : "text-ink-muted focus-visible:text-ink [@media(hover:hover)]:hover:text-ink",
+            "relative z-10 inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
+            touch ? "min-w-touch flex-1 text-[15px]" : "text-body",
+            o.value === value ? "font-medium text-ink" : "text-ink-muted focus-visible:text-ink [@media(hover:hover)]:hover:text-ink",
           )}
         >
           {hold(o.label)}

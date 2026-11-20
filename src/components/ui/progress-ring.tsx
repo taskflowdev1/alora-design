@@ -13,7 +13,7 @@ export interface ProgressRingProps {
   "aria-label"?: string;
 }
 
-/** Circular progress in the accent shade on a soft track, round caps. */
+/** Circular progress in ink on a soft track, round caps: the same colour as Progress and Steps. */
 export function ProgressRing({ value, max = 100, size = 48, thickness = 5, label, className, ...aria }: ProgressRingProps) {
   const pct = Math.min(1, Math.max(0, value / max));
   const r = (size - thickness) / 2;
@@ -36,7 +36,7 @@ export function ProgressRing({ value, max = 100, size = 48, thickness = 5, label
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="var(--ad-chart-1)"
+          stroke="var(--ad-on)"
           strokeWidth={thickness}
           strokeLinecap="round"
           strokeDasharray={`${c * pct} ${c}`}

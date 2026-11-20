@@ -125,12 +125,24 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
         raf = requestAnimationFrame(tick);
       }
     };
+    // Keyboard focus on the chosen option darkens the pill a little (data-focus): a selected item has no further hover
+    // step, so without this a keyboard user tabbing onto it would see nothing change.
+    const focus = () => {
+      const el = host.querySelector<HTMLElement>(selector);
+      pill.toggleAttribute("data-focus", !!el && el.matches(":focus-visible"));
+    };
     measure();
+    focus();
     const mo = new MutationObserver((records) => {
-      if (records.some((r) => r.target !== pill)) measure();
+      if (records.some((r) => r.target !== pill)) {
+        measure();
+        focus();
+      }
     });
     mo.observe(host, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: WATCH });
     host.addEventListener("keydown", onKey);
+    host.addEventListener("focusin", focus);
+    host.addEventListener("focusout", focus);
     const fonts = document.fonts;
     fonts?.addEventListener?.("loadingdone", measure);
     fonts?.ready.then(measure).catch(() => {});
@@ -139,8 +151,13 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
       ro.disconnect();
       mo.disconnect();
       host.removeEventListener("keydown", onKey);
+      host.removeEventListener("focusin", focus);
+      host.removeEventListener("focusout", focus);
       fonts?.removeEventListener?.("loadingdone", measure);
     };
   }, [selector]);
-  return <span ref={ref} aria-hidden data-sliding-pill className={cn("pointer-events-none absolute left-0 top-0", className)} />;
+  return <span ref={ref} aria-hidden data-sliding-pill className={cn(
+        "pointer-events-none absolute left-0 top-0 transition-[filter] duration-[150ms] ease-ad data-[focus]:brightness-[0.88] dark:data-[focus]:brightness-[0.78]",
+        className,
+      )} />;
 }

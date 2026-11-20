@@ -23,7 +23,8 @@ export function NotificationBell({ notices, onMarkAllRead, className }: { notice
         <Button variant="ghost" icon aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} className={cn("relative", className)}>
           <Bell />
           {unread ? (
-            <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-on px-1 text-[10px] font-semibold leading-none tabular-nums text-on-ink">
+            // Pinned to the bell's top-right corner (the 16 px glyph sits in the middle), so it covers only the corner.
+            <span className="absolute left-[calc(50%+3px)] top-[calc(50%-13px)] grid h-[14px] min-w-[14px] place-items-center rounded-full bg-on px-[3px] text-[10px] font-semibold leading-none tabular-nums text-on-ink">
               {unread > 9 ? "9+" : unread}
             </span>
           ) : null}

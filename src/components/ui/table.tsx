@@ -1,8 +1,6 @@
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
-import { Button } from "@/components/ui/button";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Pagination } from "@/components/ui/pagination";
 
 /*
  * Dense table. No row lines: rows separate by spacing and a soft hover fill.
@@ -103,36 +101,17 @@ export interface PagerProps {
   className?: string;
 }
 
-/** Bottom bar for long tables: the count on the left, the pager on the right, 50 per page. */
+/** Bottom bar for long tables: the count on the left, the pager on the right, 50 per page. The one Pagination, compact. */
 export function TableBar({ page, total, pageSize = 50, onPageChange, className }: PagerProps) {
-  const pages = Math.max(1, Math.ceil(total / pageSize));
-  const from = total ? (page - 1) * pageSize + 1 : 0;
-  const to = Math.min(total, page * pageSize);
-  const fmt = (n: number) => n.toLocaleString("id-ID");
   return (
-    <div className={cn("flex min-h-control items-center justify-between gap-3 px-3 text-body", className)}>
-      <span className="tabular-nums text-ink-muted">
-        {fmt(from)}–{fmt(to)} of {fmt(total)}
-      </span>
-      <div className="flex items-center gap-1">
-        <Tooltip content={page > 1 ? `Page ${page - 1}` : "First page"}>
-          <span>
-            <Button variant="ghost" size="sm" icon aria-label={`Previous page, ${page - 1}`} disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
-              <ChevronLeft />
-            </Button>
-          </span>
-        </Tooltip>
-        <span className="min-w-16 text-center tabular-nums text-ink">
-          {page} / {pages}
-        </span>
-        <Tooltip content={page < pages ? `Page ${page + 1}` : "Last page"}>
-          <span>
-            <Button variant="ghost" size="sm" icon aria-label={`Next page, ${page + 1}`} disabled={page >= pages} onClick={() => onPageChange(page + 1)}>
-              <ChevronRight />
-            </Button>
-          </span>
-        </Tooltip>
-      </div>
-    </div>
+    <Pagination
+      page={page}
+      pageCount={Math.max(1, Math.ceil(total / pageSize))}
+      onPageChange={onPageChange}
+      total={total}
+      pageSize={pageSize}
+      numbers={false}
+      className={cn("min-h-control px-3", className)}
+    />
   );
 }

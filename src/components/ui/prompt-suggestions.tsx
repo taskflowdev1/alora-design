@@ -32,7 +32,7 @@ export function PromptSuggestions({ items, onPick, layout = "list", className }:
             type="button"
             onClick={() => onPick(it.prompt)}
             className={cn(
-              "group flex min-w-0 cursor-pointer select-none items-center gap-2 text-left text-body text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4 [&_svg]:shrink-0",
+              "group flex min-w-0 cursor-pointer select-none items-center gap-2 text-left text-body text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px] [&_svg]:shrink-0",
               chips
                 ? "h-item max-w-full rounded-full bg-fill px-bubble-sm hover:bg-fill-strong focus-visible:bg-fill-strong"
                 : "min-h-row w-full rounded-item px-2.5 py-1.5 hover:bg-fill focus-visible:bg-fill",

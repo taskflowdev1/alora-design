@@ -40,7 +40,10 @@ export interface PeriodStepperProps {
   className?: string;
 }
 
-/** ‹ period › where each arrow says what it steps to. */
+/**
+ * ‹ period › where each arrow says what it steps to. The arrows are ghost buttons and the period is plain text between
+ * them, so nothing that does nothing looks like a button.
+ */
 export function PeriodStepper({ value, period, onValueChange, max, className }: PeriodStepperProps) {
   const prev = stepPeriod(value, period, -1);
   const next = stepPeriod(value, period, 1);
@@ -48,16 +51,16 @@ export function PeriodStepper({ value, period, onValueChange, max, className }: 
   return (
     <div className={cn("inline-flex items-center gap-1", className)}>
       <Tooltip content={periodLabel(prev, period)}>
-        <Button icon aria-label={`Previous: ${periodLabel(prev, period)}`} onClick={() => onValueChange(prev)}>
+        <Button variant="ghost" icon aria-label={`Previous: ${periodLabel(prev, period)}`} onClick={() => onValueChange(prev)}>
           <ChevronLeft />
         </Button>
       </Tooltip>
-      <span className="inline-flex h-control min-w-28 items-center justify-center rounded-control bg-fill px-bubble text-body tabular-nums text-ink">
+      <span className="inline-flex h-control min-w-28 items-center justify-center px-1 text-body tabular-nums text-ink">
         {periodLabel(value, period)}
       </span>
       <Tooltip content={nextDisabled ? "No later period" : periodLabel(next, period)}>
         <span>
-          <Button icon aria-label={`Next: ${periodLabel(next, period)}`} disabled={nextDisabled} onClick={() => onValueChange(next)}>
+          <Button variant="ghost" icon aria-label={`Next: ${periodLabel(next, period)}`} disabled={nextDisabled} onClick={() => onValueChange(next)}>
             <ChevronRight />
           </Button>
         </span>

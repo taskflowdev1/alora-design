@@ -36,7 +36,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
               type="button"
               aria-label={`Remove ${t}`}
               onClick={(e) => (e.stopPropagation(), onValueChange(value.filter((x) => x !== t)))}
-              className="grid size-5 cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
+              className="relative grid size-[16px] cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[4px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
             >
               <X size={12} />
             </button>
@@ -73,7 +73,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => add(h)}
-              className="inline-flex h-6 cursor-pointer items-center rounded-item px-bubble-sm text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
+              className="relative inline-flex h-6 cursor-pointer items-center rounded-item px-bubble-sm after:absolute after:inset-x-0 after:-inset-y-[3px] text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
             >
               {h}
             </button>

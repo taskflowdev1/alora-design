@@ -14,7 +14,8 @@ const InSidebar = React.createContext(false);
 export function Sidebar({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <nav className={cn("ad-on-dark relative flex w-56 shrink-0 flex-col rounded-card bg-side p-[calc(var(--ad-nest)*2)] text-side-ink", className)}>
-      <SlidingPill selector='[aria-current="page"]' className="rounded-item bg-side-fill-strong" />
+      {/* The island is dark in both themes, so keyboard focus on the current row darkens its pill by the dark-theme notch. */}
+      <SlidingPill selector='[aria-current="page"]' className="rounded-item bg-side-fill-strong data-[focus]:brightness-[0.78]" />
       <InSidebar.Provider value={true}>{children}</InSidebar.Provider>
     </nav>
   );
@@ -43,10 +44,13 @@ export interface SidebarItemProps {
 export function SidebarItem({ icon: Icon, children, active, count, asChild, onClick }: SidebarItemProps) {
   const Comp = asChild ? Slot.Root : "button";
   const sliding = React.useContext(InSidebar);
+  // With asChild the child (a link) becomes the row, so its own children are the label; rendering the child again
+  // inside itself would nest a link in a link (two tab stops, read twice).
+  const child = asChild ? (React.Children.only(children) as React.ReactElement<{ children?: React.ReactNode }>) : null;
   const inner = (
     <>
       <Icon size={16} className="shrink-0" />
-      <span className="min-w-0 flex-1 truncate text-left">{children}</span>
+      <span className="min-w-0 flex-1 truncate text-left">{child ? child.props.children : children}</span>
       {count != null ? <span className="text-small tabular-nums text-side-muted">{count}</span> : null}
     </>
   );
@@ -56,10 +60,10 @@ export function SidebarItem({ icon: Icon, children, active, count, asChild, onCl
       onClick={onClick}
       className={cn(
         "relative flex h-item w-full cursor-pointer select-none items-center gap-2.5 rounded-item px-2.5 text-body transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.98]",
-        active ? cn("text-side-ink", !sliding && "bg-side-fill-strong") : "text-side-muted hover:bg-side-fill hover:text-side-ink focus-visible:text-side-ink focus-visible:bg-side-fill",
+        active ? cn("text-side-ink", !sliding && "bg-side-fill-strong focus-visible:brightness-[0.78]") : "text-side-muted hover:bg-side-fill hover:text-side-ink focus-visible:text-side-ink focus-visible:bg-side-fill",
       )}
     >
-      {asChild ? React.cloneElement(React.Children.only(children) as React.ReactElement<{ children?: React.ReactNode }>, undefined, inner) : inner}
+      {child ? React.cloneElement(child, undefined, inner) : inner}
     </Comp>
   );
 }

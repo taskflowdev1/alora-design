@@ -3,7 +3,10 @@ import { Tabs as T } from "radix-ui";
 import { cn } from "@/lib/ad";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 
-/** Tabs: no track and no underline. A grey pill (fill-strong) slides behind the active tab; its label turns ink and medium. */
+/**
+ * Tabs: no track and no underline. A grey pill (fill-strong) slides behind the active tab; its label turns ink and medium.
+ * Keyboard focus shows as a fill on an inactive tab and as a slightly darker pill on the active one.
+ */
 export function Tabs(props: React.ComponentProps<typeof T.Root>) {
   return <T.Root {...props} />;
 }
@@ -29,7 +32,7 @@ export function TabsTrigger({ className, children, ...props }: React.ComponentPr
   return (
     <T.Trigger
       className={cn(
-        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
+        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         "text-ink-muted data-[state=inactive]:hover:text-ink data-[state=inactive]:focus-visible:text-ink data-[state=inactive]:focus-visible:bg-fill data-[state=active]:font-medium data-[state=active]:text-ink",
         className,
       )}

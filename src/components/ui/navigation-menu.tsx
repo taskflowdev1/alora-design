@@ -3,6 +3,7 @@ import { NavigationMenu as N } from "radix-ui";
 import { ChevronDown } from "react-feather";
 import { cn } from "@/lib/ad";
 import { buttonClass } from "@/components/ui/button";
+import { SlidingPill } from "@/components/ui/sliding-pill";
 
 export interface NavLinkDef {
   title: React.ReactNode;
@@ -26,17 +27,24 @@ export interface NavigationMenuItemDef {
   columns?: 1 | 2;
 }
 
-const trigger = cn(buttonClass({ variant: "ghost" }), "font-normal text-ink-muted hover:text-ink focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink data-[active]:bg-fill-strong data-[active]:text-ink");
+// The current page's fill is the sliding pill behind the row, so the item itself stays transparent (hover, focus and
+// open included); the pill darkens a notch while the current item has keyboard focus.
+const trigger = cn(
+  buttonClass({ variant: "ghost" }),
+  "relative z-10 font-normal text-ink-muted hover:text-ink focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink",
+  "data-[active]:bg-transparent data-[active]:text-ink data-[active]:hover:bg-transparent data-[active]:focus-visible:bg-transparent data-[active]:data-[state=open]:bg-transparent",
+);
 
 /**
- * A site or app top nav whose items can open a panel of links. Icon + label in the panel, the active page as a
- * fill-strong row; the panel is one raised card that morphs between items instead of jumping. Hover menus also open
+ * A site or app top nav whose items can open a panel of links. The current page is a grey pill (fill-strong) that
+ * slides when the page changes; in the panel, icon + label, the active page as a fill-strong row; the panel is one raised card that morphs between items instead of jumping. Hover menus also open
  * on click and keyboard.
  */
 export function NavigationMenu({ items, className }: { items: NavigationMenuItemDef[]; className?: string }) {
   return (
     <N.Root className={cn("relative z-20", className)} delayDuration={80}>
-      <N.List className="flex items-center gap-1">
+      <N.List className="relative flex items-center gap-1">
+        <SlidingPill selector="[data-active]" className="rounded-control bg-fill-strong" />
         {items.map((it, i) => (
           <N.Item key={i}>
             {it.links ? (

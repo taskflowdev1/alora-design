@@ -32,7 +32,7 @@ export function SaveBar({ open, onSave, onDiscard, saving, label = "Unsaved chan
         )}
       >
         <span className="whitespace-nowrap text-body">{label}</span>
-        <div className="flex gap-1.5">
+        <div className="flex gap-gap">
           <Button variant="ghost" onClick={onDiscard} disabled={saving}>
             Discard
           </Button>

@@ -26,7 +26,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
   };
   const btn = cn(
     "grid aspect-square h-full shrink-0 cursor-pointer place-items-center rounded-item text-ink transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]",
-    "disabled:pointer-events-none disabled:opacity-35 [&_svg]:size-3.5",
+    "disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[16px]",
   );
   return (
     <div
@@ -34,7 +34,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
       aria-label={aria["aria-label"] ?? "Quantity"}
       className={cn(
         "inline-flex items-stretch rounded-control bg-fill p-nest",
-        size === "sm" ? "h-item" : size === "touch" ? "h-[calc(var(--ad-touch-h)+var(--ad-nest)*2)] touch-manipulation [&_svg]:!size-[18px]" : "h-control",
+        size === "sm" ? "h-item [&_svg]:!size-[14px]" : size === "touch" ? "h-[calc(var(--ad-touch-h)+var(--ad-nest)*2)] touch-manipulation [&_svg]:!size-[18px]" : "h-control",
         className,
       )}
     >

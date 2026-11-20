@@ -81,7 +81,11 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
                 onClick={() => pick(o)}
                 className={cn(
                   "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.99]",
-                  on(o) ? "bg-on text-on-ink" : error ? "bg-danger-soft text-ink" : "bg-fill text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
+                  // Chosen: the grey pill (fill-strong), medium, with its check; never solid ink. Keyboard focus on it darkens
+                  // it a notch. A skipped question doesn't tint the options; the message under them says what to do.
+                  on(o)
+                    ? "bg-fill-strong font-medium text-ink focus-visible:brightness-[0.88] dark:focus-visible:brightness-[0.78]"
+                    : "bg-fill text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
                 )}
               >
                 <span className="min-w-0 flex-1 truncate">{o}</span>
@@ -90,11 +94,11 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
             ))}
           </div>
         )}
-        {error ? <p role="alert" className="-mt-2 text-body text-danger">{q.type === "text" ? "Answer this to go on" : "Pick one to go on"}</p> : null}
+        {error ? <p role="alert" className="-mt-2 text-body text-danger">{q.type === "text" ? "Answer this to go on" : q.type === "multiple" ? "Pick at least one to go on" : "Pick one to go on"}</p> : null}
       </div>
       <div className="flex flex-wrap items-center justify-end gap-gap">
         {i > 0 ? (
-          <Button variant="ghost" className="mr-auto" onClick={() => (go(i - 1), setError(false))}>
+          <Button variant="secondary" className="mr-auto" onClick={() => (go(i - 1), setError(false))}>
             Back
           </Button>
         ) : null}

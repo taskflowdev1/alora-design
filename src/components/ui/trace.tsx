@@ -67,7 +67,11 @@ export function Trace({ steps, live, className }: { steps: TraceStep[]; live?: b
                 <C.Content className="ml-[calc(1.25rem+0.625rem+0.5rem)] mr-2 mt-1 mb-2 rounded-item bg-fill px-3 py-2 text-small leading-relaxed text-ink-muted data-[state=open]:animate-[ad-fade-in_200ms_var(--ad-ease)]">{s.detail}</C.Content>
               </C.Root>
             ) : (
-              <div className="flex min-h-item items-center gap-2.5 px-2 py-1">{row}</div>
+              <div className="flex min-h-item items-center gap-2.5 px-2 py-1">
+                {row}
+                {/* The chevron's slot, so times line up with the rows that have one. */}
+                <span aria-hidden className="size-[14px] shrink-0" />
+              </div>
             )}
           </li>
         );

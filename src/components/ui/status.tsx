@@ -6,7 +6,7 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 /*
  * One padding scale for every bubble: pills, chips, filter bubbles, segments and tabs.
  *   --ad-bubble-x     (12 px at the default padding) for control-height bubbles
- *   --ad-bubble-x-sm  (8 px) for small 24 px pills
+ *   --ad-bubble-x-sm  (8 px) for small pills (about 20 px tall)
  * Siblings in one row never look different.
  */
 
@@ -21,7 +21,7 @@ const dot: Record<StatusTone, string> = {
 /** Default status: a small dot centred on the text, then the text. For tables and detail rows. */
 export function Status({ tone = "default", children, className }: { tone?: StatusTone; children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-body text-ink", className)}>
+    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap align-middle text-body text-ink", className)}>
       <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dot[tone])} />
       {children}
     </span>
@@ -37,12 +37,12 @@ export interface PillProps {
   className?: string;
 }
 
-/** Soft pill, 24 px, small bubble padding. */
+/** Soft pill, small (h-6, about 20 px at the 13 px body), small bubble padding. */
 export function Pill({ tone = "attention", dot: d, children, className }: PillProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-item px-bubble-sm text-small font-medium",
+        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-item px-bubble-sm align-middle text-small font-medium",
         tone === "attention" ? "bg-brand-soft text-brand-soft-ink" : "bg-fill text-ink",
         className,
       )}
@@ -82,7 +82,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
           type="button"
           aria-label="Remove"
           onClick={onRemove}
-          className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]"
+          className="relative grid size-[20px] shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]"
         >
           <X size={14} />
         </button>
@@ -95,10 +95,15 @@ export function Chip({ selected, onRemove, size = "default", className, children
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-4",
+        "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         height,
         selected
-          ? cn("font-medium text-ink", !sliding && "bg-fill-strong")
+          ? // Selected + keyboard focus darkens the pill a notch (in a ChipGroup the sliding pill does it).
+            cn(
+              "font-medium text-ink",
+              !sliding &&
+                "bg-fill-strong focus-visible:brightness-[0.88] dark:focus-visible:brightness-[0.78]",
+            )
           : "bg-transparent text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
         className,
       )}
