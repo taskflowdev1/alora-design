@@ -16,6 +16,12 @@ for (let i = 0; i < 60; i++) {
   await sleep(250);
 }
 
+// The flap pushes the page with a FLIP slide; on a loaded machine it can still be moving after a fixed wait, so wait
+// for every finite animation and transition to end (looping ones, like the AI orbs, never do).
+const settled = (pg) =>
+  pg
+    .waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getComputedTiming().iterations === Infinity), null, { timeout: 4000 })
+    .catch(() => {});
 const failures = [];
 const check = (ok, msg) => (ok ? console.log(`ok   ${msg}`) : (failures.push(msg), console.log(`FAIL ${msg}`)));
 const browser = await chromium.launch();
@@ -56,7 +62,9 @@ for (const [path, text] of [
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 await page.mouse.move(700, 450);
 await page.locator("[data-customize-flap]").hover();
-await sleep(800);
+await page.waitForSelector("[data-customize-panel][data-state=open]", { timeout: 3000 }).catch(() => {});
+await sleep(300);
+await settled(page);
 const pushed = await page.evaluate(() => {
   const p = document.querySelector("[data-customize-panel]");
   const h = document.querySelector("header > div").getBoundingClientRect();
@@ -714,7 +722,8 @@ for (const path of ["/mobile", "/mobile/app", "/mobile/screens", ...MOBILE.map((
   // mobile.input-16px: no field on a phone zooms the page when focused.
   const tiny = await ph.evaluate(() =>
     [...document.querySelectorAll("[data-phone-screen] input, [data-phone-screen] textarea, [data-mobile-app] input, [data-mobile-app] textarea, body > [role=dialog] input")]
-      .filter((el) => el.type !== "file" && parseFloat(getComputedStyle(el).fontSize) < 16)
+      // Only fields that take text zoom the page; Radix adds a hidden checkbox input for a Switch inside a form.
+      .filter((el) => !["file", "checkbox", "radio", "range", "hidden"].includes(el.type) && parseFloat(getComputedStyle(el).fontSize) < 16)
       .map((el) => el.getAttribute("aria-label") || el.id || el.type)
       .slice(0, 3),
   );
@@ -948,10 +957,12 @@ for (const w of [1440, 1720]) {
     check(shut.bar > 0 && shut.over.length === 0 && Math.abs(shut.left - shut.right) <= 1, `classic scrollbar ${w} ${path}, flap closed: nothing past the gutter, margins equal (${JSON.stringify(shut)})`);
     await cpage.locator("[data-customize-flap]").hover();
     await sleep(800);
+    await settled(cpage);
     const open = await edges();
     check(open.over.length === 0 && open.right === Math.round(open.gutter), `classic scrollbar ${w} ${path}, flap open: nothing past the gutter (${JSON.stringify(open)})`);
     await cpage.mouse.move(w - 100, 450, { steps: 4 });
     await sleep(900);
+    await settled(cpage);
     const after = await edges();
     check(after.over.length === 0 && Math.abs(after.left - after.right) <= 1, `classic scrollbar ${w} ${path}, after closing: margins equal (${JSON.stringify(after)})`);
   }
