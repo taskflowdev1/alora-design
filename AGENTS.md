@@ -1,9 +1,11 @@
 # Alora Design
 
-Open-source (public, MIT) shadcn-like React component library in Joshua's ERP UI taste, plus the gallery site at
-https://design.alorawork.com. Users: Joshua (critiques every component), Alora builders and agents who install components
-into client apps. Taste source: the erp-ui skill (`~/.claude-personal/skills/erp-ui/taste.md`, `joshua-feedback.md`;
-public copy https://github.com/JoshD94/ai-skills/tree/main/erp-ui). His words win over anything here.
+Open-source (MIT) shadcn-like React component library for dense ERP and admin apps, plus the gallery site at
+https://design.alorawork.com. Users: developers and coding agents who install components into their apps. The taste
+is Joshua Dirga's, who reviews every component; its source is the erp-ui skill
+(https://github.com/JoshD94/ai-skills/tree/main/erp-ui), and it wins over anything here. Contributor guide:
+`CONTRIBUTING.md`. Maintainer ops (accounts, deploy, the job runner) live in `AGENTS.local.md` when it exists (not
+tracked); read it before deploying or running heavy jobs.
 
 ## UI checklist (required for every UI change)
 
@@ -17,43 +19,48 @@ public copy https://github.com/JoshD94/ai-skills/tree/main/erp-ui). His words wi
 
 - `src/lib/`: `config.ts` (the one config object, URL (de)serialization, every `--ad-*` variable, `GREY_ROLES`),
   `color.ts` (OKLCH, accent ramp), `registry.ts` (every item, section, page path), `kit.ts` (agent kit, shadcn registry
-  items, Tailwind block), `ad.ts` (`cn()` that knows our token names, date/money formatters), `encyclopedia.ts`.
+  items, Tailwind block), `ad.ts` (`cn()` that knows our token names, number/date/money formatters, safe-area and
+  motion helpers; React-free), `ad-hooks.ts` (shared hooks), `encyclopedia.ts`. `ad.ts` and `ad-hooks.ts` ship as the
+  `ad` registry item every component depends on, so shared code goes there, never into a new component dependency.
 - `src/styles/`: `theme.css` (Tailwind v4 `@theme inline`: `bg-fill`, `rounded-card`, `h-control`…), `base.css`
   (corner-shape, scrollbar, no focus rings, keyframes). Both ship in exports. There is no `tokens.css` file; the
   `/tokens.css` endpoint is generated from `config.ts`.
 - `src/components/ui/*.tsx`: one copy-pasteable file per component (core, shadcn-parity, "Niche" ERP parts).
   `src/components/mobile/*.tsx`: the phone set (registry section `mobile`, pages `/mobile/<name>`); they import each other
   relatively and the kit rewrites `../mobile/` to `./`. Shared parts take `size="touch"` instead of a copy.
-  `src/components/ai/` and `src/components/backgrounds/`: ported read-only from alora-board's assistant.
+  `src/components/ai/` and `src/components/backgrounds/`: ported from an agent assistant and self-contained by design
+  (keyframes in the file); don't extract shared hooks from them.
 - `src/site/`: landing (`landing.tsx`, `bento.tsx`, `showcase-more.tsx`), Components (`gallery.tsx`, `showcase.tsx`,
   `mark.tsx`, `demos*.tsx`), AI/Backgrounds (`collections.tsx`, `agent.tsx`), examples (`examples.tsx`), mobile
   (`mobile-overview.tsx`, `phone.tsx`, `mobile-app*.tsx`, `mobile-screens-*.tsx`, `mobile-data.ts`), `encyclopedia.tsx`
   (+ lazy `encyclopedia-demos.tsx`), `export.tsx`, `layout.tsx` (header, footer, Customize flap).
 - `api/`: Vercel functions (`kit.ts`, `checklist.ts`, `r.ts`, `tokens.ts`) that import `src/lib/*` and read component
   sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`),
-  `greys.mjs`, `shots`, `review-*-shots` (one per review round), `check-endpoints`, `env.sh`.
+- `scripts/`: `verify`, `unit.mjs` (formatter goldens in `unit-goldens.json`, config round-trip, registry deps vs
+  imports), `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`), `greys.mjs`,
+  `lib/load-lib.mjs` (imports `src/` TypeScript from Node scripts), `shots`, `review` + `review.mjs` (before/after
+  sheets from a shot list kept with the round's output), `check-endpoints`, `env.sh`.
 
 ## Run, test, verify
 
-- `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm.
-- Inline: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `node scripts/gen-docs.mjs --check`, `npx vite build`
-  (~2 s). After changing a component's props, the settings, the registry or a rule: `node scripts/gen-docs.mjs`.
-- Full verify (typecheck, lint, docs drift, greys, build, headless Playwright smoke on 5196) goes through the queue.
-  Mac lent: `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread>
-  --cwd "$PWD" --cmd ./scripts/verify`; otherwise `--needs yoga` without `--sync`. Scripts source `scripts/env.sh`
-  (nvm, `npm ci` when deps are missing, Playwright headless shell; caches under `$HOME`). Wrappers carry
-  `# jobq: portable` because the queue misreads "Promotions" (an example page) as a production word.
-- Shots: `./scripts/shots` (per component + taste checks: borders, fonts, hover shifts, skeletons) into `output/`;
-  each `review-*-shots` writes lettered before/after PNGs for one round (`ONLY=` letters, `BEFORE=` url); `index.md`
-  in those folders is written by hand. Build into `$TMPDIR`, never `dist/`.
+- `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm (`.nvmrc`).
+- Quick (seconds): `npm run typecheck`, `npm run lint`, `npm run unit`, `npm run docs:check`, `npm run knip` (dead
+  exports), `npx vite build --outDir "$TMPDIR/site"`. After changing a component's props, the settings, the registry
+  or a rule: `npm run docs`.
+- Full verify (`./scripts/verify`: typecheck, lint, unit, docs drift, greys, knip, build, headless Playwright smoke on
+  5196) and shots are heavy: run them as a background job. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when
+  deps are missing, Playwright headless shell; caches under `$HOME`) and carry a `# jobq: portable` line, which lets
+  the maintainer's job runner run them from a fresh copy.
+- Shots: `./scripts/shots` (per component + taste checks: borders, fonts, hover shifts, skeletons) into
+  `output/shots/`. Review sheets: `./scripts/review output/<round>/shots.mjs [ONLY]` (format in
+  `scripts/review.example.mjs`; `BEFORE_REF`, default `origin/main`). `output/` is not tracked. Build into `$TMPDIR`,
+  never `dist/`.
 - Playwright: `playwright-core` 1.65 with `chromium_headless_shell-1254`. Endpoints: `./scripts/check-endpoints [url]`.
 
-## Accounts and deploy
+## Deploy
 
-- Alora only: `~/.local/bin/alora git|gh|vercel`. GitHub `taskflowdev1/alora-design` (public). Vercel project
-  `alora-design`, scope `taskflowdevs-projects`, Git-connected: push to `main` deploys. Domain `design.alorawork.com`
-  (Cloudflare wildcard DNS; never touch DNS). Push-to-live is measured from `<meta name="build">`; target 60 s.
+- GitHub `taskflowdev1/alora-design` (public). Vercel, Git-connected: a push to `main` deploys production at
+  `design.alorawork.com`, so never push unverified work. The deployed commit is in `<meta name="build">`.
 
 ## Deliberate oddities
 
@@ -96,6 +103,6 @@ public copy https://github.com/JoshD94/ai-skills/tree/main/erp-ui). His words wi
   One typeface; mono only in code blocks.
 - Skeletons only for real fetches, matching the loaded layout exactly; filtering loaded rows swaps at once.
 - Changing a token name means updating `theme.css`, `config.ts`, `ad.ts` (twMerge names) and the kit.
-- Yoga is RAM-tight: one preview server per job, close browsers, no blanket Docker cleanup.
+- One preview server per job, on its own port; close browsers and servers you start.
 - Example pages are `grid grid-cols-1`: a plain `grid` lets a wide table stretch the page on phone.
 - Marketplace marks are simplified drawings, not the official logos.

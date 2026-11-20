@@ -4,11 +4,17 @@ React components in Joshua Dirga's ERP UI taste, shadcn style: you copy the sour
 your settings. Live gallery: **https://design.alorawork.com**
 
 - **Components**: ERP components (inputs, tables, overlays, niche parts like fee rows, shop pickers, command palette).
-- **AI**: loaders and agent chrome from the Alora Board assistant (thinking orbs, run status, composer glow).
-- **Backgrounds**: interactive surfaces for agent screens (the Board's sand field).
+- **AI**: loaders and chrome for an agent assistant (thinking orbs, run status, composer glow).
+- **Backgrounds**: interactive surfaces for agent screens (a sand field that follows the pointer).
 - **Examples**: seven ERP pages built only from these components. **Export**: tokens, Tailwind block, agent kit.
 
 The taste rules live in the [erp-ui skill](https://github.com/JoshD94/ai-skills/tree/main/erp-ui).
+
+## Requirements
+
+React 19 and Tailwind CSS v4. Components use `radix-ui` for overlays and form parts, `react-feather` for icons, and
+`clsx` + `tailwind-merge` inside `cn()`; the shadcn CLI installs whichever a component needs. Developing this repo
+takes Node 24 (`.nvmrc`).
 
 ## Install
 
@@ -22,6 +28,17 @@ npx shadcn@latest add "https://design.alorawork.com/r/button.json?r=14&a=3c6fe0"
 `/r/<name>.json?<settings>` is a shadcn registry item; it pulls in `/r/theme.json?<settings>` (CSS variables and base
 rules) and `/r/ad.json` (the `cn()` helper). The theme alone: `npx shadcn@latest add "https://design.alorawork.com/r/theme.json?<settings>"`.
 The full list is at `/r/registry.json`.
+
+### Without the shadcn CLI
+
+Every registry item is plain JSON with the full source in `files[].content`, so you can copy by hand:
+
+1. Paste `https://design.alorawork.com/tailwind.css?<settings>` into your Tailwind v4 CSS (tokens, `@theme` mapping and
+   base rules in one block).
+2. Copy `src/lib/ad.ts` and `src/lib/ad-hooks.ts` to `lib/` in your app (`cn()`, formatters, date helpers and shared
+   hooks), and point the `@/` alias at your source root.
+3. Copy the component file to `components/ui/`, plus any files listed in its `registryDependencies`, and install the
+   npm packages in its `dependencies`.
 
 Other exports, all taking the same settings:
 
@@ -351,18 +368,19 @@ npx tsc -p tsconfig.json --noEmit && npx eslint . && npx vite build
 node scripts/gen-docs.mjs   # after changing components, props, settings or the registry
 ```
 
-`scripts/verify` runs typecheck, lint, the docs check, build and a headless smoke test. See [AGENTS.md](AGENTS.md)
-for the job queue, review screenshots, deploy and the deliberate oddities.
+`npm run verify` runs typecheck, lint, unit checks, the docs check, the grey check, build and a headless smoke test.
+How to add a component and what every UI change is checked against: [CONTRIBUTING.md](CONTRIBUTING.md). Layout,
+deliberate oddities and landmines, for people and coding agents: [AGENTS.md](AGENTS.md).
 
 | Path | What |
 | --- | --- |
 | `src/components/ui/` | the components, one copy-pasteable file each |
 | `src/components/ai/`, `src/components/backgrounds/` | the AI and Backgrounds collections |
-| `src/lib/` | `config.ts` (settings → tokens), `color.ts`, `registry.ts` (every item), `kit.ts` (exports), `encyclopedia.ts` (UI rules), `ad.ts` (`cn()`) |
+| `src/lib/` | `config.ts` (settings → tokens), `color.ts`, `registry.ts` (every item), `kit.ts` (exports), `encyclopedia.ts` (UI rules), `ad.ts` (`cn()`, formatters, dates) and `ad-hooks.ts` (shared hooks), which ship with every component |
 | `src/styles/` | `theme.css` (Tailwind mapping), `base.css` (corner shape, scrollbar, keyframes); both ship in the theme |
 | `src/site/` | the gallery site: landing, Components, AI, Backgrounds, examples, encyclopedia, export |
 | `api/` | Vercel functions behind `/r/*.json`, `/api/kit`, `/tokens.*`, `/ui-checklist.md` |
-| `scripts/` | verify, smoke test, docs generator, review screenshots |
+| `scripts/` | verify, unit checks, smoke test, docs generator, grey check, screenshots and before/after review sheets |
 | `docs/components.md` | generated props reference |
 | `docs/ui-checklist.md` | generated UI checklist (from `src/lib/encyclopedia.ts`) |
 

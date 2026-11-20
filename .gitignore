@@ -4,3 +4,4 @@ output
 .vercel
 *.log
 .env*
+AGENTS.local.md
