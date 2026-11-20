@@ -23,6 +23,7 @@ probe "/r/run-status.json" "application/json" "/r/thinking-orbs.json"
 probe "/r/sand-field.json" "application/json" "export function SandField"
 probe "/api/kit" "text/markdown" "/ai/thinking-orbs"
 probe "/api/kit" "text/markdown" "/ui-checklist.md"
+probe "/api/kit" "text/markdown" '`layout.no-lines`'
 probe "/ui-checklist.md" "text/markdown" "motion.press-scale"
 probe "/r/line-chart.json" "application/json" "/r/chart.json"
 probe "/r/chart.json" "application/json" "export function CartesianChart"
