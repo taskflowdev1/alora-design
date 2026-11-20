@@ -93,9 +93,11 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                   trigger={
                     <button
                       type="button"
-                      className="flex h-[24px] cursor-pointer items-center rounded-item px-1.5 text-left text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink data-[state=open]:bg-fill-strong data-[state=open]:text-ink"
+                      aria-label={`${list.length - max} more on ${d.getDate()} ${MONTHS[d.getMonth()]}`}
+                      className="flex h-[24px] cursor-pointer items-center whitespace-nowrap rounded-item px-1.5 text-left text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink data-[state=open]:bg-fill-strong data-[state=open]:text-ink"
                     >
-                      +{list.length - max} more
+                      +{list.length - max}
+                      <span className="max-sm:hidden">&nbsp;more</span>
                     </button>
                   }
                 >

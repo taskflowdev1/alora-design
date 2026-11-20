@@ -51,7 +51,7 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
         ))}
       <Popover
         trigger={
-          <button type="button" aria-label="Add reaction" className={cn(pill(false), "px-1.5")}>
+          <button type="button" aria-label="Add reaction" className={cn(pill(false), "min-w-[24px] justify-center px-1.5")}>
             <Smile size={14} />
           </button>
         }
