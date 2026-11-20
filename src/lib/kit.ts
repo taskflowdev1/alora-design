@@ -241,15 +241,18 @@ export function kitMarkdown(c: Config) {
 
   lines.push(`## Rules`, "");
   [
-    "Radii are concentric: an element's radius = its child's radius + the padding between them.",
+    "Radii are concentric where a child sits close to its parent's edge (pill in a track, item in a menu): inner = outer - inset. A control well inside a padded card keeps the control radius.",
     "Corner shape is one setting: square, round or squircle (`corner-shape: superellipse(k)`). People (avatars) and dots stay circles.",
     "Borders and outlines never shift layout. Controls have no borders; they are soft fills.",
-    "Focus and selection show a soft fill only. No focus rings, outlines or border colour changes.",
-    "Nothing changes colour on click. Press = a small shrink (scale 0.97); nothing else moves.",
-    "Accent only on the primary or key action (Add, Save). Active nav, charts and numbers stay neutral.",
+    "Keyboard focus is always visible as a fill (`fill` on a surface, `fill-strong` on a fill; an already-filled selected item darkens a notch). No focus rings, outlines or border colour changes.",
+    "Buttons, chips, cards and tabs shrink slightly while pressed (0.97; cards 0.99) and keep their colour. Table rows and menu items don't scale.",
+    "Accent only on the primary or key action (Add, Save), and in shades for charts. Active nav, numbers and selected states stay neutral.",
     "No dividing lines anywhere: not between rows, list items, stats, footer sections or columns. Separate with space or soft cards.",
     "No slop captions: no eyebrows, no subtitles that restate a title, no micro-copy under buttons, no meta lines, no grey corner text.",
-    "Motion: about 220 ms, ease-out. Skeletons pulse and match the loaded layout exactly. No spinners.",
+    "Motion: about 220 ms, ease-out. Skeletons only for real fetches, matching the loaded layout exactly (same rows, thumbs and column widths, no real data under them); filtering loaded rows swaps at once. No spinners.",
+    "Spacing: Tailwind steps are rem on a 13 px root (`gap-2` = 6.5 px); use the tokens (`p-pad`, `gap-gap`, `px-bubble`). Icons are 16 px and desktop hit areas at least 24 px (transparent `::after`), set in px.",
+    "In dark mode, menus, selects, popovers, hover cards, tooltips and toasts are darker than the page around them (the page grey) and separate by shadow.",
+    "Phone: a floating button for the create action on list screens; a pinned full-width action bar on forms and detail screens. Touch targets at least 44 px.",
     "Status = small dot centred on the text. A soft pill only for the one status that needs attention.",
     "Tables: dense rows, no row lines, sticky header that never overlaps, columns sized to data, one-line cells, bottom bar with count + pager (50 per page). Whole-row click opens a side pane.",
     "Toolbars: every control one height, one centre line. Popovers from one toolbar never stack.",

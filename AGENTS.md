@@ -1,186 +1,101 @@
 # Alora Design
 
-Open-source (public on GitHub since 2026-11-17, MIT), shadcn-like React component library in Joshua's
-ERP UI taste, plus the gallery site at https://design.alorawork.com. Users: Joshua (critiques every
-component), Alora builders and agents who install components into client apps.
+Open-source (public, MIT) shadcn-like React component library in Joshua's ERP UI taste, plus the gallery site at
+https://design.alorawork.com. Users: Joshua (critiques every component), Alora builders and agents who install components
+into client apps. Taste source: the erp-ui skill (`~/.claude-personal/skills/erp-ui/taste.md`, `joshua-feedback.md`;
+public copy https://github.com/JoshD94/ai-skills/tree/main/erp-ui). His words win over anything here.
 
-The taste source is the erp-ui skill (`~/.claude-personal/skills/erp-ui/taste.md`, `joshua-feedback.md`; public copy: https://github.com/JoshD94/ai-skills/tree/main/erp-ui).
-taste.md wins over anything here. Build to his taste, not library defaults.
+## UI checklist (required for every UI change)
+
+- Run every UI change through `docs/ui-checklist.md` before review: every **must** holds, every **should** holds or the
+  PR says why not. A rule's *Exempt:* names the parts it doesn't apply to. Cite rules by id; old ids still resolve.
+- Rules live in `src/lib/encyclopedia.ts` (site `/encyclopedia`, agents `/ui-checklist.md`; the counts are in the
+  checklist header). Edit them there, then `node scripts/gen-docs.mjs`. `context` says where house rules differ from
+  outside advice. Merged or renamed ids go in `ALIASES`, dropped ones in `DROPPED`, never just deleted.
 
 ## Layout
 
-- `src/lib/config.ts`: the one config object (radius, corner shape, smoothing, padding, height, accent,
-  greys, shadow, font size, theme), URL (de)serialization, and every derived `--ad-*` CSS variable.
-- `src/lib/color.ts`: OKLCH maths, accent shade ramp. `src/lib/kit.ts`: export generators (agent kit
-  markdown, shadcn registry items, Tailwind block). `src/lib/registry.ts`: every item, its section and page path.
-- `src/lib/ad.ts`: `cn()` (tailwind-merge that knows our token names) and date/money formatters.
-- `src/styles/theme.css`: Tailwind v4 `@theme inline` mapping (`bg-fill`, `rounded-card`, `h-control`...).
-  `src/styles/base.css`: corner-shape, scrollbar, no focus rings, keyframes. Both ship in exports.
-- `src/components/ui/*.tsx`: the library, one copy-pasteable file per component (shadcn style): core components,
-  the shadcn-parity set (charts on `chart.tsx`, navigation, chat parts, data table…) and niche ERP parts (group "Niche").
-  Every shadcn component has ours except Separator (no dividing lines) and Direction (an RTL provider); Spinner maps
-  to Thinking orbs (no spinners). `src/components/ai/` (Thinking orbs, Run status, Composer
-  glow) and `src/components/backgrounds/` (Sand field): ported read-only from alora-board's assistant.
-- `src/components/mobile/*.tsx`: the Mobile set (tab bar, large-title screen, action bar, grouped list + skeleton, swipe row,
-  pull to refresh, bottom sheet with detents, action sheet, wheel date picker, search bar, snackbar; v2: text field, picker /
-  multi-select / date-range sheets, amount keypad, slider, photo picker, scanner, signature pad, stat tiles + KPI carousel,
-  scrub charts, timeline, receipt, count badge, filter chips, top tabs, long-press menu, full-screen modal, alert, A–Z index,
-  onboarding pager, banner, upload row, chat). Registry groups Bars, Lists, Sheets, Touch inputs, Data, Feedback, Flows
-  (section `mobile`, pages `/mobile/<name>`). They import each other relatively
-  (`./mobile-sheet`) and ui parts by `@/components/ui/…`; the kit rewrites `../mobile/` to `./` because every file installs
-  into the app's ui folder. Shared parts get a touch size instead of a copy (`Segmented size="touch"`, `QuantityStepper
-  size="touch"`, `InputOTP size="touch"`, `Steps size="touch"`,
-  listed as `mobile-segmented` / `mobile-stepper` / `mobile-otp` / `mobile-steps`; `ProposedChange size="touch"` in the app). `ui/drawer.tsx` and `ui/bottom-nav.tsx` are re-export
-  shims; their registry items carry `alias`, install the shim and redirect their page.
-- `src/site/`: landing (hero, `bento.tsx` = the original components in 19 real ERP cards, `MoreBento` from
-  `showcase-more.tsx` = the shadcn-parity tiles in category bands, then the AI and Backgrounds bands, then the closing
-  card that is the landing's footer), Components page (`showcase.tsx`: every component live in category bento tiles,
-  its own `BASE_TILES` plus `MORE_TILES`; `mark.tsx` = the shared Mark, Tile, spans; `demos-more.tsx` = the new demos; `gallery.tsx` = page shell + detail
-  pages with sliders, `demos.tsx` + `demos-niche.tsx` = one demo each for those), AI and Backgrounds (`collections.tsx`, `agent.tsx` = the composer/new-chat/thread
-  they sit in; `AgentApp` = chat sidebar left (fit-content, 240–280 px), thread takes the rest, 580 px tall from lg). The message box
-  (`Composer`) ships in `composer-glow.tsx`: one row attach | text | send, one control size, inset = half the card padding,
-  radius = control radius + inset; text grows upward, buttons stay at the bottom (Board's assistant composer), examples (7 pages), `encyclopedia.tsx` (`/encyclopedia`: the UI rules, search and filters in the URL, live demos from
-  `encyclopedia-demos.tsx`, lazy-loaded), export. `layout.tsx` holds the one header (tabs), footer and customize flap.
-- Mobile site (`gallery.tsx`, `mobile-overview.tsx`, `demos-mobile.tsx`, `phone.tsx`, `mobile-app.tsx`): the Components tab
-  has a Desktop | Mobile switch (`PlatformSwitch`: next to the title on the overview, on top of the sidebar on detail
-  pages); `/components` and `/mobile` render the same `GalleryIndex` so the switch slides. Mobile demos use
-  `stage: "phone"`: `PhoneFrame` (390 × 844, status bar, home indicator, `--ad-safe-top/bottom` 47/34 px, `?keyboard=1`
-  draws a keyboard and sets `--ad-keyboard`) is the containing block for fixed bars and the `MobileLayer` portal target for
-  sheets. `/mobile/app` and `/mobile/app/<screen>` (outside the site layout) are the example app full screen on a phone,
-  framed on desktop (`?state=empty|offline|error` forces a state; other query keys are the screen's params). The app:
-  `mobile-app.tsx` (`SCREENS`: id, tab, parent, parts; a stack per tab, pushes slide in, full-screen flows cover the tabs),
-  `mobile-app-kit.tsx` (`useNav`), screens in `mobile-screens-a/b/c.tsx`, invented data in `mobile-data.ts` (drawn product
-  photos are SVG, `grey-ok`). `/mobile/screens` (`mobile-screens-page.tsx`) is every screen as a live phone (`lazy-phone.tsx`
-  mounts phones near the viewport) linking to its route; the overview links it and shows app tiles for the v2 parts.
-- `api/`: Vercel functions. `kit.ts` (`/api/kit`), `checklist.ts` (`/ui-checklist.md`), `r.ts` (`/r/<name>.json`, rewritten in `vercel.json`),
-  `tokens.ts` (`/tokens.css`, `/tokens.json`, `/tailwind.css`). They import `src/lib/*` and read
-  component sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`), `review-shots`, `shots`,
-  `check-endpoints`, `env.sh`, `greys.mjs` (grey ramp check and inventory).
-
-## UI checklist
-
-- Any UI change runs through `docs/ui-checklist.md` before review: every **must** holds, every **should** holds or the PR
-  says why not. Rules live in `src/lib/encyclopedia.ts` (site: `/encyclopedia`, agents: `/ui-checklist.md`); edit them
-  there, then `node scripts/gen-docs.mjs`. House rules win over outside advice; `context` says where they differ.
+- `src/lib/`: `config.ts` (the one config object, URL (de)serialization, every `--ad-*` variable, `GREY_ROLES`),
+  `color.ts` (OKLCH, accent ramp), `registry.ts` (every item, section, page path), `kit.ts` (agent kit, shadcn registry
+  items, Tailwind block), `ad.ts` (`cn()` that knows our token names, date/money formatters), `encyclopedia.ts`.
+- `src/styles/`: `theme.css` (Tailwind v4 `@theme inline`: `bg-fill`, `rounded-card`, `h-control`…), `base.css`
+  (corner-shape, scrollbar, no focus rings, keyframes). Both ship in exports. There is no `tokens.css` file; the
+  `/tokens.css` endpoint is generated from `config.ts`.
+- `src/components/ui/*.tsx`: one copy-pasteable file per component (core, shadcn-parity, "Niche" ERP parts).
+  `src/components/mobile/*.tsx`: the phone set (registry section `mobile`, pages `/mobile/<name>`); they import each other
+  relatively and the kit rewrites `../mobile/` to `./`. Shared parts take `size="touch"` instead of a copy.
+  `src/components/ai/` and `src/components/backgrounds/`: ported read-only from alora-board's assistant.
+- `src/site/`: landing (`landing.tsx`, `bento.tsx`, `showcase-more.tsx`), Components (`gallery.tsx`, `showcase.tsx`,
+  `mark.tsx`, `demos*.tsx`), AI/Backgrounds (`collections.tsx`, `agent.tsx`), examples (`examples.tsx`), mobile
+  (`mobile-overview.tsx`, `phone.tsx`, `mobile-app*.tsx`, `mobile-screens-*.tsx`, `mobile-data.ts`), `encyclopedia.tsx`
+  (+ lazy `encyclopedia-demos.tsx`), `export.tsx`, `layout.tsx` (header, footer, Customize flap).
+- `api/`: Vercel functions (`kit.ts`, `checklist.ts`, `r.ts`, `tokens.ts`) that import `src/lib/*` and read component
+  sources from disk (`includeFiles` in `vercel.json`).
+- `scripts/`: `verify`, `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`),
+  `greys.mjs`, `shots`, `review-*-shots` (one per review round), `check-endpoints`, `env.sh`.
 
 ## Run, test, verify
 
 - `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm.
-- Quick inline checks: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `node scripts/gen-docs.mjs --check`,
-  `npx vite build` (~2 s). After changing a component's props, the settings or the registry: `node scripts/gen-docs.mjs`.
-- Full verify (typecheck, lint, docs drift, build, headless Playwright smoke on port 5196) goes through the queue. Job
-  scripts source `scripts/env.sh` (nvm Node 24, `npm ci` when deps are missing, Playwright headless shell + ffmpeg when
-  missing; caches under `$HOME`), so they are portable. While `mac status` shows the Mac lent, send them there:
-  `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread> --cwd "$PWD" --cmd ./scripts/verify`
-  (screenshot jobs add `--out output/<folder>`). Otherwise use `--needs yoga` (no `--sync`). The wrappers carry
-  `# jobq: portable` because the queue's audit misreads "Promotions" (an example page) as a production word.
-- Mobile v2 shots: `./scripts/review-mobile-v2-shots` (~1 GB, ~15 min; `ONLY="C1|P3|F2"`) into `output/mobile-v2/` (C components,
-  P sample screens, F flow steps, G site pages; dark | light; `index.md` there is written by hand).
-- v5.4 review shots: `./scripts/review-v5.4-shots` (before = the live site or `BEFORE=<url>`, classic scrollbars) into
-  `output/review-v5.4/` (A toolbar tile, B carousel, C Chat band, D right edge 1440/1720, E/G Display, F Sales row).
-- v5 review shots: `./scripts/review-v5-shots [before] [ONLY]` (before = the live site into `before/`) into
-  `output/review-v5/` (letters A AI, F footer, H wordmark, T on/off states, N new components, X overflow).
-- Review shots for Joshua: `./scripts/review-shots` (port 5193, ~1.5 GB, ~6 min; `ONLY="C|W"` ~2 min): lettered PNGs + two webm videos +
-  `checks.json` (no horizontal scroll at 360–1440 in both themes, flap clearance, orbs drawing/pausing, reduced
-  motion, sand field reacting) in `output/review-v4.3/` (gitignored; `OUT` to change, `ONLY=<letters>`, before shots
-  from `BEFORE_BASE`, default the live site). `index.md` there is written by hand.
-- Per-component shots + taste checks (visible borders, fonts, hover shifts, skeleton boxes): `./scripts/shots`
-  (port 5197, ~0.6 GB, ~10 min) into `output/review-v2/`.
-- Endpoints on a deployment: `./scripts/check-endpoints [base-url]` (curl, quick, inline is fine).
-- Playwright uses `playwright-core` 1.65 with `chromium_headless_shell-1254` (cached on Yoga; `env.sh` installs it
-  on the Mac once).
+- Inline: `npx tsc -p tsconfig.json --noEmit`, `npx eslint .`, `node scripts/gen-docs.mjs --check`, `npx vite build`
+  (~2 s). After changing a component's props, the settings, the registry or a rule: `node scripts/gen-docs.mjs`.
+- Full verify (typecheck, lint, docs drift, greys, build, headless Playwright smoke on 5196) goes through the queue.
+  Mac lent: `job submit --kind script --name alora-design-verify --ram 2 --minutes 8 --needs mac --sync --owner <thread>
+  --cwd "$PWD" --cmd ./scripts/verify`; otherwise `--needs yoga` without `--sync`. Scripts source `scripts/env.sh`
+  (nvm, `npm ci` when deps are missing, Playwright headless shell; caches under `$HOME`). Wrappers carry
+  `# jobq: portable` because the queue misreads "Promotions" (an example page) as a production word.
+- Shots: `./scripts/shots` (per component + taste checks: borders, fonts, hover shifts, skeletons) into `output/`;
+  each `review-*-shots` writes lettered before/after PNGs for one round (`ONLY=` letters, `BEFORE=` url); `index.md`
+  in those folders is written by hand. Build into `$TMPDIR`, never `dist/`.
+- Playwright: `playwright-core` 1.65 with `chromium_headless_shell-1254`. Endpoints: `./scripts/check-endpoints [url]`.
 
 ## Accounts and deploy
 
-- Alora only: `~/.local/bin/alora git|gh|vercel`. GitHub `taskflowdev1/alora-design` (public).
-  Vercel project `alora-design`, scope `taskflowdevs-projects`, Git-connected: push to `main` deploys.
-- Domain `design.alorawork.com` (Cloudflare wildcard DNS already points at Vercel; never touch DNS).
-- Push-to-live is measured from the `<meta name="build">` commit stamp in `index.html`; target 60 s.
-  Keep dependencies small; the build is Vite only.
+- Alora only: `~/.local/bin/alora git|gh|vercel`. GitHub `taskflowdev1/alora-design` (public). Vercel project
+  `alora-design`, scope `taskflowdevs-projects`, Git-connected: push to `main` deploys. Domain `design.alorawork.com`
+  (Cloudflare wildcard DNS; never touch DNS). Push-to-live is measured from `<meta name="build">`; target 60 s.
 
 ## Deliberate oddities
 
-- Defaults: dark theme, neutral greys, blue accent `#3c6fe0` (Joshua, 2026-11-19; was pink `#dc467d`, still a swatch). Dark is neutral
-  near-black; cool/warm keep only a hint of tint in dark. Exports put the default theme on `:root` and the
-  other on a class (`.light` when dark is default); the Tailwind `dark:` variant follows.
-- Config lives in the URL query (`r c k p h a g sh f t`, defaults omitted; light is `t=l`). `SLink`/`useHref`
-  keep it on every link. Unknown keys are ignored (`?loading=1` holds skeletons in the examples). On a
-  gallery page, a key matching a demo control sets it (`/gallery/metric-card?variant=scale`).
-- Radii: control radius R; nest gap G = round(R/3); card = R + G; item = R - G; sheet = R + padding.
-  With `corner-shape` support, R is scaled (`squircleCompensation`) because a squircle looks tighter.
-  Square mode zeroes every radius; circles (`rounded-full`, `data-shape="round"`) always stay round.
-- Gallery per-component overrides are applied to `<body>` (portalled menus/popovers live there) while
-  `#root` keeps the global tokens. Cleanup removes both.
-- Sidebar (and save bar, bottom nav) use `--ad-side`: dark in both themes; in dark mode it sits at card level,
-  a step above the page, so it still stands out.
-- Routes: `/components` (was `/gallery`, which redirects) and `/mobile` (its Mobile half, plus `/mobile/screens` and `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. Header
-  tabs in that order (Components first); below lg they move to a second row that scrolls sideways, never the page.
-- /components is a bento like the landing (12 columns, `gap-4` = 13 px gaps): per category, tiles that compose its components
-  in real use. Each component sits in a `Mark` (`data-spot`): hover shows a soft fill and a name chip that opens its
-  sliders; a click on its empty space does too. Every component appears exactly once (smoke checks against the
-  registry); a new component needs a place in a tile in `TILES`. Overlays are drawn open in place. /ai uses `TileSpot`
-  tiles; /backgrounds keeps `Spot`s.
-- AI/Backgrounds item = one file + one registry entry (`export`, `params`, `stage`, `kind`, `preview`);
-  `collections.tsx` finds the export with `import.meta.glob` and builds the sliders. They install as `registry:ui`
-  next to the ui components, so `run-status.tsx` imports `./thinking-orbs`. Keyframes live in the file as a React 19
-  `<style href precedence>` tag. Each pauses off screen and honours reduced motion (sand field: plain ground).
-- Menu is custom (not Radix DropdownMenu) to get a debounced safe triangle; see the header comment in
-  `menu.tsx`. `showSafeArea` draws it.
-- Toasts read `data-toast-avoid` elements to stay clear of save bars and side panes.
-- shadcn install: every component depends on `/r/theme.json?<settings>` (cssVars + base css) and
-  `/r/ad.json` (utils). shadcn also adds harmless `--color-ad-*` aliases to `@theme inline`.
-
-- Spacing: Tailwind's numeric steps are rem on a 13 px root (`gap-2` = 6.5 px). Controls side by side, wrapped or stacked use
-  `gap-gap` (`--ad-gap`, half the card padding, 8 px by default) in both axes (Toolbar, header/action rows, the Orders
-  card's rows); never `gap-nest` between control rows (Joshua, v5.4: "spacing here").
-- Scrollbars (Joshua, v5.4): nothing sits under one. The global thin-scrollbar rule lives in `@layer base` so a utility
-  (`[scrollbar-width:none]` on the carousel track) wins; unlayered it beat every utility. A scroll area whose content runs
-  edge to edge gives the bar a lane (MessageScroller: `-me/pe-[min(12px,var(--ad-pad))]`). Page widths come from
-  `clientWidth` / `100cqw` (the page wrapper's parent is a size container), never `innerWidth` / `100vw`, which count the
-  bar. Smoke runs a second Chromium with classic scrollbars (`ignoreDefaultArgs: ["--hide-scrollbars"]`) and checks /,
-  /components, /ai and /components/select at 1440 and 1720, flap closed, open and closed again.
-- `showcase: false` on a registry item keeps it off the landing and the Components overview (Typography: no tile reads
-  as the component in real use); its page and install stay, and the coverage checks skip it.
-- One padding scale for bubbles: `--ad-bubble-x` (pills at control height, chips, segments, tabs) and
-  `--ad-bubble-x-sm` (24 px pills, copy chips, reactions); Tailwind `px-bubble` / `px-bubble-sm`.
-- Metric card: one or two digits get the short treatment (variant "tile", default; "scale" and "compact"
-  exist as B/C). Every metric card is the same height so mixed rows line up.
-- Customize (md and up) is the left flap in `layout.tsx`: hover opens a panel as wide as the room left of the 1280 px
-  page (min 344 px) and pushes the page wrapper (`[data-page]`) flush right. The margin is set once and a WAAPI
-  transform slides it (FLIP), so text rewraps once at the start, never per frame. Below md the header Customize
-  popover stays. Narrower than 344 + 960 px, the panel overlays instead of pushing. Below 1304 px the page wrapper
-  gets up to 12 px of left padding so the edge tab never covers content (smoke checks it at 768).
-- Footer: the credit "Curated by Joshua Dirga · 2026" (his name links to joshuadirga.com) at body size. Inner pages:
-  one line on the content edge. Landing: the closing card is the only footer (wordmark + Explore, then tabs + credit).
-- One-of-N pickers slide (Joshua, 2026-11-19): the selected fill is one `SlidingPill` (`ui/sliding-pill.tsx`) inside a positioned
-  parent, found by a selector (`aria-checked`, `aria-current`, `aria-pressed`, `data-state`); options carry `relative` and no
-  selected fill of their own. Segmented, Tabs, ToggleGroup `type="single"`, ChipGroup, Sidebar, Pagination, the site header
-  and sidebars use it. A one-of-N picker is a Segmented, never a ButtonGroup with a painted button.
-- Selected states follow the shadcn/Radix/Apple norm (Joshua rejected solid-ink pills in v5): in a track (segmented,
-  toggle group, chips inside a field, own reactions) a raised pill, `bg-sel shadow-sel` on `bg-track` (a soft drop only: never an edge, outline or ring); on a plain
-  surface (tabs, chips, shop-picker All/Only, toggle, pagination) the grey `fill-strong` pill. Active text is ink and
-  medium, inactive muted and regular; `.ad-hold` keeps the width when the weight changes. The track is `fill` (the
-  original lightness). Switch: neutral, never the accent: `switch-on` = ink in light, `ink-muted` in dark, off =
-  `fill-strong`, white thumb, sized in whole px (2 px inset all round; smoke asserts equal insets). Tune these tokens in `config.ts`, not per component. `.ad-on-dark` remaps them for the
-  dark sidebar. Review: `./scripts/review-v5.3-shots` (original, v5.2 and new side by side, switch insets, grey sheet, 6 vs 5 steps).
-- Greys (Joshua, v5.1, v5.2): one ramp of six per theme (page, surface, fill, fill-strong, ink-muted, ink) (`GREY_STEPS`/`greyRamp`/`GREY_ROLES` in `config.ts`, table in the
-  README). The dark islands take the dark ramp in both themes, so both themes together use 12 greys. Hover on a surface is
-  `fill`, on a fill `fill-strong`. Role tokens map to a step; never add a grey, an alpha on a grey token (`bg-fill/40`), `color-mix` on one, a
-  palette grey (`text-white`, `bg-black/5`) or a raw hex. `scripts/greys.mjs --check` (in verify) enforces it; image
-  content or an accent choice gets `grey-ok` on its line. `--inventory` / `--sheet` make the before/after swatch sheet.
-- The site header is sticky and shared by every page (same box; shots and smoke check it). The logo is the Alora
-  wordmark traced to one SVG path (`src/site/logo.tsx`, currentColor, 16 px in the header) + a muted "design" whose d
-  reaches alora's x-height (same width as the mark); the
-  favicon is the traced mark. The customize panel and phone popover are their own scroll areas (`useOwnScroll`). Examples sit in
-  the same 1280 px container. Ctrl/Cmd+K opens the command palette over pages and components.
+- Defaults: dark theme, neutral greys, blue accent `#3c6fe0`. Exports put the default theme on `:root` and the other
+  on a class. Config lives in the URL query (`r c k p h a g sh f t`); `SLink`/`useHref` keep it on every link.
+- Spacing: Tailwind steps are rem on a 13 px body root (`gap-2` = 6.5 px): the approved density. Use the tokens
+  (`p-pad`, `gap-gap` between controls in both axes, `px-bubble`); never override `--spacing`. Icons are 16 px and
+  desktop hit areas at least 24 px (transparent `::after`), set in px; touch targets 44 px.
+- Radii: control R; nest gap G = round(R/3); card = R + G; item = R − G; sheet = R + padding. Concentric only for close
+  insets. Square mode zeroes every radius; circles stay round.
+- Greys: one ramp of six per theme; role tokens map to a step (`GREY_ROLES`). Never add a grey, an alpha on a grey
+  token, `color-mix` on one, a palette grey or a raw hex; `scripts/greys.mjs --check` enforces it (`grey-ok` exempts a
+  line). In dark, menus, selects, popovers, hover cards, tooltips and toasts take the page grey (darker than the page
+  around them) and separate by shadow. The sidebar, save bar and bottom nav use `--ad-side`, dark in both themes.
+- Selected states: in a track a raised `bg-sel shadow-sel` pill; on a plain surface the `fill-strong` pill. One-of-N
+  pickers slide one `SlidingPill`; a one-of-N picker is a Segmented, never a ButtonGroup with a painted button.
+  Switch is neutral, never the accent.
+- Focus: no rings; keyboard focus is a fill (`fill`, or `fill-strong` on a fill; an already-filled selected item darkens
+  a notch), on every focusable part.
+- Phone: a floating button for the create action on list screens, a pinned action bar on forms and details.
+  `PhoneFrame` (390 × 844) is the containing block for fixed bars and the portal target for sheets.
+- Routes: `/components` (`/gallery` redirects) and `/mobile` (same `GalleryIndex`, Desktop | Mobile switch; plus
+  `/mobile/screens`, `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. The
+  sticky header is one box on every page; below lg its tabs scroll sideways in a second row. Ctrl/Cmd+K opens the palette.
+- Pills, chips, segments and tabs share one padding scale: `px-bubble` / `px-bubble-sm`. Metric cards are all one
+  height; Tile (default), Hero for the one main number, Scale for a few short counts.
+- Gallery per-component overrides go on `<body>` (portalled menus live there); `#root` keeps the global tokens.
+- /components is a bento: every component appears exactly once in a `Mark` (smoke checks it against the registry); a new
+  component needs a place in a tile. `showcase: false` keeps an item off the bento. AI/Backgrounds item = one file + one
+  registry entry; keyframes live in the file; each pauses off screen and honours reduced motion.
+- Menu is custom (not Radix DropdownMenu) for a debounced safe triangle (`menu.tsx`). Toasts read `data-toast-avoid`.
+- Scrollbars: nothing sits under one; page widths come from `clientWidth` / `100cqw`, never `innerWidth` / `100vw`.
+- Customize is the left flap in `layout.tsx` (md and up): it pushes the page with a FLIP transform, overlays when narrow.
+- shadcn install: every component depends on `/r/theme.json?<settings>` and `/r/ad.json`.
 
 ## Landmines
 
-- No borders, outlines or rings anywhere (shots.mjs flags them). Focus = the hover fill token.
-- No dividing lines, eyebrows, subtitles under titles or captions under buttons. Accent only on
-  primary/key actions. One typeface (code blocks use mono, the only exception).
+- No borders, outlines, rings or dividing lines (shots.mjs flags them); exemptions are listed on `layout.no-lines`.
+- No eyebrows, subtitles under titles or captions under buttons. Accent only on primary/key actions and chart shades.
+  One typeface; mono only in code blocks.
+- Skeletons only for real fetches, matching the loaded layout exactly; filtering loaded rows swaps at once.
 - Changing a token name means updating `theme.css`, `config.ts`, `ad.ts` (twMerge names) and the kit.
 - Yoga is RAM-tight: one preview server per job, close browsers, no blanket Docker cleanup.
-- Pages inside the examples are `grid grid-cols-1`: a plain `grid` lets a wide table stretch the page on phone.
-- Marketplace marks are simplified drawings, not the official logos; swap in real assets per product.
+- Example pages are `grid grid-cols-1`: a plain `grid` lets a wide table stretch the page on phone.
+- Marketplace marks are simplified drawings, not the official logos.
