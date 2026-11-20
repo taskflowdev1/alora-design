@@ -167,11 +167,16 @@ const APP_TILES: [string, Record<string, string>?][] = [
   ["reports"],
   ["inbox"],
   ["chat", { id: "ch1" }],
+  // Products shows the list's floating button (D4); Product is where the KPI carousel lives now (photos), since Home
+  // moved to a 2 × 2 stat grid. 21 tiles fill seven rows of three.
+  ["products"],
+  ["product", { sku: "RMB-GL-014" }],
   ["product-edit", { sku: "RMB-GL-014" }],
   ["stock-count"],
   ["delivery", { photos: "1" }],
   ["customers"],
   ["order", { id: "RMB-24811" }],
+  ["pos"],
   ["pos-receipt", { method: "cash", received: "500000" }],
   ["otp"],
   ["onboarding"],

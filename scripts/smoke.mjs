@@ -614,7 +614,7 @@ const mobIndex = await page.evaluate(() => ({
   parts: [...new Set([...document.querySelectorAll("[data-mobile-part]")].map((a) => a.dataset.mobilePart))],
 }));
 check(mobIndex.tab === "Components" && /Mobile/.test(mobIndex.sw ?? ""), `/mobile: Components tab lit, switch on Mobile (${JSON.stringify({ tab: mobIndex.tab, sw: mobIndex.sw })})`);
-check(mobIndex.tiles === 18 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
+check(mobIndex.tiles === 21 && MOBILE.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${MOBILE.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
 check(await page.locator('a[data-all-screens][href^="/mobile/screens"]').count(), "/mobile links to the screens gallery");
 await page.goto(BASE + "/mobile/screens", { waitUntil: "networkidle" });
 const gallery = await page.evaluate(() => ({

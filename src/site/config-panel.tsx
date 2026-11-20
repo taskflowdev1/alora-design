@@ -50,7 +50,8 @@ export function CornerControl({ value, onChange }: ControlProps) {
         value={value.corner}
         onValueChange={(corner) => onChange({ corner })}
         options={(["square", "round", "squircle"] as const).map((c) => ({ value: c, label: withIcon(<CornerGlyph shape={c} />, c[0].toUpperCase() + c.slice(1)) }))}
-        className="w-full [&>button]:flex-1"
+        // Three icon + label options in the 288 px controls card: the small segment padding keeps the 16 px icons inside it.
+        className="w-full [&>button]:flex-1 [&>button]:px-bubble-sm"
       />
     </Labelled>
   );
