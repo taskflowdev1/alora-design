@@ -69,7 +69,7 @@ const photo = (items: string) => {
   return p ? productPhoto(p.sku) : undefined;
 };
 const orderRow = (o: (typeof ORDERS)[number], onClick: () => void = () => {}) => (
-  <MobileListRow key={o.id} media={<Thumb src={photo(o.items)} alt={o.items} size={40} />} title={o.customer} subtitle={`${o.items} · ${smartTime(o.at)}`} value={formatRp(o.total)} onClick={onClick} />
+  <MobileListRow key={o.id} media={<Thumb src={photo(o.items)} alt={o.items} size={40} />} title={o.customer} subtitle={`${smartTime(o.at).replace(/^Today, /, "")} · ${o.items}`} value={formatRp(o.total)} onClick={onClick} />
 );
 const productRow = (p: (typeof PRODUCTS)[number]) => (
   <MobileListRow key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />} title={p.name} subtitle={p.stock ? `${p.stock} in stock` : "Out of stock"} value={formatRp(p.price)} onClick={() => {}} />

@@ -54,10 +54,11 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
   };
   const where = (cx: number, cy: number) => {
     const p = local(cx, cy);
-    const r = target.current!.getBoundingClientRect();
-    const a = local(r.left, r.top);
-    const b = local(r.right, r.bottom);
-    return { ...p, item: { left: a.x, top: a.y, width: b.x - a.x, height: b.y - a.y } };
+    // The item may still be dipped (scale 0.97) when the hold fires: place the lift from its centre and layout size.
+    const el = target.current!;
+    const r = el.getBoundingClientRect();
+    const c = local(r.left + r.width / 2, r.top + r.height / 2);
+    return { ...p, item: { left: c.x - el.offsetWidth / 2, top: c.y - el.offsetHeight / 2, width: el.offsetWidth, height: el.offsetHeight } };
   };
   const openAt = (cx: number, cy: number) => {
     setAt(where(cx, cy));
