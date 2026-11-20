@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tooltip as RT } from "radix-ui";
 import { Bold, Check, ChevronLeft, ChevronRight, Copy, Edit2, FileText, Italic, Link2, Share2, Trash2, Underline } from "react-feather";
-import { cn, formatRp } from "@/lib/ad";
+import { cn, formatNumber, formatRp, prefersReducedMotion } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -295,7 +295,7 @@ function Entrance({ reduced }: { reduced: boolean }) {
 }
 
 function ReducedMotion() {
-  const [reduce, setReduce] = React.useState(() => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [reduce, setReduce] = React.useState(prefersReducedMotion);
   React.useEffect(() => {
     const mq = matchMedia("(prefers-reduced-motion: reduce)");
     const on = () => setReduce(mq.matches);
@@ -311,7 +311,7 @@ function ReducedMotion() {
 }
 
 function Digits({ value, roll }: { value: number; roll: boolean }) {
-  const text = value.toLocaleString("id-ID");
+  const text = formatNumber(value);
   if (!roll)
     return (
       <span key={value} className="inline-block text-heading font-semibold tabular-nums" style={{ animation: `ad-up 220ms ${EASE}` }}>

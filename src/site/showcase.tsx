@@ -92,14 +92,14 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Steps } from "@/components/ui/steps";
 import { Timeline } from "@/components/ui/timeline";
 import { AvatarGroup } from "@/components/ui/avatar-group";
-import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
+import { NotificationBell } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
-import { CalendarMonth, type CalendarEvent } from "@/components/ui/calendar-month";
+import { CalendarMonth } from "@/components/ui/calendar-month";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
 import { shapedSupported, useConfig } from "./config";
 import { useEdgeFadeX } from "./layout";
-import { DAILY, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SHOPS, SPARK, TEAM, smartTime, type Order } from "./data";
+import { CALENDAR_EVENTS, DAILY, MARKET_SHOPS, NOTICES, NOW, ORDERS, PRODUCTS, SHOPS, SPARK, TEAM, smartTime, type Order } from "./data";
 import { CommentsDemo } from "./demos-niche";
 import { BackPage, Head, Mark, S, Tile, frame, stack, type TileDef } from "./mark";
 import { MORE_TILES } from "./showcase-more";
@@ -370,7 +370,7 @@ function NewOrderTile({ className }: { className?: string }) {
         </Mark>
       </Field>
       <Mark name="field">
-        <Field label="Customer email" error="Add the part after @, like rina@gmail.com">
+        <Field label="Customer email" error="Add the part after @, like rina@rimba.example">
           <Mark name="input">
             <Input icon={Mail} defaultValue="rina@" invalid />
           </Mark>
@@ -889,12 +889,6 @@ function DesktopShellTile({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ Niche */
 
-const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
-  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
-  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
-];
-
 const PAYOUT_COLS = [
   { key: "shop", label: "Shop", locked: true },
   { key: "expected", label: "Expected" },
@@ -1137,7 +1131,6 @@ function NotesTile({ className }: { className?: string }) {
               <Avatar name={o.customer} size="lg" />
               <div className="min-w-0">
                 <p className="truncate text-body font-semibold">{o.customer}</p>
-                <p className="text-small text-ink-muted">Customer since Mar 2025</p>
               </div>
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2 text-body">
@@ -1198,16 +1191,8 @@ function ProductTile({ className }: { className?: string }) {
   );
 }
 
-const add = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
-const EVENTS: CalendarEvent[] = [
-  { id: "a", date: add(-12), title: "Payday sale", tone: "accent" },
-  { id: "b", date: add(-9), title: "Stock count" },
-  { id: "c", date: add(-2), title: "Restock rotan" },
-  { id: "d", date: NOW, title: "11.11 payout" },
-  { id: "e", date: NOW, title: "Team sync" },
-  { id: "g", date: add(4), title: "12.12 sale prep", tone: "accent" },
-  { id: "h", date: add(9), title: "Tax filing" },
-];
+/** One event fewer than the landing's calendar: today holds two, so the tile's small cell doesn't overflow. */
+const CALENDAR_EVENTS_SHORT = CALENDAR_EVENTS.filter((e) => e.id !== "f");
 
 function CalendarTile({ className }: { className?: string }) {
   const [m, setM] = React.useState(new Date(NOW.getFullYear(), NOW.getMonth(), 1));
@@ -1218,7 +1203,7 @@ function CalendarTile({ className }: { className?: string }) {
         <CalendarMonth
           month={m}
           onMonthChange={setM}
-          events={EVENTS}
+          events={CALENDAR_EVENTS_SHORT}
           today={NOW}
           onEventClick={(e) => toast(e.title, "neutral")}
           className="[&>div:first-child]:px-2 [&>div:first-child]:pt-1"
@@ -1418,7 +1403,6 @@ const TILES = Object.fromEntries(
 ) as Record<Group, TileDef[]>;
 
 /** Every component's name, once, from the tiles (the coverage check compares it with the registry). */
-export const SHOWN = Object.values(TILES).flatMap((ts) => ts.flatMap((t) => t.items));
 
 /** The Components page body: a band of tiles per category, filtered by `query` (a tile shows if any part matches). */
 export function ComponentBento({ query }: { query: string }) {

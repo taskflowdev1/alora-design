@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/rules-of-hooks -- each Demo.render is a component body that React calls as one, so its hooks run in a stable order. */
 import * as React from "react";
 import {
   Archive,
@@ -255,13 +255,8 @@ export const DEMOS: Record<string, Demo> = {
       const [range, setRange] = React.useState("week");
       return (
         <div className="grid w-full max-w-4xl gap-4">
-          <PageHeader title="Orders">
-            <Button>Export</Button>
-            <Button variant="primary">
-              <Plus />
-              Add order
-            </Button>
-          </PageHeader>
+          {/* The title alone; export and the create action end the filter row (one line of controls). */}
+          <PageHeader title="Orders" />
           <Toolbar>
             <Search value={q} onValueChange={setQ} placeholder="Order or product" />
             <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
@@ -290,12 +285,17 @@ export const DEMOS: Record<string, Demo> = {
                 { value: "month", label: "Month" },
               ]}
             />
+            <Button>Export</Button>
+            <Button variant="primary">
+              <Plus />
+              Add order
+            </Button>
           </Toolbar>
         </div>
       );
     },
     usage: () =>
-      `<PageHeader title="Orders">\n  <Button variant="primary"><Plus />Add order</Button>\n</PageHeader>\n<Toolbar>\n  <Search value={q} onValueChange={setQ} />\n  <Select prefix="Shop" value={shop} onValueChange={setShop} options={shops} />\n  <Popover trigger={<Button>Filter</Button>}>…</Popover>\n  <Popover trigger={<Button>Columns</Button>}>…</Popover>\n  <ToolbarSpacer />\n  <Segmented value={range} onValueChange={setRange} options={ranges} />\n</Toolbar>`,
+      `<PageHeader title="Orders" />\n<Toolbar>\n  <Search value={q} onValueChange={setQ} />\n  <Select prefix="Shop" value={shop} onValueChange={setShop} options={shops} />\n  <Popover trigger={<Button>Filter</Button>}>…</Popover>\n  <Popover trigger={<Button>Columns</Button>}>…</Popover>\n  <ToolbarSpacer />\n  <Segmented value={range} onValueChange={setRange} options={ranges} />\n  <Button>Export</Button>\n  <Button variant="primary"><Plus />Add order</Button>\n</Toolbar>`,
   },
   "save-bar": {
     stage: "page",
@@ -352,7 +352,8 @@ export const DEMOS: Record<string, Demo> = {
       { key: "error", type: "toggle", label: "Error", default: false },
     ],
     render: (p) => (
-      <div className="grid w-full max-w-sm gap-4">
+      // The row layout needs room for its label column and a real-width input beside it.
+      <div className={cn("grid w-full gap-4", p.layout === "row" ? "max-w-[480px]" : "max-w-sm")}>
         <Field label="Shop name" layout={p.layout as never}>
           <Input defaultValue="Rimba Kemang" />
         </Field>
@@ -596,10 +597,16 @@ export const DEMOS: Record<string, Demo> = {
             <TBody>
               {orderRows.map((o) => (
                 <TRow key={o.id} selected={sel === o.id} onActivate={() => setSel(o.id)}>
-                  <TD>{o.id}</TD>
+                  <TD>
+                    <span translate="no">{o.id}</span>
+                  </TD>
                   <TD className="text-ink-muted">{smartTime(o.at)}</TD>
-                  <TD>{o.shop}</TD>
-                  <TD maxWidth={180}>{o.items}</TD>
+                  <TD>
+                    <span translate="no">{o.shop}</span>
+                  </TD>
+                  <TD maxWidth={180}>
+                    <span translate="no">{o.items}</span>
+                  </TD>
                   <TD>
                     <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{o.status}</Status>
                   </TD>
@@ -911,7 +918,7 @@ export const DEMOS: Record<string, Demo> = {
               tone="dark"
               side="top"
               trigger={
-                <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
+                <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-[filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.78]">
                   <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
                 </button>
               }

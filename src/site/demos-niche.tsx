@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/rules-of-hooks -- each Demo.render is a component body that React calls as one, so its hooks run in a stable order. */
 import * as React from "react";
 import {
   Archive,
@@ -6,6 +6,7 @@ import {
   Box,
   Columns,
   Copy,
+  CreditCard,
   Edit2,
   FileText,
   Grid,
@@ -60,13 +61,12 @@ import { TagInput } from "@/components/ui/tag-input";
 import { AvatarGroup } from "@/components/ui/avatar-group";
 import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
-import { CalendarMonth, type CalendarEvent } from "@/components/ui/calendar-month";
-import { MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM } from "./data";
+import { CalendarMonth } from "@/components/ui/calendar-month";
+import { CALENDAR_EVENTS, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM } from "./data";
 import type { Demo } from "./demos";
 
-const add = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
 
-export function CommandDemo({ open: forced }: { open?: boolean }) {
+function CommandDemo({ open: forced }: { open?: boolean }) {
   const [open, setOpen] = React.useState(!!forced);
   useCommandShortcut(setOpen);
   const say = (m: string) => () => toast(m, "neutral");
@@ -109,17 +109,17 @@ export function CommandDemo({ open: forced }: { open?: boolean }) {
   );
 }
 
-export function DateRangeDemo() {
+function DateRangeDemo() {
   const [r, setR] = React.useState<DateRange>(DEFAULT_PRESETS[2].range(NOW));
   return <DateRangePicker value={r} onValueChange={setR} today={NOW} />;
 }
 
-export function ShopPickerDemo() {
+function ShopPickerDemo() {
   const [v, setV] = React.useState(MARKET_SHOPS.map((s) => s.id));
   return <ShopPicker shops={MARKET_SHOPS} value={v} onValueChange={setV} />;
 }
 
-export function FeeDemo({ market = "shopee" as "shopee" | "tiktok" }) {
+function FeeDemo({ market = "shopee" as "shopee" | "tiktok" }) {
   const lines = [
     { payer: "buyer" as const, label: "Items, 2 × Gelas kopi", amount: 178000 },
     { payer: "buyer" as const, label: "Shipping", amount: 18000, shipping: true },
@@ -167,7 +167,7 @@ export function CommentsDemo() {
   );
 }
 
-export function KanbanDemo() {
+function KanbanDemo() {
   const card = (o: (typeof ORDERS)[number], i: number) => (
     <KanbanCard
       key={o.id}
@@ -193,20 +193,9 @@ export function KanbanDemo() {
   );
 }
 
-const EVENTS: CalendarEvent[] = [
-  { id: "a", date: add(-12), title: "Payday sale", tone: "accent" },
-  { id: "b", date: add(-9), title: "Stock count" },
-  { id: "c", date: add(-2), title: "Restock rotan" },
-  { id: "d", date: NOW, title: "11.11 payout" },
-  { id: "e", date: NOW, title: "Team sync" },
-  { id: "f", date: NOW, title: "Courier change" },
-  { id: "g", date: add(4), title: "12.12 sale prep", tone: "accent" },
-  { id: "h", date: add(9), title: "Tax filing" },
-];
-
-export function CalendarDemo() {
+function CalendarDemo() {
   const [m, setM] = React.useState(new Date(NOW.getFullYear(), NOW.getMonth(), 1));
-  return <CalendarMonth month={m} onMonthChange={setM} events={EVENTS} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} className="w-full max-w-3xl" />;
+  return <CalendarMonth month={m} onMonthChange={setM} events={CALENDAR_EVENTS} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} className="w-full max-w-3xl" />;
 }
 
 export const NICHE_DEMOS: Record<string, Demo> = {
@@ -435,7 +424,6 @@ export const NICHE_DEMOS: Record<string, Demo> = {
               <Avatar name={o.customer} size="lg" />
               <div className="min-w-0">
                 <p className="truncate text-body font-semibold">{o.customer}</p>
-                <p className="text-small text-ink-muted">Customer since Mar 2025</p>
               </div>
             </div>
             {/* Plain label and number, no tile around each stat (a box in a box inside the card). */}
@@ -605,7 +593,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
         events={[
           { id: "1", time: "Today, 14:05", title: "Picked up by JNE", media: <Truck /> },
           { id: "2", time: "Today, 11:40", title: `Packed by ${TEAM[3].name}`, media: <Box /> },
-          { id: "3", time: "Today, 09:12", title: "Paid with QRIS", detail: formatRp(434000) },
+          { id: "3", time: "Today, 09:12", title: "Paid with QRIS", detail: formatRp(434000), media: <CreditCard /> },
           { id: "4", time: "Yesterday, 21:30", title: "Ordered on Shopee", media: <MarketMark market="shopee" /> },
           { id: "5", time: "Yesterday, 21:28", title: "Buyer asked about the glaze", media: <User /> },
         ]}

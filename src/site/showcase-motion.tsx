@@ -2,7 +2,7 @@
 // pieces the Components page, the landing bands and the detail pages share, then their bento tiles.
 import * as React from "react";
 import { BarChart2, Database, FileText, Layers, Package, TrendingDown } from "react-feather";
-import { cn, formatDate, formatRp } from "@/lib/ad";
+import { cn, formatDate, formatNumber, formatRp } from "@/lib/ad";
 import { DEFAULTS } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -55,7 +55,7 @@ function useTick(on: boolean) {
   }, [on]);
 }
 
-export function DialDemo({ preset = "quantity", sound = false, blur = false, className }: { preset?: keyof typeof DIAL_PRESETS; sound?: boolean; blur?: boolean; className?: string }) {
+function DialDemo({ preset = "quantity", sound = false, blur = false, className }: { preset?: keyof typeof DIAL_PRESETS; sound?: boolean; blur?: boolean; className?: string }) {
   const p = DIAL_PRESETS[preset];
   const [value, setValue] = React.useState<number>(p.start);
   const tick = useTick(sound);
@@ -184,7 +184,8 @@ export function PurchaseOrderForm({ className }: { className?: string }) {
             return e;
           },
           content: (
-            <Field label="Supplier" error={error} htmlFor="po-supplier">
+            // The step title already says Supplier; the field says what it asks for.
+            <Field label="Name" error={error} htmlFor="po-supplier">
               <Input id="po-supplier" placeholder="Keramik Plered" value={supplier} invalid={!!error} onChange={(e) => (setSupplier(e.target.value), error && setError(undefined))} autoComplete="off" />
             </Field>
           ),
@@ -241,7 +242,7 @@ export function LinkedSales({ className }: { className?: string }) {
   const brush = useBrush();
   // Read inside the component: showcase-more imports this file too, so its data isn't ready at module load.
   const WEEK = SALES_14.slice(-7);
-  const jt = (n: number) => `${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt`;
+  const jt = (n: number) => `${formatNumber(n / 1e6, { maximumFractionDigits: 1 })} jt`;
   return (
     <div className={cn("grid min-w-0 gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]", className)}>
       <LineChart aria-label="Sales this week and last" data={WEEK} series={WEEK_SERIES} height={200} dots {...brush.chart} />
@@ -357,7 +358,7 @@ function useScript(script: Script, run: number, skipSteps = false) {
   return state;
 }
 
-export function AskThread({ className, failReactions = false }: { className?: string; failReactions?: boolean }) {
+function AskThread({ className, failReactions = false }: { className?: string; failReactions?: boolean }) {
   const [pick, setPick] = React.useState({ i: 0, run: 0 });
   const script = SCRIPTS[pick.i];
   const s = useScript(script, pick.run);

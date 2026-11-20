@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/rules-of-hooks -- each Demo.render is a component body that React calls as one, so its hooks run in a stable order. */
 // Detail-page demos for the shadcn-parity components: each one live with its controls, plus its usage snippet.
 import * as React from "react";
 import { Bold, Box, Copy, Database, Download, FileText, Italic, Package, Printer, RefreshCw, Save, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
@@ -287,7 +287,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
           <input aria-label="Minimum" defaultValue="500.000" className="tabular-nums" />
         </InputGroup>
         <InputGroup start="https://" end={<Button size="sm" variant="ghost" onClick={say("Copied")}>Copy</Button>}>
-          <input aria-label="Shop link" defaultValue="rimba.id/kemang" />
+          <input aria-label="Shop link" defaultValue="rimba.example/kemang" />
         </InputGroup>
         <InputGroup start={<SearchIcon />} end={<kbd className="text-small">⌘K</kbd>}>
           <input aria-label="Search" placeholder="Search orders" />
@@ -562,7 +562,9 @@ export const MORE_DEMOS: Record<string, Demo> = {
         <div className="grid gap-px p-2">
           {ORDERS.slice(0, 30).map((o) => (
             <div key={o.id} className="flex h-row items-center justify-between gap-3 rounded-item px-2 text-body">
-              <span className="tabular-nums">{o.id}</span>
+              <span translate="no" className="tabular-nums">
+                {o.id}
+              </span>
               <span className="tabular-nums text-ink-muted">{formatRp(o.total)}</span>
             </div>
           ))}

@@ -33,7 +33,7 @@ import {
   Users,
   XCircle,
 } from "react-feather";
-import { cn, formatRp } from "@/lib/ad";
+import { cn, formatNumber, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, MetricCard } from "@/components/ui/card";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
@@ -71,7 +71,7 @@ import { toast, ToastView } from "@/components/ui/toast";
 import { Menu, MenuGroup, MenuItem, MenuSub } from "@/components/ui/menu";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
-import { BottomNav, BottomNavItem } from "@/components/ui/bottom-nav";
+import { MobileTab, MobileTabBar } from "@/components/mobile/mobile-tab-bar";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { DateRangePicker, DEFAULT_PRESETS, type DateRange } from "@/components/ui/date-range-picker";
 import { TimePicker } from "@/components/ui/time-picker";
@@ -96,10 +96,10 @@ import { CommentThread, type Comment } from "@/components/ui/comment-thread";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
 import { AvatarGroup } from "@/components/ui/avatar-group";
-import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
+import { NotificationBell } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
-import { CalendarMonth, type CalendarEvent } from "@/components/ui/calendar-month";
-import { DAILY, HOURLY, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM, smartTime, type Order } from "./data";
+import { CalendarMonth } from "@/components/ui/calendar-month";
+import { CALENDAR_EVENTS, DAILY, HOURLY, MARKET_SHOPS, NOTICES, NOW, ORDERS, PRODUCTS, SPARK, TEAM, dayFrom, smartTime, type Order } from "./data";
 import { OrderDetail } from "./demos";
 
 /* ------------------------------------------------------------ shared bits */
@@ -107,7 +107,6 @@ import { OrderDetail } from "./demos";
 type Market = "shopee" | "tiktok" | "offline";
 const marketOf = (shop: string): Market => (shop === "Shopee" ? "shopee" : shop === "TikTok Shop" ? "tiktok" : "offline");
 const shopName = (shop: string) => (shop === "Shopee" ? "Rimba Official" : shop === "TikTok Shop" ? "Rimba Live" : shop);
-const add = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
 
 function useHeldLoading() {
   const [params] = useSearchParams();
@@ -165,7 +164,6 @@ function CustomerName({ o }: { o: Order }) {
         <Avatar name={o.customer} size="lg" />
         <div className="min-w-0">
           <p className="truncate text-body font-semibold">{o.customer}</p>
-          <p className="text-small text-ink-muted">Customer since Mar 2025</p>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2 text-body">
@@ -412,7 +410,7 @@ function SalesCard({ className }: { className?: string }) {
         <span className="flex items-center gap-2.5 text-body">
           <span className="text-ink-muted">Orders</span>
           <span className="min-w-[5ch] text-right font-semibold tabular-nums">
-            <LoadingText loading={loading}>{s.orders.toLocaleString("id-ID")}</LoadingText>
+            <LoadingText loading={loading}>{formatNumber(s.orders)}</LoadingText>
           </span>
         </span>
       </div>
@@ -453,12 +451,6 @@ function PaletteCard({ className }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------ B4 the app's sidebar */
-
-const NOTICES: Notice[] = [
-  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
-  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
-  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
-];
 
 function ShellCard({ className }: { className?: string }) {
   const [at, setAt] = React.useState("Orders");
@@ -510,7 +502,7 @@ function ShellCard({ className }: { className?: string }) {
           tone="dark"
           side="top"
           trigger={
-            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-transform duration-[160ms] active:scale-95">
+            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-[filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.78]">
               <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
           }
@@ -630,22 +622,11 @@ function FeesCard({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ B7 calendar */
 
-const EVENTS: CalendarEvent[] = [
-  { id: "a", date: add(-12), title: "Payday sale", tone: "accent" },
-  { id: "b", date: add(-9), title: "Stock count" },
-  { id: "c", date: add(-2), title: "Restock rotan" },
-  { id: "d", date: NOW, title: "11.11 payout" },
-  { id: "e", date: NOW, title: "Team sync" },
-  { id: "f", date: NOW, title: "Courier change" },
-  { id: "g", date: add(4), title: "12.12 sale prep", tone: "accent" },
-  { id: "h", date: add(9), title: "Tax filing" },
-];
-
 function CalendarCard({ className }: { className?: string }) {
   const [m, setM] = React.useState(new Date(NOW.getFullYear(), NOW.getMonth(), 1));
   return (
     <Card className={cn("min-w-0 overflow-x-auto", className)}>
-      <CalendarMonth month={m} onMonthChange={setM} events={EVENTS} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} className="sm:min-w-[560px]" />
+      <CalendarMonth month={m} onMonthChange={setM} events={CALENDAR_EVENTS} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} className="sm:min-w-[560px]" />
     </Card>
   );
 }
@@ -788,7 +769,7 @@ function PromotionCard({ className }: { className?: string }) {
   const [name, setName] = React.useState("Rotan week");
   const [product, setProduct] = React.useState<string | null>("RMB-PR-022");
   const [shops, setShops] = React.useState(["Kemang", "Rimba Official"]);
-  const [start, setStart] = React.useState<Date | null>(add(4));
+  const [start, setStart] = React.useState<Date | null>(dayFrom(4));
   const [discount, setDiscount] = React.useState(15);
   const [limit, setLimit] = React.useState("once");
   return (
@@ -1004,7 +985,7 @@ function PhoneCard({ className }: { className?: string }) {
       <div className="pointer-events-none absolute inset-x-3 bottom-[84px] flex justify-end">
         <ToastView>3 orders packed</ToastView>
       </div>
-      <BottomNav className="absolute">
+      <MobileTabBar className="absolute">
         {(
           [
             [Home, "Home"],
@@ -1013,9 +994,9 @@ function PhoneCard({ className }: { className?: string }) {
             [SearchIcon, "Search"],
           ] as const
         ).map(([I, l]) => (
-          <BottomNavItem key={l} icon={I} label={l} active={at === l} onClick={() => setAt(l)} />
+          <MobileTab key={l} icon={I} label={l} active={at === l} onClick={() => setAt(l)} />
         ))}
-      </BottomNav>
+      </MobileTabBar>
     </Card>
   );
 }

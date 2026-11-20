@@ -222,7 +222,7 @@ function SiteHeader() {
   );
 }
 
-/** "Curated by Joshua Dirga · 2026", his name linking to his site. Body size, like the rest of the page. */
+/** "Curated by Joshua Dirga · 2026", the name linking to the author’s site. Body size, like the rest of the page. */
 export function Credit({ className }: { className?: string }) {
   return (
     <p className={cn("text-body text-ink-muted", className)}>

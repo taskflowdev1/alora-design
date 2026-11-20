@@ -118,7 +118,7 @@ function AccentControl({ value, onChange, large }: ControlProps & { large?: bool
             data-shape="round"
             className={cn(
               // A colour swatch has no grey step to move to: hover and keyboard focus darken it slightly.
-              "ad-hit grid cursor-pointer place-items-center rounded-full text-thumb transition-[transform,filter] duration-[160ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.85] active:scale-95",
+              "ad-hit grid cursor-pointer place-items-center rounded-full text-thumb transition-[scale,filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.85] active:scale-[0.92]",
               large ? "size-7" : "size-6",
             )}
             style={{ background: s }}

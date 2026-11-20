@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, useLocation, useParams } from "react-router";
-import { Inbox } from "react-feather";
+import { ArrowLeft, Inbox } from "react-feather";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SiteLayout } from "./layout";
 import { Landing } from "./landing";
@@ -32,10 +33,25 @@ function NotFound() {
   );
 }
 
+/** The phone app's error view: it has no site header, so it carries its own way back. */
+function AppError() {
+  return (
+    <div className="grid justify-items-center gap-4 px-4 py-32">
+      <EmptyState icon={Inbox} title="Something broke on this page" />
+      <Button asChild>
+        <a href={`/mobile${window.location.search}`}>
+          <ArrowLeft />
+          Back to Mobile
+        </a>
+      </Button>
+    </div>
+  );
+}
+
 export const router = createBrowserRouter([
   // The example phone app, full screen on a phone (no site header).
-  { path: "/mobile/app", element: <MobileAppPage />, errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" /> },
-  { path: "/mobile/app/:screen", element: <MobileAppPage />, errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" /> },
+  { path: "/mobile/app", element: <MobileAppPage />, errorElement: <AppError /> },
+  { path: "/mobile/app/:screen", element: <MobileAppPage />, errorElement: <AppError /> },
   {
     element: <SiteLayout />,
     errorElement: <EmptyState icon={Inbox} title="Something broke on this page" className="py-32" />,

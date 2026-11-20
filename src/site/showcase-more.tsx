@@ -368,7 +368,7 @@ function PayoutAccountTile({ className }: { className?: string }) {
               <Button icon aria-label="Download statement" onClick={() => toast(`Statement as ${fmt.toUpperCase()}`, "neutral")}>
                 <Download />
               </Button>
-              <Button icon aria-label="Email statement" onClick={() => toast("Statement sent to finance@tokodago.id", "neutral")}>
+              <Button icon aria-label="Email statement" onClick={() => toast("Statement sent to finance@tokodago.example", "neutral")}>
                 <Mail />
               </Button>
             </ButtonGroup>

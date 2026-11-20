@@ -70,6 +70,7 @@ import { CopyChip } from "@/components/ui/copy-chip";
 import { Timeline } from "@/components/ui/timeline";
 import { CalendarMonth } from "@/components/ui/calendar-month";
 import { SplitButton } from "@/components/ui/split-button";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 import { SLink, useConfig } from "./config";
 import { useEdgeFade } from "./layout";
 import { OrderDetail } from "./demos";
@@ -187,7 +188,7 @@ function AppSidebar({ page }: { page: Page }) {
       <Menu
         tone="dark"
         trigger={
-          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink transition-[background-color,transform] duration-[160ms] hover:bg-side-fill-strong focus-visible:bg-side-fill-strong active:scale-[0.98]">
+          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink ad-press hover:bg-side-fill-strong focus-visible:bg-side-fill-strong active:scale-[0.98]">
             <span className="min-w-0 flex-1 truncate font-medium">Rimba · {shop}</span>
             <ChevronDown size={16} className="shrink-0 text-side-muted" />
           </button>
@@ -219,8 +220,8 @@ function AppSidebar({ page }: { page: Page }) {
           tone="dark"
           side="top"
           trigger={
-            // A fill behind the avatar for hover and keyboard focus (the avatar itself is already filled).
-            <button type="button" aria-label="Account" className="-ml-0.5 cursor-pointer rounded-full p-0.5 transition-colors duration-[150ms] ease-ad hover:bg-side-fill focus-visible:bg-side-fill">
+            // The avatar is already filled, so hover and keyboard focus darken it a notch (as the sliding pill does).
+            <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-[filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.78]">
               <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
           }
@@ -482,9 +483,9 @@ function Orders() {
   const [page, setPage] = React.useState(1);
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [cols, setCols] = React.useState(["time", "shop", "customer", "items", "payment", "fee"]);
-  // Orders marked as packed from the pane: their status moves on in the table and in the pane's steps.
-  const [packed, setPacked] = React.useState<string[]>([]);
-  const statusOf = (o: (typeof ORDERS)[number]): OrderStatus => (packed.includes(o.id) ? "Packed" : o.status);
+  // Orders moved on from the pane (packed, then shipped): the table and the pane's steps follow.
+  const [moved, setMoved] = React.useState<Record<string, OrderStatus>>({});
+  const statusOf = (o: (typeof ORDERS)[number]): OrderStatus => moved[o.id] ?? o.status;
   const wide = useWide();
   const [busy, setBusy] = React.useState(false);
   const loading = forcedLoading || busy;
@@ -495,10 +496,10 @@ function Orders() {
     return ORDERS.filter(
       (o) =>
         (shop === "all" || o.shop === shop) &&
-        (!status.length || status.includes(packed.includes(o.id) ? "Packed" : o.status)) &&
+        (!status.length || status.includes(moved[o.id] ?? o.status)) &&
         (!t || o.id.toLowerCase().includes(t) || o.items.toLowerCase().includes(t) || o.customer.toLowerCase().includes(t)),
     );
-  }, [q, shop, status, packed]);
+  }, [q, shop, status, moved]);
   const pageRows = rows.slice((page - 1) * 50, page * 50);
 
   // A filter or page change shows the skeleton, the same shape as the rows that arrive.
@@ -516,6 +517,13 @@ function Orders() {
 
   const open = ORDERS.find((o) => o.id === openId);
   const openStatus = open ? statusOf(open) : null;
+  const next = openStatus === "Paid" ? { status: "Packed" as const, label: "Mark as packed", done: "marked as packed" } : openStatus === "Packed" ? { status: "Shipped" as const, label: "Mark as shipped", done: "marked as shipped" } : null;
+  // One step per press: the second click of a double click must not pack and ship at once.
+  const advance = useDoubleTapGuard(() => {
+    if (!open || !next) return;
+    setMoved((m) => ({ ...m, [open.id]: next.status }));
+    toast(`${open.id} ${next.done}`);
+  });
   const room = usePaneRoom(!!open, "[data-orders]");
   // Below xl, Payment and Fee give way so Status and Total stay in view; the menu lists only what can show.
   const menuCols = wide ? ORDER_COLS : ORDER_COLS.filter((c) => c.key !== "payment" && c.key !== "fee");
@@ -641,17 +649,10 @@ function Orders() {
         footer={
           <>
             <Button onClick={() => toast("Invoice sent", "neutral")}>Send invoice</Button>
-            {/* Only a paid order can be packed; the action goes once it is done. */}
-            {openStatus === "Paid" ? (
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (!open) return;
-                  setPacked((p) => [...p, open.id]);
-                  toast(`${open.id} marked as packed`);
-                }}
-              >
-                Mark as packed
+            {/* The next step for this order: pack a paid one, ship a packed one. */}
+            {next ? (
+              <Button variant="primary" onClick={advance}>
+                {next.label}
               </Button>
             ) : null}
           </>
@@ -764,7 +765,7 @@ function Products() {
                   <TD align="right" className="w-40">
                     {loading ? (
                       <SkeletonValue>
-                        Rp<span className="ml-1.5">{p.price.toLocaleString("id-ID")}</span>
+                        Rp<span className="ml-1.5">{formatNumber(p.price)}</span>
                       </SkeletonValue>
                     ) : (
                       <InlineEdit

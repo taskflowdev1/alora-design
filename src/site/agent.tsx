@@ -28,7 +28,7 @@ export function NewChat({ glow, className }: { glow?: Omit<ComposerGlowProps, "c
       <ul className="grid w-full gap-0.5">
         {SUGGESTIONS.map(({ icon: Icon, text }) => (
           <li key={text}>
-            <button type="button" className="flex h-control w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left text-body text-ink-muted transition-colors duration-[160ms] ease-ad hover:text-ink focus-visible:bg-fill focus-visible:text-ink">
+            <button type="button" className="ad-press flex h-control w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left text-body text-ink-muted hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink active:scale-[0.99]">
               <Icon size={16} className="shrink-0" />
               <span className="truncate">{text}</span>
             </button>
@@ -39,10 +39,10 @@ export function NewChat({ glow, className }: { glow?: Omit<ComposerGlowProps, "c
   );
 }
 
-const STEPS = ["Reading the Board…", "Checking 3 shops…", "Comparing with last week…", "Thinking…"];
+const STEPS = ["Reading today’s orders…", "Checking 3 shops…", "Comparing with last week…", "Thinking…"];
 
 /** Steps through `list` every `ms` while on screen. */
-export function useCycle<T>(list: T[], ms: number, ref: React.RefObject<HTMLElement | null>) {
+function useCycle<T>(list: T[], ms: number, ref: React.RefObject<HTMLElement | null>) {
   const [i, setI] = React.useState(0);
   React.useEffect(() => {
     const el = ref.current;
@@ -78,7 +78,7 @@ const COLUMN = "mx-auto w-full max-w-[720px]";
  * A thread: earlier turns, the answer so far, the live run line, then the working message box pinned to the bottom.
  * From lg the card has a fixed chat-app height and the turns scroll above the box, starting at the latest.
  */
-export function ThreadCard({ title = CHATS[0].label, className }: { title?: string; className?: string }) {
+function ThreadCard({ title = CHATS[0].label, className }: { title?: string; className?: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const scroller = React.useRef<HTMLDivElement>(null);
   const step = useCycle(STEPS, 2400, ref);
@@ -140,7 +140,7 @@ const CHATS = [
 const PHONE_CHATS = 5;
 
 /** The chat list, the app's sidebar: a running chat shows the orbs where its time would be. */
-export function ChatsCard({ active, onActive, className }: { active: number; onActive: (i: number) => void; className?: string }) {
+function ChatsCard({ active, onActive, className }: { active: number; onActive: (i: number) => void; className?: string }) {
   return (
     <Card data-chats className={cn("flex min-h-0 min-w-0 flex-col gap-2", className)}>
       <CardHeader
