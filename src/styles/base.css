@@ -54,6 +54,8 @@ html {
   color: var(--ad-ink);
   background: var(--ad-page);
   font-variant-numeric: tabular-nums;
+  /* No faux bold or italic: a missing weight shows as the nearest real one (base.defaults). */
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;

@@ -273,8 +273,8 @@ export function PosPayScreen({ back }: ScreenProps) {
                 onValueChange={setCash}
                 quick={[
                   { label: "Exact", value: total },
-                  { label: formatRp(up(50000)).replace("Rp ", ""), value: up(50000) },
-                  { label: formatRp(up(100000)).replace("Rp ", ""), value: up(100000) },
+                  { label: formatRp(up(50000)).replace(/^Rp\s/, ""), value: up(50000) },
+                  { label: formatRp(up(100000)).replace(/^Rp\s/, ""), value: up(100000) },
                 ]}
               />
               <p className="flex h-touch items-center justify-between rounded-control bg-fill px-3.5 text-[15px]">

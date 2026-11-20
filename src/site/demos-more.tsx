@@ -642,11 +642,11 @@ export const MORE_DEMOS: Record<string, Demo> = {
     ],
     render: (p) => (
       <AttachmentGroup className="max-w-full">
-        <Attachment name="restock-dago.csv" kind="doc" meta="CSV · 4 KB" state={p.state as "done"} progress={62} size={p.size as "sm"} onRemove={say("Removed")} />
+        <Attachment name="restock-dago.csv" kind="doc" meta="CSV · 4 KB" state={p.state as "done"} progress={62} size={p.size as "sm"} onRemove={say("Removed")} onRetry={p.state === "error" ? say("Uploading again") : undefined} />
         <Attachment name="foto-rak.jpg" kind="image" meta="JPG · 1,2 MB" size={p.size as "sm"} onRemove={say("Removed")} />
       </AttachmentGroup>
     ),
-    usage: (p) => `<Attachment name="restock-dago.csv" kind="doc" meta="CSV · 4 KB"${p.state !== "done" ? ` state="${p.state}"` : ""}${p.state === "uploading" ? " progress={62}" : ""}${p.size === "sm" ? ' size="sm"' : ""} onRemove={remove} />`,
+    usage: (p) => `<Attachment name="restock-dago.csv" kind="doc" meta="CSV · 4 KB"${p.state !== "done" ? ` state="${p.state}"` : ""}${p.state === "uploading" ? " progress={62}" : ""}${p.size === "sm" ? ' size="sm"' : ""} onRemove={remove}${p.state === "error" ? " onRetry={retry}" : ""} />`,
   },
   questionnaire: {
     render: () => (

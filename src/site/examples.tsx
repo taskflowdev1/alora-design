@@ -272,7 +272,7 @@ function Dashboard() {
   const unpaid = ORDERS.filter((o) => o.status === "Unpaid").slice(0, 4);
   // Attention rows sit on a fill, so their skeleton bars take the next step up to show.
   const L = ({ children }: { children: React.ReactNode }) => (
-    <LoadingText loading={loading} className="bg-fill-strong">
+    <LoadingText loading={loading} onFill>
       {children}
     </LoadingText>
   );
@@ -329,7 +329,7 @@ function Dashboard() {
             {low.map((p) => (
               <AttentionItem
                 key={p.sku}
-                media={loading ? <Skeleton className="size-[32px] rounded-small bg-fill-strong" /> : <Thumb alt={p.name} />}
+                media={loading ? <Skeleton onFill className="size-[32px] rounded-small" /> : <Thumb alt={p.name} />}
                 title={<L>{p.name}</L>}
                 meta={<L>{p.sku}</L>}
                 value={<L>{p.stock === 0 ? "Out" : `${p.stock} left`}</L>}
@@ -344,7 +344,7 @@ function Dashboard() {
             {unpaid.map((o) => (
               <AttentionItem
                 key={o.id}
-                media={loading ? <Skeleton className="size-8 rounded-full bg-fill-strong" /> : <Avatar name={o.customer} size="md" className="bg-surface" />}
+                media={loading ? <Skeleton onFill className="size-8 rounded-full" /> : <Avatar name={o.customer} size="md" className="bg-surface" />}
                 title={<L>{o.customer}</L>}
                 meta={<L>{`${o.id} · ${o.shop}`}</L>}
                 value={<L>{formatRp(o.total)}</L>}

@@ -652,7 +652,7 @@ export const DEMOS: Record<string, Demo> = {
                   ["Dago", 28],
                   ["Darmo", 19],
                 ] as const
-              ).map(([s, v]) => ({ key: s, label: s, value: v, display: `Rp ${v} jt` }))}
+              ).map(([s, v]) => ({ key: s, label: s, value: v, display: `Rp\u00a0${v}\u00a0jt` }))}
             />
           ) : (
             <BarChart data={DAILY} current={29} labelEvery={5} className="mt-4" aria-label="Sales, last 30 days" />
