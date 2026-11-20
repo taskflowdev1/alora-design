@@ -15,8 +15,8 @@ export interface FieldProps {
 
 export function Field({ label, error, layout = "stack", className, children, htmlFor }: FieldProps) {
   return (
-    <div className={cn(layout === "row" ? "grid grid-cols-[minmax(120px,180px)_1fr] items-center gap-x-4" : "grid gap-1.5", className)}>
-      <label htmlFor={htmlFor} className="text-body text-ink-muted">
+    <div className={cn(layout === "row" ? "grid grid-cols-[minmax(120px,180px)_1fr] items-start gap-x-4" : "grid gap-1.5", className)}>
+      <label htmlFor={htmlFor} className={cn("text-body text-ink-muted", layout === "row" && "flex min-h-control items-center")}>
         {label}
       </label>
       <div className="grid gap-1.5">

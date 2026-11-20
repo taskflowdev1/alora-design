@@ -36,7 +36,7 @@ export function AvatarGroup({
             data-shape="round"
             className={cn(
               "inline-grid shrink-0 place-items-center rounded-full bg-fill font-medium tabular-nums text-ink-muted",
-              size === "sm" ? "size-6 text-[10px]" : "size-8 text-small",
+              size === "sm" ? "size-[24px] text-small" : "size-8 text-small",
               ring,
             )}
           >

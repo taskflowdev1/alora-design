@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AlertCircle, File, FileText, Image as ImageIcon, X } from "react-feather";
+import { AlertCircle, File, FileText, Image as ImageIcon, RotateCw, X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +15,8 @@ export interface AttachmentProps {
   /** 0 to 100 while uploading. */
   progress?: number;
   onRemove?: () => void;
+  /** Shown with state "error": a retry button before the remove button. */
+  onRetry?: () => void;
   /** Opens the file (whole card is the target). */
   onOpen?: () => void;
   /** "sm" for the strip above a composer. */
@@ -27,11 +29,13 @@ const KIND_ICON = { image: ImageIcon, doc: FileText, file: File };
 /** A file name that truncates in the middle: the end of the name and its extension always stay visible. */
 function FileName({ name, className }: { name: string; className?: string }) {
   const dot = name.lastIndexOf(".");
-  const cut = dot > 0 ? Math.max(0, dot - 4) : name.length;
+  let cut = dot > 0 ? Math.max(0, dot - 6) : name.length;
+  // Don't start the kept tail on a separator ("-rak.jpg"): move the cut past it.
+  while (cut > 0 && cut < dot && /[-_ .]/.test(name[cut])) cut++;
   return (
     <span className={cn("flex min-w-0", className)}>
       <span className="min-w-0 truncate">{name.slice(0, cut)}</span>
-      <span className="shrink-0 whitespace-pre">{name.slice(cut)}</span>
+      <span className="shrink-0 whitespace-nowrap">{name.slice(cut)}</span>
     </span>
   );
 }
@@ -41,7 +45,7 @@ function FileName({ name, className }: { name: string; className?: string }) {
  * A file on a soft card: preview or icon, the name (it truncates cleanly), one muted
  * line, a remove button. Uploading shows a slim bar in place of the meta; an error says so in words, quietly.
  */
-export function Attachment({ name, meta, kind = "file", src, state = "done", progress = 0, onRemove, onOpen, size = "default", className }: AttachmentProps) {
+export function Attachment({ name, meta, kind = "file", src, state = "done", progress = 0, onRemove, onRetry, onOpen, size = "default", className }: AttachmentProps) {
   const Icon = KIND_ICON[kind];
   const sm = size === "sm";
   return (
@@ -52,7 +56,7 @@ export function Attachment({ name, meta, kind = "file", src, state = "done", pro
       onKeyDown={(e) => onOpen && e.target === e.currentTarget && (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen())}
       className={cn(
         "group relative flex min-w-0 items-center gap-2.5 rounded-card bg-fill p-nest pr-2 text-left",
-        sm ? "h-control w-48" : "w-64",
+        sm ? "h-control w-[188px]" : "w-64",
         onOpen && "cursor-pointer select-none transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.98]",
         state === "error" && "bg-danger-soft",
         className,
@@ -65,12 +69,27 @@ export function Attachment({ name, meta, kind = "file", src, state = "done", pro
         <FileName name={name} className="text-body text-ink" />
         {!sm ? (
           state === "uploading" ? (
-            <Progress value={progress} aria-label={`Uploading ${name}`} className="mt-1" />
+            <Progress value={progress} aria-label={`Uploading ${name}`} className="mt-1 bg-fill-strong" />
           ) : (
-            <span className={cn("truncate text-small", state === "error" ? "text-danger" : "text-ink-muted")}>{state === "error" ? "Didn’t upload. Try again" : meta}</span>
+            <span className={cn("truncate text-small", state === "error" ? "text-danger" : "text-ink-muted")}>{state === "error" ? "Didn’t upload" : meta}</span>
           )
         ) : null}
       </span>
+      {state === "error" && onRetry ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon
+          aria-label={`Upload ${name} again`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRetry();
+          }}
+          className="text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong hover:text-ink focus-visible:text-ink"
+        >
+          <RotateCw />
+        </Button>
+      ) : null}
       {onRemove ? (
         <Button
           variant="ghost"

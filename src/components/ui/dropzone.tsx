@@ -53,8 +53,8 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
           onFiles(Array.from(e.dataTransfer.files));
         }}
         className={cn(
-          "grid place-items-center gap-2 rounded-card px-pad py-6 text-center transition-[background-color,transform] duration-[220ms] ease-ad",
-          over ? "scale-[1.01] bg-fill-strong" : "bg-fill",
+          "grid place-items-center gap-2 rounded-card px-pad py-6 text-center transition-colors duration-[220ms] ease-ad",
+          over ? "bg-fill-strong" : "bg-fill",
         )}
       >
         <UploadCloud size={24} className="text-ink-muted [--ad-icon-stroke:1.5]" />

@@ -22,20 +22,38 @@ export interface AttentionItemProps {
 export function AttentionItem({ media, title, meta, value, action, onClick }: AttentionItemProps) {
   return (
     <li
-      onClick={onClick}
       className={cn(
-        "flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5",
+        "relative flex min-h-[calc(var(--ad-row-h)+8px)] items-center gap-3 rounded-item bg-fill px-2.5 py-1.5 transition-colors duration-[150ms] ease-ad",
         action && "pr-1.5",
-        onClick && "cursor-pointer hover:bg-fill-strong focus-visible:bg-fill-strong",
+        onClick && "cursor-pointer hover:bg-fill-strong has-[>button:focus-visible]:bg-fill-strong",
       )}
     >
-      {media}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-body text-ink">{title}</p>
-        {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
-      </div>
-      {value ? <span className="shrink-0 tabular-nums text-body font-medium text-ink">{value}</span> : null}
-      {action ? <span className="shrink-0 [&_button]:rounded-small">{action}</span> : null}
+      {onClick ? (
+        // A real button, so the row is reachable by keyboard. Its ::after covers the whole row; the action sits above it.
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left after:absolute after:inset-0 after:rounded-[inherit] after:content-['']"
+        >
+          {media}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-body text-ink">{title}</span>
+            {meta ? <span className="block truncate text-small text-ink-muted">{meta}</span> : null}
+          </span>
+          {value ? <span className="shrink-0 tabular-nums text-body font-medium text-ink">{value}</span> : null}
+        </button>
+      ) : (
+        <>
+          {media}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-body text-ink">{title}</p>
+            {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
+          </div>
+          {value ? <span className="shrink-0 tabular-nums text-body font-medium text-ink">{value}</span> : null}
+        </>
+      )}
+      {/* Buttons here keep the small radius: the action sits about 6 px inside the row, so its corner nests in the row's. */}
+      {action ? <span className="relative z-10 shrink-0 [&_button]:rounded-small">{action}</span> : null}
     </li>
   );
 }

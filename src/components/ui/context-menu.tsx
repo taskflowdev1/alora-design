@@ -3,6 +3,7 @@ import { ContextMenu as C } from "radix-ui";
 import { ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
 import { menuSurface } from "@/components/ui/menu";
+import { Shortcut } from "@/components/ui/kbd";
 
 /** Right click (or long press) on the child opens the menu at the pointer. */
 export function ContextMenu({ children, menu, className }: { children: React.ReactElement; menu: React.ReactNode; className?: string }) {
@@ -30,6 +31,7 @@ const item = cn(
 export interface ContextMenuItemProps {
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
   children: React.ReactNode;
+  /** A key ("E") or keys (["mod", "E"]) draw key chips, like the command palette; any other node shows as is. */
   shortcut?: React.ReactNode;
   onSelect?: () => void;
   disabled?: boolean;
@@ -40,7 +42,11 @@ export function ContextMenuItem({ icon: Icon, children, shortcut, onSelect, disa
     <C.Item className={item} onSelect={onSelect} disabled={disabled}>
       {Icon ? <Icon size={16} className="shrink-0 text-ink-muted" /> : null}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {shortcut ? <span className="pl-4 text-small text-ink-muted">{shortcut}</span> : null}
+      {typeof shortcut === "string" || (Array.isArray(shortcut) && shortcut.every((k) => typeof k === "string")) ? (
+        <Shortcut keys={typeof shortcut === "string" ? [shortcut] : (shortcut as string[])} className="pl-4" />
+      ) : shortcut ? (
+        <span className="pl-4 text-small text-ink-muted">{shortcut}</span>
+      ) : null}
     </C.Item>
   );
 }

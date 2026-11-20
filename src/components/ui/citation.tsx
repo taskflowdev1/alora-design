@@ -41,7 +41,7 @@ export function Citation({ n, source, className }: CitationProps) {
         aria-label={`Source ${n}`}
         className={cn(
           // Sits on the text's x-height without opening the line spacing; the hit area is bigger than it looks.
-          "relative ml-0.5 inline-grid h-4 min-w-4 cursor-pointer select-none place-items-center rounded-full bg-fill px-1 align-[0.15em] text-[0.72em] font-medium leading-none tabular-nums text-ink-muted",
+          "relative ml-0.5 inline-grid h-4 min-w-4 cursor-pointer select-none place-items-center rounded-full bg-fill px-1 align-[0.15em] text-[0.8em] font-medium leading-none tabular-nums text-ink-muted",
           "transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-1.5 hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong active:scale-[0.97] data-[state=open]:bg-fill-strong data-[state=open]:text-ink",
           className,
         )}
@@ -64,18 +64,18 @@ export function Citation({ n, source, className }: CitationProps) {
           )}
         >
           <div className="flex items-start gap-2">
-            <span className="grid h-4 min-w-4 shrink-0 translate-y-0.5 place-items-center rounded-full bg-fill px-1 text-[0.72em] font-medium tabular-nums text-ink-muted">{n}</span>
+            <span className="grid h-4 min-w-4 shrink-0 translate-y-0.5 place-items-center rounded-full bg-fill px-1 text-[0.8em] font-medium tabular-nums text-ink-muted">{n}</span>
             <div className="grid min-w-0 flex-1">
               <span className="text-body font-medium">{source.title}</span>
               {source.meta ? <span className="text-small text-ink-muted">{source.meta}</span> : null}
             </div>
             {source.href ? (
-              <a href={source.href} target="_blank" rel="noreferrer" aria-label="Open source" className="grid size-6 shrink-0 place-items-center rounded-item text-ink-muted hover:bg-fill focus-visible:bg-fill">
-                <ExternalLink size={14} />
+              <a href={source.href} target="_blank" rel="noreferrer" aria-label="Open source" className="grid size-[24px] shrink-0 place-items-center rounded-item text-ink-muted transition-colors duration-[150ms] ease-ad hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink">
+                <ExternalLink size={16} />
               </a>
             ) : null}
           </div>
-          {source.quote ? <p className="rounded-item bg-fill px-2.5 py-2 text-small leading-relaxed text-ink-muted">{source.quote}</p> : null}
+          {source.quote ? <p className="rounded-[max(4px,calc(var(--ad-radius-card)-var(--ad-nest)*3))] bg-fill px-2.5 py-2 text-small leading-relaxed text-ink-muted">{source.quote}</p> : null}
         </P.Content>
       </P.Portal>
     </P.Root>

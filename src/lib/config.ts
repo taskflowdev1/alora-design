@@ -181,7 +181,8 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
         surface: g(0.2, 0.8),
         fill: g(0.252, 0.8),
         "fill-strong": g(0.385, 0.8),
-        "ink-muted": g(0.72, 0.6),
+        // Muted text reaches 4.5:1 on fill-strong too (a hovered or focused field's placeholder).
+        "ink-muted": g(0.76, 0.6),
         ink: g(0.95, 0.4),
       }
     : {
@@ -189,7 +190,7 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
         surface: "#ffffff",
         fill: g(0.958, 0.6),
         "fill-strong": g(0.885, 0.8),
-        "ink-muted": g(0.5, 1.2),
+        "ink-muted": g(0.48, 1.2),
         ink: g(0.21, 1.4),
       };
 }
@@ -274,7 +275,8 @@ function themeColors(c: Config, dark: boolean) {
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
   // Series colours for multi-series charts: one accent hue, lightness steps far enough apart that neighbours read as
   // different marks (about 0.2 L between series 1-2 and 1-3), validated against the card surface in each theme.
-  const seriesL = dark ? [0.66, 0.86, 0.5, 0.77, 0.58] : [0.58, 0.78, 0.4, 0.69, 0.49];
+  // Sorted, the five steps sit at least 0.09 L apart in dark and 0.1 in light (v2 refine: series 2 and 4 read alike).
+  const seriesL = dark ? [0.66, 0.88, 0.48, 0.77, 0.57] : [0.56, 0.8, 0.36, 0.68, 0.46];
   const seriesC = dark ? [0.95, 0.6, 0.9, 0.75, 0.9] : [1, 0.65, 0.8, 0.85, 0.95];
   const series = seriesL.map((l, i) => oklchToHex({ l, c: acc.c * seriesC[i], h: acc.h }));
   return {
@@ -285,9 +287,10 @@ function themeColors(c: Config, dark: boolean) {
     "brand-ink": brandInk,
     "brand-soft": dark ? oklchToHex({ l: 0.27, c: acc.c * 0.2, h: acc.h }) : shades[0],
     "brand-soft-ink": dark ? oklchToHex({ l: 0.85, c: acc.c * 0.55, h: acc.h }) : shades[6],
-    danger: dark ? "#e8867c" : "#c2493d",
+    // Light danger and success reach 4.5:1 on white, on fill and on their own soft fill.
+    danger: dark ? "#e8867c" : "#bb4337",
     "danger-soft": dark ? "#33201e" : "#fbeeec",
-    success: dark ? "#7cc59a" : "#2f8a57",
+    success: dark ? "#7cc59a" : "#287a4b",
     "success-soft": dark ? "#1c2a21" : "#eaf5ee",
     // The dialog scrim: a see-through layer over the page, not a grey of its own.
     overlay: dark ? rgba("#000000", 0.5) : rgba(ink, 0.28),

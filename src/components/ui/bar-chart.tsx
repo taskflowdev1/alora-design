@@ -31,7 +31,7 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, loading,
           <div key={i} className="group relative flex h-full flex-1 cursor-default items-end justify-center" onPointerEnter={() => setHover(i)}>
             <div
               className={cn(
-                "w-full max-w-2.5 rounded-small transition-[background-color,height] duration-[220ms] ease-ad",
+                "w-full max-w-[10px] rounded-small transition-[background-color,height] duration-[220ms] ease-ad",
                 loading ? pulse : i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
               )}
               style={{ height: loading ? "40%" : `${Math.max(2, (d.value / max) * 100)}%` }}

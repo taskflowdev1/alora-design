@@ -41,7 +41,7 @@ export function AlertDialog({ open, onOpenChange, trigger, title, children, acti
           {children ? <AD.Description className="text-body leading-relaxed text-ink-muted">{children}</AD.Description> : <AD.Description className="sr-only">{title}</AD.Description>}
           <div className="mt-2 flex flex-wrap justify-end gap-gap">
             <AD.Cancel className={buttonClass({ variant: "ghost" })}>{cancel}</AD.Cancel>
-            <AD.Action className={cn(buttonClass({ variant: "secondary" }), "bg-on text-on-ink hover:bg-on focus-visible:bg-on")} onClick={onAction}>
+            <AD.Action className={cn(buttonClass({ variant: "secondary" }), "bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted")} onClick={onAction}>
               {action}
             </AD.Action>
           </div>

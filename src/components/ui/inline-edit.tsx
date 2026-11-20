@@ -210,7 +210,7 @@ export function InlineEdit({
         {suffix ? affix(suffix, "post") : null}
       </span>
       {/* One reserved slot: pencil on hover, a check for a moment after a save, empty while editing. */}
-      <span className="relative grid size-3.5 shrink-0 place-items-center" aria-hidden>
+      <span className="relative grid size-[14px] shrink-0 place-items-center" aria-hidden>
         <Edit2
           size={14}
           className={cn(

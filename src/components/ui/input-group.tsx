@@ -19,7 +19,7 @@ export interface InputGroupProps {
 export function InputGroup({ start, end, invalid, className, children }: InputGroupProps) {
   return (
     <label className={cn(fieldBoxClass(invalid), "cursor-text", end != null && "pr-nest", className)}>
-      {start != null ? <span className="flex shrink-0 items-center gap-1 text-ink-muted [&_svg]:size-4">{start}</span> : null}
+      {start != null ? <span className="flex shrink-0 items-center gap-1 text-ink-muted [&_svg]:size-[16px]">{start}</span> : null}
       {React.cloneElement(children as React.ReactElement<{ className?: string }>, {
         className: cn("h-full w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-muted", (children.props as { className?: string }).className),
       })}

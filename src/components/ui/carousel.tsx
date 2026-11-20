@@ -166,7 +166,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
             go(index - 1);
           }
         }}
-        className="flex cursor-grab snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab snap-x snap-mandatory overflow-x-auto rounded-card transition-colors duration-[150ms] ease-ad focus-visible:bg-fill overscroll-x-contain [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         style={{ gap, ["--per" as string]: perView, ["--gap" as string]: `${gap}px`, ...edgeFade(edges) }}
       >
         {children.map((c, i) => (
@@ -184,7 +184,8 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
       {arrows || dots ? (
         <div className="flex items-center justify-between gap-2">
           {dots ? (
-            <div className="flex items-center gap-1.5">
+            // Each dot sits in a 24 px target (the button), so the dots themselves stay small.
+            <div className="-mx-[9px] flex items-center">
               {Array.from({ length: pages }, (_, i) => (
                 <button
                   key={i}
@@ -192,8 +193,16 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
                   aria-label={`Slide ${i + 1}`}
                   aria-current={i === index || undefined}
                   onClick={() => go(i)}
-                  className={cn("h-1.5 cursor-pointer rounded-full transition-[width,background-color] duration-[220ms] ease-ad", i === index ? "w-5 bg-on" : "w-1.5 bg-fill-strong hover:bg-ink-muted focus-visible:bg-ink-muted")}
-                />
+                  className="group/dot grid h-[24px] cursor-pointer place-items-center px-[9px]"
+                >
+                  <span
+                    data-shape="round"
+                    className={cn(
+                      "h-1.5 rounded-full transition-[width,background-color] duration-[220ms] ease-ad",
+                      i === index ? "w-5 bg-on group-focus-visible/dot:bg-ink-muted" : "w-1.5 bg-fill-strong group-hover/dot:bg-ink-muted group-focus-visible/dot:bg-ink-muted",
+                    )}
+                  />
+                </button>
               ))}
             </div>
           ) : (

@@ -7,8 +7,8 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof C.
   return (
     <C.Root
       className={cn(
-        "grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-small bg-fill-strong text-on-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-        "data-[state=checked]:bg-on data-[state=indeterminate]:bg-on focus-visible:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted data-[state=indeterminate]:focus-visible:bg-ink-muted disabled:pointer-events-none disabled:opacity-45",
+        "ad-hit grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-small bg-fill-strong text-on-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+        "data-[state=checked]:bg-on data-[state=indeterminate]:bg-on hover:bg-ink-muted focus-visible:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted data-[state=indeterminate]:focus-visible:bg-ink-muted disabled:pointer-events-none disabled:opacity-45",
         className,
       )}
       {...props}
@@ -24,7 +24,13 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof C.
 export function CheckboxField({ label, className, ...props }: React.ComponentProps<typeof C.Root> & { label: React.ReactNode }) {
   const id = React.useId();
   return (
-    <label htmlFor={id} className={cn("inline-flex cursor-pointer select-none items-center gap-2 text-body text-ink", className)}>
+    <label
+      htmlFor={id}
+      className={cn(
+        "-mx-1.5 -my-[3px] inline-flex cursor-pointer select-none items-center gap-2 rounded-item px-1.5 py-[3px] text-body text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill has-[:focus-visible]:bg-fill",
+        className,
+      )}
+    >
       <Checkbox id={id} {...props} />
       {label}
     </label>

@@ -27,8 +27,12 @@ const EMOJI = ["👍", "🙏", "🎉", "👀", "✅", "😂"];
 function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: string; onReact: (emoji: string) => void }) {
   const pill = (mine: boolean) =>
     cn(
-      "inline-flex h-6 cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97]",
-      mine ? "bg-sel text-ink shadow-sel" : "bg-fill text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong",
+      "inline-flex h-[24px] cursor-pointer select-none items-center gap-1 rounded-item px-bubble-sm text-small tabular-nums transition-[background-color,filter,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+      // Yours: the plain-surface selected pill (fill-strong, ink, medium). It is already the strongest fill, so hover and
+      // keyboard focus darken it slightly (lighten in dark) instead of stepping to another grey.
+      mine
+        ? "bg-fill-strong font-medium text-ink hover:brightness-[0.93] focus-visible:brightness-[0.93] dark:hover:brightness-[1.18] dark:focus-visible:brightness-[1.18]"
+        : "bg-fill text-ink-muted hover:bg-fill-strong focus-visible:bg-fill-strong",
     );
   return (
     <div className="flex flex-wrap items-center gap-1">
@@ -38,7 +42,10 @@ function Reactions({ reactions, me, onReact }: { reactions: Reaction[]; me: stri
           <Tooltip key={r.emoji} content={r.by.join(", ")}>
             <button type="button" className={pill(r.by.includes(me))} onClick={() => onReact(r.emoji)}>
               <span className="text-[13px] leading-none">{r.emoji}</span>
-              {r.by.length}
+              <span className="ad-hold">
+                <span aria-hidden>{r.by.length}</span>
+                <span>{r.by.length}</span>
+              </span>
             </button>
           </Tooltip>
         ))}

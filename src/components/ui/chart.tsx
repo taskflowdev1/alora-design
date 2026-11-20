@@ -113,9 +113,9 @@ export interface CartesianChartProps {
   height?: number;
   /** Smooth curves (monotone, never overshooting) or straight segments. */
   curve?: "smooth" | "linear";
-  /** Faint horizontal gridlines at the ticks. */
+  /** Faint horizontal gridlines at the ticks. Off by default: charts run end to end (Joshua, 2026-11-09). */
   grid?: boolean;
-  /** Value ticks on the left. */
+  /** Value ticks on the left. Off by default: the tooltip and the headline carry the values. */
   axis?: boolean;
   /** Dots at every point (the last point always gets one). */
   dots?: boolean;
@@ -157,11 +157,11 @@ function monotone(pts: [number, number][]) {
 const linear = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
 
 /**
- * Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, recessive ticks
- * and gridlines, a crosshair with one tooltip for every series on hover, tap or arrow keys (kept inside the plot), and
+ * Line and area charts on one value axis. 2 px lines with round ends, an end dot with a surface ring, ticks and
+ * gridlines only when asked for, a crosshair with one tooltip for every series on hover, tap or arrow keys (kept inside the plot), and
  * a legend in a row above from two series up.
  */
-export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = true, axis = true, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, active, onActiveChange, activeSeries, onActiveSeriesChange, className, ...aria }: CartesianChartProps) {
+export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = false, axis = false, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, active, onActiveChange, activeSeries, onActiveSeriesChange, className, ...aria }: CartesianChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [own, setOwn] = React.useState<number | null>(null);
   // Controlled when `active` is passed (linked to a table), otherwise its own.
@@ -235,6 +235,8 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             onPointerDown={(e) => pick(e.clientX, e.currentTarget)}
             // A finger lifting is not leaving: on touch the tooltip stays until you tap elsewhere.
             onPointerLeave={(e) => e.pointerType === "mouse" && setHover(null)}
+            // Keyboard focus shows the crosshair at the latest point at once, so focus is visible before any arrow key.
+            onFocus={(e) => hover == null && e.currentTarget.matches(":focus-visible") && setHover(last)}
             onBlur={() => setHover(null)}
             onKeyDown={(e) => {
               if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -246,7 +248,7 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
               <g key={t}>
                 {grid ? <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--ad-fill)" strokeWidth={1} shapeRendering="crispEdges" /> : null}
                 {axis ? (
-                  <text x={pad.l - 10} y={y(t)} dy="0.32em" textAnchor="end" className="fill-ink-muted text-[11px] tabular-nums">
+                  <text x={pad.l - 10} y={y(t)} dy="0.32em" textAnchor="end" className="fill-ink-muted text-small tabular-nums">
                     {format(t)}
                   </text>
                 ) : null}
@@ -254,7 +256,7 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             ))}
             {data.map((d, i) =>
               i % every === 0 || (i === last && last % every > every / 2) ? (
-                <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === last ? "end" : "middle"} className="fill-ink-muted text-[11px]">
+                <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === last ? "end" : "middle"} className="fill-ink-muted text-small">
                   {d.label}
                 </text>
               ) : null,

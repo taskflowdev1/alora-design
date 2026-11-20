@@ -55,6 +55,20 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
   const [view, setView] = React.useState(() => new Date(value.to.getFullYear(), value.to.getMonth(), 1));
   const [anchor, setAnchor] = React.useState<Date | null>(null);
   const [hover, setHover] = React.useState<Date | null>(null);
+  // Keyboard: one day is the Tab stop; arrows move it by day and week (across months), Enter or Space picks it.
+  const [focus, setFocus] = React.useState<Date>(() => day(value.to));
+  const grid = React.useRef<HTMLDivElement>(null);
+  const moved = React.useRef(false);
+  React.useEffect(() => {
+    if (moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
+  }, [focus]);
+  const shift = (n: number) => {
+    moved.current = true;
+    const d = add(focus, n);
+    setFocus(d);
+    if (anchor) setHover(d);
+    if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()) setView(new Date(d.getFullYear(), d.getMonth(), 1));
+  };
   const preset = presets.find((p) => {
     const r = p.range(today);
     return same(r.from, value.from) && same(r.to, value.to);
@@ -85,7 +99,11 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
       onOpenChange={(o) => {
         setOpen(o);
         setAnchor(null);
-        if (o) setView(new Date(value.to.getFullYear(), value.to.getMonth(), 1));
+        moved.current = false;
+        if (o) {
+          setView(new Date(value.to.getFullYear(), value.to.getMonth(), 1));
+          setFocus(day(value.to));
+        }
       }}
     >
       <P.Trigger className={cn(triggerClass, className)}>
@@ -128,7 +146,22 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                 <ChevronRight />
               </Button>
             </div>
-            <div className="mt-1 grid grid-cols-7 gap-y-px" role="grid" onPointerLeave={() => setHover(null)}>
+            <div
+              ref={grid}
+              className="mt-1 grid grid-cols-7 gap-y-px"
+              role="grid"
+              onPointerLeave={() => setHover(null)}
+              onKeyDown={(e) => {
+                const k = ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 } as Record<string, number>)[e.key];
+                if (k) {
+                  e.preventDefault();
+                  shift(k);
+                } else if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  pick(focus);
+                }
+              }}
+            >
               {DAYS.map((d) => (
                 <span key={d} className="grid h-7 place-items-center text-small text-ink-muted">
                   {d}
@@ -146,7 +179,8 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                     key={d.toISOString()}
                     className={cn(
                       "relative grid h-item place-items-center",
-                      (inside || (edge && !same(shown.from, shown.to))) && "bg-fill-strong",
+                      // The band is fill, so a day inside it still shows the fill-strong hover.
+                      (inside || (edge && !same(shown.from, shown.to))) && "bg-fill",
                       start && !end && "rounded-l-control",
                       end && !start && "rounded-r-control",
                       inside && col === 0 && "rounded-l-control",
@@ -157,7 +191,12 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                       type="button"
                       aria-label={`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`}
                       aria-pressed={edge}
-                      onClick={() => pick(d)}
+                      tabIndex={same(d, focus) ? 0 : -1}
+                      data-focus={same(d, focus)}
+                      onClick={() => {
+                        setFocus(day(d));
+                        pick(d);
+                      }}
                       onPointerEnter={() => anchor && setHover(d)}
                       className={cn(
                         "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",

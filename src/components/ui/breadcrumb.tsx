@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChevronRight, MoreHorizontal } from "react-feather";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Menu, MenuItem } from "@/components/ui/menu";
 import { cn } from "@/lib/ad";
 
 export interface Crumb {
@@ -31,11 +31,24 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
           return (
             <li key={i} className={cn("flex min-w-0 items-center gap-0.5", last ? "shrink" : "shrink-0")}>
               {c === "more" ? (
-                <Tooltip content={items.slice(1, -2).map((x) => String(x.label)).join(" / ")}>
-                  <span tabIndex={0} aria-label={items.slice(1, -2).map((x) => String(x.label)).join(" / ")} className="grid h-7 w-7 place-items-center rounded-small text-ink-muted focus-visible:bg-fill">
-                    <MoreHorizontal size={16} />
-                  </span>
-                </Tooltip>
+                // The hidden levels open in a menu, so each one can still be reached.
+                <Menu
+                  trigger={
+                    <button
+                      type="button"
+                      aria-label={`${items.length - 3} more levels`}
+                      className="ad-hit grid h-7 w-7 cursor-pointer place-items-center rounded-small text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink"
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
+                  }
+                >
+                  {items.slice(1, -2).map((x, j) => (
+                    <MenuItem key={j} onSelect={() => (x.onClick ? x.onClick() : x.href ? window.location.assign(x.href) : undefined)}>
+                      {x.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
               ) : last ? (
                 <span aria-current="page" className="truncate px-1.5 font-medium text-ink">
                   {c.label}
@@ -54,7 +67,7 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
                   {c.label}
                 </a>
               )}
-              {!last ? <ChevronRight size={14} aria-hidden className="shrink-0 text-ink-muted" /> : null}
+              {!last ? <ChevronRight size={16} aria-hidden className="shrink-0 text-ink-muted" /> : null}
             </li>
           );
         })}

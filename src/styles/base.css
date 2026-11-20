@@ -31,6 +31,19 @@
     }
   }
 }
+/* A small control (a 18 px checkbox, a 20 px chip, a 5 px dot) gets a 24 px hit area without growing: a transparent
+   ::after reaches out to 24 px on any side that is shorter, and never shrinks a side that is longer. In the components
+   layer, so an `absolute` utility on the same element still wins over the `relative` here. */
+@layer components {
+  .ad-hit {
+    position: relative;
+  }
+  .ad-hit::after {
+    content: "";
+    position: absolute;
+    inset: min(0px, calc((100% - 24px) / 2));
+  }
+}
 .rounded-full, [data-shape="round"] {
   corner-shape: round;
 }

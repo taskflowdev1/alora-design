@@ -36,7 +36,7 @@ export function FeeRow({ payer, market = "shopee", label, amount, unit = "Rp", s
   return (
     <div className={cn("flex h-row items-center gap-3 rounded-item px-2.5 text-body", className)}>
       <span className="flex w-24 shrink-0 items-center gap-2 text-ink-muted">
-        <span className="grid size-4 place-items-center">{icon}</span>
+        <span className="grid size-[16px] shrink-0 place-items-center">{icon}</span>
         {PAYER[payer]}
       </span>
       <span className="min-w-0 flex-1 truncate text-ink">{label}</span>

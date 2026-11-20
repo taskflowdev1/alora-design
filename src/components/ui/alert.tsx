@@ -13,7 +13,12 @@ export interface AlertProps {
 }
 
 const tones = {
-  neutral: { box: "bg-fill text-ink", icon: "text-ink-muted", Icon: Info },
+  // The box is fill, the same as a secondary button, so its action steps off it: surface at rest, fill-strong on hover.
+  neutral: {
+    box: "bg-fill text-ink [&_[data-variant=secondary]]:bg-surface [&_[data-variant=secondary]:hover]:bg-fill-strong [&_[data-variant=secondary]:focus-visible]:bg-fill-strong",
+    icon: "text-ink-muted",
+    Icon: Info,
+  },
   attention: { box: "bg-brand-soft text-ink", icon: "text-brand-soft-ink", Icon: Info },
   danger: { box: "bg-danger-soft text-ink", icon: "text-danger", Icon: AlertCircle },
 };

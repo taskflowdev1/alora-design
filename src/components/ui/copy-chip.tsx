@@ -20,13 +20,13 @@ export function CopyChip({ value, children, onCopied, className }: { value: stri
         t.current = window.setTimeout(() => setDone(false), 1400);
       }}
       className={cn(
-        "inline-flex h-6 max-w-full shrink-0 cursor-pointer select-none items-center gap-1.5 rounded-item bg-fill px-bubble-sm text-small font-medium tabular-nums text-ink",
+        "inline-flex h-[24px] max-w-full shrink-0 cursor-pointer select-none items-center gap-1.5 rounded-item bg-fill px-bubble-sm text-small font-medium tabular-nums text-ink",
         "transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]",
         className,
       )}
     >
       <span className="truncate">{children ?? value}</span>
-      <span className="relative grid size-3.5 shrink-0 place-items-center text-ink-muted">
+      <span className="relative grid size-[13px] shrink-0 place-items-center text-ink-muted">
         {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
         <Copy size={13} className={cn("absolute transition-[opacity,scale,filter] duration-[160ms] ease-ad", done && "opacity-0 scale-[0.8] blur-[2px]")} />
         <Check size={13} className={cn("absolute transition-[opacity,scale,filter] duration-[160ms] ease-ad", !done && "opacity-0 scale-[0.8] blur-[2px]")} />

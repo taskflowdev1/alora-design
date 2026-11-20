@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "react-feather";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn, MONTHS } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { Popover } from "@/components/ui/popover";
 
 export interface CalendarEvent {
   id: string;
@@ -82,24 +83,58 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
               </span>
               {list.slice(0, max).map((e) => (
                 <Tooltip key={e.id} content={`${e.title}, ${d.getDate()} ${MONTHS[d.getMonth()]}`}>
-                  <button
-                    type="button"
-                    onClick={() => onEventClick?.(e)}
-                    className={cn(
-                      "flex h-6 min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
-                      e.tone === "accent" ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80 focus-visible:bg-brand-soft/80" : "bg-surface text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
-                    )}
-                  >
-                    <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
-                    <span className="truncate">{e.title}</span>
-                  </button>
+                  <EventPill event={e} onClick={() => onEventClick?.(e)} />
                 </Tooltip>
               ))}
-              {list.length > max ? <span className="px-1.5 text-small text-ink-muted">+{list.length - max} more</span> : null}
+              {list.length > max ? (
+                // The day's full list, so the hidden events can be reached.
+                <Popover
+                  className="grid w-56 gap-1"
+                  trigger={
+                    <button
+                      type="button"
+                      className="flex h-[24px] cursor-pointer items-center rounded-item px-1.5 text-left text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink data-[state=open]:bg-fill-strong data-[state=open]:text-ink"
+                    >
+                      +{list.length - max} more
+                    </button>
+                  }
+                >
+                  <p className="px-1.5 pb-1 text-small text-ink-muted">
+                    {d.getDate()} {MONTHS[d.getMonth()]}
+                  </p>
+                  {list.map((e) => (
+                    <EventPill key={e.id} event={e} onClick={() => onEventClick?.(e)} full />
+                  ))}
+                </Popover>
+              ) : null}
             </div>
           );
         })}
       </div>
     </div>
+  );
+}
+
+/** One event: a soft pill with a dot. Below sm the day cell is too narrow for a title, so only the dot shows. */
+function EventPill({ event: e, onClick, full, ...props }: { event: CalendarEvent; onClick: () => void; full?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      {...props}
+      onClick={onClick}
+      aria-label={full ? undefined : e.title}
+      className={cn(
+        "flex h-[24px] min-w-0 cursor-pointer items-center gap-1.5 rounded-item px-1.5 text-left text-small transition-colors duration-[160ms]",
+        !full && "max-sm:justify-center max-sm:px-0",
+        e.tone === "accent"
+          ? "bg-brand-soft text-brand-soft-ink hover:bg-brand-soft/80 focus-visible:bg-brand-soft/80"
+          : full
+            ? "bg-fill text-ink hover:bg-fill-strong focus-visible:bg-fill-strong"
+            : "bg-surface text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",
+      )}
+    >
+      <span data-shape="round" className={cn("size-1.5 shrink-0 rounded-full", e.tone === "accent" ? "bg-brand" : "bg-ink-muted")} />
+      <span className={cn("truncate", !full && "max-sm:sr-only")}>{e.title}</span>
+    </button>
   );
 }

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/ad";
 
-const sizes = { sm: "size-6 text-[10px]", md: "size-8 text-small", lg: "size-10 text-body" };
+const sizes = { sm: "size-[24px] text-small", md: "size-8 text-small", lg: "size-10 text-body" };
 
 /** People are always circles. */
 export function Avatar({ name, src, size = "md", className }: { name: string; src?: string; size?: keyof typeof sizes; className?: string }) {

@@ -24,7 +24,7 @@ export function Item({ media, title, description, end, variant = "plain", asChil
   const Comp = asChild ? Slot.Root : "div";
   const body = (
     <>
-      {media != null ? <span className="grid shrink-0 place-items-center text-ink-muted [&>svg]:size-4">{media}</span> : null}
+      {media != null ? <span className="grid shrink-0 place-items-center text-ink-muted [&>svg]:size-[16px]">{media}</span> : null}
       <span className="grid min-w-0 flex-1">
         <span className="truncate text-body text-ink">{title}</span>
         {description != null ? <span className="truncate text-small text-ink-muted">{description}</span> : null}

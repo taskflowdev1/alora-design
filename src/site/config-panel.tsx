@@ -105,7 +105,11 @@ function AccentControl({ value, onChange, large }: ControlProps & { large?: bool
             aria-pressed={value.accent === s}
             onClick={() => onChange({ accent: s })}
             data-shape="round"
-            className={cn("grid cursor-pointer place-items-center rounded-full text-thumb transition-transform duration-[160ms] ease-ad active:scale-95", large ? "size-7" : "size-6")}
+            className={cn(
+              // A colour swatch has no grey step to move to: hover and keyboard focus darken it slightly.
+              "ad-hit grid cursor-pointer place-items-center rounded-full text-thumb transition-[transform,filter] duration-[160ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.85] active:scale-95",
+              large ? "size-7" : "size-6",
+            )}
             style={{ background: s }}
           >
             {value.accent === s ? <Check size={14} /> : null}

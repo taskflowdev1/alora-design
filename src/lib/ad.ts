@@ -34,7 +34,7 @@ export function formatSmartDate(d: Date, now = new Date()) {
 
 export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "Rp 12.400.000". */
+/** "Rp 12.400.000", with a no-break space so "Rp" never wraps away from its number in a narrow cell. */
 export function formatRp(n: number) {
-  return `Rp ${Math.round(n).toLocaleString("id-ID")}`;
+  return `Rp\u00a0${Math.round(n).toLocaleString("id-ID")}`;
 }

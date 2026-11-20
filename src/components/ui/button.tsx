@@ -24,7 +24,7 @@ export function buttonClass({ variant = "secondary", size = "default", icon = fa
     // Press is a small shrink; colour and layout stay put.
     "inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-control font-medium text-body",
     "transition-[transform,background-color] duration-[150ms] ease-ad active:scale-[0.97]",
-    "disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0",
+    "disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[16px] [&_svg]:shrink-0",
     variants[variant],
     size === "sm" ? "h-item" : "h-control",
     icon ? (size === "sm" ? "w-item" : "w-control") : size === "sm" ? "px-2.5" : "px-3.5",
@@ -33,5 +33,5 @@ export function buttonClass({ variant = "secondary", size = "default", icon = fa
 
 export function Button({ variant, size, icon, asChild, className, type = "button", ...props }: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button";
-  return <Comp type={asChild ? undefined : type} className={cn(buttonClass({ variant, size, icon }), className)} {...props} />;
+  return <Comp type={asChild ? undefined : type} data-variant={variant ?? "secondary"} className={cn(buttonClass({ variant, size, icon }), className)} {...props} />;
 }
