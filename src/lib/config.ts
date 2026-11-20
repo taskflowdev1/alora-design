@@ -200,7 +200,9 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
  * ramp in both themes (the side-* tokens).
  */
 export const GREY_ROLES: Record<string, { light: GreyStep | "white"; dark: GreyStep | "white"; use: string }> = {
-  raised: { light: "surface", dark: "surface", use: "menus and popovers (they lift by shadow)" },
+  // Joshua (2026-11-09): menus, selects, popovers and hover cards sit darker than the page around them in dark mode, the
+  // same step as tooltips; the raised shadow separates them. In light they are white and lift by shadow.
+  raised: { light: "surface", dark: "page", use: "menus, selects, popovers, hover cards: white in light, the darkest step in dark" },
   track: { light: "fill", dark: "fill", use: "segmented and toggle-group track, chips in a field" },
   sel: { light: "surface", dark: "fill-strong", use: "the raised pill in a track" },
   on: { light: "ink", dark: "ink", use: "ink surfaces: tooltips, toasts, checked boxes, progress" },
@@ -237,6 +239,28 @@ function shadows(strength: number, dark: boolean, ink: string) {
   };
 }
 
+/**
+ * The accent button fill and its text, the same in both themes. Its label must reach 4.5:1: white on the accent when it
+ * passes; a very light accent (yellow, mint) keeps its colour and takes dark ink; any other accent is darkened at its own
+ * hue until white passes. Dark mode never lifts the fill, because a lighter blue loses white text (2.8:1 at L 0.64).
+ * Hover steps one shade darker, so the label still passes.
+ */
+export function brandFill(accent: string, darkInk: string) {
+  const acc = hexToOklch(accent);
+  const at = (l: number) => oklchToHex({ l, c: acc.c, h: acc.h });
+  const MIN = 4.5;
+  if (contrast(accent, "#ffffff") < MIN && acc.l >= 0.72 && contrast(accent, darkInk) >= MIN) {
+    return { brand: accent, brandHover: at(acc.l - 0.04), brandInk: darkInk };
+  }
+  let l = acc.l;
+  let brand = accent;
+  while (contrast(brand, "#ffffff") < MIN && l > 0.2) {
+    l -= 0.005;
+    brand = at(l);
+  }
+  return { brand, brandHover: at(l - 0.05), brandInk: "#ffffff" };
+}
+
 function themeColors(c: Config, dark: boolean) {
   const acc = hexToOklch(c.accent);
   const shades = accentShades(c.accent);
@@ -245,11 +269,7 @@ function themeColors(c: Config, dark: boolean) {
   const step = (s: GreyStep | "white") => (s === "white" ? "#ffffff" : ramp[s]);
   const roles = Object.fromEntries(Object.entries(GREY_ROLES).map(([k, r]) => [k, step(dark ? r.dark : r.light)]));
   const ink = ramp.ink;
-  const brand = dark ? oklchToHex({ l: Math.max(acc.l, 0.64), c: acc.c * 0.9, h: acc.h }) : c.accent;
-  const brandHover = dark
-    ? oklchToHex({ l: Math.max(acc.l, 0.64) + 0.05, c: acc.c * 0.9, h: acc.h })
-    : oklchToHex({ l: acc.l - 0.05, c: acc.c, h: acc.h });
-  const brandInk = contrast(brand, "#ffffff") >= 3.4 ? "#ffffff" : greyRamp(c.tone, false).ink;
+  const { brand, brandHover, brandInk } = brandFill(c.accent, greyRamp(c.tone, false).ink);
   const sh = shadows(c.shadow, dark, ink);
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
   // Series colours for multi-series charts: one accent hue, lightness steps far enough apart that neighbours read as

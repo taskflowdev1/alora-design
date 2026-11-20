@@ -79,7 +79,7 @@ grey (`bg-black/5`, `text-white`…), an alpha or `color-mix` on a grey token, o
 
 | Role token | Light | Dark | Use |
 | --- | --- | --- | --- |
-| `raised` | surface | surface | menus and popovers (they lift by shadow) |
+| `raised` | surface | page | menus, selects, popovers, hover cards: white in light, the darkest step in dark |
 | `track` | fill | fill | segmented and toggle-group track, chips in a field |
 | `sel` | surface | fill-strong | the raised pill in a track |
 | `on` | ink | ink | ink surfaces: tooltips, toasts, checked boxes, progress |
