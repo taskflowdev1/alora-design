@@ -2,13 +2,33 @@
   "name": "alora-design",
   "private": true,
   "version": "0.1.0",
+  "description": "Copy-paste React components for dense ERP and admin apps, shadcn style, themed by one URL config.",
+  "license": "MIT",
+  "homepage": "https://design.alorawork.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taskflowdev1/alora-design.git"
+  },
+  "bugs": {
+    "url": "https://github.com/taskflowdev1/alora-design/issues"
+  },
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "unit": "node scripts/unit.mjs",
+    "docs": "node scripts/gen-docs.mjs",
+    "docs:check": "node scripts/gen-docs.mjs --check",
+    "greys": "node scripts/greys.mjs --check",
+    "knip": "knip",
+    "smoke": "node scripts/smoke.mjs",
+    "verify": "./scripts/verify"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.9",
@@ -30,6 +50,7 @@
     "eslint": "^10.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "knip": "^6.44.1",
     "playwright-core": "^1.65.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",

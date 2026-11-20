@@ -15,7 +15,11 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      eqeqeq: ["error", "smart"],
+      "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
     },
   },
-  { files: ["scripts/**/*.mjs"], languageOptions: { globals: { ...globals.node, ...globals.browser } }, rules: { "no-empty": ["error", { allowEmptyCatch: true }] } },
+  // Components ship into other apps: no stray logging there.
+  { files: ["src/**/*.{ts,tsx}"], rules: { "no-console": ["warn", { allow: ["warn", "error"] }] } },
+  { files: ["scripts/**/*.mjs"], languageOptions: { globals: { ...globals.node, ...globals.browser } }, rules: { "no-empty": ["error", { allowEmptyCatch: true }], eqeqeq: ["error", "smart"] } },
 );
