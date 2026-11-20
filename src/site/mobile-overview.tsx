@@ -2,13 +2,12 @@
 // example app live first), each followed by links to the components it is made of.
 import * as React from "react";
 import { Grid, Maximize2, Package, Plus, RotateCcw, Tag, Truck } from "react-feather";
-import { NOW, ORDERS, smartTime } from "./data";
+import { NOW, PAID_ORDERS, smartTime } from "./data";
 import { findItem, itemPath } from "@/lib/registry";
 import { formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Segmented } from "@/components/ui/segmented";
-import { Thumb } from "@/components/ui/thumb";
 import { MobileScreen, MobileBarButton } from "@/components/mobile/mobile-nav-bar";
 import { MobileList, MobileListRow } from "@/components/mobile/mobile-list";
 import { MobileSheet } from "@/components/mobile/mobile-sheet";
@@ -17,9 +16,26 @@ import { MobileActionBar } from "@/components/mobile/mobile-action-bar";
 import { PhoneFrame } from "./phone";
 import { SLink } from "./config";
 import { COURIERS, CourierPicker, MobileApp, findScreen } from "./mobile-app";
+import { OrderThumb } from "./mobile-app-kit";
 import { LazyPhone } from "./lazy-phone";
 
-const TO_PACK = ORDERS.filter((o) => o.status === "Paid").slice(0, 8);
+const TO_PACK = PAID_ORDERS.slice(0, 8);
+
+/**
+ * A phone-width page or a touch screen: the phones fill the width, so a swipe that starts on one would scroll the
+ * phone's own screen and never the page. There they are pictures that open the screen full screen instead.
+ */
+function usePictures() {
+  const q = "(max-width: 767px), (pointer: coarse)";
+  const [on, setOn] = React.useState(() => typeof matchMedia === "function" && matchMedia(q).matches);
+  React.useEffect(() => {
+    const m = matchMedia(q);
+    const set = () => setOn(m.matches);
+    m.addEventListener("change", set);
+    return () => m.removeEventListener("change", set);
+  }, []);
+  return on;
+}
 
 function Parts({ names }: { names: string[] }) {
   return (
@@ -27,7 +43,7 @@ function Parts({ names }: { names: string[] }) {
       {names.map((n) => {
         const item = findItem(n);
         return item ? (
-          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="relative inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad after:absolute after:inset-x-0 after:-inset-y-[2px] after:content-[''] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink">
+          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="relative inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad after:absolute after:inset-x-0 after:-inset-y-[2px] after:content-[''] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink pointer-coarse:after:-inset-y-[8.5px]">
             {item.title}
           </SLink>
         ) : null;
@@ -36,10 +52,20 @@ function Parts({ names }: { names: string[] }) {
   );
 }
 
-function Screen({ names, children, keyboard, extra }: { names: string[]; children: React.ReactNode; keyboard?: boolean; extra?: React.ReactNode }) {
+function Screen({ names, children, keyboard, extra, href, label }: { names: string[]; children: React.ReactNode; keyboard?: boolean; extra?: React.ReactNode; href: string; label: string }) {
+  const pictures = usePictures();
   return (
     <section data-mobile-screen-tile className="grid min-w-0 content-start gap-4 rounded-sheet bg-surface p-4 shadow-card sm:p-6">
-      {keyboard ? <PhoneFrame keyboard>{children}</PhoneFrame> : <LazyPhone>{children}</LazyPhone>}
+      <div className="relative min-w-0">
+        {keyboard ? (
+          <div inert={pictures || undefined}>
+            <PhoneFrame keyboard>{children}</PhoneFrame>
+          </div>
+        ) : (
+          <LazyPhone inert={pictures}>{children}</LazyPhone>
+        )}
+        {pictures ? <SLink to={href} aria-label={`${label}, open`} className="absolute inset-0 rounded-[40px]" /> : null}
+      </div>
       <Parts names={names} />
       {extra}
     </section>
@@ -52,14 +78,14 @@ function CourierScreen() {
   const c = COURIERS.find((x) => x.id === courier)!;
   return (
     <>
-      <MobileScreen title="RMB-24809" large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
+      <MobileScreen title="RMB-24809" translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
         <div className="grid gap-5 pt-2">
           <MobileList title="Shipping">
             <MobileListRow media={<Truck />} title="Courier" value={c.name} chevron onClick={() => setOpen(true)} />
           </MobileList>
           <MobileList title="Items">
             {TO_PACK.slice(0, 3).map((o) => (
-              <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.items} subtitle={`${o.qty} pcs`} value={formatRp(o.total)} />
+              <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.items} subtitle={`${o.qty} pcs`} value={formatRp(o.total)} />
             ))}
           </MobileList>
         </div>
@@ -89,7 +115,7 @@ function PickupScreen() {
       <MobileScreen title="Pickups" bottomInset="none">
         <MobileList>
           {TO_PACK.map((o) => (
-            <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.customer} subtitle={`${o.items} · ${smartTime(o.at)}`} chevron onClick={() => setOpen(true)} />
+            <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={`${o.items} · ${smartTime(o.at)}`} chevron onClick={() => setOpen(true)} />
           ))}
         </MobileList>
       </MobileScreen>
@@ -123,7 +149,7 @@ function ReturnsScreen() {
       ) : (
         <MobileList>
           {TO_PACK.map((o) => (
-            <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.customer} subtitle={o.items} value={formatRp(o.total)} />
+            <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={o.items} value={formatRp(o.total)} />
           ))}
         </MobileList>
       )}
@@ -182,18 +208,29 @@ const APP_TILES: [string, Record<string, string>?][] = [
   ["onboarding"],
 ];
 
+const partHref = (n: string) => {
+  const item = findItem(n);
+  return item ? itemPath(item) : "/mobile";
+};
+const titleOfTile = (id: string, params?: Record<string, string>) => {
+  const t = findScreen(id)?.title ?? id;
+  return typeof t === "function" ? t(params ?? {}) : t;
+};
+
 export function MobileOverview() {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <Screen
         names={["mobile-tab-bar", "mobile-nav-bar", "mobile-search-bar", "mobile-segmented", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-snackbar"]}
+        href="/mobile/app/orders"
+        label="Orders"
         extra={
           <div className="flex flex-wrap justify-center gap-gap">
-            <SLink to="/mobile/app" className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
+            <SLink to="/mobile/app" className="inline-flex h-control max-sm:h-touch items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
               <Maximize2 size={16} />
               Open full screen
             </SLink>
-            <SLink to="/mobile/screens" data-all-screens className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
+            <SLink to="/mobile/screens" data-all-screens className="inline-flex h-control max-sm:h-touch items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
               <Grid size={16} />
               All screens
             </SLink>
@@ -202,23 +239,23 @@ export function MobileOverview() {
       >
         <MobileApp screen="orders" />
       </Screen>
-      <Screen names={["mobile-action-sheet", "mobile-stepper", "mobile-action-bar"]}>
+      <Screen names={["mobile-action-sheet", "mobile-stepper", "mobile-action-bar"]} href="/mobile/app/order?actions=1" label="Order actions">
         <MobileApp screen="order" params={{ actions: "1" }} />
       </Screen>
-      <Screen names={["mobile-sheet"]}>
+      <Screen names={["mobile-sheet"]} href="/mobile/app/order?sheet=courier" label="Courier sheet">
         <CourierScreen />
       </Screen>
-      <Screen names={["mobile-date-picker"]}>
+      <Screen names={["mobile-date-picker"]} href={partHref("mobile-date-picker")} label="Pickup date">
         <PickupScreen />
       </Screen>
-      <Screen names={["mobile-empty-state"]}>
+      <Screen names={["mobile-empty-state"]} href={partHref("mobile-empty-state")} label="Empty state">
         <ReturnsScreen />
       </Screen>
-      <Screen names={["mobile-action-bar"]} keyboard>
+      <Screen names={["mobile-action-bar"]} keyboard href={partHref("mobile-action-bar")} label="Action bar over the keyboard">
         <NewProductScreen />
       </Screen>
       {APP_TILES.map(([id, params]) => (
-        <Screen key={id} names={findScreen(id)!.parts.filter((n) => !["mobile-nav-bar", "mobile-list", "mobile-tab-bar"].includes(n))}>
+        <Screen key={id} names={findScreen(id)!.parts.filter((n) => !["mobile-nav-bar", "mobile-list", "mobile-tab-bar"].includes(n))} href={`/mobile/app/${id}${params ? `?${new URLSearchParams(params)}` : ""}`} label={titleOfTile(id, params)}>
           <MobileApp screen={id} params={params} />
         </Screen>
       ))}

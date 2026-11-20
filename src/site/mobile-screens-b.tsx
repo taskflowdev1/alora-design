@@ -1,7 +1,7 @@
 // Example app screens, part B: Products, Product (+ edit), Stock count, Customers, Customer, Inbox, Chat, Assistant.
 import * as React from "react";
 import { Box, Camera, ChevronRight, Edit2, FileText, MapPin, MessageCircle, Package, Phone, Plus, Search as SearchIcon, ShoppingBag, Tag, Zap, Maximize, Check, Image as ImageIcon, Grid } from "react-feather";
-import { formatRp } from "@/lib/ad";
+import { cn, formatRp, prefersReducedMotion } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { Thumb } from "@/components/ui/thumb";
@@ -33,8 +33,7 @@ import { MobileContextMenu } from "@/components/mobile/mobile-context-menu";
 import { MobileChatThread, MobileComposer, type MobileChatMessage } from "@/components/mobile/mobile-chat";
 import { DAILY, ORDERS, PRODUCTS, SHOPS } from "./data";
 import { CAMERA_ROLL, CHATS, CUSTOMERS, productPhoto, type Chat } from "./mobile-data";
-import { ScreenEmpty, rowTime, short, useNav, type ScreenProps } from "./mobile-app-kit";
-import { OrderThumb } from "./mobile-screens-a";
+import { OrderThumb, ScreenEmpty, rowTime, short, useNav, type ScreenProps } from "./mobile-app-kit";
 
 type Product = (typeof PRODUCTS)[number];
 const CATEGORIES = [
@@ -69,7 +68,7 @@ export function ProductsScreen() {
   const [loading, setLoading] = React.useState(true);
   const [creating, setCreating] = React.useState(false);
   React.useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), 400);
     return () => window.clearTimeout(t);
   }, []);
   const list = products.filter((p) => (!q || `${p.name} ${p.sku}`.toLowerCase().includes(q.toLowerCase())) && (filter === "all" || (filter === "low" ? p.stock > 0 && p.stock <= 3 : p.stock === 0)));
@@ -158,7 +157,7 @@ export function ProductScreen({ params, back }: ScreenProps) {
             ))}
           </MobileList>
           <MobileList title="Details">
-            <MobileListRow media={<Tag />} title="SKU" value={p.sku} />
+            <MobileListRow media={<Tag />} title="SKU" value={<span translate="no">{p.sku}</span>} />
             <MobileListRow media={<Grid />} title="Category" value={CATEGORIES.find((c) => c.value === categoryOf(p))?.label} />
           </MobileList>
         </div>
@@ -192,16 +191,19 @@ function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { prod
   const [online, setOnline] = React.useState(true);
   const [discount, setDiscount] = React.useState(0);
   const [sheet, setSheet] = React.useState<"photos" | "price" | "category" | "shops" | null>(null);
+  // The name's error waits until the field is left or Save is pressed, then follows the typing.
+  const [touched, setTouched] = React.useState(false);
   React.useEffect(() => {
     if (!open) return;
     setPhotos(initial);
     setName(p.name);
     setPrice(p.price);
     setStock(p.stock);
+    setTouched(false);
   }, [open, p, initial]);
   const dirty = name !== p.name || price !== p.price || stock !== p.stock || photos.length !== initial.length || discount > 0 || category !== categoryOf(p) || shops.length !== 3 || !online;
-  // A new product starts blank: no error before anything is typed.
-  const nameError = name.trim() || (isNew && !dirty) ? undefined : "Give it a name";
+  const nameError = touched && !name.trim() ? "Give it a name" : undefined;
+  const nameId = React.useId();
   return (
     <>
       <MobileModal
@@ -209,21 +211,27 @@ function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { prod
         onOpenChange={onOpenChange}
         title={isNew ? "New product" : "Edit product"}
         saveLabel={isNew ? "Add product" : "Save"}
-        dirty={dirty && !!name.trim()}
-        onSave={() =>
-          new Promise((r) =>
+        dirty={dirty}
+        onSave={() => {
+          // Save stays on: with no name it says so on the field and puts the cursor there.
+          if (!name.trim()) {
+            setTouched(true);
+            document.getElementById(nameId)?.focus();
+            return false;
+          }
+          return new Promise((r) =>
             window.setTimeout(() => {
               if (isNew) add({ sku: `RMB-NEW-${String(Date.now()).slice(-3)}`, name, price, stock });
               else update(p.sku, { name, price, stock });
               nav.snack(`${name} saved`);
               r(null);
             }, 500),
-          )
-        }
+          );
+        }}
       >
         <div className="grid gap-5">
           <MobilePhotoStrip photos={photos} onRemove={(id) => setPhotos((l) => l.filter((x) => x.id !== id))} onAddClick={() => setSheet("photos")} />
-          <MobileTextField label="Name" value={name} onValueChange={setName} error={nameError} autoComplete="off" />
+          <MobileTextField id={nameId} label="Name" value={name} onValueChange={setName} onBlur={() => setTouched(true)} error={nameError} autoComplete="off" />
           <div className="-mx-pad grid gap-5">
             <MobileList>
               <MobileListRow media={<Tag />} title="Price" value={<span className="text-ink">{formatRp(price)}</span>} chevron onClick={() => setSheet("price")} />
@@ -276,12 +284,29 @@ export function StockCountScreen({ back }: ScreenProps) {
   const [seen, setSeen] = React.useState<string[]>(["RMB-LL-008", "RMB-GL-014"]);
   const counted = seen.map((sku) => PRODUCTS.find((p) => p.sku === sku)!).filter(Boolean);
   const diffs = counted.filter((p) => counts[p.sku] !== p.stock).length;
+  // A scan moves its row to the top: the rows glide to their new places (FLIP) and a new one fades in, so the eye can
+  // follow what moved instead of the list jumping in one frame.
+  const listBox = React.useRef<HTMLDivElement>(null);
+  const before = React.useRef<Map<string, number> | null>(null);
+  const rows = () => [...(listBox.current?.querySelectorAll<HTMLElement>('[role="list"] > *') ?? [])];
   const add = (sku: string) => {
+    before.current = new Map(rows().map((el, i) => [seen[i], el.getBoundingClientRect().top]));
     setCounts((c) => ({ ...c, [sku]: (c[sku] ?? 0) + 1 }));
     setSeen((l) => [sku, ...l.filter((x) => x !== sku)]);
     setFlash(sku);
     window.setTimeout(() => setFlash((f) => (f === sku ? null : f)), 600);
   };
+  React.useLayoutEffect(() => {
+    const prev = before.current;
+    before.current = null;
+    if (!prev || prev.size === 0 || prefersReducedMotion()) return;
+    rows().forEach((el, i) => {
+      const was = prev.get(seen[i]);
+      const opts = { duration: 260, easing: "cubic-bezier(0.22, 1, 0.36, 1)" };
+      if (was == null) el.animate([{ opacity: 0 }, { opacity: 1 }], opts);
+      else if (Math.abs(was - el.getBoundingClientRect().top) > 0.5) el.animate([{ transform: `translateY(${was - el.getBoundingClientRect().top}px)` }, { transform: "none" }], opts);
+    });
+  }, [seen]);
   return (
     <>
       <MobileScreen title="Stock count" large={false} back={back} bottomInset="action-bar">
@@ -295,11 +320,12 @@ export function StockCountScreen({ back }: ScreenProps) {
               }}
             />
           </div>
+          <div ref={listBox}>
           <MobileList title={`Counted at Kemang · ${counted.length} items`}>
             {counted.map((p) => (
               <MobileListRow
                 key={p.sku}
-                className={flash === p.sku ? "rounded-item bg-fill transition-colors duration-[280ms]" : "transition-colors duration-[280ms]"}
+                className={cn("rounded-item transition-colors duration-[280ms]", flash === p.sku && "bg-fill")}
                 media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
                 title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{p.name}</span>}
                 subtitle={counts[p.sku] === p.stock ? "Matches" : `System says ${p.stock}`}
@@ -307,12 +333,14 @@ export function StockCountScreen({ back }: ScreenProps) {
               />
             ))}
           </MobileList>
+          </div>
         </div>
       </MobileScreen>
       <MobileActionBar>
+        {/* Off only before the first scan, and then the label says what's missing. */}
         <Button variant="primary" disabled={!counted.length} onClick={() => setAsk(true)}>
-          <Check />
-          Finish count
+          {counted.length ? <Check /> : null}
+          {counted.length ? "Finish count" : "Scan an item"}
         </Button>
       </MobileActionBar>
       <MobileAlert
@@ -491,7 +519,7 @@ export function ChatScreen({ params, back }: ScreenProps) {
         onValueChange={setDraft}
         onSend={send}
         onAttach={() => setAttach(true)}
-        suggestions={chat.id === "ch1" ? ["Yes, we'll gift wrap it", "It ships today", "Thanks, Nadia!"] : ["It ships today", "Let me check"]}
+        suggestions={chat.id === "ch1" ? ["Yes, we’ll gift wrap it", "It ships today", "Thanks, Nadia!"] : ["It ships today", "Let me check"]}
       />
       <MobileActionSheet
         open={attach}

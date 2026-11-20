@@ -19,7 +19,7 @@ export function LazyPhone({ children, inert, className }: { children: React.Reac
         <PhoneFrame>{children}</PhoneFrame>
       ) : (
         // Same box as the phone: a frame-shaped placeholder at the width the phone will take.
-        <div aria-hidden className="mx-auto w-full animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-surface shadow-dialog [corner-shape:superellipse(1.6)]" style={{ maxWidth: PHONE.w, aspectRatio: `${PHONE.w} / ${PHONE.h}`, borderRadius: 40 }} />
+        <div aria-hidden className="mx-auto w-full animate-ad-pulse bg-surface shadow-dialog [corner-shape:superellipse(1.6)]" style={{ maxWidth: PHONE.w, aspectRatio: `${PHONE.w} / ${PHONE.h}`, borderRadius: 40 }} />
       )}
     </div>
   );

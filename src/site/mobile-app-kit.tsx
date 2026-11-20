@@ -1,10 +1,13 @@
 // Shared parts of the Mobile example app: navigation (a native-style stack per tab), screen props and small helpers.
 import * as React from "react";
 import { Truck } from "react-feather";
-import { cn, formatRp } from "@/lib/ad";
-import { NOW, smartTime } from "./data";
+import { MONTHS, cn, dayDiff, formatCompact, formatRp } from "@/lib/ad";
+import { NOW, PRODUCTS, smartTime, type Order } from "./data";
+import { productPhoto } from "./mobile-data";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Thumb } from "@/components/ui/thumb";
+import { MobileListRow } from "@/components/mobile/mobile-list";
 
 export type TabId = "home" | "orders" | "products" | "inbox" | "more";
 export type Params = Record<string, string>;
@@ -34,24 +37,18 @@ export interface ScreenProps {
 }
 
 /** Money in a row: Rp 1,3 M from a billion, Rp 12,4 jt from a million (id-ID figures), the full amount below. */
-export const short = (n: number) =>
-  n >= 1e9
-    ? `Rp ${(n / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 1 })} M`
-    : n >= 1e6
-      ? `Rp ${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt`
-      : formatRp(n);
+export const short = (n: number) => (n >= 1e6 ? `Rp ${formatCompact(n, { space: " ", digits: 1 })}` : formatRp(n));
 
 /** A time in a list row: "13:05" today (the list is about today), "Yesterday, 13:05" or "14 Nov, 13:05" before. */
 export const rowTime = (d: Date) => smartTime(d).replace(/^Today, /, "");
 
 /** A day without the year when it is this year: "Tomorrow", "Today", "17 Nov"; "17 Nov 2025" otherwise. */
 export function smartDay(d: Date, now: Date = NOW) {
-  const day = (x: Date) => Math.floor(new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime() / 864e5);
-  const diff = day(d) - day(now);
+  const diff = dayDiff(d, now);
   if (diff === 0) return "Today";
   if (diff === 1) return "Tomorrow";
   if (diff === -1) return "Yesterday";
-  const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
+  const m = MONTHS[d.getMonth()];
   return d.getFullYear() === now.getFullYear() ? `${d.getDate()} ${m}` : `${d.getDate()} ${m} ${d.getFullYear()}`;
 }
 
@@ -75,11 +72,13 @@ export function CourierPicker({ value, onValueChange }: { value: string; onValue
           role="radio"
           aria-checked={value === c.id}
           onClick={() => onValueChange(c.id)}
-          className="relative flex min-h-[56px] cursor-pointer items-center gap-3 rounded-control px-3 text-left outline-none transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] focus-visible:bg-fill aria-checked:focus-visible:bg-ink-muted aria-checked:focus-visible:text-surface active:scale-[0.99]"
+          className="relative flex min-h-[56px] cursor-pointer items-center gap-3 rounded-control px-3 text-left outline-none transition-colors duration-[150ms] ease-ad focus-visible:bg-fill aria-checked:focus-visible:bg-ink-muted aria-checked:focus-visible:text-surface not-aria-checked:active:bg-fill not-aria-checked:active:duration-0 not-aria-checked:data-pressed:bg-fill not-aria-checked:data-pressed:duration-0"
         >
           <Truck size={20} strokeWidth={1.75} className="shrink-0" />
           <span className="grid min-w-0 flex-1">
-            <span className="truncate text-[15px]">{c.name}</span>
+            <span translate="no" className="truncate text-[15px]">
+              {c.name}
+            </span>
             <span className="text-[13px] text-ink-muted">{c.eta}</span>
           </span>
           <span className="text-[15px] tabular-nums text-ink-muted">{formatRp(c.price)}</span>
@@ -107,15 +106,21 @@ export function ScreenEmpty(props: React.ComponentProps<typeof EmptyState>) {
   return <EmptyState {...props} className={cn("grow py-16", props.className)} />;
 }
 
-/** A quiet text button at the end of a section title ("See all"). */
-export function TextButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="-mb-1.5 -mr-2 h-touch cursor-pointer rounded-control px-2 text-[15px] font-medium text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
-    >
-      {children}
-    </button>
-  );
-}
+/* ------------------------------------------------------------ demo rows */
+
+/** The product photo for an order's first item, so every product shown has its picture. */
+export const orderPhoto = (items: string) => {
+  const p = PRODUCTS.find((x) => items.startsWith(x.name));
+  return p ? productPhoto(p.sku) : undefined;
+};
+export const OrderThumb = ({ o }: { o: Order }) => <Thumb src={orderPhoto(o.items)} alt={o.items} size={40} />;
+
+/** An order in a list: its photo, the customer, the time first (truncation never eats it) and the items, the total. */
+export const orderRow = (o: Order, onClick: () => void = () => {}) => (
+  <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.items}`} value={short(o.total)} onClick={onClick} />
+);
+
+/** A product in a list: its photo, name, stock and price. */
+export const productRow = (p: (typeof PRODUCTS)[number], onClick: () => void = () => {}) => (
+  <MobileListRow key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />} title={p.name} subtitle={p.stock ? `${p.stock} in stock` : "Out of stock"} value={formatRp(p.price)} onClick={onClick} />
+);

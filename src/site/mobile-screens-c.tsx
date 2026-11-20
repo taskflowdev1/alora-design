@@ -32,7 +32,7 @@ import {
   Plus,
 } from "react-feather";
 import { Flag } from "@/components/ui/language-picker";
-import { cn, formatRp } from "@/lib/ad";
+import { SAFE_TOP, cn, formatRp, prefersReducedMotion } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
@@ -180,7 +180,8 @@ export function PosScreen({ back }: ScreenProps) {
               <MobileListRow
                 key={p.sku}
                 media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
-                title={p.name}
+                // Two lines, so the stepper never cuts the name of what is being sold.
+                title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{p.name}</span>}
                 subtitle={p.stock ? formatRp(p.price) : `${formatRp(p.price)} · out of stock`}
                 onClick={n ? undefined : p.stock ? () => setQty(p.sku, 1) : undefined}
                 value={n ? <QuantityStepper size="touch" aria-label={`${p.name} in cart`} value={n} min={0} max={room} onValueChange={(v) => setQty(p.sku, v)} /> : undefined}
@@ -190,7 +191,7 @@ export function PosScreen({ back }: ScreenProps) {
                       type="button"
                       aria-label={`Add ${p.name}`}
                       onClick={() => setQty(p.sku, 1)}
-                      className="mr-1 grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.92] active:bg-fill [-webkit-tap-highlight-color:transparent]"
+                      className="ad-press mr-1 grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink focus-visible:bg-fill active:scale-[0.92] active:bg-fill data-pressed:scale-[0.92] data-pressed:bg-fill"
                     >
                       <Plus size={20} strokeWidth={1.75} />
                     </button>
@@ -202,8 +203,9 @@ export function PosScreen({ back }: ScreenProps) {
         </MobileList>
       </MobileScreen>
       <MobileActionBar>
+        {/* Off only while the cart is empty, and then the label says so. */}
         <Button variant="primary" disabled={!items} onClick={() => nav.push("pos-pay")}>
-          Charge {formatRp(total)}
+          {items ? `Charge ${formatRp(total)}` : "Add an item to charge"}
         </Button>
       </MobileActionBar>
     </>
@@ -245,6 +247,13 @@ export function PosPayScreen({ back }: ScreenProps) {
   const [cash, setCash] = React.useState(0);
   const up = (step: number) => Math.ceil((total + 1) / step) * step;
   const can = method !== "cash" || cash >= total;
+  // Take cash stays on: pressed with too little, the Change row says how much is missing and shakes once.
+  const [tried, setTried] = React.useState(false);
+  const changeRow = React.useRef<HTMLParagraphElement>(null);
+  const refuse = () => {
+    setTried(true);
+    if (!prefersReducedMotion()) changeRow.current?.animate([{ transform: "none" }, { transform: "translateX(-6px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-3px)" }, { transform: "none" }], { duration: 320, easing: "ease-out" });
+  };
   return (
     <>
       <MobileScreen title="Payment" large={false} back={back} bottomInset="action-bar">
@@ -277,9 +286,9 @@ export function PosPayScreen({ back }: ScreenProps) {
                   { label: formatRp(up(100000)).replace(/^Rp\s/, ""), value: up(100000) },
                 ]}
               />
-              <p className="flex h-touch items-center justify-between rounded-control bg-fill px-3.5 text-[15px]">
-                <span className="text-ink-muted">Change</span>
-                <span className="font-semibold tabular-nums">{cash >= total ? formatRp(cash - total) : "–"}</span>
+              <p ref={changeRow} aria-live="polite" className="flex h-touch items-center justify-between rounded-control bg-fill px-3.5 text-[15px]">
+                <span className="text-ink-muted">{cash >= total || !(tried || cash) ? "Change" : "Still to pay"}</span>
+                <span className="font-semibold tabular-nums">{cash >= total ? formatRp(cash - total) : tried || cash ? `${formatRp(total - cash)} short` : "–"}</span>
               </p>
             </div>
           ) : method === "qris" ? (
@@ -298,8 +307,8 @@ export function PosPayScreen({ back }: ScreenProps) {
       <MobileActionBar>
         <Button
           variant="primary"
-          disabled={!can}
           onClick={() => {
+            if (!can) return refuse();
             // Paid: the receipt keeps its own copy of the lines and the cart empties now, so nothing can charge it twice.
             const lines = Object.entries(c)
               .map(([sku, n]) => `${sku}:${n}`)
@@ -365,10 +374,30 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState<Approval[]>(state === "empty" ? [] : APPROVALS);
   const [filter, setFilter] = React.useState("all");
+  // A decided card folds away over 220 ms, and the cards ignore taps meanwhile, so the second tap of a double tap can't
+  // land on the next card's button sliding up under the finger. Undo puts back only that card, in its place, so stacked
+  // decisions all undo.
+  const [leaving, setLeaving] = React.useState<string[]>([]);
+  const timers = React.useRef(new Map<string, number>());
+  React.useEffect(() => {
+    const t = timers.current;
+    return () => t.forEach((id) => window.clearTimeout(id));
+  }, []);
   const decide = (a: Approval, ok: boolean) => {
-    const before = list;
-    setList((l) => l.filter((x) => x.id !== a.id));
-    nav.snack(`${ok ? "Approved" : "Rejected"}: ${a.title}`, () => setList(before));
+    if (leaving.includes(a.id)) return;
+    setLeaving((l) => [...l, a.id]);
+    timers.current.set(
+      a.id,
+      window.setTimeout(() => {
+        setList((l) => l.filter((x) => x.id !== a.id));
+        setLeaving((l) => l.filter((x) => x !== a.id));
+      }, 220),
+    );
+    nav.snack(`${ok ? "Approved" : "Rejected"}: ${a.title}`, () => {
+      window.clearTimeout(timers.current.get(a.id));
+      setLeaving((l) => l.filter((x) => x !== a.id));
+      setList((l) => APPROVALS.filter((x) => x.id === a.id || l.includes(x)));
+    });
   };
   const shown = list.filter((a) => filter === "all" || a.kind === filter);
   return (
@@ -395,10 +424,14 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
       }
     >
       {shown.length ? (
-        <div className="grid gap-gap px-pad">
+        <div className="grid px-pad" inert={leaving.length > 0 || undefined}>
           {shown.map((a) => (
-            <SwipeRow
+            <div
               key={a.id}
+              className={cn("grid transition-[grid-template-rows,opacity] duration-[220ms] ease-ad", leaving.includes(a.id) ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]")}
+            >
+            <div className={cn("min-h-0 pb-gap", leaving.includes(a.id) && "overflow-hidden")}>
+            <SwipeRow
               className="rounded-card shadow-card"
               leading={[{ label: "Approve", icon: Check, tone: "accent", onSelect: () => decide(a, true) }]}
               trailing={[{ label: "Reject", icon: X, tone: "danger", onSelect: () => decide(a, false) }]}
@@ -425,6 +458,8 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
                 </div>
               </article>
             </SwipeRow>
+            </div>
+            </div>
           ))}
         </div>
       ) : (
@@ -520,7 +555,7 @@ export function SettingsScreen({ back }: ScreenProps) {
                 options={[
                   { value: "auto", title: "Print every receipt", icon: Printer },
                   { value: "ask", title: "Ask each time", icon: RefreshCw },
-                  { value: "never", title: "Don't print", icon: X },
+                  { value: "never", title: "Don’t print", icon: X },
                 ]}
               />
             </div>
@@ -657,7 +692,8 @@ export function OtpScreen({ params, back }: ScreenProps) {
     window.setTimeout(() => {
       if (v === CODE) {
         setStatus("success");
-        window.setTimeout(() => (nav.cover(null), nav.snack("Signed in")), otpLanded(6, "join") + 500);
+        // The green boxes and the status line already said it: no "Signed in" snack on top.
+        window.setTimeout(() => nav.cover(null), otpLanded(6, "join") + 500);
       } else {
         setStatus("invalid");
         window.setTimeout(() => (setCode(""), setStatus("idle")), 1000);
@@ -675,10 +711,10 @@ export function OtpScreen({ params, back }: ScreenProps) {
           check(CODE);
         }}
         className={cn(
-          "absolute inset-x-2 z-30 flex min-h-touch cursor-pointer items-center gap-3 rounded-sheet bg-raised p-3 text-left shadow-dialog transition-[transform,opacity] duration-[300ms] ease-ad [-webkit-tap-highlight-color:transparent]",
+          "absolute inset-x-2 z-30 flex min-h-touch cursor-pointer items-center gap-3 rounded-sheet bg-raised p-3 text-left shadow-dialog transition-[transform,opacity] duration-[300ms] ease-ad",
           banner ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-[140%] opacity-0",
         )}
-        style={{ top: "calc(var(--ad-safe-top, env(safe-area-inset-top, 0px)) + 4px)" }}
+        style={{ top: `calc(${SAFE_TOP} + 4px)` }}
         tabIndex={banner ? 0 : -1}
       >
         <span className="grid size-[36px] shrink-0 place-items-center rounded-control bg-fill">
@@ -691,7 +727,7 @@ export function OtpScreen({ params, back }: ScreenProps) {
       </button>
       <div className="grid justify-items-center gap-6 px-pad pt-10 text-center">
         <div className="grid gap-1.5">
-          <h1 className="text-[22px] font-semibold">Enter the code</h1>
+          <h1 className="text-balance text-[22px] font-semibold">Enter the code</h1>
           <p className="text-[15px] text-ink-muted">Sent by WhatsApp to {params.phone ?? "+62 812 4410 2231"}</p>
         </div>
         <InputOTP
@@ -725,7 +761,7 @@ export function OnboardingScreen() {
       pages={[
         {
           key: "sales",
-          title: "Every shop's sales, live",
+          title: "Every shop’s sales, live",
           art: (
             <div className={art}>
               <MobileScrubChart kind="bars" label="Sales today" value="Rp 59,5 jt" data={HOURLY.map((h) => ({ label: h.label, value: h.value }))} current={HOURLY.length - 1} height={90} />

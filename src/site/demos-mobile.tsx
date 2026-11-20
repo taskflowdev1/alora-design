@@ -19,17 +19,13 @@ import { MobileActionSheet } from "@/components/mobile/mobile-action-sheet";
 import { MobileDateSheet } from "@/components/mobile/mobile-wheel-picker";
 import { MobileSnackbar } from "@/components/mobile/mobile-snackbar";
 import { MobileActionBar } from "@/components/mobile/mobile-action-bar";
-import { NOW, ORDERS, PRODUCTS, smartTime, type Order } from "./data";
+import { NOW, ORDERS, PAID_ORDERS, PRODUCTS, smartTime, type Order } from "./data";
+import { productPhoto } from "./mobile-data";
 import { COURIERS, CourierPicker } from "./mobile-app";
+import { OrderThumb, orderRow, rowTime } from "./mobile-app-kit";
 import type { Demo } from "./demos";
 
-const short = (n: number) => (n >= 1e6 ? `Rp ${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt` : formatRp(n));
-const TO_PACK = ORDERS.filter((o) => o.status === "Paid").slice(0, 12);
-/** The time first and without "Today," (the list is today's), so truncation never eats the part you scan for. */
-const rowTime = (d: Date) => smartTime(d).replace(/^Today, /, "");
-const orderRow = (o: Order, onClick?: () => void) => (
-  <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.items}`} value={short(o.total)} onClick={onClick ?? (() => {})} />
-);
+const TO_PACK = PAID_ORDERS.slice(0, 12);
 /** A plain screen for demos that only need somewhere to sit. */
 function OrdersScreen({ children, bottomInset }: { children?: React.ReactNode; bottomInset?: "tab-bar" | "action-bar" | "none" }) {
   return (
@@ -61,7 +57,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
             {tab === "Products" ? (
               <MobileList>
                 {PRODUCTS.map((x) => (
-                  <MobileListRow key={x.sku} media={<Thumb alt={x.name} size={40} />} title={x.name} value={`${x.stock} left`} />
+                  <MobileListRow key={x.sku} media={<Thumb src={productPhoto(x.sku)} alt={x.name} size={40} />} title={x.name} value={`${x.stock} left`} />
                 ))}
               </MobileList>
             ) : null}
@@ -124,7 +120,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
       const [boxes, setBoxes] = React.useState(1);
       return (
         <>
-          <MobileScreen title="RMB-24811" large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="action-bar">
+          <MobileScreen title="RMB-24811" translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="action-bar">
             <div className="grid gap-5 pt-2">
               <MobileList title="Packing note">
                 <div className="px-[calc(var(--ad-pad)-var(--ad-nest))] py-2">
@@ -150,7 +146,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
         </>
       );
     },
-    usage: () => `useKeyboardInset(); // once, near the root\n\n<MobileScreen title="RMB-24811" large={false} bottomInset="action-bar">…</MobileScreen>\n<MobileActionBar>\n  <Button><Printer />Print label</Button>\n  <Button variant="primary"><Check />Mark packed</Button>\n</MobileActionBar>`,
+    usage: () => `useKeyboardInset(); // once, near the root\n\n<MobileScreen title="RMB-24811" translateTitle={false} large={false} bottomInset="action-bar">…</MobileScreen>\n<MobileActionBar>\n  <Button><Printer />Print label</Button>\n  <Button variant="primary"><Check />Mark packed</Button>\n</MobileActionBar>`,
   },
   "mobile-list": {
     stage: "phone",
@@ -202,7 +198,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
                   ]}
                 >
                   <MobileListRow
-                    media={<Thumb alt={o.items} size={40} />}
+                    media={<OrderThumb o={o} />}
                     title={o.customer}
                     subtitle={`${rowTime(o.at)} · ${o.items}`}
                     trailing={
@@ -342,6 +338,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
         <>
           <MobileScreen
             title={o.id}
+            translateTitle={false}
             large={false}
             bottomInset="none"
             back={{ label: "Orders", onClick: () => {} }}
@@ -357,7 +354,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
                 <MobileListRow media={<MapPin />} title={o.shop} value={smartTime(o.at)} />
               </MobileList>
               <MobileList title="Items">
-                <MobileListRow media={<Thumb alt={o.items} size={40} />} title={o.items} subtitle={`${o.qty} pcs`} value={formatRp(o.total)} />
+                <MobileListRow media={<OrderThumb o={o} />} title={o.items} subtitle={`${o.qty} pcs`} value={formatRp(o.total)} />
               </MobileList>
             </div>
           </MobileScreen>
@@ -447,7 +444,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
           {list.length ? (
             <MobileList>
               {list.map((x) => (
-                <MobileListRow key={x.sku} media={<Thumb alt={x.name} size={40} />} title={x.name} subtitle={x.sku} value={`${x.stock} left`} />
+                <MobileListRow key={x.sku} media={<Thumb src={productPhoto(x.sku)} alt={x.name} size={40} />} title={x.name} subtitle={x.sku} value={`${x.stock} left`} />
               ))}
             </MobileList>
           ) : (
@@ -468,7 +465,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
             {PRODUCTS.map((x) => (
               <MobileListRow
                 key={x.sku}
-                media={<Thumb alt={x.name} size={40} />}
+                media={<Thumb src={productPhoto(x.sku)} alt={x.name} size={40} />}
                 // Two lines for the name: the 140 px stepper leaves little room, and a cut name can't be told apart.
                 title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{x.name}</span>}
                 subtitle={x.sku}
@@ -494,7 +491,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
               {rows.map((o, i) => (
                 <MobileListRow
                   key={o.id}
-                  media={<Thumb alt={o.items} size={40} />}
+                  media={<OrderThumb o={o} />}
                   title={o.customer}
                   subtitle={o.items}
                   trailing={

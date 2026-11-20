@@ -6,7 +6,7 @@ import { SLink } from "./config";
 import { PlatformSwitch } from "./gallery";
 
 /** Every screen, then each forced state (empty, offline, error) as its own tile. Lettered P1… in order. */
-export const SCREEN_TILES = SCREENS.flatMap((s) => [
+const SCREEN_TILES = SCREENS.flatMap((s) => [
   { screen: s.id, state: undefined as string | undefined, title: typeof s.title === "string" ? s.title : s.id === "order" ? "Order" : s.id === "product" ? "Product" : s.id === "chat" ? "Chat" : "Customer" },
   ...(s.states ?? []).map((st) => ({ screen: s.id, state: st.key, title: st.title })),
 ]).map((t, i) => ({ ...t, letter: `P${i + 1}`, href: `/mobile/app/${t.screen}${t.state ? `?state=${t.state}` : ""}` }));

@@ -49,7 +49,7 @@ const NAMES = [
 ];
 const CITIES = ["Jakarta Selatan", "Bandung", "Surabaya", "Depok", "Tangerang", "Bekasi", "Bogor", "Yogyakarta"];
 
-export interface Customer {
+interface Customer {
   id: string;
   name: string;
   phone: string;
@@ -99,9 +99,9 @@ export const CHATS: Chat[] = [
     unread: 2,
     lines: [
       { id: "1", text: "Hi, I ordered the clay coffee cup yesterday.", time: "Today, 13:58", order: "RMB-24811" },
-      { id: "2", mine: true, text: "Hi Nadia, thanks for ordering. It's packed and goes out with JNE this afternoon." },
+      { id: "2", mine: true, text: "Hi Nadia, thanks for ordering. It’s packed and goes out with JNE this afternoon." },
       { id: "3", text: "Great. Can you wrap it as a gift?" },
-      { id: "4", text: "It's for my mum on Saturday." },
+      { id: "4", text: "It’s for my mum on Saturday." },
     ],
   },
   { id: "ch2", name: "Budi Santoso", market: "tiktok", shop: "Rimba Live", time: "13:40", unread: 1, lines: [{ id: "1", text: "Is the large pandan basket back in stock?", time: "Today, 13:40" }] },
@@ -114,7 +114,7 @@ export const CHATS: Chat[] = [
     unread: 0,
     lines: [
       { id: "1", text: "The tray arrived with a crack on one side.", time: "Today, 10:52" },
-      { id: "2", mine: true, text: "Sorry about that, Sari. Could you send a photo? We'll send a new one today." },
+      { id: "2", mine: true, text: "Sorry about that, Sari. Could you send a photo? We’ll send a new one today." },
       { id: "3", text: "Sent the photo in the return request." },
     ],
   },
@@ -167,7 +167,7 @@ export const APPROVALS: Approval[] = [
 
 /* ------------------------------------------------------------ team schedule (week of 16 Nov) */
 
-export interface Shift {
+interface Shift {
   id: string;
   day: number;
   who: string;

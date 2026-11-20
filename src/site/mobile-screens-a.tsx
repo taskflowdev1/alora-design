@@ -25,7 +25,7 @@ import {
   Camera,
   ShoppingCart,
 } from "react-feather";
-import { formatRp } from "@/lib/ad";
+import { formatNumber, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
@@ -49,19 +49,11 @@ import { MobileDateRangeSheet, formatRange, type DateRange } from "@/components/
 import { MobileContextMenu } from "@/components/mobile/mobile-context-menu";
 import { MobileTimeline } from "@/components/mobile/mobile-timeline";
 import { MobilePhotoSheet, MobilePhotoStrip, type Photo } from "@/components/mobile/mobile-photo-picker";
-import { MobileUploadRow } from "@/components/mobile/mobile-upload-row";
 import { MobileTextField } from "@/components/mobile/mobile-text-field";
 import { MobileSignaturePad } from "@/components/mobile/mobile-signature";
-import { DAILY, HOURLY, NOW, ORDERS, PRODUCTS, smartTime, type Order } from "./data";
+import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, smartTime, type Order } from "./data";
 import { CAMERA_ROLL, CUSTOMERS, NOTIFS, productPhoto, type Notif } from "./mobile-data";
-import { COURIERS, CourierPicker, ScreenEmpty, SectionTitle, rowTime, short, smartDay, useNav, type ScreenProps } from "./mobile-app-kit";
-
-const photoOf = (items: string) => {
-  const p = PRODUCTS.find((x) => items.startsWith(x.name));
-  return p ? productPhoto(p.sku) : undefined;
-};
-export const OrderThumb = ({ o }: { o: Order }) => <Thumb src={photoOf(o.items)} alt={o.items} size={40} />;
-const TO_PACK = ORDERS.filter((o) => o.status === "Paid");
+import { COURIERS, CourierPicker, OrderThumb, ScreenEmpty, SectionTitle, rowTime, short, smartDay, useNav, type ScreenProps } from "./mobile-app-kit";
 
 /* ------------------------------------------------------------ Home */
 
@@ -92,7 +84,7 @@ export function HomeScreen({ state }: ScreenProps) {
       <div className="grid gap-4">
         <div className="px-pad empty:hidden">
           <MobileBanner open={!online} icon={WifiOff} action={{ label: "Retry", onClick: () => nav.snack("Still offline") }}>
-            You're offline. These numbers are from 14:05.
+            You’re offline. These numbers are from 14:05.
           </MobileBanner>
         </div>
         <div className="px-pad">
@@ -100,7 +92,7 @@ export function HomeScreen({ state }: ScreenProps) {
             <MobileScrubChart
               kind="bars"
               label="Sales today"
-              value={`Rp ${sales.toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt`}
+              value={`Rp ${formatNumber(sales, { maximumFractionDigits: 1 })} jt`}
               data={HOURLY.map((h) => ({ label: `${h.label}:00`, value: h.value, display: h.display }))}
               current={HOURLY.length - 1}
               labelEvery={3}
@@ -141,7 +133,7 @@ function AttentionCard({ icon: I, media, title, meta, onClick }: { icon?: React.
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[60px] w-full cursor-pointer items-center gap-3 rounded-card bg-surface px-pad py-2.5 text-left shadow-card transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.98] [-webkit-tap-highlight-color:transparent]"
+      className="ad-press flex min-h-[60px] w-full cursor-pointer items-center gap-3 rounded-card bg-surface px-pad py-2.5 text-left shadow-card focus-visible:bg-fill active:scale-[0.98] data-pressed:scale-[0.98]"
     >
       {media ?? (I ? <span className="grid size-[40px] shrink-0 place-items-center rounded-small bg-fill text-ink"><I size={20} strokeWidth={1.75} /></span> : null)}
       <span className="grid min-w-0 flex-1 gap-0.5">
@@ -159,10 +151,11 @@ const NOTIF_ICON: Record<Notif["kind"], React.ComponentType> = { order: Shopping
 export function NotificationsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState(state === "empty" ? [] : NOTIFS);
+  // Undo puts back only what it cleared, in its place, so clearing two in a row and undoing loses nothing.
+  const restore = (ids: string[]) => setList((l) => NOTIFS.filter((x) => ids.includes(x.id) || l.includes(x)));
   const clear = (n: Notif) => {
-    const before = list;
     setList((l) => l.filter((x) => x.id !== n.id));
-    nav.snack("Cleared", () => setList(before));
+    nav.snack("Cleared", () => restore([n.id]));
   };
   const open = (n: Notif) => (n.kind === "order" ? nav.setTab("orders") : n.kind === "return" ? nav.push("chat", { id: "ch3" }) : n.kind === "stock" ? nav.setTab("products") : n.kind === "payout" ? nav.push("reports") : nav.push("approvals"));
   const today = list.filter((n) => /:/.test(n.time));
@@ -174,7 +167,10 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
           const I = NOTIF_ICON[n.kind];
           return (
             <SwipeRow key={n.id} trailing={[{ label: "Clear", icon: Check, onSelect: () => clear(n) }]}>
-              <MobileListRow media={<I />} title={n.title} subtitle={n.time} value={n.unread ? <CountBadge dot aria-label="Unread" /> : undefined} onClick={() => open(n)} />
+              {/* Long press (or the menu key) offers Clear too, so it never takes a swipe. */}
+              <MobileContextMenu aria-label={n.title} actions={[{ label: "Clear", icon: Check, onSelect: () => clear(n) }]}>
+                <MobileListRow media={<I />} title={n.title} subtitle={n.time} value={n.unread ? <CountBadge dot aria-label="Unread" /> : undefined} onClick={() => open(n)} />
+              </MobileContextMenu>
             </SwipeRow>
           );
         })}
@@ -190,9 +186,9 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
         list.length ? (
           <MobileBarTextButton
             onClick={() => {
-              const before = list;
+              const ids = list.map((x) => x.id);
               setList([]);
-              nav.snack("All cleared", () => setList(before));
+              nav.snack("All cleared", () => restore(ids));
             }}
           >
             Clear all
@@ -244,7 +240,7 @@ export function SearchScreen({ back, params, state }: ScreenProps) {
           {orders.length ? (
             <MobileList title="Orders">
               {orders.map((o) => (
-                <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.id}`} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
+                <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={<>{rowTime(o.at)} · <span translate="no">{o.id}</span></>} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
               ))}
             </MobileList>
           ) : null}
@@ -279,15 +275,15 @@ export function ReportsScreen({ back, state }: ScreenProps) {
   const [phase, setPhase] = React.useState<"error" | "loading" | "ready">(state === "error" ? "error" : "ready");
   const days = Math.round((range.to.getTime() - range.from.getTime()) / 864e5) + 1;
   const k = shop === "all" ? 1 : 0.22 + SHOP_FILTERS.findIndex((s) => s.value === shop) * 0.04;
-  const data = DAILY.slice(-Math.min(30, days)).map((d) => ({ label: `${d.label} ${["Oct", "Nov"][Number(d.label) > 16 ? 0 : 1]}`, value: +(d.value * k).toFixed(1), display: `Rp ${(d.value * k).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt` }));
+  const data = DAILY.slice(-Math.min(30, days)).map((d) => ({ label: `${d.label} ${["Oct", "Nov"][Number(d.label) > 16 ? 0 : 1]}`, value: +(d.value * k).toFixed(1), display: `Rp ${formatNumber(d.value * k, { maximumFractionDigits: 1 })} jt` }));
   const total = data.reduce((s, d) => s + d.value, 0);
   // Every number on the screen follows the range and the shop (r: this range against the default 14 days).
   const r = (days / 14) * k;
   const orders = Math.round(total * 6.4);
-  const n = (v: number) => v.toLocaleString("id-ID");
+  const n = (v: number) => formatNumber(v);
   const retry = () => {
     setPhase("loading");
-    window.setTimeout(() => setPhase("ready"), 700);
+    window.setTimeout(() => setPhase("ready"), 400);
   };
   return (
     <>
@@ -309,7 +305,7 @@ export function ReportsScreen({ back, state }: ScreenProps) {
           {phase === "error" ? (
             <div className="grid justify-items-center gap-4 px-pad py-24 text-center">
               <AlertCircle size={40} strokeWidth={1.5} className="text-ink-muted" />
-              <p className="text-[17px] font-medium text-ink-muted">Couldn't load the report</p>
+              <p className="text-[17px] font-medium text-ink-muted">Couldn’t load the report</p>
               <Button className="h-touch px-5 text-[15px]" onClick={retry}>
                 <RotateCcw />
                 Try again
@@ -321,13 +317,13 @@ export function ReportsScreen({ back, state }: ScreenProps) {
                 <div className="rounded-card bg-surface p-pad shadow-card">
                   {phase === "loading" ? (
                     <div aria-busy className="grid gap-2">
-                      <span className="w-fit animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-[13px] text-transparent">Sales</span>
-                      <span className="w-fit animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-[24px] leading-tight text-transparent">Rp 000,0 jt</span>
-                      <span className="h-[140px] animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-control bg-fill" />
+                      <span className="w-fit animate-ad-pulse rounded-small bg-fill text-[13px] text-transparent">Sales</span>
+                      <span className="w-fit animate-ad-pulse rounded-small bg-fill text-[24px] leading-tight text-transparent">Rp 000,0 jt</span>
+                      <span className="h-[140px] animate-ad-pulse rounded-control bg-fill" />
                       <span className="h-[17px]" />
                     </div>
                   ) : (
-                    <MobileScrubChart kind="bars" label={`Sales, ${formatRange(range, NOW)}`} value={`Rp ${total.toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt`} data={data} current={data.length - 1} labelEvery={days > 14 ? 7 : 3} height={140} />
+                    <MobileScrubChart kind="bars" label={`Sales, ${formatRange(range, NOW)}`} value={`Rp ${formatNumber(total, { maximumFractionDigits: 1 })} jt`} data={data} current={data.length - 1} labelEvery={days > 14 ? 7 : 3} height={140} />
                   )}
                 </div>
               </div>
@@ -381,23 +377,18 @@ export function OrdersScreen({ state }: ScreenProps) {
   const [q, setQ] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 700);
+    const t = window.setTimeout(() => setLoading(false), 400);
     return () => window.clearTimeout(t);
   }, []);
-  const act = (o: Order, status: Order["status"], text: string) => {
-    const before = o.status;
-    setStatus(o.id, status);
-    nav.snack(text, () => setStatus(o.id, before));
-  };
-  const actions = (o: Order): SwipeAction[] =>
-    stage === "pack"
-      ? [
-          { label: "Packed", icon: Check, tone: "accent", onSelect: () => act(o, "Packed", `${o.id} packed`) },
-          { label: "Cancel", icon: XCircle, tone: "danger", onSelect: () => act(o, "Cancelled", `${o.id} cancelled`) },
-        ]
-      : stage === "ship"
-        ? [{ label: "Shipped", icon: Truck, tone: "accent", onSelect: () => act(o, "Shipped", `${o.id} shipped`) }]
-        : [{ label: "Archive", icon: Archive, onSelect: () => act(o, "Cancelled", `${o.id} archived`) }];
+  const act = React.useCallback(
+    (o: Order, status: Order["status"], text: string) => {
+      const before = o.status;
+      setStatus(o.id, status);
+      nav.snack(text, () => setStatus(o.id, before));
+    },
+    [nav, setStatus],
+  );
+  const openOrder = React.useCallback((id: string) => nav.push("order", { id }), [nav]);
   const list = state === "empty" ? [] : orders.filter((o) => STAGE_OF(o) === stage && (!q || `${o.customer} ${o.items} ${o.id}`.toLowerCase().includes(q.toLowerCase())));
   const count = (s: Stage) => orders.filter((o) => STAGE_OF(o) === s).length;
   const STAGES: { value: Stage; label: string }[] = [
@@ -405,8 +396,6 @@ export function OrdersScreen({ state }: ScreenProps) {
     { value: "ship", label: "To ship" },
     { value: "done", label: "Shipped" },
   ];
-  // The long-press menu says what it will do, as verbs (the swipe buttons are too narrow for that).
-  const verb: Record<string, string> = { Packed: "Mark packed", Cancel: "Cancel order", Shipped: "Mark shipped", Archive: "Archive" };
   return (
     <>
       <MobileScreen
@@ -435,17 +424,7 @@ export function OrdersScreen({ state }: ScreenProps) {
           ) : (
             <MobileList>
               {list.map((o) => (
-                <SwipeRow key={o.id} trailing={actions(o)}>
-                  <MobileContextMenu aria-label={o.id} actions={actions(o).map((a) => ({ label: verb[a.label] ?? a.label, icon: a.icon, onSelect: a.onSelect, destructive: a.tone === "danger" }))}>
-                    <MobileListRow
-                      media={<OrderThumb o={o} />}
-                      title={o.customer}
-                      subtitle={`${rowTime(o.at)} · ${o.items}`}
-                      value={short(o.total)}
-                      onClick={() => nav.push("order", { id: o.id })}
-                    />
-                  </MobileContextMenu>
-                </SwipeRow>
+                <OrderRow key={o.id} o={o} stage={stage} act={act} onOpen={openOrder} />
               ))}
             </MobileList>
           )}
@@ -455,12 +434,42 @@ export function OrdersScreen({ state }: ScreenProps) {
   );
 }
 
+// The long-press menu says what it will do, as verbs (the swipe buttons are too narrow for that).
+const VERB: Record<string, string> = { Packed: "Mark packed", Cancel: "Cancel order", Shipped: "Mark shipped", Archive: "Archive" };
+
+/**
+ * One order in the list, memoised: a snack or a status change elsewhere re-renders only the rows it touches, so the
+ * stage switch and the list stay quick with 60 swipe rows.
+ */
+const OrderRow = React.memo(function OrderRow({ o, stage, act, onOpen }: { o: Order; stage: Stage; act: (o: Order, s: Order["status"], text: string) => void; onOpen: (id: string) => void }) {
+  const actions = React.useMemo<SwipeAction[]>(
+    () =>
+      stage === "pack"
+        ? [
+            { label: "Packed", icon: Check, tone: "accent", onSelect: () => act(o, "Packed", `${o.id} packed`) },
+            { label: "Cancel", icon: XCircle, tone: "danger", onSelect: () => act(o, "Cancelled", `${o.id} cancelled`) },
+          ]
+        : stage === "ship"
+          ? [{ label: "Shipped", icon: Truck, tone: "accent", onSelect: () => act(o, "Shipped", `${o.id} shipped`) }]
+          : [{ label: "Archive", icon: Archive, onSelect: () => act(o, "Cancelled", `${o.id} archived`) }],
+    [o, stage, act],
+  );
+  const menu = React.useMemo(() => actions.map((a) => ({ label: VERB[a.label] ?? a.label, icon: a.icon, onSelect: a.onSelect, destructive: a.tone === "danger" })), [actions]);
+  return (
+    <SwipeRow trailing={actions}>
+      <MobileContextMenu aria-label={o.id} actions={menu}>
+        <MobileListRow media={<OrderThumb o={o} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.items}`} value={short(o.total)} onClick={() => onOpen(o.id)} />
+      </MobileContextMenu>
+    </SwipeRow>
+  );
+});
+
 /* ------------------------------------------------------------ Order */
 
 export function OrderScreen({ params, back }: ScreenProps) {
   const nav = useNav();
   const { orders, setStatus } = useOrders();
-  const order = orders.find((o) => o.id === params.id) ?? ORDERS.find((o) => o.id === params.id) ?? TO_PACK[0];
+  const order = orders.find((o) => o.id === params.id) ?? ORDERS.find((o) => o.id === params.id) ?? PAID_ORDERS[0];
   const [actions, setActions] = React.useState(params.actions === "1");
   const [courierOpen, setCourierOpen] = React.useState(params.sheet === "courier");
   const [courier, setCourier] = React.useState("jne");
@@ -485,6 +494,7 @@ export function OrderScreen({ params, back }: ScreenProps) {
     <>
       <MobileScreen
         title={order.id}
+        translateTitle={false}
         large={false}
         back={back}
         bottomInset="action-bar"
@@ -563,8 +573,8 @@ export function OrderScreen({ params, back }: ScreenProps) {
         title={order.id}
         actions={[
           { label: "Print label", icon: Printer, onSelect: () => nav.snack(`Label for ${order.id} sent to the printer`) },
-          { label: "Change courier", icon: Truck, onSelect: () => setCourierOpen(true) },
-          { label: "Change pickup date", icon: CalendarIcon, onSelect: () => setDateOpen(true) },
+          { label: "Change courier…", icon: Truck, onSelect: () => setCourierOpen(true) },
+          { label: "Change pickup date…", icon: CalendarIcon, onSelect: () => setDateOpen(true) },
           { label: "Cancel order", icon: XCircle, destructive: true, onSelect: () => act("Cancelled", `${order.id} cancelled`) },
         ]}
       />
@@ -604,6 +614,8 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
   const [roll, setRoll] = React.useState<Photo[]>(CAMERA_ROLL);
   const [receiver, setReceiver] = React.useState(order.customer.replace(/ [A-Z]\.$/, ""));
   const [signed, setSigned] = React.useState(false);
+  // The name's error waits until the field is left (or Mark delivered is pressed), then follows the typing.
+  const [touched, setTouched] = React.useState(false);
   // Uploads tick along; one of every four fails once so Retry shows.
   React.useEffect(() => {
     if (!uploads.some((u) => u.state === "uploading")) return;
@@ -621,9 +633,6 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
   }, [uploads]);
   const done = uploads.filter((u) => u.state === "done").length;
   const ready = done > 0 && signed && receiver.trim().length > 1;
-  // Each photo shows once: in the strip when it's up, as a row with its progress (and Retry) while it isn't.
-  const landed = uploads.filter((u) => u.state === "done");
-  const pending = uploads.filter((u) => u.state !== "done");
   const missing = !done ? (uploads.length ? "Waiting for the photo" : "Add a photo") : receiver.trim().length <= 1 ? "Add who took it" : !signed ? "Sign to finish" : null;
   return (
     <>
@@ -634,28 +643,28 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
           </MobileList>
           <div className="grid gap-2">
             <SectionTitle>Photos</SectionTitle>
+            {/* Each photo is a tile from the moment it's picked, its progress and Retry drawn over it, so nothing
+                below the strip moves while uploads start and finish (the signature pad may be under a finger). */}
             <div className="px-pad">
-              <MobilePhotoStrip photos={landed} cover={false} onRemove={(id) => setUploads((l) => l.filter((u) => u.id !== id))} onAddClick={() => setSheet(true)} max={4 - pending.length} />
+              <MobilePhotoStrip
+                photos={uploads}
+                cover={false}
+                onRemove={(id) => setUploads((l) => l.filter((u) => u.id !== id))}
+                onRetry={(id) => setUploads((l) => l.map((x) => (x.id === id ? { ...x, id: `${x.id}-retry`, progress: 0, state: "uploading" } : x)))}
+                onAddClick={() => setSheet(true)}
+                max={4}
+              />
             </div>
-            {pending.length ? (
-              <MobileList>
-                {pending.map((u) => (
-                  <MobileUploadRow
-                    key={u.id}
-                    name={u.alt.replace(/, photo \d$/, "")}
-                    size={`${(1.2 + (u.id.length % 5) * 0.3).toFixed(1).replace(".", ",")} MB`}
-                    progress={u.progress}
-                    state={u.state}
-                    media={<Thumb src={u.src} alt="" size={40} />}
-                    onCancel={() => setUploads((l) => l.filter((x) => x.id !== u.id))}
-                    onRetry={() => setUploads((l) => l.map((x) => (x.id === u.id ? { ...x, id: `${x.id}-retry`, progress: 0, state: "uploading" } : x)))}
-                  />
-                ))}
-              </MobileList>
-            ) : null}
           </div>
           <div className="px-pad">
-            <MobileTextField label="Received by" value={receiver} onValueChange={setReceiver} autoComplete="name" error={receiver.trim().length > 1 ? undefined : "Who took the parcel?"} />
+            <MobileTextField
+              label="Received by"
+              value={receiver}
+              onValueChange={setReceiver}
+              onBlur={() => setTouched(true)}
+              autoComplete="name"
+              error={touched && receiver.trim().length <= 1 ? "Who took the parcel?" : undefined}
+            />
           </div>
           <div className="grid gap-2 px-pad">
             <h2 className="px-1 text-[13px] text-ink-muted">Signature</h2>

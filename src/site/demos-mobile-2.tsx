@@ -58,22 +58,12 @@ import { MobileUploadRow } from "@/components/mobile/mobile-upload-row";
 import { MobileOnboardingPager } from "@/components/mobile/mobile-pager";
 import { MobileChatThread, MobileComposer, type MobileChatMessage } from "@/components/mobile/mobile-chat";
 import { MobileSnackbar } from "@/components/mobile/mobile-snackbar";
-import { DAILY, HOURLY, NOW, ORDERS, PRODUCTS, SHOPS, smartTime } from "./data";
+import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, SHOPS, smartTime } from "./data";
 import { CAMERA_ROLL, CHATS, CUSTOMERS, productPhoto } from "./mobile-data";
-import { COURIERS } from "./mobile-app-kit";
+import { COURIERS, orderPhoto, orderRow, productRow } from "./mobile-app-kit";
 import type { Demo } from "./demos";
 
-const TO_PACK = ORDERS.filter((o) => o.status === "Paid").slice(0, 10);
-const photo = (items: string) => {
-  const p = PRODUCTS.find((x) => items.startsWith(x.name));
-  return p ? productPhoto(p.sku) : undefined;
-};
-const orderRow = (o: (typeof ORDERS)[number], onClick: () => void = () => {}) => (
-  <MobileListRow key={o.id} media={<Thumb src={photo(o.items)} alt={o.items} size={40} />} title={o.customer} subtitle={`${smartTime(o.at).replace(/^Today, /, "")} · ${o.items}`} value={formatRp(o.total)} onClick={onClick} />
-);
-const productRow = (p: (typeof PRODUCTS)[number]) => (
-  <MobileListRow key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />} title={p.name} subtitle={p.stock ? `${p.stock} in stock` : "Out of stock"} value={formatRp(p.price)} onClick={() => {}} />
-);
+const TO_PACK = PAID_ORDERS.slice(0, 10);
 /** Open a sheet from a control (?open=1) and keep it in step with the control. */
 function useOpen(p: Record<string, string | boolean>) {
   const [open, setOpen] = React.useState(!!p.open);
@@ -107,7 +97,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
             />
           }
         >
-          <MobileList>{list.map(productRow)}</MobileList>
+          <MobileList>{list.map((x) => productRow(x))}</MobileList>
         </MobileScreen>
       );
     },
@@ -163,7 +153,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
                   options={[
                     { value: "auto", title: "Print every receipt" },
                     { value: "ask", title: "Ask each time" },
-                    { value: "never", title: "Don't print" },
+                    { value: "never", title: "Don’t print" },
                   ]}
                 />
               </div>
@@ -212,7 +202,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
       const c = options.find((x) => x.id === v)!;
       return (
         <>
-          <MobileScreen title="RMB-24811" large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
+          <MobileScreen title="RMB-24811" translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
             <div className="grid gap-5 pt-2">
               <MobileList title="Shipping">
                 <MobileListRow media={<Truck />} title="Courier" value={c.name} chevron onClick={() => setOpen(true)} />
@@ -296,7 +286,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
                   ]}
                 >
                   <MobileListRow
-                    media={<Thumb src={photo(o.items)} alt={o.items} size={40} />}
+                    media={<Thumb src={orderPhoto(o.items)} alt={o.items} size={40} />}
                     title={o.customer}
                     subtitle={o.items}
                     onClick={() => {}}
@@ -323,6 +313,8 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
       const [open, setOpen] = useOpen(p);
       const [name, setName] = React.useState(PRODUCTS[0].name);
       const [saved, setSaved] = React.useState(PRODUCTS[0].name);
+      const [touched, setTouched] = React.useState(false);
+      const nameId = React.useId();
       return (
         <>
           <MobileScreen title={saved} large={false} back={{ label: "Products", onClick: () => {} }} bottomInset="action-bar">
@@ -342,9 +334,19 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
               Edit product
             </Button>
           </MobileActionBar>
-          <MobileModal open={open} onOpenChange={setOpen} title="Edit product" dirty={name !== saved && !!name.trim()} onSave={() => new Promise((r) => window.setTimeout(() => (setSaved(name), r(null)), 500))}>
+          <MobileModal
+            open={open}
+            onOpenChange={(o) => (setOpen(o), setTouched(false))}
+            title="Edit product"
+            dirty={name !== saved}
+            onSave={() => {
+              // Save stays on: with no name it says so on the field and puts the cursor there.
+              if (!name.trim()) return (setTouched(true), document.getElementById(nameId)?.focus(), false);
+              return new Promise((r) => window.setTimeout(() => (setSaved(name), r(null)), 500));
+            }}
+          >
             <div className="grid gap-5">
-              <MobileTextField label="Name" value={name} onValueChange={setName} error={name.trim() ? undefined : "Give it a name"} />
+              <MobileTextField id={nameId} label="Name" value={name} onValueChange={setName} onBlur={() => setTouched(true)} error={touched && !name.trim() ? "Give it a name" : undefined} />
             </div>
           </MobileModal>
         </>
@@ -361,7 +363,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
       const o = TO_PACK[0];
       return (
         <>
-          <MobileScreen title={o.id} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="action-bar">
+          <MobileScreen title={o.id} translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="action-bar">
             <div className="grid gap-5 pt-2">
               <MobileList title="Customer">
                 <MobileListRow media={<User />} title={o.customer} value={o.payment} />
@@ -641,7 +643,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
   "mobile-timeline": {
     stage: "phone",
     render: () => (
-      <MobileScreen title="RMB-24790" large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
+      <MobileScreen title="RMB-24790" translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
         <div className="px-pad pt-2">
           <div className="rounded-card bg-surface px-pad py-2 shadow-card">
             <MobileTimeline
@@ -663,7 +665,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
     stage: "phone",
     controls: [{ key: "step", type: "select", label: "Step", options: ["0", "1", "2", "3", "4"], labels: ["Unpaid", "Paid", "Packed", "Shipped", "Delivered"], default: "2" }],
     render: (p) => (
-      <MobileScreen title="RMB-24811" large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
+      <MobileScreen title="RMB-24811" translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="none">
         <div className="grid gap-5 pt-2">
           <div className="px-pad">
             <div className="rounded-card bg-surface p-pad shadow-card">
@@ -749,14 +751,14 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
         <div className="grid gap-4">
           <div className="px-pad">
             <MobileBanner open={!!p.offline} icon={WifiOff} action={{ label: "Retry", onClick: () => {} }}>
-              You're offline. Changes save on this phone and sync later.
+              You’re offline. Changes save on this phone and sync later.
             </MobileBanner>
           </div>
           <MobileList>{TO_PACK.map((o) => orderRow(o))}</MobileList>
         </div>
       </MobileScreen>
     ),
-    usage: () => `const online = useOnline();\n\n<MobileBanner open={!online} icon={WifiOff} action={{ label: "Retry", onClick: retry }}>\n  You're offline. Changes save on this phone and sync later.\n</MobileBanner>`,
+    usage: () => `const online = useOnline();\n\n<MobileBanner open={!online} icon={WifiOff} action={{ label: "Retry", onClick: retry }}>\n  You’re offline. Changes save on this phone and sync later.\n</MobileBanner>`,
   },
   "mobile-upload-row": {
     stage: "phone",
@@ -796,13 +798,13 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
       <MobileOnboardingPager
         onDone={() => {}}
         pages={[
-          { key: "a", title: "Every shop's sales, live", art: <div className="rounded-sheet bg-surface p-3 shadow-dialog"><MobileScrubChart kind="bars" label="Sales today" value="Rp 59,5 jt" data={HOURLY.map((h) => ({ label: h.label, value: h.value }))} height={90} /></div> },
+          { key: "a", title: "Every shop’s sales, live", art: <div className="rounded-sheet bg-surface p-3 shadow-dialog"><MobileScrubChart kind="bars" label="Sales today" value="Rp 59,5 jt" data={HOURLY.map((h) => ({ label: h.label, value: h.value }))} height={90} /></div> },
           { key: "b", title: "Pack every marketplace from one list", art: <div className="grid gap-gap"><MobileStatTile label="To pack" value="12" /><MobileStatTile label="Shipped today" value="64" /></div> },
           { key: "c", title: "Every buyer chat in one inbox", art: <div className="grid gap-1.5"><p className="w-fit rounded-card bg-surface px-3.5 py-2 text-[15px] shadow-card">Can you wrap it as a gift?</p><p className="ml-auto w-fit rounded-card bg-on px-3.5 py-2 text-[15px] text-on-ink">Yes, it ships today.</p></div> },
         ]}
       />
     ),
-    usage: () => `<MobileOnboardingPager\n  pages={[{ key: "sales", title: "Every shop's sales, live", art: <SalesCard /> }, …]}\n  onDone={finish}\n/>`,
+    usage: () => `<MobileOnboardingPager\n  pages={[{ key: "sales", title: "Every shop’s sales, live", art: <SalesCard /> }, …]}\n  onDone={finish}\n/>`,
   },
   "mobile-chat": {
     stage: "phone",
@@ -821,7 +823,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
             value={draft}
             onValueChange={setDraft}
             onAttach={() => {}}
-            suggestions={["Yes, we'll gift wrap it", "It ships today"]}
+            suggestions={["Yes, we’ll gift wrap it", "It ships today"]}
             onSend={(t) => {
               setLines((l) => [...l, { id: `m${l.length}`, mine: true, text: t }]);
               setDraft("");
