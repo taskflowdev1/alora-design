@@ -721,6 +721,7 @@ Files: `src/components/ui/theme-switch.tsx`. Installs too: `segmented`.
 | `onValueChange` (required) | `(value: ThemeChoice) => void` |  | Called inside the transition: set the theme synchronously here (state, class or URL). |
 | `system` | `boolean` | `true` | Leave out "system" for a two-way switch. |
 | `iconOnly` | `boolean` |  | Icons only, with the names as accessible labels. |
+| `within` | `RefObject<Element \| null>` |  | When the switch themes only part of the page (a preview), that part: the circle ends at its far corner. |
 | `className` | `string` |  |  |
 
 ### Step form

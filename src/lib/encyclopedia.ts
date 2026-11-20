@@ -188,7 +188,7 @@ export const RULES: Rule[] = [
     how: "`duration-[220ms] ease-ad` (`--ad-dur` 220 ms, `--ad-ease` `cubic-bezier(0.22, 1, 0.36, 1)`). Sheets enter over 260 ms. Tweens never pass 300 ms.",
     check: "`rg -n \"duration-(3[5-9][0-9]|[4-9][0-9]{2}|[0-9]{4})|duration:\\s*0?\\.([4-9]|3[5-9])|transition[^;]*\\b([4-9][0-9]{2}|[0-9]{4})ms\"`.",
     context: "Elsewhere you’ll see 200 ms as the ceiling for interactions, and 400–500 ms for toasts and drawers. Here 220 ms is the base for everything; a drawer settling after a drag on a phone may run longer.",
-    exempt: "Springs after a drag or flick (judged by when they are within 2 px), hold feedback that runs as long as its hold (the long-press dip), the one wrong-code shake (≤ 360 ms), a success sequence that plays once, and a page-level push such as the Customize flap (≤ 320 ms).",
+    exempt: "Springs after a drag or flick (judged by when they are within 2 px), hold feedback that runs as long as its hold (the long-press dip), the one wrong-code shake (≤ 360 ms), a success sequence that plays once, a page-level push such as the Customize flap (≤ 320 ms), and the theme reveal circle (520 ms ease-in-out: faster, it flashed).",
     sources: ["emil", "uiw", "vercel", "charles"],
   },
   {
@@ -493,7 +493,7 @@ export const RULES: Rule[] = [
     why: "Instant touch feedback makes the UI feel physical.",
     how: "`active:scale-[0.97] transition-transform duration-[150ms] ease-ad`; Card 0.99, select triggers 0.98.",
     check: "After `mouse.down()` on a button, its computed transform scale is between 0.96 and 0.99 and its background is unchanged; a table row stays at `transform: none`.",
-    exempt: "Table rows, menu items, list options, inputs and inline links don’t scale. On touch, edge-to-edge rows press with an instant fill (`mobile.no-hover-only`).",
+    exempt: "Triggers that open a menu, select or popover don’t scale (base.css): the pop-up is placed against the trigger, so a shrinking trigger nudged it on every open and close. Table rows, menu items, list options, inputs and inline links don’t scale. On touch, edge-to-edge rows press with an instant fill (`mobile.no-hover-only`).",
     sources: ["emil", "uiw", "vercel", "charles"],
   },
   {

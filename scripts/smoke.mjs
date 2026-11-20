@@ -296,6 +296,40 @@ await sleep(300);
 const savedText = await page.locator(`button[data-inline-edit][aria-label="Edit ${ieRest.label}"] [data-value]`).textContent();
 check(savedText === "150.000", `inline edit Enter saves (${savedText})`);
 
+// Pop-up triggers keep their size while pressed: a menu is placed against its trigger, so a press-shrink nudged the open
+// menu on the click that closes it. Every trigger on Orders (Shop, Status, Columns, …) stays at scale none under the mouse,
+// and the open Columns menu doesn't move when its trigger is pressed again.
+await page.goto(BASE + "/examples/orders", { waitUntil: "networkidle" });
+await sleep(600);
+const triggers = page.locator('#content :is([aria-haspopup]:not([aria-haspopup="false"]), [role="combobox"]):visible');
+const pressed = [];
+for (let i = 0; i < (await triggers.count()); i++) {
+  const t = triggers.nth(i);
+  const b = await t.boundingBox();
+  if (!b) continue;
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+  await page.mouse.down();
+  await sleep(180);
+  pressed.push(await t.evaluate((el) => `${(el.getAttribute("aria-label") || el.textContent).trim().slice(0, 16)}:${getComputedStyle(el).scale}`));
+  await page.mouse.up();
+  await page.keyboard.press("Escape");
+  await sleep(250);
+}
+check(pressed.length >= 3 && pressed.every((p) => p.endsWith(":none")), `pop-up triggers don't shrink on press (${pressed.join(", ")})`);
+const colsBtn = page.locator('#content button[aria-haspopup]:has-text("Columns")').first();
+await colsBtn.click();
+await sleep(400);
+const menuAt = () => page.evaluate(() => document.querySelector("[data-radix-popper-content-wrapper]")?.getBoundingClientRect().toJSON() ?? null);
+const menuOpen = await menuAt();
+const cb = await colsBtn.boundingBox();
+await page.mouse.move(cb.x + cb.width / 2, cb.y + cb.height / 2);
+await page.mouse.down();
+await sleep(60);
+const menuPressed = await menuAt();
+await page.mouse.up();
+await page.keyboard.press("Escape");
+check(menuOpen && (!menuPressed || (near(menuOpen.x, menuPressed.x) && near(menuOpen.y, menuPressed.y))), `Columns menu stays put when its trigger is pressed again (${JSON.stringify({ menuOpen, menuPressed })})`);
+
 // Nav tabs: Components first, then AI, Backgrounds, Examples, Encyclopedia, Export; the current section is highlighted
 await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
 const tabs = await page.evaluate(() => {

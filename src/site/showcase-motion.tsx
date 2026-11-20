@@ -143,14 +143,15 @@ export function ThemePreview({ system = true, iconOnly = false, className }: { s
   const [choice, setChoice] = React.useState<ThemeChoice>(global.theme);
   const theme = choice === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : choice;
   const config = React.useMemo(() => ({ ...DEFAULTS, ...global, theme }), [global, theme]);
+  const area = React.useRef<HTMLDivElement>(null);
   return (
-    <div className={cn("grid gap-3", className)}>
+    <div ref={area} className={cn("grid gap-3", className)}>
       {/* One box in the chosen theme's page colour (no card inside a frame): just the label and the number. */}
       <TokenScope config={config} className="grid gap-1 rounded-card bg-page px-4 py-3 text-ink">
         <span className="text-body font-medium">Today</span>
         <span className="text-number font-semibold tabular-nums">{formatRp(12_480_000)}</span>
       </TokenScope>
-      <ThemeSwitch value={choice} onValueChange={setChoice} system={system} iconOnly={iconOnly} className="justify-self-start" />
+      <ThemeSwitch value={choice} onValueChange={setChoice} system={system} iconOnly={iconOnly} within={area} className="justify-self-start" />
     </div>
   );
 }

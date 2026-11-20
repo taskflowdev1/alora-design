@@ -129,6 +129,12 @@ html {
 .ad-theme-switch, .ad-theme-switch *, .ad-theme-switch ::before, .ad-theme-switch ::after {
   transition: none !important;
 }
+/* A trigger that opens a menu, list or popover doesn't shrink while pressed. The pop-up is placed against the
+   trigger's box, so a shrinking trigger nudged it a few pixels on every open and close. Unlayered, so it beats
+   each trigger's active:scale utility. */
+:is([aria-haspopup]:not([aria-haspopup="false"]), [role="combobox"]):active {
+  scale: none;
+}
 /* Overlays grow from 0.97 (never from 0) toward the trigger via transform-origin, and leave the same way. */
 @keyframes ad-in {
   from { opacity: 0; transform: scale(0.97); }

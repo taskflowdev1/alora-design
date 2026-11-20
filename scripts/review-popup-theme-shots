@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds BEFORE_REF from git, or a public clone when the frozen copy has no .git)
+# Pop-up trigger press + theme reveal shots into output/popup-theme/: before (BEFORE_REF, default c869184) and after (this tree).
+# ONLY=<regex> (or the first argument) filters by file name.
+set -euo pipefail
+if [ -n "${1:-}" ]; then export ONLY="$1"; fi
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+OUT="${OUT:-output/popup-theme}"
+REF="${BEFORE_REF:-c869184}"
+WORK="${TMPDIR:-/tmp}/popup-theme-review"
+rm -rf "$WORK" && mkdir -p "$WORK/before" "$OUT"
+npx vite build --logLevel warn --outDir "$WORK/dist-after" --emptyOutDir
+if git rev-parse -q --verify "$REF^{commit}" >/dev/null 2>&1; then
+  git archive "$REF" | tar -x -C "$WORK/before"
+else
+  git clone -q --filter=blob:none --no-checkout https://github.com/taskflowdev1/alora-design "$WORK/clone"
+  git -C "$WORK/clone" archive "$REF" | tar -x -C "$WORK/before"
+fi
+(cd "$WORK/before" && npm ci --no-audit --no-fund --loglevel=error && npx vite build --logLevel warn --outDir "$WORK/dist-before" --emptyOutDir)
+BEFORE_DIST="$WORK/dist-before" AFTER_DIST="$WORK/dist-after" REF="$REF" OUT="$OUT" node scripts/review-popup-theme-shots.mjs 2>&1 | tee "$WORK/shots.log"
