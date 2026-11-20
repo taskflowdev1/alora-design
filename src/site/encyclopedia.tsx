@@ -336,7 +336,7 @@ export function EncyclopediaPage() {
                         <button
                           type="button"
                           onClick={() => goTo(to)}
-                          className="flex min-h-row w-full cursor-pointer flex-wrap items-center gap-x-3 rounded-item px-2.5 py-1.5 text-left hover:bg-fill focus-visible:bg-fill"
+                          className="flex min-h-row w-full cursor-pointer flex-wrap items-baseline gap-x-3 rounded-item px-2.5 py-1.5 text-left hover:bg-fill focus-visible:bg-fill"
                         >
                           <code className="font-mono text-[0.92em] text-ink-muted">{from}</code>
                           <span className="text-ink">{ruleTitle(to)}</span>
@@ -351,7 +351,7 @@ export function EncyclopediaPage() {
                 title: "Dropped",
                 meta: <span className="tabular-nums">{Object.keys(DROPPED).length}</span>,
                 content: (
-                  <dl className="grid max-w-[880px] gap-x-4 gap-y-1 px-2.5 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-y-2.5">
+                  <dl className="grid max-w-[880px] items-baseline gap-x-4 gap-y-1 px-2.5 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-y-2.5">
                     {Object.entries(DROPPED).map(([id, why]) => (
                       <React.Fragment key={id}>
                         <dt className="font-mono text-[0.92em] text-ink-muted max-sm:mt-1.5">{id}</dt>
