@@ -5,13 +5,10 @@
 // The ramp lives in src/lib/config.ts (GREY_STEPS, greyRamp, GREY_ROLES). Outside the token definitions, code may use a
 // grey only through a token class or var(--ad-*) with no alpha. A line (or the line before it) with "grey-ok" is image
 // content or an accent choice, not a UI grey; brand marks and flags (BRAND_ART) keep their own colours.
-import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join, relative } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import ts from "typescript";
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { join, relative } from "node:path";
+import { REPO as HERE, loadLib } from "./lib/load-lib.mjs";
 
-const HERE = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : undefined);
 const ROOT = opt("--root") || HERE;
@@ -19,19 +16,6 @@ const ROOT = opt("--root") || HERE;
 const SCAN = ["src", "api"];
 const DEFINITIONS = new Set(["src/lib/config.ts", "src/lib/color.ts"]);
 const BRAND_ART = new Set(["src/components/ui/marketplace-mark.tsx", "src/components/ui/language-picker.tsx"]);
-
-async function loadLib(root) {
-  const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ad-greys-"));
-  writeFileSync(join(tmp, "package.json"), '{"type":"module"}');
-  for (const f of ["config", "color"]) {
-    const src = readFileSync(join(root, `src/lib/${f}.ts`), "utf8");
-    writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
-  }
-  const config = await import(pathToFileURL(join(tmp, "config.js")).href);
-  const color = await import(pathToFileURL(join(tmp, "color.js")).href);
-  rmSync(tmp, { recursive: true, force: true });
-  return { ...config, ...color };
-}
 
 function files(root) {
   const out = [];
@@ -102,7 +86,7 @@ const isNeutral = (lib, rgb) => lib.hexToOklch(toHex(rgb)).c < 0.03;
 /* ------------------------------------------------------------ check */
 
 async function check() {
-  const lib = await loadLib(ROOT);
+  const lib = await loadLib(["config", "color"], { root: ROOT });
   const fail = [];
   // 1. The ramp: at most 6 steps per theme, steps at least 2.5% lightness apart, every grey token on a step, for
   //    every tone and both themes.
@@ -164,7 +148,7 @@ async function check() {
 /* ------------------------------------------------------------ inventory */
 
 async function inventory() {
-  const lib = await loadLib(ROOT);
+  const lib = await loadLib(["config", "color"], { root: ROOT });
   const t = lib.tokens(lib.DEFAULTS);
   const names = greyTokens(lib, t);
   const cls = new RegExp(`(?<![\\w-])(?:[a-z-]+:)*${PREFIX}-(${names.join("|")})(?:/([\\d.]+))?(?![\\w-])`, "g");

@@ -1,23 +1,15 @@
 // Writes the generated parts of README.md (settings table, component table), docs/components.md (every component's
 // props) and docs/ui-checklist.md (the agent checklist) from the source: src/lib/config.ts, src/lib/registry.ts,
 // src/lib/encyclopedia.ts and the component files, read with the TypeScript compiler. `--check` writes nothing and fails when the files are out of date (scripts/verify runs it).
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import ts from "typescript";
+import { REPO as ROOT, loadLib } from "./lib/load-lib.mjs";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
 
-// The pure lib modules, transpiled to a temp folder so their data (DEFAULTS, LIMITS, ITEMS) can be imported.
-const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ad-docs-"));
-for (const f of ["config", "color", "registry", "encyclopedia"]) writeFileSync(join(tmp, `${f}.js`), ts.transpileModule(read(`src/lib/${f}.ts`), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
-const { DEFAULTS, LIMITS, GREY_STEPS, GREY_ROLES, greyRamp } = await import(pathToFileURL(join(tmp, "config.js")).href);
-const { ITEMS, GROUPS, MOBILE_GROUPS, SITE, itemPath } = await import(pathToFileURL(join(tmp, "registry.js")).href);
-const { checklistMarkdown } = await import(pathToFileURL(join(tmp, "encyclopedia.js")).href);
-rmSync(tmp, { recursive: true, force: true });
+const { DEFAULTS, LIMITS, GREY_STEPS, GREY_ROLES, greyRamp, ITEMS, GROUPS, MOBILE_GROUPS, SITE, itemPath, checklistMarkdown } = await loadLib(["config", "registry", "encyclopedia"]);
 
 const parsed = ts.parseJsonConfigFileContent(JSON.parse(read("tsconfig.json")), ts.sys, ROOT);
 const program = ts.createProgram({ rootNames: parsed.fileNames.filter((f) => f.includes("/src/")), options: parsed.options });
@@ -90,6 +82,14 @@ function componentsOf(file) {
   return out;
 }
 
+/** Exported hooks of a file (`useBrush`): listed with the exports, documented by their comment only. */
+function hooksOf(file) {
+  return checker
+    .getExportsOfModule(checker.getSymbolAtLocation(source(file)))
+    .filter((sym) => /^use[A-Z]/.test(sym.name))
+    .map((sym) => ({ name: sym.name, doc: doc(sym), props: [], hook: true }));
+}
+
 const dirOf = (i) => i.dir ?? "ui";
 const files = (i) => i.files.map((f) => `src/components/${dirOf(i)}/${f}`);
 const install = (i) => `npx shadcn@latest add "${SITE}/r/${i.name}.json"`;
@@ -98,7 +98,7 @@ const anchor = (i) => i.name;
 const seen = new Set();
 const parts = Object.fromEntries(
   ITEMS.filter((i) => i.files.length).map((i) => {
-    const all = files(i).flatMap(componentsOf);
+    const all = files(i).flatMap((f) => [...componentsOf(f), ...hooksOf(f)]);
     const kebab = (s) => s.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
     const mine = all.filter((c) => !seen.has(c.name) && (ITEMS.every((o) => o === i || !o.files.length || !files(o).some((f) => files(i).includes(f)) || kebab(c.name) !== o.name)));
     mine.forEach((c) => seen.add(c.name));
@@ -113,8 +113,12 @@ const sections = [
   { title: "Backgrounds", items: ITEMS.filter((i) => i.group === "Backgrounds") },
 ];
 
+// An item that installs a file an earlier item already lists (the touch-size twin of a desktop part) points there.
+const sharedWith = (i) => (parts[i.name]?.length ? undefined : ITEMS.find((o) => o !== i && parts[o.name]?.length && files(o).some((f) => files(i).includes(f))));
+
 function propSummary(i) {
   if (!i.files.length) return "Set by the theme (see Settings)";
+  if (sharedWith(i)) return `same as \`${sharedWith(i).name}\``;
   const list = (parts[i.name] ?? []).flatMap((c) => c.props.map((p) => `\`${p.name}${p.def !== undefined ? `=${p.def}` : ""}\``));
   const uniq = [...new Set(list)];
   return uniq.length ? uniq.join(", ") : "none";
@@ -125,7 +129,7 @@ function componentTable() {
   for (const s of sections) {
     out.push(`### ${s.title}`, "", "| Component | Install name | Exports | Props (`=default`) |", "| --- | --- | --- | --- |");
     for (const i of s.items)
-      out.push(`| [${i.title}](${SITE}${itemPath(i)}) | ${i.files.length ? `\`${i.name}\`` : "in `theme`"} | ${(parts[i.name] ?? []).map((c) => `\`${c.name}\``).join(", ") || "—"} | ${cell(propSummary(i))} |`);
+      out.push(`| [${i.title}](${SITE}${itemPath(i)}) | ${i.files.length ? `\`${i.name}\`` : "in `theme`"} | ${(parts[i.name] ?? []).map((c) => `\`${c.name}\``).join(", ") || (sharedWith(i) ? `same as \`${sharedWith(i).name}\`` : "—")} | ${cell(propSummary(i))} |`);
     out.push("");
   }
   return out.join("\n").trim();
@@ -154,6 +158,7 @@ function componentsDoc() {
         for (const p of i.params) out.push(`| ${p.label} | \`${p.key}\` | \`${p.default}\` | ${p.type === "range" ? `${p.min}–${p.max}${p.unit ? ` ${p.unit}` : ""}` : p.type === "select" ? p.options.map((o) => `\`${o}\``).join(", ") : p.type} |`);
         out.push("");
       }
+      if (sharedWith(i)) out.push(`Same file as [${sharedWith(i).title}](#${anchor(sharedWith(i))}); see its props there.`, "");
       for (const c of parts[i.name] ?? []) {
         out.push(`\`${c.name}\`${c.doc ? `: ${c.doc}` : ""}`, "");
         if (c.props.length) {
