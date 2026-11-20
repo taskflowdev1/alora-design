@@ -33,14 +33,14 @@ export interface ScreenDef {
 
 const L = ["mobile-nav-bar", "mobile-list"];
 export const SCREENS: ScreenDef[] = [
-  { id: "home", title: "Today", tab: "home", Component: HomeScreen, parts: ["mobile-tab-bar", ...L, "mobile-scrub-chart", "mobile-kpi-carousel", "mobile-badge", "mobile-banner"], states: [{ key: "offline", title: "Home, offline" }] },
+  { id: "home", title: "Home", tab: "home", Component: HomeScreen, parts: ["mobile-tab-bar", ...L, "mobile-scrub-chart", "mobile-stat-tiles", "mobile-action-bar", "mobile-badge", "mobile-banner"], states: [{ key: "offline", title: "Home, offline" }] },
   { id: "notifications", title: "Notifications", tab: "home", parent: "home", Component: NotificationsScreen, parts: [...L, "mobile-swipe-row", "mobile-snackbar", "mobile-empty-state"], states: [{ key: "empty", title: "Notifications, all cleared" }] },
   { id: "search", title: "Search", tab: "home", parent: "home", Component: SearchScreen, parts: [...L, "mobile-search-bar", "mobile-empty-state"], states: [{ key: "empty", title: "Search, no results" }] },
   { id: "reports", title: "Reports", tab: "home", parent: "home", Component: ReportsScreen, parts: [...L, "mobile-filter-chips", "mobile-date-range", "mobile-scrub-chart", "mobile-stat-tiles"], states: [{ key: "error", title: "Reports, failed to load" }] },
   { id: "orders", title: "Orders", tab: "orders", Component: OrdersScreen, parts: ["mobile-tab-bar", ...L, "mobile-search-bar", "mobile-segmented", "mobile-swipe-row", "mobile-context-menu", "mobile-pull-refresh", "mobile-list-skeleton"] },
   { id: "order", title: (p) => p.id ?? "Order", tab: "orders", parent: "orders", Component: OrderScreen, parts: [...L, "mobile-steps", "mobile-timeline", "mobile-stepper", "mobile-action-bar", "mobile-action-sheet", "mobile-sheet", "mobile-date-picker"] },
   { id: "delivery", title: "Proof of delivery", tab: "orders", parent: "order", Component: DeliveryScreen, parts: [...L, "mobile-photo-picker", "mobile-upload-row", "mobile-text-field", "mobile-signature", "mobile-action-bar"] },
-  { id: "products", title: "Products", tab: "products", Component: ProductsScreen, parts: ["mobile-tab-bar", ...L, "mobile-search-bar", "mobile-filter-chips", "mobile-list-skeleton"] },
+  { id: "products", title: "Products", tab: "products", Component: ProductsScreen, parts: ["mobile-tab-bar", ...L, "mobile-search-bar", "mobile-filter-chips", "mobile-list-skeleton", "mobile-action-bar", "mobile-modal"] },
   { id: "product", title: (p) => PRODUCTS.find((x) => x.sku === p.sku)?.name ?? "Product", tab: "products", parent: "products", Component: ProductScreen, parts: [...L, "mobile-kpi-carousel", "mobile-stat-tiles", "mobile-scrub-chart", "mobile-action-bar"] },
   {
     id: "product-edit",
@@ -151,7 +151,7 @@ function Stack({ entries, nav, state, onDone }: { entries: Entry[]; nav: Nav; st
             }}
             onAnimationEnd={(ev) => ev.target === ev.currentTarget && e.phase === "out" && onDone(e.key)}
           >
-            <def.Component params={e.params} state={e === top ? state : undefined} back={prev ? { label: titleOf(prev), onClick: nav.pop } : undefined} />
+            <def.Component params={e.params} state={e === top ? state : undefined} back={prev ? { label: titleOf(prev), onClick: () => nav.pop() } : undefined} />
           </div>
         );
       })}
@@ -188,12 +188,15 @@ function AppShell({ screen = "home", params = {}, state }: MobileAppProps) {
       setS((st) => (st.cover ? { ...st, cover: fn(st.cover) } : { ...st, stacks: { ...st.stacks, [st.tab]: fn(st.stacks[st.tab]) } }));
     return {
       push: (id, p) => (setForced(undefined), edit((l) => [...l, entry(id, p)])),
-      pop: () =>
+      pop: (n = 1) =>
         edit((l) => {
           const live = l.filter((e) => e.phase !== "out");
-          if (live.length < 2) return l;
+          const k = Math.min(n, live.length - 1);
+          if (k < 1) return l;
           const top = live[live.length - 1];
-          return l.map((e) => (e === top ? { ...e, phase: "out" } : e));
+          // The top slides out; the ones between it and the landing screen leave at once, under it.
+          const skip = new Set(live.slice(live.length - k, live.length - 1));
+          return l.filter((e) => !skip.has(e)).map((e) => (e === top ? { ...e, phase: "out" } : e));
         }),
       replace: (id, p) => edit((l) => [...l.slice(0, -1), entry(id, p, "fade")]),
       setTab: (tab) => setS((st) => ({ ...st, tab, visited: st.visited.includes(tab) ? st.visited : [...st.visited, tab], cover: null })),

@@ -118,7 +118,7 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
               type="button"
               disabled={busy}
               onClick={() => send(s)}
-              className={cn("h-touch shrink-0 cursor-pointer whitespace-nowrap bg-fill px-3.5 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.96] active:bg-fill-strong disabled:opacity-45 [-webkit-tap-highlight-color:transparent]", round)}
+              className={cn("h-touch shrink-0 cursor-pointer whitespace-nowrap bg-fill px-3.5 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.96] active:bg-fill-strong disabled:opacity-45 [-webkit-tap-highlight-color:transparent]", round)}
             >
               {s}
             </button>
@@ -127,7 +127,7 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
       ) : null}
       <div className="flex items-end gap-1">
         {onAttach ? (
-          <button type="button" aria-label="Attach" onClick={onAttach} className={cn("grid size-touch shrink-0 cursor-pointer place-items-center text-ink transition-transform duration-[150ms] ease-ad active:scale-[0.9] [-webkit-tap-highlight-color:transparent]", round)}>
+          <button type="button" aria-label="Attach" onClick={onAttach} className={cn("grid size-touch shrink-0 cursor-pointer place-items-center text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.9] [-webkit-tap-highlight-color:transparent]", round)}>
             <Paperclip size={20} strokeWidth={1.75} />
           </button>
         ) : null}
@@ -150,7 +150,7 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
           className={cn(
             "grid size-touch shrink-0 cursor-pointer place-items-center transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.9] disabled:cursor-default [-webkit-tap-highlight-color:transparent]",
             round,
-            can ? "bg-brand text-brand-ink" : "bg-fill text-ink-muted",
+            can ? "bg-brand text-brand-ink focus-visible:bg-brand-hover" : "bg-fill text-ink-muted",
           )}
         >
           <ArrowUp size={20} strokeWidth={2} />

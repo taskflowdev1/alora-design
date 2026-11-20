@@ -38,7 +38,8 @@ type Preset = "today" | "7d" | "30d" | "month";
 
 /**
  * A date range on a phone: quick ranges on top, then one month. Tap a start day, then an end day; the days between
- * fill as one soft band with rounded ends, the two ends in ink. Swipe the month sideways (or use the arrows) to move.
+ * fill as one soft band with rounded ends, the two ends in ink. Swipe the month sideways (or use the arrows) to move:
+ * the month follows the finger, and lets go to the next one past 48 px or on a flick, or springs back.
  * The sheet edits a draft; the button names the range it will show. Future days are off.
  */
 export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", value, onValueChange, today = new Date() }: MobileDateRangeSheetProps) {
@@ -79,9 +80,18 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
   const cells: (Date | null)[] = [...Array.from({ length: first }, () => null), ...Array.from({ length: count }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1))];
   while (cells.length % 7) cells.push(null);
   const end = to ?? from;
-  const swipe = React.useRef<{ x: number; y: number } | null>(null);
+  const swipe = React.useRef<{ x: number; y: number; t: number; lock: "" | "x" | "y"; dx: number; moved: boolean } | null>(null);
+  const grid = React.useRef<HTMLDivElement>(null);
+  const swiped = React.useRef(false);
+  const moveGrid = (x: number, ms = 0, fade = false) => {
+    const el = grid.current;
+    if (!el) return;
+    el.style.transition = ms ? `transform ${ms}ms var(--ad-ease), opacity ${ms}ms var(--ad-ease)` : "none";
+    el.style.transform = x ? `translateX(${x}px)` : "";
+    el.style.opacity = fade ? "0" : "";
+  };
   const canNext = new Date(month.getFullYear(), month.getMonth() + 1, 1) <= t0;
-  const nav = "grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-transform duration-[150ms] ease-ad active:scale-[0.92] disabled:pointer-events-none disabled:opacity-30 [-webkit-tap-highlight-color:transparent]";
+  const nav = "grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.92] disabled:pointer-events-none disabled:opacity-30 [-webkit-tap-highlight-color:transparent]";
   return (
     <MobileSheet
       open={open}
@@ -122,13 +132,41 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
         </div>
         <div
           className="grid touch-pan-y select-none"
-          onPointerDown={(e) => (swipe.current = { x: e.clientX, y: e.clientY })}
-          onPointerUp={(e) => {
+          onPointerDown={(e) => ((swiped.current = false), (swipe.current = { x: e.clientX, y: e.clientY, t: performance.now(), lock: "", dx: 0, moved: false }))}
+          onPointerMove={(e) => {
             const s = swipe.current;
-            swipe.current = null;
             if (!s) return;
             const dx = e.clientX - s.x;
-            if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(e.clientY - s.y) * 1.5) go(dx < 0 ? 1 : -1);
+            const dy = e.clientY - s.y;
+            if (!s.lock) {
+              if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+              s.lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+              if (s.lock === "x") e.currentTarget.setPointerCapture(e.pointerId);
+            }
+            if (s.lock !== "x") return;
+            s.moved = true;
+            // Towards a month that can't be shown (the future), it only gives a little.
+            s.dx = dx < 0 && !canNext ? dx * 0.25 : dx;
+            moveGrid(s.dx);
+          }}
+          onPointerUp={() => {
+            const s = swipe.current;
+            swipe.current = null;
+            if (!s || s.lock !== "x") return;
+            swiped.current = true;
+            const flick = Math.abs(s.dx) / Math.max(1, performance.now() - s.t) > 0.5;
+            const n = s.dx < 0 ? 1 : -1;
+            if ((Math.abs(s.dx) > 48 || (flick && Math.abs(s.dx) > 16)) && (n < 0 || canNext)) {
+              // Out the way it went; the next month comes in from the other side.
+              moveGrid(n * -(grid.current?.offsetWidth ?? 320) * 0.5, 140, true);
+              window.setTimeout(() => (moveGrid(0), go(n)), 140);
+            } else moveGrid(0, 240);
+          }}
+          onPointerCancel={() => ((swipe.current = null), moveGrid(0, 240))}
+          onClickCapture={(e) => {
+            // The click that ends a swipe is not a tap on a day.
+            if (swiped.current) e.stopPropagation();
+            swiped.current = false;
           }}
         >
           <div aria-hidden className="grid grid-cols-7 pb-1 text-center text-[13px] text-ink-muted">
@@ -137,6 +175,7 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
             ))}
           </div>
           <div
+            ref={grid}
             key={`${month.getFullYear()}-${month.getMonth()}`}
             role="grid"
             aria-label={`${FULL[month.getMonth()]} ${month.getFullYear()}`}
@@ -163,13 +202,13 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
                   aria-label={`${d.getDate()} ${FULL[d.getMonth()]}`}
                   disabled={future}
                   onClick={() => tap(d)}
-                  className="group/day relative grid h-touch cursor-pointer place-items-center text-[16px] tabular-nums [-webkit-tap-highlight-color:transparent] disabled:cursor-default disabled:text-ink-muted disabled:opacity-40"
+                  className="group/day relative grid h-touch cursor-pointer place-items-center text-[16px] tabular-nums outline-none [-webkit-tap-highlight-color:transparent] disabled:cursor-default disabled:text-ink-muted disabled:opacity-40"
                 >
                   {band ? <span aria-hidden className={cn("absolute inset-y-0 inset-x-0 bg-fill", roundL && "left-[3px] rounded-l-control", roundR && "right-[3px] rounded-r-control")} /> : null}
                   <span
                     className={cn(
                       "relative grid size-[40px] place-items-center rounded-control transition-[background-color,transform] duration-[150ms] ease-ad group-active/day:scale-[0.92]",
-                      isFrom || (to && isTo) ? "bg-on font-semibold text-on-ink" : same(d, t0) ? "font-semibold text-ink" : "text-ink",
+                      isFrom || (to && isTo) ? "bg-on font-semibold text-on-ink group-focus-visible/day:bg-ink-muted" : cn(same(d, t0) ? "font-semibold text-ink" : "text-ink", "group-focus-visible/day:bg-fill-strong"),
                     )}
                   >
                     {d.getDate()}

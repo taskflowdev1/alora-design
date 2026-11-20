@@ -66,8 +66,9 @@ export function MobileFilterChips<T extends string>({ value, onValueChange, opti
               aria-pressed={on}
               onClick={() => onValueChange(o.value)}
               className={cn(
-                "relative flex h-touch min-w-touch shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-control px-3.5 text-[15px] [-webkit-tap-highlight-color:transparent] transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
-                on ? "font-medium text-ink" : "text-ink-muted",
+                "relative flex h-touch min-w-touch shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-control px-3.5 text-[15px] [-webkit-tap-highlight-color:transparent] transition-[color,background-color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
+                // Keyboard focus: a fill on the others; the chosen one (on the grey pill) darkens its text and pill.
+                on ? "font-medium text-ink focus-visible:bg-ink-muted focus-visible:text-surface" : "text-ink-muted focus-visible:bg-fill focus-visible:text-ink",
               )}
             >
               {/* Bold and regular take the same width, so nothing shifts when the choice moves. */}

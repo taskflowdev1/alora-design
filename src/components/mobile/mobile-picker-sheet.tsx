@@ -18,7 +18,7 @@ export interface PickerOption {
 }
 
 const row =
-  "relative flex min-h-touch w-full cursor-pointer touch-manipulation select-none items-center gap-3 rounded-control px-3 py-1.5 text-left [-webkit-tap-highlight-color:transparent] transition-transform duration-[120ms] ease-ad active:scale-[0.99]";
+  "relative flex min-h-touch w-full cursor-pointer touch-manipulation select-none items-center gap-3 rounded-control px-3 py-1.5 text-left outline-none [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[120ms] ease-ad active:scale-[0.99] focus-visible:bg-fill aria-checked:focus-visible:bg-ink-muted aria-checked:focus-visible:text-surface";
 /** Search shows once a list is longer than this. */
 const SEARCH_FROM = 8;
 
@@ -141,7 +141,7 @@ export function MobileMultiSelectSheet({ open, onOpenChange, title, options, val
                 type="button"
                 aria-label={`Remove ${o.label}`}
                 onClick={() => toggle(o.value)}
-                className="flex h-touch shrink-0 cursor-pointer items-center gap-1.5 rounded-control bg-fill-strong pl-3.5 pr-2.5 text-[15px] text-ink animate-[ad-fade-in_160ms_var(--ad-ease)] transition-transform duration-[150ms] ease-ad active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
+                className="flex h-touch shrink-0 cursor-pointer items-center gap-1.5 rounded-control bg-fill-strong pl-3.5 pr-2.5 text-[15px] text-ink animate-[ad-fade-in_160ms_var(--ad-ease)] transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-ink-muted focus-visible:text-surface active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
               >
                 {o.label}
                 <X size={16} strokeWidth={2} className="text-ink-muted" />

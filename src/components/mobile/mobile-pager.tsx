@@ -41,7 +41,7 @@ export function MobileOnboardingPager({ pages, onDone, doneLabel = "Get started"
         <button
           type="button"
           onClick={onDone}
-          className={cn("h-touch cursor-pointer rounded-control px-3 text-[16px] text-ink transition-[opacity,transform] duration-[200ms] ease-ad active:scale-[0.96]", last && "pointer-events-none opacity-0")}
+          className={cn("h-touch cursor-pointer rounded-control px-3 text-[16px] text-ink transition-[background-color,opacity,transform] duration-[200ms] ease-ad focus-visible:bg-fill active:scale-[0.96]", last && "pointer-events-none opacity-0")}
           tabIndex={last ? -1 : 0}
         >
           Skip
@@ -67,7 +67,7 @@ export function MobileOnboardingPager({ pages, onDone, doneLabel = "Get started"
           {pages.map((p, i) => {
             const near = Math.max(0, 1 - Math.abs(pos - i));
             return (
-              <button key={p.key} type="button" aria-label={`Page ${i + 1}`} aria-current={i === at ? "true" : undefined} onClick={() => go(i)} className="grid size-touch cursor-pointer place-items-center [-webkit-tap-highlight-color:transparent]">
+              <button key={p.key} type="button" aria-label={`Page ${i + 1}`} aria-current={i === at ? "true" : undefined} onClick={() => go(i)} className="grid size-touch cursor-pointer place-items-center rounded-control [-webkit-tap-highlight-color:transparent] focus-visible:bg-fill">
                 {/* Width follows the swipe position, so the dot stretches between pages instead of jumping. */}
                 <span className="h-[7px] rounded-full bg-ink" style={{ width: 7 + near * 13, opacity: 0.25 + near * 0.75 }} />
               </button>

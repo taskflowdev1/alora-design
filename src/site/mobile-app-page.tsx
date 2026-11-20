@@ -32,7 +32,7 @@ export function MobileAppPage() {
   const state = query.get("state") ?? undefined;
   const params: Record<string, string> = {};
   query.forEach((v, k) => {
-    if (!["state", "at", "t", "r", "c", "k", "p", "h", "a", "g", "sh", "f"].includes(k)) params[k] = v;
+    if (!["state", "at", "keyboard", "t", "r", "c", "k", "p", "h", "a", "g", "sh", "f"].includes(k)) params[k] = v;
   });
   if (at === "actions") params.actions = "1";
   const app = <MobileApp key={`${screen}?${query.toString()}`} screen={screen} params={params} state={state} />;
@@ -55,11 +55,11 @@ export function MobileAppPage() {
       ) : (
         <main data-mobile-app className="grid min-h-dvh place-items-center gap-4 bg-page px-4 py-8">
           <div className="grid w-[390px] max-w-full gap-4">
-            <SLink to="/mobile" className="inline-flex h-control w-fit items-center gap-1 rounded-control pl-1.5 pr-3 text-body text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill">
+            <SLink to="/mobile" className="inline-flex h-control w-fit items-center gap-1 rounded-control pl-1.5 pr-3 text-body text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill">
               <ChevronLeft size={18} />
               Mobile components
             </SLink>
-            <PhoneFrame>{app}</PhoneFrame>
+            <PhoneFrame keyboard={query.get("keyboard") === "1"}>{app}</PhoneFrame>
           </div>
         </main>
       )}

@@ -23,15 +23,15 @@ import {
   WifiOff,
   XCircle,
   Camera,
+  ShoppingCart,
 } from "react-feather";
-import { formatDate, formatRp } from "@/lib/ad";
+import { formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Thumb } from "@/components/ui/thumb";
 import { Steps } from "@/components/ui/steps";
-import { MobileScreen, MobileBarButton } from "@/components/mobile/mobile-nav-bar";
+import { MobileScreen, MobileBarButton, MobileBarTextButton } from "@/components/mobile/mobile-nav-bar";
 import { MobileList, MobileListRow, MobileListSkeleton } from "@/components/mobile/mobile-list";
 import { SwipeRow, type SwipeAction } from "@/components/mobile/mobile-swipe-row";
 import { PullToRefresh } from "@/components/mobile/mobile-pull-refresh";
@@ -39,9 +39,9 @@ import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
 import { MobileSheet } from "@/components/mobile/mobile-sheet";
 import { MobileActionSheet } from "@/components/mobile/mobile-action-sheet";
 import { MobileDateSheet } from "@/components/mobile/mobile-wheel-picker";
-import { MobileActionBar } from "@/components/mobile/mobile-action-bar";
+import { MobileActionBar, MobileFab } from "@/components/mobile/mobile-action-bar";
 import { MobileScrubChart } from "@/components/mobile/mobile-scrub-chart";
-import { MobileKpiCarousel, MobileKpiCard, MobileStatGrid, MobileStatTile } from "@/components/mobile/mobile-stats";
+import { MobileStatGrid, MobileStatTile } from "@/components/mobile/mobile-stats";
 import { MobileBanner, useOnline } from "@/components/mobile/mobile-banner";
 import { BadgeAnchor, CountBadge } from "@/components/mobile/mobile-badge";
 import { MobileFilterChips } from "@/components/mobile/mobile-chip-row";
@@ -54,7 +54,7 @@ import { MobileTextField } from "@/components/mobile/mobile-text-field";
 import { MobileSignaturePad } from "@/components/mobile/mobile-signature";
 import { DAILY, HOURLY, NOW, ORDERS, PRODUCTS, smartTime, type Order } from "./data";
 import { CAMERA_ROLL, CUSTOMERS, NOTIFS, productPhoto, type Notif } from "./mobile-data";
-import { COURIERS, CourierPicker, SectionTitle, short, useNav, type ScreenProps } from "./mobile-app-kit";
+import { COURIERS, CourierPicker, ScreenEmpty, SectionTitle, rowTime, short, smartDay, useNav, type ScreenProps } from "./mobile-app-kit";
 
 const photoOf = (items: string) => {
   const p = PRODUCTS.find((x) => items.startsWith(x.name));
@@ -72,15 +72,17 @@ export function HomeScreen({ state }: ScreenProps) {
   const sales = HOURLY.reduce((s, h) => s + h.value, 0);
   const low = PRODUCTS.filter((p) => p.stock <= 3);
   return (
+    <>
     <MobileScreen
-      title="Today"
+      title="Home"
+      bottomInset="tab-bar-fab"
       trailing={
         <>
           <MobileBarButton aria-label="Search" onClick={() => nav.push("search")}>
             <SearchIcon />
           </MobileBarButton>
-          <MobileBarButton aria-label="Notifications, 7 new" onClick={() => nav.push("notifications")}>
-            <BadgeAnchor badge={<CountBadge count={NOTIFS.length} />}>
+          <MobileBarButton aria-label={`Notifications, ${NOTIFS.filter((n) => n.unread).length} new`} onClick={() => nav.push("notifications")}>
+            <BadgeAnchor badge={<CountBadge count={NOTIFS.filter((n) => n.unread).length} />}>
               <Bell />
             </BadgeAnchor>
           </MobileBarButton>
@@ -106,15 +108,14 @@ export function HomeScreen({ state }: ScreenProps) {
             />
           </div>
         </div>
+        {/* The four numbers an owner checks, all at once (2 × 2), instead of one per swipe. */}
         <div className="px-pad">
-          <MobileKpiCarousel aria-label="Key numbers">
-            <MobileKpiCard label="Orders" value="86">
-              <MobileScrubChart label="Orders" value="86" data={HOURLY.map((h, i) => ({ label: `${h.label}:00`, value: Math.round(h.value * 1.6 + (i % 3)), display: `${Math.round(h.value * 1.6 + (i % 3))} orders` }))} height={56} className="[&>figcaption]:hidden" />
-            </MobileKpiCard>
-            <MobileKpiCard label="Average basket" value="Rp 149.300" />
-            <MobileKpiCard label="To pack" value={toPack} />
-            <MobileKpiCard label="Returns this week" value="2" />
-          </MobileKpiCarousel>
+          <MobileStatGrid>
+            <MobileStatTile label="Orders" value="86" />
+            <MobileStatTile label="Average basket" value="Rp 149.300" />
+            <MobileStatTile label="To pack" value={toPack} onClick={() => nav.setTab("orders")} />
+            <MobileStatTile label="Returns this week" value="2" />
+          </MobileStatGrid>
         </div>
         <div>
           <SectionTitle>Needs you</SectionTitle>
@@ -128,6 +129,9 @@ export function HomeScreen({ state }: ScreenProps) {
         </div>
       </div>
     </MobileScreen>
+    {/* The cashier's most frequent action, in thumb reach (it stays in More too). */}
+    <MobileFab icon={ShoppingCart} label="New sale" onClick={() => nav.push("pos")} />
+    </>
   );
 }
 
@@ -137,7 +141,7 @@ function AttentionCard({ icon: I, media, title, meta, onClick }: { icon?: React.
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[60px] w-full cursor-pointer items-center gap-3 rounded-card bg-surface px-pad py-2.5 text-left shadow-card transition-transform duration-[150ms] ease-ad active:scale-[0.98] [-webkit-tap-highlight-color:transparent]"
+      className="flex min-h-[60px] w-full cursor-pointer items-center gap-3 rounded-card bg-surface px-pad py-2.5 text-left shadow-card transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.98] [-webkit-tap-highlight-color:transparent]"
     >
       {media ?? (I ? <span className="grid size-[40px] shrink-0 place-items-center rounded-small bg-fill text-ink"><I size={20} strokeWidth={1.75} /></span> : null)}
       <span className="grid min-w-0 flex-1 gap-0.5">
@@ -170,7 +174,7 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
           const I = NOTIF_ICON[n.kind];
           return (
             <SwipeRow key={n.id} trailing={[{ label: "Clear", icon: Check, onSelect: () => clear(n) }]}>
-              <MobileListRow media={<I />} title={n.title} subtitle={n.time} onClick={() => open(n)} />
+              <MobileListRow media={<I />} title={n.title} subtitle={n.time} value={n.unread ? <CountBadge dot aria-label="Unread" /> : undefined} onClick={() => open(n)} />
             </SwipeRow>
           );
         })}
@@ -184,17 +188,15 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
       bottomInset="none"
       trailing={
         list.length ? (
-          <button
-            type="button"
+          <MobileBarTextButton
             onClick={() => {
               const before = list;
               setList([]);
               nav.snack("All cleared", () => setList(before));
             }}
-            className="h-touch cursor-pointer rounded-control px-2.5 text-[15px] font-medium text-ink transition-transform duration-[150ms] ease-ad active:scale-[0.96]"
           >
             Clear all
-          </button>
+          </MobileBarTextButton>
         ) : null
       }
     >
@@ -204,7 +206,7 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
           {group("Earlier", earlier)}
         </div>
       ) : (
-        <EmptyState icon={Bell} title="No notifications" className="py-40" />
+        <ScreenEmpty icon={Bell} title="No notifications" />
       )}
     </MobileScreen>
   );
@@ -229,7 +231,7 @@ export function SearchScreen({ back, params, state }: ScreenProps) {
           ))}
         </MobileList>
       ) : none ? (
-        <EmptyState icon={SearchIcon} title={`Nothing matches “${q}”`} className="py-32" />
+        <ScreenEmpty icon={SearchIcon} title={`Nothing matches “${q}”`} />
       ) : (
         <div className="grid gap-5">
           {products.length ? (
@@ -242,7 +244,7 @@ export function SearchScreen({ back, params, state }: ScreenProps) {
           {orders.length ? (
             <MobileList title="Orders">
               {orders.map((o) => (
-                <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={`${o.id} · ${smartTime(o.at)}`} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
+                <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.id}`} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
               ))}
             </MobileList>
           ) : null}
@@ -279,6 +281,10 @@ export function ReportsScreen({ back, state }: ScreenProps) {
   const k = shop === "all" ? 1 : 0.22 + SHOP_FILTERS.findIndex((s) => s.value === shop) * 0.04;
   const data = DAILY.slice(-Math.min(30, days)).map((d) => ({ label: `${d.label} ${["Oct", "Nov"][Number(d.label) > 16 ? 0 : 1]}`, value: +(d.value * k).toFixed(1), display: `Rp ${(d.value * k).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt` }));
   const total = data.reduce((s, d) => s + d.value, 0);
+  // Every number on the screen follows the range and the shop (r: this range against the default 14 days).
+  const r = (days / 14) * k;
+  const orders = Math.round(total * 6.4);
+  const n = (v: number) => v.toLocaleString("id-ID");
   const retry = () => {
     setPhase("loading");
     window.setTimeout(() => setPhase("ready"), 700);
@@ -327,21 +333,23 @@ export function ReportsScreen({ back, state }: ScreenProps) {
               </div>
               <div className="px-pad">
                 <MobileStatGrid>
-                  <MobileStatTile label="Orders" value={Math.round(total * 6.4)} loading={phase === "loading"} />
-                  <MobileStatTile label="Average basket" value="Rp 149.300" loading={phase === "loading"} />
-                  <MobileStatTile label="Returns" value="4" loading={phase === "loading"} />
-                  <MobileStatTile label="Cancelled" value="7" loading={phase === "loading"} />
+                  <MobileStatTile label="Orders" value={n(orders)} loading={phase === "loading"} />
+                  <MobileStatTile label="Average basket" value={formatRp(Math.round(((total * 1e6) / Math.max(1, orders)) / 100) * 100)} loading={phase === "loading"} />
+                  <MobileStatTile label="Returns" value={n(Math.max(0, Math.round(4 * r)))} loading={phase === "loading"} />
+                  <MobileStatTile label="Cancelled" value={n(Math.max(0, Math.round(7 * r)))} loading={phase === "loading"} />
                 </MobileStatGrid>
               </div>
               <div className="px-pad">
                 <div className="rounded-card bg-surface p-pad shadow-card">
-                  <MobileScrubChart label="Orders per day" value={`${Math.round(total * 6.4)} orders`} data={data.map((d) => ({ label: d.label, value: Math.round(d.value * 6.4), display: `${Math.round(d.value * 6.4)} orders` }))} height={88} labelEvery={days > 14 ? 7 : 3} />
+                  {/* The headline is the daily average: the total is already on the Orders tile. */}
+                  <MobileScrubChart label="Orders per day" value={`${n(Math.round(orders / data.length))} a day`} data={data.map((d) => ({ label: d.label, value: Math.round(d.value * 6.4), display: `${n(Math.round(d.value * 6.4))} orders` }))} height={88} labelEvery={days > 14 ? 7 : 3} />
                 </div>
               </div>
               <MobileList title="Best sellers">
-                {PRODUCTS.slice(0, 5).map((p, i) => (
-                  <MobileListRow key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />} title={p.name} subtitle={`${42 - i * 7} sold`} value={short((42 - i * 7) * p.price)} />
-                ))}
+                {PRODUCTS.slice(0, 5).map((p, i) => {
+                  const sold = Math.max(1, Math.round((42 - i * 7) * r));
+                  return <MobileListRow key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />} title={p.name} subtitle={`${n(sold)} sold`} value={short(sold * p.price)} />;
+                })}
               </MobileList>
             </>
           )}
@@ -391,10 +399,19 @@ export function OrdersScreen({ state }: ScreenProps) {
         ? [{ label: "Shipped", icon: Truck, tone: "accent", onSelect: () => act(o, "Shipped", `${o.id} shipped`) }]
         : [{ label: "Archive", icon: Archive, onSelect: () => act(o, "Cancelled", `${o.id} archived`) }];
   const list = state === "empty" ? [] : orders.filter((o) => STAGE_OF(o) === stage && (!q || `${o.customer} ${o.items} ${o.id}`.toLowerCase().includes(q.toLowerCase())));
+  const count = (s: Stage) => orders.filter((o) => STAGE_OF(o) === s).length;
+  const STAGES: { value: Stage; label: string }[] = [
+    { value: "pack", label: "To pack" },
+    { value: "ship", label: "To ship" },
+    { value: "done", label: "Shipped" },
+  ];
+  // The long-press menu says what it will do, as verbs (the swipe buttons are too narrow for that).
+  const verb: Record<string, string> = { Packed: "Mark packed", Cancel: "Cancel order", Shipped: "Mark shipped", Archive: "Archive" };
   return (
     <>
       <MobileScreen
         title="Orders"
+        barTitle={STAGES.find((s) => s.value === stage)?.label}
         header={
           <>
             <MobileSearchBar value={q} onValueChange={setQ} placeholder="Customer, item or order" />
@@ -404,29 +421,26 @@ export function OrdersScreen({ state }: ScreenProps) {
               value={stage}
               onValueChange={setStage}
               className="w-full"
-              options={[
-                { value: "pack", label: "To pack" },
-                { value: "ship", label: "To ship" },
-                { value: "done", label: "Shipped" },
-              ]}
+              options={STAGES.map((s) => ({ value: s.value, label: `${s.label} ${count(s.value)}` }))}
             />
           </>
         }
       >
         <PullToRefresh onRefresh={() => new Promise((r) => window.setTimeout(r, 1200))}>
           {loading ? (
-            <MobileListSkeleton rows={7} />
+            // The same rows the list will have (count, thumbnail, two lines, value), so nothing moves when it lands.
+            <MobileListSkeleton rows={Math.max(1, list.length)} />
           ) : list.length === 0 ? (
-            <EmptyState icon={q ? SearchIcon : Package} title={q ? "No orders match" : "Nothing to pack"} className="py-20" />
+            <ScreenEmpty icon={q ? SearchIcon : Package} title={q ? "No orders match" : stage === "pack" ? "Nothing to pack" : stage === "ship" ? "Nothing to ship" : "Nothing shipped yet"} />
           ) : (
             <MobileList>
               {list.map((o) => (
                 <SwipeRow key={o.id} trailing={actions(o)}>
-                  <MobileContextMenu aria-label={o.id} actions={actions(o).map((a) => ({ label: a.label, icon: a.icon, onSelect: a.onSelect, destructive: a.tone === "danger" }))}>
+                  <MobileContextMenu aria-label={o.id} actions={actions(o).map((a) => ({ label: verb[a.label] ?? a.label, icon: a.icon, onSelect: a.onSelect, destructive: a.tone === "danger" }))}>
                     <MobileListRow
                       media={<OrderThumb o={o} />}
                       title={o.customer}
-                      subtitle={`${o.items} · ${smartTime(o.at)}`}
+                      subtitle={`${rowTime(o.at)} · ${o.items}`}
                       value={short(o.total)}
                       onClick={() => nav.push("order", { id: o.id })}
                     />
@@ -450,6 +464,12 @@ export function OrderScreen({ params, back }: ScreenProps) {
   const [actions, setActions] = React.useState(params.actions === "1");
   const [courierOpen, setCourierOpen] = React.useState(params.sheet === "courier");
   const [courier, setCourier] = React.useState("jne");
+  // The courier sheet edits a draft: "Use …" applies it, a swipe down or the backdrop drops it.
+  const [draft, setDraft] = React.useState(courier);
+  React.useEffect(() => {
+    if (courierOpen) setDraft(courier);
+  }, [courierOpen, courier]);
+  const d = COURIERS.find((x) => x.id === draft)!;
   const [dateOpen, setDateOpen] = React.useState(false);
   const [pickup, setPickup] = React.useState(new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + 1));
   const [boxes, setBoxes] = React.useState(1);
@@ -491,7 +511,7 @@ export function OrderScreen({ params, back }: ScreenProps) {
           </MobileList>
           <MobileList title="Shipping">
             <MobileListRow media={<Truck />} title="Courier" value={c.name} chevron onClick={() => setCourierOpen(true)} />
-            <MobileListRow media={<CalendarIcon />} title="Pickup" value={formatDate(pickup)} chevron onClick={() => setDateOpen(true)} />
+            <MobileListRow media={<CalendarIcon />} title="Pickup" value={smartDay(pickup)} chevron onClick={() => setDateOpen(true)} />
             {order.status === "Shipped" ? <MobileListRow media={<Camera />} title="Proof of delivery" chevron onClick={() => nav.push("delivery", { id: order.id })} /> : null}
           </MobileList>
           <div>
@@ -502,7 +522,7 @@ export function OrderScreen({ params, back }: ScreenProps) {
                   { id: "o", title: "Ordered on Shopee", time: smartTime(new Date(order.at.getTime() - 25 * 60000)), state: "done" },
                   { id: "p", title: "Paid with " + order.payment, time: smartTime(order.at), state: step >= 1 ? "done" : "now" },
                   { id: "k", title: step >= 2 ? "Packed by Intan" : "Pack", time: step >= 2 ? "Today, 13:40" : undefined, state: step >= 2 ? "done" : step === 1 ? "now" : "next" },
-                  { id: "s", title: step >= 3 ? `Picked up by ${c.name}` : "Courier pickup", time: step >= 3 ? "Today, 15:10" : formatDate(pickup), detail: step >= 3 ? "JX4410293" : undefined, state: step >= 3 ? "done" : step === 2 ? "now" : "next" },
+                  { id: "s", title: step >= 3 ? `Picked up by ${c.name}` : "Courier pickup", time: step >= 3 ? "Today, 15:10" : smartDay(pickup), detail: step >= 3 ? "JX4410293" : undefined, state: step >= 3 ? "done" : step === 2 ? "now" : "next" },
                   { id: "d", title: "Delivered", state: step >= 3 ? "now" : "next" },
                 ]}
               />
@@ -554,12 +574,18 @@ export function OrderScreen({ params, back }: ScreenProps) {
         title="Courier"
         detents={[0.5, 0.92]}
         footer={
-          <Button variant="primary" onClick={() => setCourierOpen(false)}>
-            Use {c.name}
+          <Button
+            variant="primary"
+            onClick={() => {
+              setCourier(draft);
+              setCourierOpen(false);
+            }}
+          >
+            Use {d.name}
           </Button>
         }
       >
-        <CourierPicker value={courier} onValueChange={setCourier} />
+        <CourierPicker value={draft} onValueChange={setDraft} />
       </MobileSheet>
       <MobileDateSheet open={dateOpen} onOpenChange={setDateOpen} title="Pickup date" value={pickup} onValueChange={setPickup} />
     </>
@@ -595,6 +621,10 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
   }, [uploads]);
   const done = uploads.filter((u) => u.state === "done").length;
   const ready = done > 0 && signed && receiver.trim().length > 1;
+  // Each photo shows once: in the strip when it's up, as a row with its progress (and Retry) while it isn't.
+  const landed = uploads.filter((u) => u.state === "done");
+  const pending = uploads.filter((u) => u.state !== "done");
+  const missing = !done ? (uploads.length ? "Waiting for the photo" : "Add a photo") : receiver.trim().length <= 1 ? "Add who took it" : !signed ? "Sign to finish" : null;
   return (
     <>
       <MobileScreen title="Proof of delivery" large={false} back={back} bottomInset="action-bar">
@@ -605,11 +635,11 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
           <div className="grid gap-2">
             <SectionTitle>Photos</SectionTitle>
             <div className="px-pad">
-              <MobilePhotoStrip photos={uploads} onRemove={(id) => setUploads((l) => l.filter((u) => u.id !== id))} onAddClick={() => setSheet(true)} max={4} />
+              <MobilePhotoStrip photos={landed} cover={false} onRemove={(id) => setUploads((l) => l.filter((u) => u.id !== id))} onAddClick={() => setSheet(true)} max={4 - pending.length} />
             </div>
-            {uploads.length ? (
+            {pending.length ? (
               <MobileList>
-                {uploads.map((u) => (
+                {pending.map((u) => (
                   <MobileUploadRow
                     key={u.id}
                     name={u.alt.replace(/, photo \d$/, "")}
@@ -642,8 +672,8 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
             nav.snack(`${order.id} delivered`);
           }}
         >
-          <Check />
-          Mark delivered
+          {missing ? null : <Check />}
+          {missing ?? "Mark delivered"}
         </Button>
       </MobileActionBar>
       <MobilePhotoSheet

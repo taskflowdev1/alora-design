@@ -1,6 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/ad";
-import { SlidingPill } from "@/components/ui/sliding-pill";
+
+/** The pager tells its tabs how far it is scrolled (page index, fractional), so the pill can ride along mid-swipe. */
+const PROGRESS = "ad-tab-progress";
+const hub = (el: HTMLElement | null) => el?.closest<HTMLElement>("[data-mobile-screen]") ?? (typeof document === "undefined" ? null : document);
 
 export interface TopTab<T extends string> {
   value: T;
@@ -19,10 +22,37 @@ export interface MobileTopTabsProps<T extends string> {
 /**
  * Tabs at the top of a phone screen when there are more than a segmented control holds: one track that scrolls
  * sideways, a raised pill that slides to the tab you pick (and the track scrolls it into view). Pair it with
- * MobileTabPager so the content under it can be swiped too; the two stay in step.
+ * MobileTabPager so the content under it can be swiped too; the two stay in step, and while you swipe the pages the
+ * pill moves with your finger, between the two tabs, then lands when the page settles.
  */
 export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, className, ...aria }: MobileTopTabsProps<T>) {
   const track = React.useRef<HTMLDivElement>(null);
+  const list = React.useRef<HTMLDivElement>(null);
+  const [rects, setRects] = React.useState<{ left: number; width: number }[]>([]);
+  const [drag, setDrag] = React.useState<number | null>(null);
+  const index = Math.max(0, tabs.findIndex((t) => t.value === value));
+  const labels = tabs.map((t) => `${t.label}${t.count ?? ""}`).join("|");
+  React.useLayoutEffect(() => {
+    const el = list.current;
+    if (!el) return;
+    const measure = () => setRects([...el.querySelectorAll<HTMLElement>("[data-tab]")].map((b) => ({ left: b.offsetLeft, width: b.offsetWidth })));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [labels]);
+  React.useEffect(() => {
+    const h = hub(track.current);
+    if (!h) return;
+    const on = (e: Event) => setDrag((e as CustomEvent<number | null>).detail);
+    h.addEventListener(PROGRESS, on);
+    return () => h.removeEventListener(PROGRESS, on);
+  }, []);
+  const p = Math.max(0, Math.min(tabs.length - 1, drag ?? index));
+  const a = rects[Math.floor(p)];
+  const b = rects[Math.ceil(p)] ?? a;
+  const f = p - Math.floor(p);
+  const pill = a ? { left: a.left + (b.left - a.left) * f, width: a.width + (b.width - a.width) * f } : null;
   React.useEffect(() => {
     const el = track.current;
     const on = el?.querySelector<HTMLElement>('[aria-selected="true"]');
@@ -32,9 +62,10 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
   return (
     <div ref={track} className={cn("-mx-pad overflow-x-auto overscroll-x-contain px-pad [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>
       <div
+        ref={list}
         role="tablist"
         aria-label={aria["aria-label"]}
-        className="relative flex w-max min-w-full rounded-control bg-track p-nest"
+        className="group/tl relative flex w-max min-w-full rounded-control bg-track p-nest"
         onKeyDown={(e) => {
           const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
           if (!d) return;
@@ -45,7 +76,13 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
           (e.currentTarget.querySelector(`[data-tab="${next.value}"]`) as HTMLElement | null)?.focus();
         }}
       >
-        <SlidingPill selector='[aria-selected="true"]' className="rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] bg-sel shadow-sel" />
+        {pill ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-nest rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] bg-sel shadow-sel group-has-[:focus-visible]/tl:bg-fill-strong motion-reduce:transition-none"
+            style={{ left: pill.left, width: pill.width, transition: drag != null ? "none" : "left 300ms var(--ad-ease), width 300ms var(--ad-ease)" }}
+          />
+        ) : null}
         {tabs.map((t) => {
           const on = t.value === value;
           return (
@@ -58,7 +95,7 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
               tabIndex={on ? 0 : -1}
               onClick={() => onValueChange(t.value)}
               className={cn(
-                "relative flex h-touch min-w-touch flex-1 shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] px-3.5 text-[15px] [-webkit-tap-highlight-color:transparent] transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
+                "relative flex h-touch min-w-touch flex-1 shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] px-3.5 text-[15px] [-webkit-tap-highlight-color:transparent] transition-[color,background-color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
                 on ? "font-medium text-ink" : "text-ink-muted",
               )}
             >
@@ -101,8 +138,10 @@ export function MobileTabPager<T extends string>({ value, onValueChange, pages, 
       ref={track}
       onScroll={(e) => {
         const el = e.currentTarget;
+        hub(el)?.dispatchEvent(new CustomEvent(PROGRESS, { detail: el.scrollLeft / el.clientWidth }));
         window.clearTimeout(settle.current);
         settle.current = window.setTimeout(() => {
+          hub(el)?.dispatchEvent(new CustomEvent(PROGRESS, { detail: null }));
           const i = Math.round(el.scrollLeft / el.clientWidth);
           if (pages[i] && i !== index) {
             own.current = true;

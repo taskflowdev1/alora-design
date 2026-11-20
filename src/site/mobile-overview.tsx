@@ -27,7 +27,7 @@ function Parts({ names }: { names: string[] }) {
       {names.map((n) => {
         const item = findItem(n);
         return item ? (
-          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad hover:bg-fill-strong hover:text-ink">
+          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="relative inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad after:absolute after:inset-x-0 after:-inset-y-[2px] after:content-[''] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink">
             {item.title}
           </SLink>
         ) : null;
@@ -184,11 +184,11 @@ export function MobileOverview() {
         names={["mobile-tab-bar", "mobile-nav-bar", "mobile-search-bar", "mobile-segmented", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-snackbar"]}
         extra={
           <div className="flex flex-wrap justify-center gap-gap">
-            <SLink to="/mobile/app" className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong">
+            <SLink to="/mobile/app" className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
               <Maximize2 size={16} />
               Open full screen
             </SLink>
-            <SLink to="/mobile/screens" data-all-screens className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong">
+            <SLink to="/mobile/screens" data-all-screens className="inline-flex h-control items-center gap-2 rounded-control bg-fill px-3.5 text-body font-medium text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong">
               <Grid size={16} />
               All screens
             </SLink>

@@ -50,7 +50,7 @@ export function MobileUploadRow({ name, size, progress, state, media, onCancel, 
           type="button"
           aria-label={state === "failed" ? `Retry ${name}` : `Cancel ${name}`}
           onClick={state === "failed" ? onRetry : onCancel}
-          className="grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.92] active:bg-fill [-webkit-tap-highlight-color:transparent]"
+          className="grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.92] active:bg-fill [-webkit-tap-highlight-color:transparent]"
         >
           {state === "failed" ? <RotateCw size={20} strokeWidth={1.75} /> : <X size={20} strokeWidth={1.75} />}
         </button>

@@ -34,13 +34,15 @@ const SAFE_TOP = "var(--ad-safe-top, env(safe-area-inset-top, 0px))";
 const SAFE_BOTTOM = "var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px))";
 // Critically damped spring (no wobble) that starts from the release speed, so a throw carries on into the settle.
 const W = 20;
+// Closing settles about 25 % faster than opening (exits are quicker than entrances).
+const W_CLOSE = 26;
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * The phone's bottom sheet. It floats with a margin and full rounding, rises from the bottom and rests at its detents.
- * Drag the handle or the title row: it follows the finger 1:1, pulls against a rubber band past the top detent, and on
- * release picks the detent the throw is heading for (position + speed), or closes on a downward flick or a drag past
- * the smallest detent. Every move is a spring that keeps the release speed and can be grabbed again mid-flight.
+ * Drag the handle, the title row, or the content when it is scrolled to its top: it follows the finger 1:1, stretches
+ * against a rubber band past the top detent (its bottom stays put), and on release a flick steps to the next detent
+ * the way it was thrown, a slow drag settles on the nearest one, and a flick down from the smallest one closes it. Every move is a spring that keeps the release speed and can be grabbed again mid-flight.
  * Esc, the backdrop and a Close button close it too (the gesture is never the only way). It sits above the keyboard
  * (`--ad-keyboard`) and the home indicator, and contains its own scroll.
  */
@@ -76,8 +78,11 @@ export function MobileSheet({
     const el = sheet.current;
     if (el) {
       const low = st.stops[st.stops.length - 1];
-      if (st.full && st.stops.length > 1) el.style.height = `${st.full - Math.min(Math.max(y, 0), low)}px`;
-      const shift = y < 0 ? y : y > low ? y - low : 0;
+      // Past the top the sheet stretches (bottom anchored, as native sheets do) instead of lifting off its rest.
+      if (st.full && (st.stops.length > 1 || y < 0)) el.style.height = `${st.full - Math.min(y, low)}px`;
+      else if (st.full) el.style.height = heightCss.current ?? "";
+      el.style.maxHeight = y < 0 ? "none" : "";
+      const shift = y > low ? y - low : 0;
       el.style.transform = `translate3d(0, ${shift}px, 0)`;
     }
     if (shade.current) {
@@ -85,7 +90,7 @@ export function MobileSheet({
       shade.current.style.opacity = String(Math.max(0, Math.min(1, 1 - (y - top) / Math.max(1, s.current.closed - top))));
     }
   };
-  const animate = (to: number, v: number, done?: () => void) => {
+  const animate = (to: number, v: number, done?: () => void, w = W) => {
     const st = s.current;
     cancelAnimationFrame(st.raf);
     if (reduced()) {
@@ -96,7 +101,7 @@ export function MobileSheet({
     const t0 = performance.now();
     const step = (now: number) => {
       const t = (now - t0) / 1000;
-      const d = (y0 + (v + W * y0) * t) * Math.exp(-W * t);
+      const d = (y0 + (v + w * y0) * t) * Math.exp(-w * t);
       if (Math.abs(d) < 0.5 && t > 0.05) {
         place(to);
         return done?.();
@@ -113,6 +118,7 @@ export function MobileSheet({
     const screen = layer?.clientHeight ?? window.innerHeight;
     // Measure at the tallest detent's own height (the CSS one), then put the sheet back where it was.
     el.style.height = heightCss.current ?? "";
+    el.style.maxHeight = "";
     const full = el.offsetHeight;
     s.current.full = full;
     // The frame or app sets --ad-safe-top in px; on a device env() is used for layout and 0 is close enough here.
@@ -141,52 +147,119 @@ export function MobileSheet({
     if (open) {
       if (mounted && sheet.current) rise(false);
       else setMounted(true);
-    } else if (mounted) animate(s.current.closed, s.current.flingV, () => setMounted(false));
+    } else if (mounted) animate(s.current.closed, s.current.flingV, () => setMounted(false), W_CLOSE);
     s.current.flingV = 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
   React.useEffect(() => () => cancelAnimationFrame(s.current.raf), []);
 
+  // A closing sheet can't be grabbed: catching it mid-close would leave it on screen while its owner thinks it's shut.
+  const begin = (clientY: number) => {
+    const st = s.current;
+    if (!open) return false;
+    cancelAnimationFrame(st.raf);
+    measure();
+    Object.assign(st, { from: clientY - st.y, t: performance.now(), v: 0, on: true });
+    return true;
+  };
+  const follow = (clientY: number) => {
+    const st = s.current;
+    if (!st.on) return;
+    const raw = clientY - st.from;
+    const top = st.stops[0];
+    // Past the tallest detent the sheet pulls harder the further it goes.
+    const y = raw >= top ? raw : top - (1 - 1 / (((top - raw) * 0.55) / 120 + 1)) * 120;
+    const now = performance.now();
+    st.v = st.v * 0.4 + ((y - st.y) / Math.max(1, now - st.t)) * 1000 * 0.6;
+    st.t = now;
+    place(y);
+  };
+  const release = () => {
+    const st = s.current;
+    if (!st.on) return;
+    st.on = false;
+    // A pause before letting go is no throw.
+    const v = performance.now() - st.t > 90 ? 0 : st.v;
+    const lowest = st.stops[st.stops.length - 1];
+    // Project the throw about as far as UIKit does (v × 0.4 s), so a short flick still changes detent.
+    const aim = st.y + v * 0.4;
+    if (aim > lowest + 72 || (v > 900 && st.y > lowest - 8)) {
+      st.flingV = v;
+      return setOpen(false);
+    }
+    let to = st.stops.reduce((a, b) => (Math.abs(b - aim) < Math.abs(a - aim) ? b : a), st.stops[0]);
+    // A real flick always moves one detent the way it was thrown, from the detent nearest where it was let go.
+    if (Math.abs(v) > 500) {
+      const here = st.stops.reduce((a, b) => (Math.abs(b - st.y) < Math.abs(a - st.y) ? b : a), st.stops[0]);
+      const i = st.stops.indexOf(here);
+      const next = st.stops[Math.max(0, Math.min(st.stops.length - 1, i + (v > 0 ? 1 : -1)))];
+      if (v > 0 ? next > to : next < to) to = next;
+    }
+    animate(to, v);
+  };
   const grab = {
     onPointerDown: (e: React.PointerEvent) => {
-      const st = s.current;
-      cancelAnimationFrame(st.raf);
-      measure();
-      Object.assign(st, { from: e.clientY - st.y, t: performance.now(), v: 0, on: true });
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      if (begin(e.clientY)) (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     },
-    onPointerMove: (e: React.PointerEvent) => {
-      const st = s.current;
-      if (!st.on) return;
-      const raw = e.clientY - st.from;
-      const top = st.stops[0];
-      // Past the tallest detent the sheet pulls harder the further it goes.
-      const y = raw >= top ? raw : top - (1 - 1 / (((top - raw) * 0.55) / 120 + 1)) * 120;
-      const now = performance.now();
-      st.v = st.v * 0.4 + ((y - st.y) / Math.max(1, now - st.t)) * 1000 * 0.6;
-      st.t = now;
-      place(y);
-    },
-    onPointerUp: () => {
-      const st = s.current;
-      if (!st.on) return;
-      st.on = false;
-      // A pause before letting go is no throw.
-      const v = performance.now() - st.t > 90 ? 0 : st.v;
-      const lowest = st.stops[st.stops.length - 1];
-      const aim = st.y + v * 0.18;
-      if (aim > lowest + 72 || (v > 900 && st.y > lowest - 8)) {
-        st.flingV = v;
-        return setOpen(false);
-      }
-      const to = st.stops.reduce((a, b) => (Math.abs(b - aim) < Math.abs(a - aim) ? b : a), st.stops[0]);
-      animate(to, v);
-    },
+    onPointerMove: (e: React.PointerEvent) => follow(e.clientY),
+    onPointerUp: release,
     onPointerCancel: () => {
+      if (!s.current.on) return;
       s.current.on = false;
       animate(s.current.stops.reduce((a, b) => (Math.abs(b - s.current.y) < Math.abs(a - s.current.y) ? b : a)), 0);
     },
   };
+  // Pulling the content down when it is already at its top drags the sheet (iOS and Material sheets do). The blocking
+  // touchmove listener exists only while the content sits at its top, so scrolling a long list never waits on it.
+  const fns = React.useRef({ begin, follow, release });
+  fns.current = { begin, follow, release };
+  const body = React.useRef<HTMLDivElement | null>(null);
+  const bodyRef = React.useCallback((el: HTMLDivElement | null) => {
+    const old = body.current as (HTMLDivElement & { _adOff?: () => void }) | null;
+    old?._adOff?.();
+    body.current = el;
+    if (!el) return;
+    let start: { x: number; y: number } | null = null;
+    let dragging = false;
+    let armed = false;
+    const onStart = (e: TouchEvent) => {
+      start = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+      dragging = false;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!start) return;
+      const t = e.touches[0];
+      const dy = t.clientY - start.y;
+      if (!dragging && el.scrollTop <= 0 && dy > 6 && Math.abs(dy) > Math.abs(t.clientX - start.x)) dragging = fns.current.begin(t.clientY - dy);
+      if (!dragging) return;
+      e.preventDefault();
+      fns.current.follow(t.clientY);
+    };
+    const onEnd = () => {
+      if (dragging) fns.current.release();
+      dragging = false;
+      start = null;
+      arm();
+    };
+    const arm = () => {
+      const top = el.scrollTop <= 0;
+      if (top && !armed) el.addEventListener("touchmove", onMove, { passive: false });
+      if (!top && armed && !dragging) el.removeEventListener("touchmove", onMove);
+      armed = top || (armed && dragging);
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchend", onEnd);
+    el.addEventListener("touchcancel", onEnd);
+    el.addEventListener("scroll", arm, { passive: true });
+    arm();
+    (el as HTMLDivElement & { _adOff?: () => void })._adOff = () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+      el.removeEventListener("scroll", arm);
+      el.removeEventListener("touchmove", onMove);
+    };
+  }, []);
 
   const tallest = detents.reduce<number>((m, d) => (d === "fit" ? m : Math.max(m, d)), 0);
   const fit = detents.includes("fit");
@@ -222,7 +295,8 @@ export function MobileSheet({
         >
           {surface ? (
             <>
-              <div {...grab} className="flex h-6 shrink-0 cursor-grab touch-none items-end justify-center active:cursor-grabbing">
+              {/* 24 px of strip, with a hit area that reaches 34 px under the title's top edge (it is a handle too). */}
+              <div {...grab} className="relative z-10 -mb-[10px] flex h-[34px] shrink-0 cursor-grab touch-none justify-center pt-[14px] active:cursor-grabbing">
                 <span aria-hidden className="h-[5px] w-9 rounded-full bg-fill-strong" />
               </div>
               {title ? (
@@ -232,7 +306,9 @@ export function MobileSheet({
               ) : (
                 <D.Title className="sr-only">{aria["aria-label"]}</D.Title>
               )}
-              <div className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-pad", !footer && "pb-pad")}>{children}</div>
+              <div ref={bodyRef} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-pad", !footer && "pb-pad")}>
+                {children}
+              </div>
               {footer ? <div className="grid shrink-0 gap-2 p-pad [&>*]:h-touch [&>*]:w-full [&>*]:text-[15px]">{footer}</div> : null}
             </>
           ) : (

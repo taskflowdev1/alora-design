@@ -32,7 +32,7 @@ export interface MobileListRowProps {
   title: React.ReactNode;
   /** A second line under the title. */
   subtitle?: React.ReactNode;
-  /** Right side: a value, a status, a switch. */
+  /** Right side: a value, a status, a switch. Text truncates (the title keeps its room); a node keeps its size. */
   value?: React.ReactNode;
   /** Shows a chevron: the row opens another screen. */
   chevron?: boolean;
@@ -51,31 +51,36 @@ export interface MobileListRowProps {
 export function MobileListRow({ media, title, subtitle, value, chevron, onClick, trailing, toggle, className }: MobileListRowProps) {
   const body = (
     <>
-      {media ? <span className="grid shrink-0 place-items-center text-ink [&>svg]:size-5 [&>svg]:stroke-[1.75]">{media}</span> : null}
+      {media ? <span className="grid shrink-0 place-items-center text-ink [&>svg]:size-[20px] [&>svg]:stroke-[1.75]">{media}</span> : null}
       <span className="grid min-w-0 flex-1 gap-0.5 text-left">
         <span className="truncate text-[15px] text-ink">{title}</span>
         {subtitle ? <span className="truncate text-[13px] text-ink-muted">{subtitle}</span> : null}
       </span>
-      {value != null ? <span className="shrink-0 text-[15px] tabular-nums text-ink-muted">{value}</span> : null}
+      {value == null ? null : typeof value === "string" || typeof value === "number" ? (
+        // Text values give way to the title: they truncate at 55 % of the row instead of pushing the title out.
+        <span className="min-w-0 max-w-[55%] shrink truncate text-[15px] tabular-nums text-ink-muted">{value}</span>
+      ) : (
+        <span className="flex shrink-0 text-[15px] tabular-nums text-ink-muted">{value}</span>
+      )}
       {toggle ? <span className="flex shrink-0">{toggle}</span> : null}
       {chevron ? <ChevronRight size={18} className="-mr-1 shrink-0 text-ink-muted" /> : null}
     </>
   );
   const row = cn(
     "flex w-full min-w-0 items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] text-left",
-    subtitle ? "min-h-14 py-2" : "min-h-touch py-1.5",
+    subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5",
   );
   return (
     <div role="listitem" className={cn("flex min-w-0 items-center", className)}>
       {toggle ? (
-        <label className={cn(row, "cursor-pointer touch-manipulation select-none [-webkit-tap-highlight-color:transparent]")}>{body}</label>
+        <label className={cn(row, "cursor-pointer touch-manipulation select-none [-webkit-tap-highlight-color:transparent] has-[:focus-visible]:bg-fill")}>{body}</label>
       ) : onClick ? (
         <button
           type="button"
           onClick={onClick}
           className={cn(
             row,
-            "cursor-pointer touch-manipulation select-none transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill [@media(hover:hover)]:hover:bg-fill",
+            "cursor-pointer touch-manipulation select-none transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill",
           )}
         >
           {body}
@@ -118,8 +123,9 @@ export function MobileListSkeleton({ rows = 6, media = "thumb", subtitle = true,
       {title ? <Line text="Today" className="mx-1 text-[13px]" /> : null}
       <div className="grid rounded-card bg-surface p-nest">
         {Array.from({ length: rows }, (_, i) => (
-          <div key={i} className={cn("flex items-center gap-3 px-[calc(var(--ad-pad)-var(--ad-nest))]", subtitle ? "min-h-14 py-2" : "min-h-touch py-1.5")}>
-            {media === "thumb" ? <span className={cn("size-10 shrink-0 rounded-small", pulse)} /> : media === "icon" ? <span className={cn("size-5 shrink-0 rounded-small", pulse)} /> : null}
+          <div key={i} className={cn("flex items-center gap-3 px-[calc(var(--ad-pad)-var(--ad-nest))]", subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5")}>
+            {/* Whole px, never rem steps: on the 13 px root size-10 is 32.5 px, not the 40 px thumbnail it stands for. */}
+            {media === "thumb" ? <span className={cn("size-[40px] shrink-0 rounded-small", pulse)} /> : media === "icon" ? <span className={cn("size-[20px] shrink-0 rounded-small", pulse)} /> : null}
             <span className="grid min-w-0 flex-1 gap-0.5">
               <Line text={widths[i % widths.length]} className="text-[15px]" />
               {subtitle ? <Line text="ORD-1043 · 2 items" className="text-[13px]" /> : null}

@@ -29,13 +29,19 @@ const toneClass = { neutral: "bg-fill-strong text-ink", accent: "bg-brand text-b
 /**
  * Swipe a row sideways to reveal its actions. The row follows the finger only after the gesture is clearly sideways, so
  * vertical scrolling is never stolen. On release it opens or closes by position and speed, on a spring that keeps the
- * throw; a long swipe left runs the first trailing action. A tap on an open row closes it. Swiping is a shortcut: put
- * the same actions in the row's detail screen or a "more" button, so nobody has to discover the gesture.
+ * throw; a long swipe left runs the first trailing action. Past the actions the first one stretches to fill the gap,
+ * and once letting go would run it (60 % of the row) the others fold away, so you know before you lift the finger. A
+ * tap on an open row closes it. Swiping is a shortcut: put the same actions in the row's detail screen or a "more"
+ * button, so nobody has to discover the gesture. What a full swipe runs happens in one motion, so offer Undo for it
+ * (a MobileSnackbar with an Undo action).
  */
 export function SwipeRow({ children, leading = [], trailing = [], className }: SwipeRowProps) {
   const front = React.useRef<HTMLDivElement>(null);
   const g = React.useRef({ x: 0, sx: 0, sy: 0, lock: "" as "" | "x" | "y", v: 0, t: 0, raf: 0, moved: false, rest: 0 });
   const [side, setSide] = React.useState<"left" | "right" | null>(null);
+  const trail = React.useRef<HTMLDivElement>(null);
+  const [armed, setArmed] = React.useState(false);
+  const armedRef = React.useRef(false);
   const lw = leading.length * ACTION_W;
   const tw = trailing.length * ACTION_W;
 
@@ -43,6 +49,11 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
   const place = (x: number) => {
     g.current.x = x;
     if (front.current) front.current.style.transform = x ? `translate3d(${x}px, 0, 0)` : "";
+    // A long swipe: the trailing actions fill the whole gap, the first one taking the extra room.
+    if (trail.current) trail.current.style.width = `${Math.max(tw, -x)}px`;
+    const width = front.current?.offsetWidth ?? 0;
+    const arm = tw > 0 && width > 0 && -x > width * 0.6;
+    if (arm !== armedRef.current) setArmed((armedRef.current = arm));
     const next = x > 0 ? "left" : x < 0 ? "right" : null;
     if (next !== sideRef.current) setSide((sideRef.current = next));
   };
@@ -81,9 +92,9 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
         </div>
       ) : null}
       {trailing.length ? (
-        <div className="absolute inset-y-0 right-0 flex" style={{ width: tw, visibility: side === "right" ? "visible" : "hidden" }}>
-          {trailing.map((a) => (
-            <ActionButton key={a.label} a={a} onClick={() => run(a)} />
+        <div ref={trail} className="absolute inset-y-0 right-0 flex" style={{ width: tw, visibility: side === "right" ? "visible" : "hidden" }}>
+          {trailing.map((a, i) => (
+            <ActionButton key={a.label} a={a} onClick={() => run(a)} grow={i === 0} folded={i > 0 && armed} />
           ))}
         </div>
       ) : null}
@@ -156,15 +167,17 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
   );
 }
 
-function ActionButton({ a, onClick }: { a: SwipeAction; onClick: () => void }) {
+function ActionButton({ a, onClick, grow, folded }: { a: SwipeAction; onClick: () => void; grow?: boolean; folded?: boolean }) {
   const Icon = a.icon;
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{ width: ACTION_W }}
+      tabIndex={folded ? -1 : undefined}
+      style={grow ? { minWidth: ACTION_W } : { width: folded ? 0 : ACTION_W }}
       className={cn(
-        "flex h-full cursor-pointer flex-col items-center justify-center gap-1 text-[12px] font-medium transition-transform duration-[150ms] ease-ad active:scale-[0.96]",
+        "flex h-full shrink-0 cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden whitespace-nowrap text-[12px] font-medium transition-[width,transform,filter] duration-[150ms] ease-out focus-visible:brightness-90 active:scale-[0.96]",
+        grow && "flex-1",
         toneClass[a.tone ?? "neutral"],
       )}
     >

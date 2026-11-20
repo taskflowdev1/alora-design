@@ -30,7 +30,7 @@ export function MobileActionSheet({ open, onOpenChange, title, actions, cancelLa
     onOpenChange(false);
     a.onSelect();
   };
-  const row = "flex h-14 w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))] px-[calc(var(--ad-pad)-var(--ad-nest))] text-[17px] transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill disabled:pointer-events-none disabled:opacity-40 [@media(hover:hover)]:hover:bg-fill";
+  const row = "flex h-[56px] w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))] px-[calc(var(--ad-pad)-var(--ad-nest))] text-[17px] transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill focus-visible:bg-fill disabled:pointer-events-none disabled:opacity-40 [@media(hover:hover)]:hover:bg-fill";
   return (
     <MobileSheet open={open} onOpenChange={onOpenChange} surface={false} aria-label={title ?? "Actions"}>
       <div className="grid rounded-sheet bg-surface p-nest shadow-dialog">

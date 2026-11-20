@@ -60,7 +60,7 @@ export function MobileAlert({ open, onOpenChange, title, message, actions }: Mob
                   a.onSelect?.();
                 }}
                 className={cn(
-                  "h-touch cursor-pointer truncate rounded-[calc(var(--ad-radius-sheet)-var(--ad-pad))] px-3 text-[15px] font-medium transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [-webkit-tap-highlight-color:transparent]",
+                  "h-touch cursor-pointer truncate rounded-[calc(var(--ad-radius-sheet)-var(--ad-pad))] px-3 text-[15px] font-medium transition-[background-color,transform,filter] duration-[150ms] ease-ad focus-visible:brightness-90 active:scale-[0.97] [-webkit-tap-highlight-color:transparent]",
                   tone[a.tone ?? "default"],
                 )}
               >

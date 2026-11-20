@@ -27,7 +27,7 @@ export function MobileSnackbar({ open, onOpenChange, message, action, duration =
   const layer = React.useContext(MobileLayer);
   const el = React.useRef<HTMLDivElement>(null);
   const [shown, setShown] = React.useState(open);
-  const drag = React.useRef<{ y: number; at: number } | null>(null);
+  const drag = React.useRef<{ y: number; at: number; t: number; v: number } | null>(null);
   const timer = React.useRef(0);
   React.useEffect(() => {
     if (open) setShown(true);
@@ -49,12 +49,15 @@ export function MobileSnackbar({ open, onOpenChange, message, action, duration =
         onAnimationEnd={() => !open && setShown(false)}
         onPointerDown={(e) => {
           window.clearTimeout(timer.current);
-          drag.current = { y: e.clientY, at: 0 };
+          drag.current = { y: e.clientY, at: 0, t: performance.now(), v: 0 };
           e.currentTarget.setPointerCapture(e.pointerId);
         }}
         onPointerMove={(e) => {
           if (!drag.current || !el.current) return;
           const dy = Math.max(0, e.clientY - drag.current.y);
+          const now = performance.now();
+          drag.current.v = drag.current.v * 0.4 + ((dy - drag.current.at) / Math.max(1, now - drag.current.t)) * 1000 * 0.6;
+          drag.current.t = now;
           drag.current.at = dy;
           el.current.style.transform = `translateY(${dy}px)`;
           el.current.style.opacity = String(1 - Math.min(1, dy / 80));
@@ -63,24 +66,30 @@ export function MobileSnackbar({ open, onOpenChange, message, action, duration =
           const d = drag.current;
           drag.current = null;
           if (!el.current) return;
-          if (d && d.at > 28) return onOpenChange(false);
+          // Dragged far enough, or flicked down: it leaves from where the finger left it, still going down.
+          const v = d && performance.now() - d.t < 90 ? d.v : 0;
+          if (d && (d.at > 28 || v > 500)) {
+            el.current.style.setProperty("--ad-drag", `${d.at}px`);
+            el.current.style.transform = "";
+            return onOpenChange(false);
+          }
           el.current.style.transform = "";
           el.current.style.opacity = "";
           timer.current = window.setTimeout(() => onOpenChange(false), duration);
         }}
         className={cn(
           "ad-on-dark pointer-events-auto flex min-h-touch w-full max-w-[480px] touch-none select-none items-center gap-3 rounded-[calc(var(--ad-radius-control)+6px)] bg-side-raised p-1.5 pl-4 text-[15px] text-side-ink shadow-dialog transition-[transform,opacity] duration-[200ms] ease-ad",
-          open ? "animate-[ad-snack-in_320ms_cubic-bezier(0.32,0.72,0,1)]" : "animate-[ad-snack-out_200ms_ease-in_forwards]",
+          open ? "animate-[ad-snack-in_260ms_cubic-bezier(0.32,0.72,0,1)]" : "animate-[ad-snack-out_200ms_ease-in_forwards]",
         )}
       >
-        <style href="ad-snackbar" precedence="default">{`@keyframes ad-snack-in { from { transform: translateY(calc(100% + 24px)); opacity: 0; } } @keyframes ad-snack-out { to { transform: translateY(24px); opacity: 0; } }`}</style>
+        <style href="ad-snackbar" precedence="default">{`@keyframes ad-snack-in { from { transform: translateY(calc(100% + 24px)); opacity: 0; } } @keyframes ad-snack-out { from { transform: translateY(var(--ad-drag, 0px)); } to { transform: translateY(calc(var(--ad-drag, 0px) + 24px)); opacity: 0; } }`}</style>
         <span className="min-w-0 flex-1 truncate">{message}</span>
         {action ? (
           <button
             type="button"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => (action.onClick(), onOpenChange(false))}
-            className="h-touch shrink-0 cursor-pointer rounded-control bg-fill px-3.5 text-[15px] font-semibold text-ink transition-transform duration-[150ms] ease-ad active:scale-[0.96] [@media(hover:hover)]:hover:bg-fill-strong"
+            className="h-touch shrink-0 cursor-pointer rounded-control bg-fill px-3.5 text-[15px] font-semibold text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.96] [@media(hover:hover)]:hover:bg-fill-strong"
           >
             {action.label}
           </button>

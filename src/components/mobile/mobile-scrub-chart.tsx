@@ -20,21 +20,33 @@ export interface MobileScrubChartProps {
   current?: number;
   /** Label every nth point along the bottom (0: none). */
   labelEvery?: number;
+  /**
+   * Scrub only after a still press (200 ms), so a swipe that starts on the chart pages its carousel instead. On by
+   * default inside a MobileKpiCarousel.
+   */
+  holdToScrub?: boolean;
   className?: string;
 }
+
+/** Set by MobileKpiCarousel: charts inside paged cards scrub only after a press-and-hold (Apple Health). */
+export const ScrubHold = React.createContext(false);
 
 /**
  * A chart you read with your finger: there is no hover on a phone, so drag across it and the number on top turns into
  * the point under the finger (its label and value), the line or bar under it darkens, and the rest steps back. Let go
- * and it returns to the total after a moment. Vertical drags still scroll. Arrow keys step through the points too.
- * Shades of the one accent; no axes, no grid lines.
+ * and it returns to the total after a moment. It waits to see the gesture first: a sideways move (or a still press)
+ * scrubs, a vertical one scrolls the page and leaves the number alone. Arrow keys step through the points too, and
+ * keyboard focus shows the current point. Shades of the one accent; no axes, no grid lines.
  */
-export function MobileScrubChart({ label, value, data, kind = "line", height = 120, current, labelEvery = 0, className }: MobileScrubChartProps) {
+export function MobileScrubChart({ label, value, data, kind = "line", height = 120, current, labelEvery = 0, holdToScrub, className }: MobileScrubChartProps) {
+  const hold = useHold(holdToScrub);
   const box = React.useRef<HTMLDivElement>(null);
   const [w, setW] = React.useState(320);
   const [at, setAt] = React.useState<number | null>(null);
-  const [held, setHeld] = React.useState(false);
+  const heldRef = React.useRef(false);
   const timer = React.useRef(0);
+  const holdTimer = React.useRef(0);
+  const start = React.useRef<{ x: number; y: number } | null>(null);
   const gid = React.useId();
   React.useLayoutEffect(() => {
     const el = box.current;
@@ -42,15 +54,31 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
     const ro = new ResizeObserver(() => setW(el.offsetWidth));
     ro.observe(el);
     setW(el.offsetWidth);
-    return () => (ro.disconnect(), window.clearTimeout(timer.current));
+    return () => (ro.disconnect(), window.clearTimeout(timer.current), window.clearTimeout(holdTimer.current));
   }, []);
+  // In hold mode the page may pan sideways, so once a hold has started scrubbing, stop the pan by hand.
+  React.useEffect(() => {
+    const el = box.current;
+    if (!el || !hold) return;
+    const stop = (e: TouchEvent) => heldRef.current && e.cancelable && e.preventDefault();
+    el.addEventListener("touchmove", stop, { passive: false });
+    return () => el.removeEventListener("touchmove", stop);
+  }, [hold]);
   const index = (clientX: number) => {
     const r = box.current!.getBoundingClientRect();
     const x = (clientX - r.left) / r.width;
     return Math.max(0, Math.min(data.length - 1, kind === "bars" ? Math.floor(x * data.length) : Math.round(x * (data.length - 1))));
   };
+  const begin = (clientX: number) => {
+    window.clearTimeout(timer.current);
+    heldRef.current = true;
+    setAt(index(clientX));
+  };
   const release = () => {
-    setHeld(false);
+    window.clearTimeout(holdTimer.current);
+    start.current = null;
+    if (!heldRef.current) return;
+    heldRef.current = false;
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setAt(null), 1200);
   };
@@ -78,13 +106,37 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
         aria-valuetext={p ? `${p.label}: ${p.display ?? p.value}` : undefined}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
-          window.clearTimeout(timer.current);
-          setHeld(true);
-          setAt(index(e.clientX));
+          // A mouse can't be scrolling: scrub at once. A finger might be starting a scroll: wait and see.
+          if (e.pointerType === "mouse") return begin(e.clientX);
+          const x0 = e.clientX;
+          start.current = { x: x0, y: e.clientY };
+          window.clearTimeout(holdTimer.current);
+          holdTimer.current = window.setTimeout(() => start.current && begin(x0), hold ? 200 : 150);
         }}
-        onPointerMove={(e) => held && setAt(index(e.clientX))}
+        onPointerMove={(e) => {
+          if (heldRef.current) return setAt(index(e.clientX));
+          const s0 = start.current;
+          if (!s0) return;
+          const dx = e.clientX - s0.x;
+          const dy = e.clientY - s0.y;
+          if (!hold && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+            window.clearTimeout(holdTimer.current);
+            begin(e.clientX);
+          } else if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+            // Moved before it scrubbed: a scroll or a page swipe, not ours.
+            window.clearTimeout(holdTimer.current);
+            start.current = null;
+          }
+        }}
         onPointerUp={release}
-        onPointerCancel={release}
+        onPointerCancel={() => {
+          // The browser took the gesture (a scroll): drop the reading at once, no lingering number.
+          window.clearTimeout(holdTimer.current);
+          start.current = null;
+          heldRef.current = false;
+          setAt(null);
+        }}
+        onFocus={(e) => e.currentTarget.matches(":focus-visible") && setAt((a) => a ?? current ?? data.length - 1)}
         onBlur={() => setAt(null)}
         onKeyDown={(e) => {
           const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -92,7 +144,7 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
           e.preventDefault();
           setAt((a) => Math.max(0, Math.min(data.length - 1, (a ?? (d > 0 ? -1 : data.length)) + d)));
         }}
-        className="relative cursor-pointer touch-pan-y select-none outline-none [-webkit-tap-highlight-color:transparent]"
+        className={cn("relative cursor-pointer select-none outline-none [-webkit-tap-highlight-color:transparent]", hold ? "touch-manipulation" : "touch-pan-y")}
         style={{ height }}
       >
         {kind === "line" ? (
@@ -142,4 +194,9 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
       ) : null}
     </figure>
   );
+}
+
+function useHold(own: boolean | undefined) {
+  const inCarousel = React.useContext(ScrubHold);
+  return own ?? inCarousel;
 }

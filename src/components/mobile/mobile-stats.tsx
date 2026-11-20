@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
+import { ScrubHold } from "./mobile-scrub-chart";
 
 const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-transparent select-none";
 
@@ -33,7 +34,7 @@ export function MobileStatTile({ label, value, onClick, loading, className }: Mo
     <button
       type="button"
       onClick={onClick}
-      className={cn(box, "cursor-pointer touch-manipulation [-webkit-tap-highlight-color:transparent] transition-transform duration-[150ms] ease-ad active:scale-[0.97]")}
+      className={cn(box, "cursor-pointer touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.97]")}
     >
       {body}
     </button>
@@ -69,7 +70,8 @@ export function MobileKpiCard({ label, value, children, className }: MobileKpiCa
 /**
  * A few KPI cards you swipe through: each card snaps into place (native scroll snap, so a flick glides), the next one
  * peeks in at the edge so it's clear there is more, and the dots under it say where you are. Tapping a dot goes to its
- * card (the swipe always has a tap twin). Cards hold their own content (MobileKpiCard or a scrub chart card).
+ * card (the swipe always has a tap twin). Cards hold their own content (MobileKpiCard or a scrub chart card). A
+ * scrub chart inside a card reads only after a press-and-hold, so a swipe that starts on it still pages.
  */
 export function MobileKpiCarousel({ children, className, ...aria }: { children: React.ReactNode; className?: string; "aria-label": string }) {
   const track = React.useRef<HTMLDivElement>(null);
@@ -93,11 +95,13 @@ export function MobileKpiCarousel({ children, className, ...aria }: { children: 
         }}
         className="-mx-pad flex snap-x snap-mandatory gap-gap overflow-x-auto overscroll-x-contain scroll-px-pad px-pad py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {items.map((c, i) => (
-          <div key={i} aria-roledescription="slide" aria-label={`${i + 1} of ${items.length}`} className="w-[86%] shrink-0 snap-start [&>*]:h-full">
-            {c}
-          </div>
-        ))}
+        <ScrubHold.Provider value={true}>
+          {items.map((c, i) => (
+            <div key={i} aria-roledescription="slide" aria-label={`${i + 1} of ${items.length}`} className="w-[86%] shrink-0 snap-start [&>*]:h-full">
+              {c}
+            </div>
+          ))}
+        </ScrubHold.Provider>
       </div>
       {/* 44 px dots (they are targets), pulled up so the row reads as part of the cards. */}
       <div className="-mb-2 -mt-1 flex justify-center">
@@ -108,7 +112,7 @@ export function MobileKpiCarousel({ children, className, ...aria }: { children: 
             aria-label={`Card ${i + 1}`}
             aria-current={i === at ? "true" : undefined}
             onClick={() => go(i)}
-            className="grid size-touch cursor-pointer place-items-center [-webkit-tap-highlight-color:transparent]"
+            className="group/dot grid size-touch cursor-pointer place-items-center rounded-control [-webkit-tap-highlight-color:transparent] focus-visible:bg-fill"
           >
             <span className={cn("h-[6px] rounded-full transition-[width,background-color] duration-[220ms] ease-ad", i === at ? "w-[18px] bg-ink" : "w-[6px] bg-fill-strong")} />
           </button>

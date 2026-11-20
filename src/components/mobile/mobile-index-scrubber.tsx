@@ -24,6 +24,10 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
   const strip = React.useRef<HTMLDivElement>(null);
   const [active, setActive] = React.useState<string | null>(null);
   const [scrubbing, setScrubbing] = React.useState(false);
+  /** The bubble's centre, in the strip's own px (the drawn letter it stands for). */
+  const [bubbleY, setBubbleY] = React.useState(0);
+  // Keyboard focus shows the bubble with the current letter (a fill over the whole 44 px column would be a grey bar).
+  const [kb, setKb] = React.useState(false);
   const letters = sections.map((s) => s.letter);
   const jump = (letter: string) => {
     setActive(letter);
@@ -36,9 +40,18 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
     const k = scroller.offsetHeight / scroller.getBoundingClientRect().height || 1;
     scroller.scrollTop += y * k - bar;
   };
+  /** The letters sit as a centred group in a taller strip: map the finger onto the drawn letters, not the strip. */
+  const spanAt = (i: number) => strip.current!.children[i] as HTMLElement;
+  const show = (i: number) => {
+    const el = spanAt(i);
+    setBubbleY(el.offsetTop + el.offsetHeight / 2);
+  };
   const pick = (clientY: number) => {
-    const r = strip.current!.getBoundingClientRect();
-    const i = Math.max(0, Math.min(letters.length - 1, Math.floor(((clientY - r.top) / r.height) * letters.length)));
+    const first = spanAt(0).getBoundingClientRect();
+    const last = spanAt(letters.length - 1).getBoundingClientRect();
+    const each = (last.bottom - first.top) / letters.length;
+    const i = Math.max(0, Math.min(letters.length - 1, Math.floor((clientY - first.top) / each)));
+    show(i);
     if (letters[i] !== active) jump(letters[i]);
   };
   return (
@@ -70,6 +83,13 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
           pick(e.clientY);
         }}
         onPointerMove={(e) => scrubbing && pick(e.clientY)}
+        onFocus={(e) => {
+          if (!e.currentTarget.matches(":focus-visible")) return;
+          setKb(true);
+          show(Math.max(0, letters.indexOf(active ?? letters[0])));
+          if (!active) setActive(letters[0]);
+        }}
+        onBlur={() => setKb(false)}
         onPointerUp={() => setScrubbing(false)}
         onPointerCancel={() => setScrubbing(false)}
         onKeyDown={(e) => {
@@ -77,6 +97,7 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
           if (!d) return;
           e.preventDefault();
           const i = Math.max(0, Math.min(letters.length - 1, letters.indexOf(active ?? letters[0]) + d));
+          show(i);
           jump(letters[i]);
         }}
         className="fixed right-0 z-20 flex w-touch cursor-pointer touch-none select-none flex-col items-center justify-center outline-none [-webkit-tap-highlight-color:transparent]"
@@ -87,7 +108,7 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
             key={l}
             className={cn(
               "grid min-h-0 w-full flex-1 place-items-center text-[11px] font-semibold leading-none transition-[color,transform] duration-[100ms] ease-ad",
-              scrubbing && l === active ? "scale-125 text-ink" : "text-ink-muted",
+              (scrubbing || kb) && l === active ? "scale-125 text-ink" : "text-ink-muted",
             )}
             style={{ maxHeight: 22 }}
           >
@@ -100,9 +121,9 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
           data-shape="round"
           className={cn(
             "pointer-events-none absolute right-[52px] grid size-[56px] place-items-center rounded-full bg-tip text-[26px] font-semibold text-tip-ink shadow-raised transition-[opacity,transform] duration-[120ms] ease-ad",
-            scrubbing && active ? "scale-100 opacity-100" : "scale-75 opacity-0",
+            (scrubbing || kb) && active ? "scale-100 opacity-100" : "scale-75 opacity-0",
           )}
-          style={{ top: `calc(${(Math.max(0, letters.indexOf(active ?? "")) + 0.5) / letters.length} * 100% - 28px)` }}
+          style={{ top: bubbleY - 28 }}
         >
           {active}
         </span>

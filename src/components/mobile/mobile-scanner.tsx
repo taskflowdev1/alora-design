@@ -60,7 +60,7 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
   return (
     <div className={cn("grid gap-3", className)}>
       <div ref={view} className={cn("ad-on-dark relative aspect-[4/3.6] overflow-hidden rounded-sheet bg-side text-side-ink transition-colors duration-[200ms] ease-ad", torch && "bg-side-raised")}>
-        <style href="ad-scanner" precedence="default">{`@keyframes ad-scan { from { top: 12%; } to { top: 88%; } } @media (prefers-reduced-motion: reduce) { .ad-scan-line { animation: none !important; top: 50% !important; } }`}</style>
+        <style href="ad-scanner" precedence="default">{`@keyframes ad-scan { from { transform: translateY(0); } to { transform: translateY(var(--ad-scan-run)); } } @media (prefers-reduced-motion: reduce) { .ad-scan-line { animation: none !important; transform: translateY(calc(var(--ad-scan-run) / 2)) !important; } }`}</style>
         {camera ?? (
           // The mock scene: a parcel label with a barcode, slightly out of the frame's centre.
           <div aria-hidden className="absolute inset-0 grid place-items-center">
@@ -80,17 +80,17 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
           type="button"
           aria-label="Read the code in the frame"
           onClick={hit}
-          className="absolute inset-[14%_10%] cursor-pointer [-webkit-tap-highlight-color:transparent]"
+          className="group/frame absolute inset-[14%_10%] cursor-pointer outline-none [container-type:size] [-webkit-tap-highlight-color:transparent]"
         >
           {(["left-0 top-0", "right-0 top-0 rotate-90", "right-0 bottom-0 rotate-180", "left-0 bottom-0 -rotate-90"] as const).map((pos) => (
-            <svg key={pos} aria-hidden width="30" height="30" viewBox="0 0 30 30" className={cn("absolute transition-transform duration-[200ms] ease-ad", pos, read && "scale-90")}>
+            <svg key={pos} aria-hidden width="30" height="30" viewBox="0 0 30 30" className={cn("absolute transition-transform duration-[200ms] ease-ad group-focus-visible/frame:scale-90", pos, read && "scale-90")}>
               <path d="M2 28 V14 Q2 2 14 2 H28" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
             </svg>
           ))}
           <span
             aria-hidden
-            className="ad-scan-line absolute inset-x-[6%] h-[2px] rounded-full bg-brand"
-            style={{ top: "50%", animation: "ad-scan 1.6s ease-in-out infinite alternate", animationPlayState: running ? "running" : "paused", opacity: read ? 0 : 1 }}
+            className="ad-scan-line absolute inset-x-[6%] top-[12%] h-[2px] rounded-full bg-side-ink [--ad-scan-run:76cqh]"
+            style={{ animation: "ad-scan 1.6s ease-in-out infinite alternate", animationPlayState: running ? "running" : "paused", opacity: read ? 0 : 1 }}
           />
           <span aria-hidden className={cn("absolute inset-0 rounded-card bg-side-ink transition-opacity", read ? "opacity-25 duration-[60ms]" : "opacity-0 duration-[280ms]")} />
         </button>
@@ -101,7 +101,7 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
           onClick={() => setTorch(!torch)}
           className={cn(
             "absolute right-2 top-2 grid size-touch cursor-pointer place-items-center rounded-full transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.92] [-webkit-tap-highlight-color:transparent]",
-            torch ? "bg-side-ink text-side" : "bg-side-fill text-side-ink",
+            torch ? "bg-side-ink text-side focus-visible:bg-side-muted" : "bg-side-fill text-side-ink focus-visible:bg-side-fill-strong",
           )}
         >
           <Zap size={20} strokeWidth={1.75} />
@@ -123,7 +123,7 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
             enterKeyHint="done"
             placeholder="8991234500017"
             trailing={
-              <button type="submit" className="h-touch shrink-0 cursor-pointer rounded-control px-3.5 text-[15px] font-semibold text-ink transition-transform duration-[150ms] ease-ad active:scale-[0.95] [-webkit-tap-highlight-color:transparent]">
+              <button type="submit" className="h-touch shrink-0 cursor-pointer rounded-control px-3.5 text-[15px] font-semibold text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.95] [-webkit-tap-highlight-color:transparent]">
                 Add
               </button>
             }

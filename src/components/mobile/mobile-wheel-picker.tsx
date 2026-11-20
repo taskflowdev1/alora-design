@@ -84,7 +84,7 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
           ref.current.style.scrollSnapType = "";
           go(Math.round(ref.current.scrollTop / ROW));
         }}
-        className="relative z-10 h-full snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="peer relative z-10 h-full snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ paddingBlock: ROW * 2 }}
       >
         {options.map((o, i) => (
@@ -101,6 +101,8 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
           </div>
         ))}
       </div>
+      {/* Keyboard focus: this wheel's slot of the centre band darkens one step. */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 rounded-control bg-fill-strong opacity-0 transition-opacity duration-[150ms] ease-ad peer-focus-visible:opacity-100" style={{ top: ROW * 2, height: ROW }} />
     </div>
   );
 }

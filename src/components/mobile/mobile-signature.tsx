@@ -103,7 +103,7 @@ export function MobileSignaturePad({ onChange, placeholder = "Sign here", classN
     emit();
   };
   const tool =
-    "flex h-touch cursor-pointer items-center gap-1.5 rounded-control px-3 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.96] active:bg-fill disabled:pointer-events-none disabled:opacity-40 [-webkit-tap-highlight-color:transparent]";
+    "flex h-touch cursor-pointer items-center gap-1.5 rounded-control px-3 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.96] active:bg-fill disabled:pointer-events-none disabled:opacity-40 [-webkit-tap-highlight-color:transparent]";
   return (
     <div className={cn("grid gap-1", className)}>
       <div className="relative h-[200px] overflow-hidden rounded-card bg-surface shadow-card">

@@ -16,13 +16,16 @@ export interface MobileSliderProps {
 const THUMB = 28;
 
 /**
- * A slider for a thumb, not a cursor: a 44 px tall track you can grab anywhere, a 28 px thumb, and while your finger
- * covers it the value floats above in a dark bubble so you can read it. The thumb follows the finger 1:1, then snaps to
- * the nearest step. Vertical drags still scroll the page. Arrow keys step, Page keys jump by ten steps.
+ * A slider for a thumb, not a cursor: a 44 px tall track and a 28 px thumb. The value reads in the label row above the
+ * track (where the finger doesn't cover it) and updates live while you drag. Touching the thumb grabs it at once;
+ * touching the track elsewhere waits for a sideways move (a vertical one scrolls the page and leaves the thumb alone),
+ * and a plain tap there jumps the thumb to it. The thumb follows the finger 1:1, then snaps to the nearest step. Arrow
+ * keys step, Page keys jump by ten steps.
  */
 export function MobileSlider({ label, value, onValueChange, min, max, step = 1, format = String, className }: MobileSliderProps) {
   const track = React.useRef<HTMLDivElement>(null);
   const [drag, setDrag] = React.useState<number | null>(null);
+  const press = React.useRef<{ x: number; y: number; id: number } | null>(null);
   const id = React.useId();
   const snap = (v: number) => Math.min(max, Math.max(min, Math.round((v - min) / step) * step + min));
   const at = (x: number) => {
@@ -59,17 +62,40 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
           e.preventDefault();
         }}
         onPointerDown={(e) => {
-          e.currentTarget.setPointerCapture(e.pointerId);
-          setDrag(at(e.clientX));
+          const el = e.currentTarget;
+          const r = el.getBoundingClientRect();
+          const k = r.width / el.offsetWidth;
+          const thumbX = r.left + (THUMB / 2 + (el.offsetWidth - THUMB) * p) * k;
+          // On the thumb (or with a mouse): grab now. Elsewhere on the track: wait to see which way the finger goes.
+          if (e.pointerType === "mouse" || Math.abs(e.clientX - thumbX) <= 22 * k) {
+            el.setPointerCapture(e.pointerId);
+            setDrag(at(e.clientX));
+          } else press.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
         }}
-        onPointerMove={(e) => drag != null && setDrag(at(e.clientX))}
-        onPointerUp={() => {
+        onPointerMove={(e) => {
+          if (drag != null) return setDrag(at(e.clientX));
+          const s = press.current;
+          if (!s) return;
+          const dx = e.clientX - s.x;
+          const dy = e.clientY - s.y;
+          if (Math.abs(dx) > 4 && Math.abs(dx) > Math.abs(dy)) {
+            press.current = null;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            setDrag(at(e.clientX));
+          } else if (Math.abs(dy) > 4) press.current = null;
+        }}
+        onPointerUp={(e) => {
+          // A plain tap on the track (no move): the thumb jumps there.
+          if (press.current) {
+            press.current = null;
+            return onValueChange(snap(at(e.clientX)));
+          }
           if (drag == null) return;
           onValueChange(snap(drag));
           setDrag(null);
         }}
-        onPointerCancel={() => setDrag(null)}
-        className="relative h-touch cursor-pointer touch-pan-y select-none outline-none [-webkit-tap-highlight-color:transparent]"
+        onPointerCancel={() => ((press.current = null), setDrag(null))}
+        className="group/slider relative h-touch cursor-pointer touch-pan-y select-none outline-none [-webkit-tap-highlight-color:transparent]"
       >
         <span className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 overflow-hidden rounded-full bg-fill-strong">
           <span className="absolute inset-y-0 left-0 rounded-full bg-on" style={{ width: `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${p})` }} />
@@ -77,20 +103,11 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
         <span
           aria-hidden
           data-shape="round"
-          className={cn("absolute top-1/2 rounded-full bg-thumb shadow-thumb transition-transform duration-[150ms] ease-ad", drag != null && "scale-110")}
+          // A real drop under the thumb (shadow-raised): on a white card in light mode the thin halo alone left it nearly
+          // invisible. Keyboard focus grows it like a grab does.
+          className={cn("absolute top-1/2 rounded-full bg-thumb shadow-raised transition-transform duration-[150ms] ease-ad group-focus-visible/slider:scale-110", drag != null && "scale-110")}
           style={{ width: THUMB, height: THUMB, left: `calc((100% - ${THUMB}px) * ${p})`, translate: "0 -50%" }}
         />
-        {/* The finger hides the thumb: the value floats above it while dragging. */}
-        <span
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 whitespace-nowrap rounded-control bg-tip px-2.5 py-1.5 text-[15px] font-semibold tabular-nums text-tip-ink shadow-raised transition-[opacity,transform] duration-[150ms] ease-ad",
-            drag != null ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
-          )}
-          style={{ left: `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${p})` }}
-        >
-          {format(snap(shown))}
-        </span>
       </div>
     </div>
   );

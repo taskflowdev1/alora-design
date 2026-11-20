@@ -94,10 +94,22 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
     const tm = (e: TouchEvent) => move(e.touches[0].clientY, e);
     const md = (e: MouseEvent) => e.button === 0 && start(e.clientY);
     const mm = (e: MouseEvent) => move(e.clientY, e);
+    // The blocking touchmove listener (it has to cancel the browser's own pull) is attached only while the list sits
+    // at its top or a pull is under way, so an ordinary scroll through the list never waits on JavaScript.
+    let armed = false;
+    const arm = () => {
+      const want = scroller.scrollTop <= 0 || st.on || st.at > 0;
+      if (want === armed) return;
+      armed = want;
+      if (want) scroller.addEventListener("touchmove", tm, { passive: false });
+      else scroller.removeEventListener("touchmove", tm);
+    };
+    const te = () => (end(), arm());
     scroller.addEventListener("touchstart", ts, { passive: true });
-    scroller.addEventListener("touchmove", tm, { passive: false });
-    scroller.addEventListener("touchend", end);
-    scroller.addEventListener("touchcancel", end);
+    scroller.addEventListener("scroll", arm, { passive: true });
+    scroller.addEventListener("touchend", te);
+    scroller.addEventListener("touchcancel", te);
+    arm();
     scroller.addEventListener("mousedown", md);
     window.addEventListener("mousemove", mm);
     window.addEventListener("mouseup", end);
@@ -105,8 +117,9 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
       cancelAnimationFrame(st.raf);
       scroller.removeEventListener("touchstart", ts);
       scroller.removeEventListener("touchmove", tm);
-      scroller.removeEventListener("touchend", end);
-      scroller.removeEventListener("touchcancel", end);
+      scroller.removeEventListener("scroll", arm);
+      scroller.removeEventListener("touchend", te);
+      scroller.removeEventListener("touchcancel", te);
       scroller.removeEventListener("mousedown", md);
       window.removeEventListener("mousemove", mm);
       window.removeEventListener("mouseup", end);
@@ -117,7 +130,7 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
 
   const p = Math.min(1, pull / ARM);
   return (
-    <div ref={wrap} className={cn("relative", className)}>
+    <div ref={wrap} className={cn("relative flex grow flex-col", className)}>
       <div aria-hidden={!busy} role={busy ? "status" : undefined} aria-label={busy ? "Refreshing" : undefined} className="absolute inset-x-0 top-0 flex justify-center gap-1.5" style={{ height: pull, alignItems: "center", opacity: pull ? 1 : 0 }}>
         {[0, 1, 2].map((i) => {
           const on = busy || p > (i + 0.5) / 3;
@@ -135,7 +148,7 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
         })}
         <style href="ad-pull-refresh" precedence="default">{`@keyframes ad-pull-wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
       </div>
-      <div ref={body} className="will-change-transform">
+      <div ref={body} className="flex grow flex-col will-change-transform">
         {children}
       </div>
     </div>

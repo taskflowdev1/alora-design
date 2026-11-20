@@ -23,10 +23,12 @@ import { NOW, ORDERS, PRODUCTS, smartTime, type Order } from "./data";
 import { COURIERS, CourierPicker } from "./mobile-app";
 import type { Demo } from "./demos";
 
-const short = (n: number) => (n >= 1e6 ? `Rp ${(n / 1e6).toFixed(1).replace(".", ",")} jt` : formatRp(n));
+const short = (n: number) => (n >= 1e6 ? `Rp ${(n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt` : formatRp(n));
 const TO_PACK = ORDERS.filter((o) => o.status === "Paid").slice(0, 12);
+/** The time first and without "Today," (the list is today's), so truncation never eats the part you scan for. */
+const rowTime = (d: Date) => smartTime(d).replace(/^Today, /, "");
 const orderRow = (o: Order, onClick?: () => void) => (
-  <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.customer} subtitle={`${o.items} · ${smartTime(o.at)}`} value={short(o.total)} onClick={onClick ?? (() => {})} />
+  <MobileListRow key={o.id} media={<Thumb alt={o.items} size={40} />} title={o.customer} subtitle={`${rowTime(o.at)} · ${o.items}`} value={short(o.total)} onClick={onClick ?? (() => {})} />
 );
 /** A plain screen for demos that only need somewhere to sit. */
 function OrdersScreen({ children, bottomInset }: { children?: React.ReactNode; bottomInset?: "tab-bar" | "action-bar" | "none" }) {
@@ -176,8 +178,16 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
     render: () => {
       const [rows, setRows] = React.useState(TO_PACK);
       const [snack, setSnack] = React.useState("");
+      const [undo, setUndo] = React.useState<(() => void) | null>(null);
       const [more, setMore] = React.useState<Order | null>(null);
-      const drop = (o: Order, text: string) => (setRows((r) => r.filter((x) => x.id !== o.id)), setSnack(text));
+      // A full swipe commits in one motion, so every drop can be undone (the row goes back where it was).
+      const drop = (o: Order, text: string) => {
+        const before = rows;
+        setRows((r) => r.filter((x) => x.id !== o.id));
+        setSnack(text);
+        setUndo(() => () => setRows(before));
+      };
+      const note = (text: string) => (setSnack(text), setUndo(null));
       return (
         <>
           <OrdersScreen bottomInset="none">
@@ -185,7 +195,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
               {rows.map((o) => (
                 <SwipeRow
                   key={o.id}
-                  leading={[{ label: "Print", icon: Printer, onSelect: () => setSnack(`Label for ${o.id} printing`) }]}
+                  leading={[{ label: "Print", icon: Printer, onSelect: () => note(`Label for ${o.id} printing`) }]}
                   trailing={[
                     { label: "Packed", icon: Check, tone: "accent", onSelect: () => drop(o, `${o.id} packed`) },
                     { label: "Cancel", icon: XCircle, tone: "danger", onSelect: () => drop(o, `${o.id} cancelled`) },
@@ -194,7 +204,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
                   <MobileListRow
                     media={<Thumb alt={o.items} size={40} />}
                     title={o.customer}
-                    subtitle={`${o.items} · ${smartTime(o.at)}`}
+                    subtitle={`${rowTime(o.at)} · ${o.items}`}
                     trailing={
                       <MobileBarButton aria-label={`Actions for ${o.id}`} onClick={() => setMore(o)}>
                         <MoreHorizontal />
@@ -212,14 +222,14 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
             actions={
               more
                 ? [
-                    { label: "Print label", icon: Printer, onSelect: () => setSnack(`Label for ${more.id} printing`) },
+                    { label: "Print label", icon: Printer, onSelect: () => note(`Label for ${more.id} printing`) },
                     { label: "Mark packed", icon: Check, onSelect: () => drop(more, `${more.id} packed`) },
                     { label: "Cancel order", icon: XCircle, destructive: true, onSelect: () => drop(more, `${more.id} cancelled`) },
                   ]
                 : []
             }
           />
-          <MobileSnackbar open={!!snack} onOpenChange={(o) => !o && setSnack("")} message={snack} above="none" />
+          <MobileSnackbar open={!!snack} onOpenChange={(o) => !o && setSnack("")} message={snack} above="none" action={undo ? { label: "Undo", onClick: undo } : undefined} />
         </>
       );
     },
@@ -459,7 +469,8 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
               <MobileListRow
                 key={x.sku}
                 media={<Thumb alt={x.name} size={40} />}
-                title={x.name}
+                // Two lines for the name: the 140 px stepper leaves little room, and a cut name can't be told apart.
+                title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{x.name}</span>}
                 subtitle={x.sku}
                 value={<QuantityStepper size="touch" aria-label={`${x.name} count`} value={stock[x.sku]} onValueChange={(v) => setStock((s) => ({ ...s, [x.sku]: v }))} />}
               />

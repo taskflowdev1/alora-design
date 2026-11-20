@@ -29,15 +29,16 @@ import {
   Maximize,
   Compass,
   Trash2,
+  Plus,
 } from "react-feather";
+import { Flag } from "@/components/ui/language-picker";
 import { cn, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Thumb } from "@/components/ui/thumb";
 import { InputOTP, otpLanded, type InputOTPStatus } from "@/components/ui/input-otp";
-import { MobileScreen } from "@/components/mobile/mobile-nav-bar";
+import { MobileScreen, MobileBarButton, MobileBarTextButton } from "@/components/mobile/mobile-nav-bar";
 import { MobileList, MobileListRow } from "@/components/mobile/mobile-list";
 import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
 import { MobileActionSheet } from "@/components/mobile/mobile-action-sheet";
@@ -58,14 +59,13 @@ import { MobileScrubChart } from "@/components/mobile/mobile-scrub-chart";
 import { CountBadge } from "@/components/mobile/mobile-badge";
 import { HOURLY, ORDERS, PRODUCTS, SHOPS } from "./data";
 import { APPROVALS, SHIFTS, productPhoto, weekDay, type Approval } from "./mobile-data";
-import { COURIERS, useNav, type ScreenProps } from "./mobile-app-kit";
+import { COURIERS, ScreenEmpty, useNav, type ScreenProps } from "./mobile-app-kit";
 
 /* ------------------------------------------------------------ More */
 
 export function MoreScreen() {
   const nav = useNav();
   const [out, setOut] = React.useState(false);
-  const shipped = ORDERS.find((o) => o.status === "Shipped")!;
   return (
     <>
       <MobileScreen title="More">
@@ -80,7 +80,6 @@ export function MoreScreen() {
           </MobileList>
           <MobileList title="Run the shop">
             <MobileListRow media={<Maximize />} title="Stock count" chevron onClick={() => nav.push("stock-count")} />
-            <MobileListRow media={<Truck />} title="Proof of delivery" chevron onClick={() => nav.push("delivery", { id: shipped.id })} />
             <MobileListRow media={<CheckSquare />} title="Approvals" value={<CountBadge count={APPROVALS.length} />} chevron onClick={() => nav.push("approvals")} />
             <MobileListRow media={<CalendarIcon />} title="Team schedule" chevron onClick={() => nav.push("schedule")} />
           </MobileList>
@@ -134,6 +133,13 @@ export function PosScreen({ back }: ScreenProps) {
   const [filter, setFilter] = React.useState("all");
   const items = Object.values(c).reduce((s, n) => s + n, 0);
   const total = totalOf(c);
+  const setQty = (sku: string, v: number) => cartStore.set(Object.fromEntries(Object.entries({ ...c, [sku]: v }).filter(([, n]) => n > 0)));
+  // Clearing is one tap, so it can be undone instead of asked about.
+  const clear = () => {
+    const before = c;
+    cartStore.set({});
+    nav.snack("Cart cleared", () => cartStore.set(before));
+  };
   const list = PRODUCTS.filter((p) => (!q || p.name.toLowerCase().includes(q.toLowerCase())) && (filter === "all" || (filter === "cart" ? c[p.sku] : p.stock > 0)));
   return (
     <>
@@ -142,6 +148,13 @@ export function PosScreen({ back }: ScreenProps) {
         large={false}
         back={back}
         bottomInset="action-bar"
+        trailing={
+          items ? (
+            <MobileBarButton aria-label="Clear the cart" onClick={clear}>
+              <Trash2 />
+            </MobileBarButton>
+          ) : null
+        }
         header={
           <div className="grid gap-2 pt-1">
             <MobileSearchBar value={q} onValueChange={setQ} placeholder="Find a product" />
@@ -159,22 +172,36 @@ export function PosScreen({ back }: ScreenProps) {
         }
       >
         <MobileList>
-          {list.map((p) => (
-            <MobileListRow
-              key={p.sku}
-              media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
-              title={p.name}
-              subtitle={formatRp(p.price)}
-              value={<QuantityStepper size="touch" aria-label={`${p.name} in cart`} value={c[p.sku] ?? 0} min={0} max={Math.max(p.stock, c[p.sku] ?? 0)} onValueChange={(v) => cartStore.set(Object.fromEntries(Object.entries({ ...c, [p.sku]: v }).filter(([, n]) => n > 0)))} />}
-            />
-          ))}
+          {/* A tap on the row adds one; the stepper shows only once it's in the cart, so names keep their width. */}
+          {list.map((p) => {
+            const n = c[p.sku] ?? 0;
+            const room = Math.max(p.stock, n);
+            return (
+              <MobileListRow
+                key={p.sku}
+                media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
+                title={p.name}
+                subtitle={p.stock ? formatRp(p.price) : `${formatRp(p.price)} · out of stock`}
+                onClick={n ? undefined : p.stock ? () => setQty(p.sku, 1) : undefined}
+                value={n ? <QuantityStepper size="touch" aria-label={`${p.name} in cart`} value={n} min={0} max={room} onValueChange={(v) => setQty(p.sku, v)} /> : undefined}
+                trailing={
+                  n || !p.stock ? null : (
+                    <button
+                      type="button"
+                      aria-label={`Add ${p.name}`}
+                      onClick={() => setQty(p.sku, 1)}
+                      className="mr-1 grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.92] active:bg-fill [-webkit-tap-highlight-color:transparent]"
+                    >
+                      <Plus size={20} strokeWidth={1.75} />
+                    </button>
+                  )
+                }
+              />
+            );
+          })}
         </MobileList>
       </MobileScreen>
       <MobileActionBar>
-        <Button disabled={!items} onClick={() => cartStore.set({})}>
-          <Trash2 />
-          Clear
-        </Button>
         <Button variant="primary" disabled={!items} onClick={() => nav.push("pos-pay")}>
           Charge {formatRp(total)}
         </Button>
@@ -269,7 +296,18 @@ export function PosPayScreen({ back }: ScreenProps) {
         </div>
       </MobileScreen>
       <MobileActionBar>
-        <Button variant="primary" disabled={!can} onClick={() => nav.replace("pos-receipt", { method, received: String(method === "cash" ? cash : total) })}>
+        <Button
+          variant="primary"
+          disabled={!can}
+          onClick={() => {
+            // Paid: the receipt keeps its own copy of the lines and the cart empties now, so nothing can charge it twice.
+            const lines = Object.entries(c)
+              .map(([sku, n]) => `${sku}:${n}`)
+              .join(",");
+            cartStore.set({});
+            nav.replace("pos-receipt", { method, received: String(method === "cash" ? cash : total), lines });
+          }}
+        >
           <Check />
           {method === "cash" ? "Take cash" : "Payment received"}
         </Button>
@@ -278,9 +316,18 @@ export function PosPayScreen({ back }: ScreenProps) {
   );
 }
 
-export function PosReceiptScreen({ params, back }: ScreenProps) {
+/** A sample sale for the receipt when it's opened on its own (the gallery, a direct link). */
+const SAMPLE_LINES = "RMB-GL-014:2,RMB-LL-008:1,RMB-SP-003:3";
+
+export function PosReceiptScreen({ params }: ScreenProps) {
   const nav = useNav();
-  const c = useCart();
+  const c: Cart = Object.fromEntries(
+    (params.lines || SAMPLE_LINES)
+      .split(",")
+      .map((x) => x.split(":"))
+      .filter(([sku, n]) => PRODUCTS.some((p) => p.sku === sku) && Number(n) > 0)
+      .map(([sku, n]) => [sku, Number(n)]),
+  );
   const lines = Object.entries(c).map(([sku, qty]) => {
     const p = PRODUCTS.find((x) => x.sku === sku)!;
     return { name: p.name, qty, price: p.price };
@@ -289,7 +336,8 @@ export function PosReceiptScreen({ params, back }: ScreenProps) {
   const method = params.method === "qris" ? "QRIS" : params.method === "card" ? "Debit card" : "Cash";
   return (
     <>
-      <MobileScreen title="Receipt" large={false} back={back} bottomInset="action-bar">
+      {/* The end of the sale: no Back into a paid cart. Done goes back to where the sale started. */}
+      <MobileScreen title="Receipt" large={false} leading={<MobileBarTextButton onClick={() => nav.pop(2)}>Done</MobileBarTextButton>} bottomInset="action-bar">
         <div className="grid gap-4 px-pad pt-2">
           <div className="grid justify-items-center gap-2 py-2 text-center">
             <CheckCircle size={40} strokeWidth={1.5} />
@@ -303,13 +351,7 @@ export function PosReceiptScreen({ params, back }: ScreenProps) {
           <Printer />
           Print
         </Button>
-        <Button
-          variant="primary"
-          onClick={() => {
-            cartStore.set({});
-            nav.pop();
-          }}
-        >
+        <Button variant="primary" onClick={() => nav.pop()}>
           New sale
         </Button>
       </MobileActionBar>
@@ -336,6 +378,7 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
       back={back}
       bottomInset="none"
       header={
+        list.length ? (
         <div className="pt-1">
           <MobileFilterChips
             aria-label="Kind"
@@ -348,6 +391,7 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
             ]}
           />
         </div>
+        ) : null
       }
     >
       {shown.length ? (
@@ -371,6 +415,7 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-gap">
                   <Button className="h-touch text-[15px]" onClick={() => decide(a, false)}>
+                    <X />
                     Reject
                   </Button>
                   <Button className="h-touch text-[15px] font-semibold" onClick={() => decide(a, true)}>
@@ -383,7 +428,7 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
           ))}
         </div>
       ) : (
-        <EmptyState icon={CheckCircle} title="All caught up" className="py-40" />
+        <ScreenEmpty icon={CheckCircle} title="All caught up" />
       )}
     </MobileScreen>
   );
@@ -483,12 +528,23 @@ export function SettingsScreen({ back }: ScreenProps) {
           <MobileList title="This phone">
             <MobileListRow media={<Truck />} title="Default courier" value={COURIERS.find((c) => c.id === courier)?.name} chevron onClick={() => setSheet("courier")} />
             <MobileListRow media={<MapPin />} title="Shops" value={`${shops.length} shops`} chevron onClick={() => setSheet("shops")} />
-            <MobileListRow media={<Globe />} title="Language" value={lang} chevron onClick={() => setSheet("lang")} />
+            <MobileListRow
+              media={<Globe />}
+              title="Language"
+              value={
+                <span className="flex items-center gap-2">
+                  <Flag code={lang.toLowerCase()} className="size-[18px]" />
+                  {lang}
+                </span>
+              }
+              chevron
+              onClick={() => setSheet("lang")}
+            />
           </MobileList>
         </div>
       </MobileScreen>
       <MobilePickerSheet open={sheet === "courier"} onOpenChange={(o) => setSheet(o ? "courier" : null)} title="Default courier" value={courier} onValueChange={setCourier} options={COURIERS.map((c) => ({ value: c.id, label: c.name, detail: c.eta, meta: formatRp(c.price), icon: Truck }))} />
-      <MobilePickerSheet open={sheet === "lang"} onOpenChange={(o) => setSheet(o ? "lang" : null)} title="Language" value={lang} onValueChange={setLang} options={["EN", "ID", "CN"].map((l) => ({ value: l, label: l, icon: Globe }))} />
+      <MobilePickerSheet open={sheet === "lang"} onOpenChange={(o) => setSheet(o ? "lang" : null)} title="Language" value={lang} onValueChange={setLang} options={["EN", "ID", "CN"].map((l) => ({ value: l, label: l, icon: () => <Flag code={l.toLowerCase()} className="size-[20px]" /> }))} />
       <MobileMultiSelectSheet open={sheet === "shops"} onOpenChange={(o) => setSheet(o ? "shops" : null)} title="Shops" value={shops} onValueChange={setShops} options={SHOPS.map((s) => ({ value: s, label: s, icon: MapPin }))} />
     </>
   );
@@ -518,12 +574,9 @@ export function AccountScreen({ back }: ScreenProps) {
             <MobileListRow media={<Smartphone />} title="Kemang till" value="Today, 09:02" />
             <MobileListRow media={<Smartphone />} title="Senopati till" value="Yesterday" />
           </MobileList>
-          <div className="px-pad">
-            <Button className="h-touch w-full bg-danger-soft text-[15px] text-danger hover:bg-danger-soft" onClick={() => setOut(true)}>
-              <LogOut />
-              Sign out
-            </Button>
-          </div>
+          <MobileList>
+            <MobileListRow media={<LogOut />} title="Sign out" onClick={() => setOut(true)} />
+          </MobileList>
         </div>
       </MobileScreen>
       <SignOutAlert open={out} onOpenChange={setOut} />
@@ -545,7 +598,7 @@ export function LoginScreen() {
   };
   return (
     <>
-      <MobileScreen title="Sign in" large={false} bottomInset="action-bar">
+      <MobileScreen title="" large={false} bottomInset="action-bar">
         <form
           className="grid gap-8 px-pad pt-10"
           onSubmit={(e) => {
@@ -612,7 +665,7 @@ export function OtpScreen({ params, back }: ScreenProps) {
     }, 700);
   };
   return (
-    <MobileScreen title="Code" large={false} back={back} bottomInset="none">
+    <MobileScreen title="" large={false} back={back} bottomInset="none">
       {/* The message as the phone would show it: tap it to fill the code (what autofill does on a real phone). */}
       <button
         type="button"

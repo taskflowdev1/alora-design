@@ -17,7 +17,7 @@ export interface MobileAmountKeypadProps {
 }
 
 const key =
-  "grid h-[52px] cursor-pointer touch-manipulation select-none place-items-center rounded-control bg-fill text-[24px] font-medium tabular-nums text-ink [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[100ms] ease-ad active:scale-[0.96] active:bg-fill-strong";
+  "grid h-[52px] cursor-pointer touch-manipulation select-none place-items-center rounded-control bg-fill text-[24px] font-medium tabular-nums text-ink [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[100ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.96] active:bg-fill-strong";
 
 /**
  * Money on a phone without the system keyboard: the amount in rupiah, formatted as you type (Rp 125.000), over a
@@ -43,11 +43,12 @@ export function MobileAmountKeypad({ value, onValueChange, label, max = 999_999_
         else return;
         e.preventDefault();
       }}
-      className={cn("grid gap-3 outline-none", className)}
+      className={cn("group/pad grid gap-3 outline-none", className)}
     >
       <div className="grid justify-items-center gap-1 py-2">
         {label ? <span className="text-[13px] text-ink-muted">{label}</span> : null}
-        <output aria-live="polite" className={cn("flex items-center text-[32px] font-semibold leading-tight tabular-nums", value ? "text-ink" : "text-ink-muted")}>
+        {/* The amount takes typed digits while the pad has keyboard focus: its line shows a fill then. */}
+        <output aria-live="polite" className={cn("flex items-center rounded-control px-3 text-[32px] font-semibold leading-tight tabular-nums transition-colors duration-[150ms] ease-ad group-focus-visible/pad:bg-fill", value ? "text-ink" : "text-ink-muted")}>
           {formatRp(value)}
           <span aria-hidden className="ml-0.5 h-8 w-[2px] animate-[ad-pulse_1s_steps(1)_infinite] rounded-full bg-ink" />
         </output>
@@ -61,7 +62,7 @@ export function MobileAmountKeypad({ value, onValueChange, label, max = 999_999_
               onClick={() => onValueChange(q.value)}
               className={cn(
                 "h-touch min-w-0 flex-1 cursor-pointer truncate rounded-control px-2 text-[15px] tabular-nums [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
-                value === q.value ? "bg-fill-strong font-medium text-ink" : "bg-fill text-ink",
+                value === q.value ? "bg-fill-strong font-medium text-ink focus-visible:bg-ink-muted focus-visible:text-surface" : "bg-fill text-ink focus-visible:bg-fill-strong",
               )}
             >
               {q.label}

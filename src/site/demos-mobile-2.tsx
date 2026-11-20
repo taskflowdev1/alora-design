@@ -161,7 +161,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
                   value={r}
                   onValueChange={setR}
                   options={[
-                    { value: "auto", title: "Print every receipt", icon: Printer },
+                    { value: "auto", title: "Print every receipt" },
                     { value: "ask", title: "Ask each time" },
                     { value: "never", title: "Don't print" },
                   ]}

@@ -44,9 +44,10 @@ export function MobileBanner({ open, icon: Icon, children, action, tone = "neutr
               type="button"
               tabIndex={open ? 0 : -1}
               onClick={action.onClick}
-              className="-my-3 -mr-1.5 h-touch shrink-0 cursor-pointer self-center rounded-control px-3 text-[15px] font-semibold transition-transform duration-[150ms] ease-ad active:scale-[0.95] [-webkit-tap-highlight-color:transparent]"
+              className="group/act -my-3 -mr-1.5 grid h-touch shrink-0 cursor-pointer place-items-center self-center px-0.5 text-[15px] font-semibold outline-none transition-transform duration-[150ms] ease-ad active:scale-[0.95] [-webkit-tap-highlight-color:transparent]"
             >
-              {action.label}
+              {/* It looks like a button: a small pill (32 px) in a 44 px hit area. */}
+              <span className="flex h-[32px] items-center rounded-control bg-surface px-3 transition-colors duration-[150ms] ease-ad group-focus-visible/act:bg-fill">{action.label}</span>
             </button>
           ) : null}
         </div>

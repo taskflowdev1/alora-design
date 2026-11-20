@@ -1,20 +1,19 @@
 // Example app screens, part B: Products, Product (+ edit), Stock count, Customers, Customer, Inbox, Chat, Assistant.
 import * as React from "react";
-import { Box, Camera, ChevronRight, Edit2, FileText, Mail, MapPin, Package, Phone, Search as SearchIcon, ShoppingBag, Tag, Zap, Maximize, Check, Image as ImageIcon, Grid } from "react-feather";
+import { Box, Camera, ChevronRight, Edit2, FileText, MapPin, MessageCircle, Package, Phone, Plus, Search as SearchIcon, ShoppingBag, Tag, Zap, Maximize, Check, Image as ImageIcon, Grid } from "react-feather";
 import { formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Thumb } from "@/components/ui/thumb";
 import { MarketMark } from "@/components/ui/marketplace-mark";
 import { StreamingText } from "@/components/ui/streaming-text";
 import { ProposedChange } from "@/components/ui/proposed-change";
-import { MobileScreen, MobileBarButton } from "@/components/mobile/mobile-nav-bar";
+import { MobileScreen, MobileBarButton, MobileBarTextButton } from "@/components/mobile/mobile-nav-bar";
 import { MobileList, MobileListRow, MobileListSkeleton } from "@/components/mobile/mobile-list";
 import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
 import { MobileSheet } from "@/components/mobile/mobile-sheet";
 import { MobileActionSheet } from "@/components/mobile/mobile-action-sheet";
-import { MobileActionBar } from "@/components/mobile/mobile-action-bar";
+import { MobileActionBar, MobileFab } from "@/components/mobile/mobile-action-bar";
 import { MobileScrubChart } from "@/components/mobile/mobile-scrub-chart";
 import { MobileKpiCarousel, MobileStatGrid, MobileStatTile } from "@/components/mobile/mobile-stats";
 import { MobileFilterChips } from "@/components/mobile/mobile-chip-row";
@@ -32,9 +31,9 @@ import { MobilePersonRow } from "@/components/mobile/mobile-person-row";
 import { MobileTopTabs, MobileTabPager } from "@/components/mobile/mobile-top-tabs";
 import { MobileContextMenu } from "@/components/mobile/mobile-context-menu";
 import { MobileChatThread, MobileComposer, type MobileChatMessage } from "@/components/mobile/mobile-chat";
-import { DAILY, ORDERS, PRODUCTS, SHOPS, smartTime } from "./data";
+import { DAILY, ORDERS, PRODUCTS, SHOPS } from "./data";
 import { CAMERA_ROLL, CHATS, CUSTOMERS, productPhoto, type Chat } from "./mobile-data";
-import { short, useNav, type ScreenProps } from "./mobile-app-kit";
+import { ScreenEmpty, rowTime, short, useNav, type ScreenProps } from "./mobile-app-kit";
 import { OrderThumb } from "./mobile-screens-a";
 
 type Product = (typeof PRODUCTS)[number];
@@ -50,12 +49,14 @@ const categoryOf = (p: Product) => ({ GL: "cups", PR: "plates", MB: "plates", KR
 const stockLabel = (n: number) => (n === 0 ? "Out of stock" : `${n} in stock`);
 
 /** Stock and prices shared by the list, the detail and the editor. */
-const ProductsStore = React.createContext<{ products: Product[]; update: (sku: string, patch: Partial<Product>) => void } | null>(null);
+const ProductsStore = React.createContext<{ products: Product[]; update: (sku: string, patch: Partial<Product>) => void; add: (p: Product) => void } | null>(null);
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = React.useState(PRODUCTS);
   const update = React.useCallback((sku: string, patch: Partial<Product>) => setProducts((l) => l.map((p) => (p.sku === sku ? { ...p, ...patch } : p))), []);
-  return <ProductsStore.Provider value={{ products, update }}>{children}</ProductsStore.Provider>;
+  const add = React.useCallback((p: Product) => setProducts((l) => [p, ...l]), []);
+  return <ProductsStore.Provider value={{ products, update, add }}>{children}</ProductsStore.Provider>;
 }
+const BLANK: Product = { sku: "RMB-NEW-001", name: "", price: 0, stock: 0 };
 const useProducts = () => React.useContext(ProductsStore)!;
 
 /* ------------------------------------------------------------ Products */
@@ -66,19 +67,18 @@ export function ProductsScreen() {
   const [q, setQ] = React.useState("");
   const [filter, setFilter] = React.useState("all");
   const [loading, setLoading] = React.useState(true);
+  const [creating, setCreating] = React.useState(false);
   React.useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 600);
     return () => window.clearTimeout(t);
   }, []);
   const list = products.filter((p) => (!q || `${p.name} ${p.sku}`.toLowerCase().includes(q.toLowerCase())) && (filter === "all" || (filter === "low" ? p.stock > 0 && p.stock <= 3 : p.stock === 0)));
   return (
+    <>
     <MobileScreen
       title="Products"
-      trailing={
-        <MobileBarButton aria-label="Count stock" onClick={() => nav.push("stock-count")}>
-          <Maximize />
-        </MobileBarButton>
-      }
+      bottomInset="tab-bar-fab"
+      trailing={<MobileBarTextButton onClick={() => nav.push("stock-count")}>Count</MobileBarTextButton>}
       header={
         <>
           <MobileSearchBar value={q} onValueChange={setQ} placeholder="Name or SKU" />
@@ -96,7 +96,8 @@ export function ProductsScreen() {
       }
     >
       {loading ? (
-        <MobileListSkeleton rows={8} />
+        // The same rows the list will have, so nothing moves when it lands.
+        <MobileListSkeleton rows={Math.max(1, list.length)} />
       ) : list.length ? (
         <MobileList>
           {list.map((p) => (
@@ -104,9 +105,13 @@ export function ProductsScreen() {
           ))}
         </MobileList>
       ) : (
-        <EmptyState icon={SearchIcon} title="No products match" className="py-20" />
+        <ScreenEmpty icon={SearchIcon} title="No products match" />
       )}
     </MobileScreen>
+    {/* A list screen's main action floats in thumb reach (taste: phone, a floating button for the main action). */}
+    <MobileFab icon={Plus} label="New product" onClick={() => setCreating(true)} />
+    <ProductEditor product={BLANK} isNew open={creating} onOpenChange={setCreating} />
+    </>
   );
 }
 
@@ -120,17 +125,15 @@ export function ProductScreen({ params, back }: ScreenProps) {
   const photos = [0, 1, 2].map((a) => productPhoto(p.sku, a));
   const days = DAILY.slice(-14).map((d, i) => ({ label: `${d.label} Nov`, value: Math.max(0, Math.round((d.value / 9) * (1 + ((i + p.price) % 3) * 0.2))), display: "" }));
   const sold = days.reduce((s, d) => s + d.value, 0);
+  // The shops' stock adds up to the total (half, about a third, the rest).
+  const a = Math.round(p.stock * 0.5);
+  const b = Math.round(p.stock * 0.3);
+  const perShop = SHOPS.slice(0, 3).map((shop, i) => ({ shop, n: [a, b, p.stock - a - b][i] }));
   return (
     <>
-      <MobileScreen title={p.name} back={back} bottomInset="action-bar">
-        <div className="grid gap-5">
-          <div className="px-pad">
-            <MobileKpiCarousel aria-label="Photos">
-              {photos.map((src, i) => (
-                <img key={i} src={src} alt={`${p.name}, photo ${i + 1}`} draggable={false} className="aspect-square w-full rounded-card object-cover" />
-              ))}
-            </MobileKpiCarousel>
-          </div>
+      <MobileScreen title={p.name} large={false} back={back} bottomInset="action-bar">
+        <div className="grid gap-5 pt-2">
+          {/* Price and stock first (what an owner opens a product for), then short 4:3 photos you can swipe. */}
           <div className="px-pad">
             <MobileStatGrid>
               <MobileStatTile label="Price" value={formatRp(p.price)} />
@@ -138,13 +141,20 @@ export function ProductScreen({ params, back }: ScreenProps) {
             </MobileStatGrid>
           </div>
           <div className="px-pad">
+            <MobileKpiCarousel aria-label="Photos">
+              {photos.map((src, i) => (
+                <img key={i} src={src} alt={`${p.name}, photo ${i + 1}`} draggable={false} className="aspect-[4/3] max-h-[180px] w-full rounded-card object-cover" />
+              ))}
+            </MobileKpiCarousel>
+          </div>
+          <div className="px-pad">
             <div className="rounded-card bg-surface p-pad shadow-card">
-              <MobileScrubChart label="Sold per day" value={`${sold} pcs`} data={days.map((d) => ({ ...d, display: `${d.value} pcs` }))} height={80} labelEvery={7} />
+              <MobileScrubChart label="Sold, last 14 days" value={`${sold} pcs`} data={days.map((d) => ({ ...d, display: `${d.value} pcs` }))} height={80} labelEvery={7} />
             </div>
           </div>
           <MobileList title="Stock per shop">
-            {SHOPS.slice(0, 3).map((s, i) => (
-              <MobileListRow key={s} media={<MapPin />} title={s} value={Math.max(0, p.stock - i * 2)} />
+            {perShop.map(({ shop, n }) => (
+              <MobileListRow key={shop} media={<MapPin />} title={shop} value={n} />
             ))}
           </MobileList>
           <MobileList title="Details">
@@ -168,10 +178,10 @@ export function ProductScreen({ params, back }: ScreenProps) {
   );
 }
 
-function ProductEditor({ product: p, open, onOpenChange }: { product: Product; open: boolean; onOpenChange: (o: boolean) => void }) {
+function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { product: Product; open: boolean; onOpenChange: (o: boolean) => void; isNew?: boolean }) {
   const nav = useNav();
-  const { update } = useProducts();
-  const initial = React.useMemo(() => [0, 1].map((a) => ({ id: `${p.sku}-${a}`, src: productPhoto(p.sku, a), alt: `${p.name}, photo ${a + 1}` })), [p]);
+  const { update, add } = useProducts();
+  const initial = React.useMemo<Photo[]>(() => (isNew ? [] : [0, 1].map((a) => ({ id: `${p.sku}-${a}`, src: productPhoto(p.sku, a), alt: `${p.name}, photo ${a + 1}` }))), [p, isNew]);
   const [photos, setPhotos] = React.useState<Photo[]>(initial);
   const [roll, setRoll] = React.useState<Photo[]>(CAMERA_ROLL);
   const [name, setName] = React.useState(p.name);
@@ -190,18 +200,21 @@ function ProductEditor({ product: p, open, onOpenChange }: { product: Product; o
     setStock(p.stock);
   }, [open, p, initial]);
   const dirty = name !== p.name || price !== p.price || stock !== p.stock || photos.length !== initial.length || discount > 0 || category !== categoryOf(p) || shops.length !== 3 || !online;
-  const nameError = name.trim() ? undefined : "Give it a name";
+  // A new product starts blank: no error before anything is typed.
+  const nameError = name.trim() || (isNew && !dirty) ? undefined : "Give it a name";
   return (
     <>
       <MobileModal
         open={open}
         onOpenChange={onOpenChange}
-        title="Edit product"
-        dirty={dirty && !nameError}
+        title={isNew ? "New product" : "Edit product"}
+        saveLabel={isNew ? "Add product" : "Save"}
+        dirty={dirty && !!name.trim()}
         onSave={() =>
           new Promise((r) =>
             window.setTimeout(() => {
-              update(p.sku, { name, price, stock });
+              if (isNew) add({ sku: `RMB-NEW-${String(Date.now()).slice(-3)}`, name, price, stock });
+              else update(p.sku, { name, price, stock });
               nav.snack(`${name} saved`);
               r(null);
             }, 500),
@@ -259,10 +272,13 @@ export function StockCountScreen({ back }: ScreenProps) {
   const [ask, setAsk] = React.useState(false);
   const order = React.useRef(0);
   const next = ["RMB-GL-014", "RMB-PR-022", "RMB-LL-008", "RMB-MB-005", "RMB-VS-012"];
-  const counted = PRODUCTS.filter((p) => counts[p.sku] != null);
+  // Newest scan on top (with its flash), so the item you just scanned is never off screen.
+  const [seen, setSeen] = React.useState<string[]>(["RMB-LL-008", "RMB-GL-014"]);
+  const counted = seen.map((sku) => PRODUCTS.find((p) => p.sku === sku)!).filter(Boolean);
   const diffs = counted.filter((p) => counts[p.sku] !== p.stock).length;
   const add = (sku: string) => {
     setCounts((c) => ({ ...c, [sku]: (c[sku] ?? 0) + 1 }));
+    setSeen((l) => [sku, ...l.filter((x) => x !== sku)]);
     setFlash(sku);
     window.setTimeout(() => setFlash((f) => (f === sku ? null : f)), 600);
   };
@@ -285,7 +301,7 @@ export function StockCountScreen({ back }: ScreenProps) {
                 key={p.sku}
                 className={flash === p.sku ? "rounded-item bg-fill transition-colors duration-[280ms]" : "transition-colors duration-[280ms]"}
                 media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
-                title={p.name}
+                title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{p.name}</span>}
                 subtitle={counts[p.sku] === p.stock ? "Matches" : `System says ${p.stock}`}
                 value={<QuantityStepper size="touch" aria-label={`${p.name} count`} value={counts[p.sku]} onValueChange={(v) => setCounts((c) => ({ ...c, [p.sku]: v }))} />}
               />
@@ -329,7 +345,7 @@ export function CustomersScreen({ back }: ScreenProps) {
           renderItem={(c) => <MobilePersonRow name={c.name} subtitle={`${c.orders} ${c.orders === 1 ? "order" : "orders"} · ${c.city}`} onClick={() => nav.push("customer", { id: c.id })} />}
         />
       ) : (
-        <EmptyState icon={SearchIcon} title="No customers match" className="py-24" />
+        <ScreenEmpty icon={SearchIcon} title="No customers match" />
       )}
     </MobileScreen>
   );
@@ -350,12 +366,12 @@ export function CustomerScreen({ params, back }: ScreenProps) {
         </div>
         <MobileList title="Contact">
           <MobileListRow media={<Phone />} title={c.phone} chevron onClick={() => nav.snack(`Calling ${c.name.split(" ")[0]}`)} />
-          <MobileListRow media={<Mail />} title="WhatsApp" chevron onClick={() => nav.push("chat", { id: "ch1" })} />
+          <MobileListRow media={<MessageCircle />} title="WhatsApp" chevron onClick={() => nav.push("chat", { id: "ch1" })} />
           <MobileListRow media={<MapPin />} title={c.city} />
         </MobileList>
         <MobileList title="Orders">
           {orders.map((o) => (
-            <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.items} subtitle={`${o.id} · ${smartTime(o.at)}`} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
+            <MobileListRow key={o.id} media={<OrderThumb o={o} />} title={o.items} subtitle={`${rowTime(o.at)} · ${o.id}`} value={short(o.total)} onClick={() => nav.push("order", { id: o.id })} />
           ))}
         </MobileList>
       </div>
@@ -382,7 +398,6 @@ export function InboxScreen() {
     const list = CHATS.filter((c) => m === "all" || c.market === m);
     return list.length ? (
       <MobileList>
-        {m === "all" ? <MobileListRow media={<Zap />} title="Assistant" subtitle="Ask about sales, stock and orders" chevron onClick={() => nav.push("assistant")} /> : null}
         {list.map((c) => (
           <MobileContextMenu
             key={c.id}
@@ -404,12 +419,18 @@ export function InboxScreen() {
         ))}
       </MobileList>
     ) : (
-      <EmptyState icon={ShoppingBag} title="No chats" className="py-24" />
+      <ScreenEmpty icon={ShoppingBag} title="No chats" />
     );
   };
   return (
     <MobileScreen
       title="Inbox"
+      // The assistant isn't a buyer chat: it gets its own bar button instead of a row in the buyers' list.
+      trailing={
+        <MobileBarButton aria-label="Assistant" onClick={() => nav.push("assistant")}>
+          <Zap />
+        </MobileBarButton>
+      }
       header={<MobileTopTabs aria-label="Marketplace" value={tab} onValueChange={setTab} tabs={tabs.map((t) => ({ ...t, count: CHATS.filter((c) => (t.value === "all" || c.market === t.value) && unread(c)).length || undefined }))} />}
     >
       <MobileTabPager value={tab} onValueChange={setTab} pages={tabs.map((t) => ({ value: t.value, content: page(t.value) }))} />
@@ -430,13 +451,13 @@ export function ChatScreen({ params, back }: ScreenProps) {
       time: l.time,
       text: l.text,
       attachment: l.order ? (
-        <button type="button" onClick={() => nav.push("order", { id: order.id })} className="-mx-1.5 -mt-0.5 flex min-h-touch cursor-pointer items-center gap-2.5 rounded-control bg-fill p-1.5 pr-3 text-left">
+        <button type="button" onClick={() => nav.push("order", { id: order.id })} className="-mx-1.5 -mt-0.5 flex min-h-touch w-[calc(100%+12px)] cursor-pointer items-center gap-2.5 rounded-control bg-fill p-1.5 pr-3 text-left transition-colors duration-[150ms] ease-ad focus-visible:bg-fill-strong">
           <OrderThumb o={order} />
-          <span className="grid min-w-0">
+          <span className="grid min-w-0 flex-1">
             <span className="truncate text-[15px]">{order.id}</span>
             <span className="text-[13px] text-ink-muted">{formatRp(order.total)}</span>
           </span>
-          <ChevronRight size={18} className="text-ink-muted" />
+          <ChevronRight size={18} className="shrink-0 text-ink-muted" />
         </button>
       ) : undefined,
     })),

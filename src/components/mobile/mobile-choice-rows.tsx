@@ -6,7 +6,7 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 
 const row =
   "relative flex w-full min-w-0 cursor-pointer touch-manipulation select-none items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] text-left [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[120ms] ease-ad active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45";
-const press = "active:bg-fill [@media(hover:hover)]:hover:bg-fill";
+const press = "active:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill";
 
 type Icon = React.ComponentType<{ size?: number | string; strokeWidth?: number | string }>;
 
@@ -14,7 +14,8 @@ function Body({ icon: I, title, subtitle }: { icon?: Icon; title: React.ReactNod
   return (
     <>
       {I ? (
-        <span className="grid shrink-0 place-items-center text-ink">
+        // The same 20 px icon box as MobileListRow's media, so switch, check and plain rows share one text edge.
+        <span className="grid size-[20px] shrink-0 place-items-center text-ink">
           <I size={20} strokeWidth={1.75} />
         </span>
       ) : null}
@@ -39,7 +40,7 @@ export interface MobileSwitchRowProps {
 export function MobileSwitchRow({ title, subtitle, icon, checked, onCheckedChange, disabled }: MobileSwitchRowProps) {
   const id = React.useId();
   return (
-    <label htmlFor={id} role="listitem" className={cn(row, subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5", disabled && "pointer-events-none opacity-45")}>
+    <label htmlFor={id} role="listitem" className={cn(row, "has-[:focus-visible]:bg-fill", subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5", disabled && "pointer-events-none opacity-45")}>
       <Body icon={icon} title={title} subtitle={subtitle} />
       <Switch id={id} size="lg" checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </label>
@@ -141,7 +142,7 @@ export function MobileRadioList<T extends string>({ value, onValueChange, option
           aria-checked={o.value === value}
           tabIndex={o.value === value || (at < 0 && i === 0) ? 0 : -1}
           onClick={() => onValueChange(o.value)}
-          className={cn(row, o.subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5")}
+          className={cn(row, "outline-none focus-visible:bg-fill aria-checked:focus-visible:bg-fill-strong", o.subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5")}
         >
           <Body icon={o.icon} title={o.title} subtitle={o.subtitle} />
           {o.value2 != null ? <span className="shrink-0 text-[15px] tabular-nums text-ink-muted">{o.value2}</span> : null}

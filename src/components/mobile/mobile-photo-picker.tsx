@@ -57,6 +57,10 @@ export interface MobilePhotoGridProps {
  * the order you picked (1 is the cover); tap again to drop it and the rest renumber. At the limit the other tiles fade.
  * The first tile opens the camera or the library.
  */
+// Unpicked tiles show a hollow white circle on a soft dark scrim, as the system pickers do: image chrome over a photo,
+// not a UI grey (a solid surface disc reads as a hole on a light photo in dark mode).
+const UNPICKED = "bg-black/20 text-transparent"; // grey-ok: image chrome over photos
+
 export function MobilePhotoGrid({ photos, selected, onSelectedChange, max = 9, onAdd, className }: MobilePhotoGridProps) {
   const file = useFileInput(onAdd);
   const full = selected.length >= max;
@@ -67,7 +71,7 @@ export function MobilePhotoGrid({ photos, selected, onSelectedChange, max = 9, o
         <button
           type="button"
           onClick={file.open}
-          className="grid aspect-square cursor-pointer place-items-center content-center gap-1.5 bg-fill text-[13px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] active:bg-fill-strong [-webkit-tap-highlight-color:transparent]"
+          className="grid aspect-square cursor-pointer place-items-center content-center gap-1.5 bg-fill text-[13px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.97] active:bg-fill-strong [-webkit-tap-highlight-color:transparent]"
         >
           <Camera size={24} strokeWidth={1.75} />
           Camera
@@ -85,19 +89,24 @@ export function MobilePhotoGrid({ photos, selected, onSelectedChange, max = 9, o
             aria-label={n ? `${p.alt}, photo ${n}` : p.alt}
             disabled={off}
             onClick={() => onSelectedChange(n ? selected.filter((x) => x !== p.id) : [...selected, p.id])}
-            className="relative aspect-square cursor-pointer touch-manipulation overflow-hidden bg-fill [-webkit-tap-highlight-color:transparent] disabled:cursor-default"
+            className="relative aspect-square cursor-pointer touch-manipulation overflow-hidden bg-fill outline-none [-webkit-tap-highlight-color:transparent] focus-visible:[&_img]:brightness-75 disabled:cursor-default"
           >
             <Picture p={p} className={cn("transition-[transform,opacity] duration-[180ms] ease-ad", n ? "scale-[0.9] rounded-control" : "scale-100", off && "opacity-40")} />
             <span
               aria-hidden
               data-shape="round"
               className={cn(
-                "absolute right-1.5 top-1.5 grid size-[24px] place-items-center rounded-full text-[13px] font-semibold tabular-nums shadow-thumb transition-[background-color,transform] duration-[160ms] ease-ad",
-                n ? "scale-100 bg-on text-on-ink" : "scale-90 bg-surface text-transparent",
+                "absolute right-1.5 top-1.5 grid size-[24px] place-items-center rounded-full text-[13px] font-semibold tabular-nums transition-[background-color,transform] duration-[160ms] ease-ad",
+                n ? "scale-100 bg-on text-on-ink shadow-thumb" : cn("scale-90", UNPICKED),
                 off && "opacity-0",
               )}
             >
-              {n || ""}
+              {n ? n : (
+                // grey-ok: the hollow circle is image chrome (white over the photo in both themes)
+                <svg aria-hidden viewBox="0 0 24 24" className="size-full" fill="none" stroke="white" strokeWidth="2">
+                  <circle cx="12" cy="12" r="11" />
+                </svg>
+              )}
             </span>
           </button>
         );
@@ -155,24 +164,26 @@ export interface MobilePhotoStripProps {
   onRemove: (id: string) => void;
   onAddClick: () => void;
   max?: number;
+  /** Label the first photo "Cover" (product photos). Off for photos that aren't a product's (proof of delivery). */
+  cover?: boolean;
   className?: string;
 }
 
 /** A product's photos on an edit screen: one row that scrolls sideways, the first marked Cover, an Add tile at the end. */
-export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, className }: MobilePhotoStripProps) {
+export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, cover = true, className }: MobilePhotoStripProps) {
   return (
     <div className={cn("-mx-pad flex gap-gap overflow-x-auto px-pad [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>
       {photos.map((p, i) => (
         <div key={p.id} className="relative size-[96px] shrink-0 overflow-hidden rounded-card bg-fill animate-[ad-fade-in_180ms_var(--ad-ease)]">
           <Picture p={p} />
-          {i === 0 ? <span className="absolute bottom-1.5 left-1.5 rounded-small bg-surface px-1.5 py-0.5 text-[12px] font-medium text-ink shadow-thumb">Cover</span> : null}
+          {cover && i === 0 ? <span className="absolute bottom-1.5 left-1.5 rounded-small bg-surface px-1.5 py-0.5 text-[12px] font-medium text-ink shadow-thumb">Cover</span> : null}
           <button
             type="button"
             aria-label={`Remove ${p.alt}`}
             onClick={() => onRemove(p.id)}
-            className="absolute right-0 top-0 grid size-touch cursor-pointer place-items-center [-webkit-tap-highlight-color:transparent] active:scale-[0.9] transition-transform duration-[150ms] ease-ad"
+            className="group/rm absolute right-0 top-0 grid size-touch cursor-pointer place-items-center outline-none [-webkit-tap-highlight-color:transparent] active:scale-[0.9] transition-transform duration-[150ms] ease-ad"
           >
-            <span data-shape="round" className="grid size-[24px] place-items-center rounded-full bg-surface text-ink shadow-thumb">
+            <span data-shape="round" className="grid size-[24px] place-items-center rounded-full bg-surface text-ink shadow-thumb transition-colors duration-[150ms] group-focus-visible/rm:bg-fill-strong">
               <X size={14} strokeWidth={2.25} />
             </span>
           </button>
@@ -182,7 +193,7 @@ export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, classN
         <button
           type="button"
           onClick={onAddClick}
-          className="grid size-[96px] shrink-0 cursor-pointer place-items-center content-center gap-1 rounded-card bg-fill text-[13px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] active:bg-fill-strong [-webkit-tap-highlight-color:transparent]"
+          className="grid size-[96px] shrink-0 cursor-pointer place-items-center content-center gap-1 rounded-card bg-fill text-[13px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.97] active:bg-fill-strong [-webkit-tap-highlight-color:transparent]"
         >
           <Plus size={22} strokeWidth={1.75} />
           Add

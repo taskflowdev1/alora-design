@@ -130,14 +130,17 @@ export interface Notif {
   kind: "order" | "stock" | "payout" | "review" | "team" | "return";
   title: string;
   time: string;
+  /** Not seen yet: a dot on the row, counted on the bell. */
+  unread?: boolean;
 }
 
+/** Newest first. */
 export const NOTIFS: Notif[] = [
-  { id: "n1", kind: "order", title: "12 new orders to pack at Kemang", time: "14:10" },
-  { id: "n2", kind: "stock", title: "Keranjang pandan besar: 1 left", time: "13:52" },
-  { id: "n3", kind: "payout", title: "Shopee paid out Rp 8.420.000", time: "12:00" },
-  { id: "n4", kind: "return", title: "Sari W. asked to return a tray", time: "10:53" },
+  { id: "n1", kind: "order", title: "12 new orders to pack at Kemang", time: "14:10", unread: true },
+  { id: "n2", kind: "stock", title: "Keranjang pandan besar: 1 left", time: "13:52", unread: true },
+  { id: "n3", kind: "payout", title: "Shopee paid out Rp 8.420.000", time: "12:00", unread: true },
   { id: "n5", kind: "team", title: "Bayu closed the Senopati till", time: "11:12" },
+  { id: "n4", kind: "return", title: "Sari W. asked to return a tray", time: "10:53" },
   { id: "n6", kind: "review", title: "New 5-star review on Rimba Live", time: "Yesterday" },
   { id: "n7", kind: "stock", title: "Tatakan gelas jati is out of stock", time: "Yesterday" },
 ];

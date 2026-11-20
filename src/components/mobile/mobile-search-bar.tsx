@@ -41,9 +41,9 @@ export function MobileSearchBar({ value, onValueChange, placeholder = "Search", 
             aria-label="Clear"
             onPointerDown={(e) => e.preventDefault()}
             onClick={() => (onValueChange(""), input.current?.focus())}
-            className="-mr-2 grid size-touch shrink-0 cursor-pointer place-items-center text-ink-muted"
+            className="group/clear -mr-2 grid size-touch shrink-0 cursor-pointer place-items-center text-ink-muted outline-none"
           >
-            <span className="grid size-5 place-items-center rounded-full bg-ink-muted text-surface">
+            <span className="grid size-[18px] place-items-center rounded-full bg-ink-muted text-surface transition-colors duration-[150ms] ease-ad group-focus-visible/clear:bg-ink">
               <X size={12} strokeWidth={2.5} />
             </span>
           </button>
@@ -63,7 +63,7 @@ export function MobileSearchBar({ value, onValueChange, placeholder = "Search", 
               onCancel?.();
             }}
             className={cn(
-              "h-touch cursor-pointer whitespace-nowrap pl-3 pr-1 text-[16px] text-ink transition-[opacity,transform] duration-[260ms] ease-ad",
+              "h-touch cursor-pointer whitespace-nowrap rounded-control pl-3 pr-1 text-[16px] text-ink transition-[background-color,opacity,transform] duration-[260ms] ease-ad focus-visible:bg-fill",
               active ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0",
             )}
           >
