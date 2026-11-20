@@ -98,6 +98,7 @@ import { CalendarMonth, type CalendarEvent } from "@/components/ui/calendar-mont
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
 import { shapedSupported, useConfig } from "./config";
+import { useEdgeFadeX } from "./layout";
 import { DAILY, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SHOPS, SPARK, TEAM, smartTime, type Order } from "./data";
 import { CommentsDemo } from "./demos-niche";
 import { BackPage, Head, Mark, S, Tile, frame, stack, type TileDef } from "./mark";
@@ -144,6 +145,9 @@ function CornerTile({ config, className }: { config: Config; className?: string 
 /** Whole rows only: the scroll area is as many rows tall as fit the tile, and sits centred in it. */
 function ScrollTile({ className }: { className?: string }) {
   const box = React.useRef<HTMLDivElement>(null);
+  const scroller = React.useRef<HTMLDivElement>(null);
+  // The rows are wider than a narrow tile: the cut end fades, so a row never stops mid-word on a hard edge.
+  useEdgeFadeX(scroller);
   const [fit, setFit] = React.useState<{ h: number; top: number } | null>(null);
   React.useLayoutEffect(() => {
     const el = box.current;
@@ -164,7 +168,7 @@ function ScrollTile({ className }: { className?: string }) {
     <Tile className={className}>
       <Mark name="scrollbar" className="flex flex-1 flex-col">
         <div ref={box} className="relative min-h-[calc(var(--spacing-row)*3+2px)] flex-1">
-          <div className="absolute inset-x-0 overflow-auto rounded-item" style={{ top: fit?.top ?? 0, height: fit?.h ?? "100%" }}>
+          <div ref={scroller} className="absolute inset-x-0 overflow-auto rounded-item" style={{ top: fit?.top ?? 0, height: fit?.h ?? "100%" }}>
             <div className="grid w-[560px] gap-px">
               {ORDERS.slice(0, 14).map((o) => (
                 <div key={o.id} data-row className="flex h-row shrink-0 items-center gap-5 rounded-item px-2 text-body hover:bg-fill">
@@ -241,7 +245,7 @@ function OrdersActionsTile({ className }: { className?: string }) {
         {rows.map((o) => {
           const on = sel.includes(o.id);
           return (
-            <label key={o.id} className={cn("flex h-row cursor-pointer items-center gap-3 rounded-item px-2 text-body", on ? "bg-fill-strong" : "hover:bg-fill")}>
+            <label key={o.id} className={cn("flex h-row cursor-pointer items-center gap-3 rounded-item px-2 text-body", on ? "bg-fill-strong" : "hover:bg-fill has-[:focus-visible]:bg-fill")}>
               <Checkbox aria-label={o.id} checked={on} onCheckedChange={(v) => setSel(v ? [...sel, o.id] : sel.filter((x) => x !== o.id))} />
               <span className="w-24 shrink-0">{o.id}</span>
               <span className="min-w-0 flex-1 truncate">{o.items}</span>
@@ -469,7 +473,7 @@ function CheckoutTile({ className }: { className?: string }) {
             ["Round cash totals", round, setRound],
           ] as const
         ).map(([l, v, s]) => (
-          <label key={l} className="flex h-row cursor-pointer items-center justify-between gap-3 rounded-item px-2 text-body hover:bg-fill">
+          <label key={l} className="flex h-row cursor-pointer items-center justify-between gap-3 rounded-item px-2 text-body hover:bg-fill has-[:focus-visible]:bg-fill">
             {l}
             <Switch checked={v} onCheckedChange={s} />
           </label>
@@ -1124,7 +1128,7 @@ function NotesTile({ className }: { className?: string }) {
           For{" "}
           <HoverCard
             trigger={
-              <a href="#customer" onClick={(e) => e.preventDefault()} className="rounded-small font-medium text-ink hover:bg-fill">
+              <a href="#customer" onClick={(e) => e.preventDefault()} className="rounded-small font-medium text-ink hover:bg-fill focus-visible:bg-fill">
                 {o.customer}
               </a>
             }
@@ -1210,7 +1214,15 @@ function CalendarTile({ className }: { className?: string }) {
   return (
     <Tile className={className}>
       <Mark name="calendar-month" className="flex-1">
-        <CalendarMonth month={m} onMonthChange={setM} events={EVENTS} today={NOW} onEventClick={(e) => toast(e.title, "neutral")} />
+        {/* The month row takes the tile title inset (Head: px-2 pt-1), so "November 2026" lines up with the titles beside it. */}
+        <CalendarMonth
+          month={m}
+          onMonthChange={setM}
+          events={EVENTS}
+          today={NOW}
+          onEventClick={(e) => toast(e.title, "neutral")}
+          className="[&>div:first-child]:px-2 [&>div:first-child]:pt-1"
+        />
       </Mark>
     </Tile>
   );

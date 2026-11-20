@@ -9,7 +9,7 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 import { Toaster } from "@/components/ui/toast";
 import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
 import { Shortcut } from "@/components/ui/kbd";
-import { GROUPS, ITEMS, itemPath, type Group } from "@/lib/registry";
+import { GROUPS, ITEMS, findItem, itemPath, type Group } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
@@ -35,7 +35,7 @@ function NavItem({ to, children, className }: { to: string; children: React.Reac
     <Link
       to={q ? `${to}?${q}` : to}
       aria-current={active ? "page" : undefined}
-      className={cn(buttonClass({ variant: "ghost" }), "relative shrink-0 text-ink-muted hover:text-ink", active && "bg-transparent text-ink hover:bg-transparent", className)}
+      className={cn(buttonClass({ variant: "ghost" }), "relative shrink-0 text-ink-muted hover:text-ink", active && "bg-transparent text-ink hover:bg-transparent focus-visible:bg-transparent", className)}
     >
       {children}
     </Link>
@@ -50,6 +50,7 @@ function PhoneTabs() {
     const active = ref.current?.querySelector<HTMLElement>("a[aria-current=page]");
     if (active && ref.current) ref.current.scrollTo({ left: Math.max(0, active.offsetLeft - 16), behavior: "instant" as ScrollBehavior });
   }, [pathname]);
+  useEdgeFadeX(ref);
   return (
     <nav ref={ref} aria-label="Sections" className="relative mx-auto flex h-11 w-full max-w-[1280px] items-start gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] sm:px-6 lg:hidden [&::-webkit-scrollbar]:hidden">
       <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
@@ -152,12 +153,37 @@ function HeaderSearch() {
   );
 }
 
+/**
+ * The first Tab stop on every page: hidden until focused, then a pill over the logo. It moves focus to the page's
+ * content, past the header and its tabs.
+ */
+function SkipLink() {
+  return (
+    <a
+      href="#content"
+      onClick={(e) => {
+        e.preventDefault();
+        const el = document.getElementById("content");
+        el?.focus({ preventScroll: true });
+        el?.scrollIntoView({ block: "start" });
+      }}
+      className={cn(
+        buttonClass({ variant: "secondary" }),
+        "absolute left-4 top-1/2 z-50 -translate-y-1/2 bg-fill-strong opacity-0 pointer-events-none focus-visible:pointer-events-auto focus-visible:opacity-100 sm:left-6",
+      )}
+    >
+      Skip to content
+    </a>
+  );
+}
+
 /** One header for every page: same position, width and height on landing, gallery, examples and export. */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-page">
-      <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
-        <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 sm:mr-6">
+      <div className="relative mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
+        <SkipLink />
+        <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 transition-colors duration-[160ms] focus-visible:bg-fill sm:mr-6">
           <Wordmark />
         </SLink>
         <nav aria-label="Sections" className="relative flex items-center gap-1 max-lg:hidden">
@@ -184,7 +210,7 @@ export function Credit({ className }: { className?: string }) {
   return (
     <p className={cn("text-body text-ink-muted", className)}>
       Curated by{" "}
-      <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="rounded-small text-ink transition-colors duration-[160ms] hover:text-ink-muted">
+      <a href="https://joshuadirga.com" target="_blank" rel="noopener" className="-mx-1 rounded-small px-1 text-ink transition-colors duration-[160ms] hover:text-ink-muted focus-visible:bg-fill">
         Joshua Dirga
       </a>{" "}
       · 2026
@@ -195,7 +221,8 @@ export function Credit({ className }: { className?: string }) {
 /** One quiet line at the bottom of every page, on the page's left edge. The landing ends with its closing card instead. */
 export function SiteFooter() {
   const { pathname } = useLocation();
-  if (pathname === "/") return null;
+  // The landing ends with its closing card; the example app fills the window and scrolls inside itself.
+  if (pathname === "/" || pathname.startsWith("/examples/")) return null;
   return (
     <footer className="mx-auto w-full max-w-[1280px] px-4 pb-12 pt-20 sm:px-6">
       <Credit />
@@ -299,6 +326,27 @@ export function useEdgeFade(listRef: React.RefObject<HTMLElement | null>, on = t
       ro.disconnect();
     };
   }, [listRef, on]);
+}
+
+/** The sideways twin of useEdgeFade: a soft fade on the cut end(s) of a row that scrolls sideways, only where there is more. */
+export function useEdgeFadeX(ref: React.RefObject<HTMLElement | null>) {
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const set = () => {
+      const l = el.scrollLeft > 1 ? 24 : 0;
+      const r = el.scrollLeft + el.clientWidth < el.scrollWidth - 1 ? 32 : 0;
+      const mask = l || r ? `linear-gradient(to right, transparent 0, #000 ${l}px, #000 calc(100% - ${r}px), transparent 100%)` : "";
+      el.style.maskImage = mask;
+      el.style.webkitMaskImage = mask;
+    };
+    set();
+    el.addEventListener("scroll", set, { passive: true });
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => (el.removeEventListener("scroll", set), ro.disconnect());
+  }, [ref]);
 }
 
 /** The page's width without the vertical scrollbar (innerWidth and 100vw count it, so a classic bar ate the margin). */
@@ -448,13 +496,15 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
           enterT.current = window.setTimeout(() => show("hover"), 80);
         }}
         onPointerLeave={() => window.clearTimeout(enterT.current)}
-        onClick={() => (openRef.current && mode.current === "pinned" ? hide() : show("pinned"))}
-        onFocus={(e) => {
-          if (e.currentTarget.matches(":focus-visible") && !openRef.current) show("pinned");
+        onClick={(e) => {
+          if (openRef.current && mode.current === "pinned") return hide();
+          show("pinned");
+          // From the keyboard (Enter/Space), focus moves into the panel once it is no longer inert.
+          if (e.detail === 0) requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("button,[href],input,[role=slider],[role=radio],[tabindex='0']")?.focus({ preventScroll: true }));
         }}
         className={cn(
           "fixed left-1 top-1/2 z-40 flex w-5 -translate-y-1/2 cursor-pointer flex-col items-center gap-2 rounded-full bg-surface py-3 text-ink-muted shadow-card",
-          "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-strong hover:text-ink",
+          "transition-[opacity,color,background-color] duration-[220ms] ease-ad hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink",
           open && "pointer-events-none opacity-0",
         )}
       >
@@ -508,23 +558,50 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
   );
 }
 
+const PAGE_NAMES: Record<string, string> = {
+  components: "Components",
+  mobile: "Mobile components",
+  ai: "AI",
+  backgrounds: "Backgrounds",
+  examples: "Examples",
+  encyclopedia: "Encyclopedia",
+  export: "Export",
+};
+
+/** The tab title: the page's own name, then the site's ("Button · Alora Design"); the landing is the site's name alone. */
+function pageTitle(pathname: string) {
+  const [first, second] = pathname.split("/").filter(Boolean);
+  if (!first) return "Alora Design";
+  let name: string | undefined;
+  if (first === "examples") name = second ? second[0].toUpperCase() + second.slice(1) : "Examples";
+  else if (first === "mobile" && second === "screens") name = "Mobile screens";
+  else if (second && PAGE_NAMES[first]) name = findItem(second)?.title;
+  else name = PAGE_NAMES[first];
+  return `${name ?? "Not found"} · Alora Design`;
+}
+
 export function SiteLayout() {
   const pageRef = React.useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    document.title = pageTitle(pathname);
+  }, [pathname]);
   return (
     <TooltipProvider>
       <ConfigTokens />
       <ScrollRestoration />
-      <CustomizeFlap pageRef={pageRef} />
       {/* A size container, so the page measures against its own width (100cqw), never 100vw with the scrollbar in it. */}
       <div className="overflow-x-clip [container-type:inline-size]">
         <div ref={pageRef} data-page className="flex min-h-dvh flex-col md:pl-[clamp(0px,calc(12px-(100cqw-1280px)/2),12px)]">
           <SiteHeader />
-          <div className="flex-1">
+          <div id="content" tabIndex={-1} className="flex-1 scroll-mt-16 outline-none">
             <Outlet />
           </div>
           <SiteFooter />
         </div>
       </div>
+      {/* After the page in the DOM (it is fixed, so it doesn't move): the keyboard reaches it last, not first. */}
+      <CustomizeFlap pageRef={pageRef} />
       <Toaster />
     </TooltipProvider>
   );

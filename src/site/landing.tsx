@@ -11,7 +11,7 @@ import { Credit, TABS } from "./layout";
 function Hero() {
   return (
     <section className="mx-auto w-full max-w-[1280px] px-4 pb-16 pt-10 sm:px-6 lg:pb-24 lg:pt-16">
-      <h1 className="max-w-[11ch] text-[length:clamp(72px,13.2vw,220px)] font-semibold leading-[0.88] tracking-[-0.055em] text-ink">just some random ui styling</h1>
+      <h1 className="-ml-[0.04em] max-w-[11ch] text-[length:clamp(72px,13.2vw,220px)] font-semibold leading-[0.88] tracking-[-0.055em] text-ink">just some random ui styling</h1>
       <div className="mt-10 grid grid-cols-2 gap-2 sm:flex lg:mt-14">
         <Button variant="primary" asChild className="justify-center">
           <SLink to="/components">
@@ -33,7 +33,7 @@ function Hero() {
 function SectionTitle({ to, children }: { to: string; children: string }) {
   return (
     <h2 className="px-1 text-title font-semibold text-ink">
-      <SLink to={to} className="rounded-small transition-colors duration-[160ms] hover:text-ink-muted">
+      <SLink to={to} className="-mx-1 rounded-small px-1 transition-colors duration-[160ms] hover:text-ink-muted focus-visible:bg-fill">
         {children}
       </SLink>
     </h2>
@@ -80,7 +80,7 @@ function Closing() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-baseline sm:justify-between">
           <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2 text-body text-ink-muted">
             {TABS.map((t) => (
-              <SLink key={t.to} to={t.to} className="rounded-small transition-colors duration-[160ms] hover:text-ink">
+              <SLink key={t.to} to={t.to} className="-mx-1 rounded-small px-1 transition-colors duration-[160ms] hover:text-ink focus-visible:bg-fill focus-visible:text-ink">
                 {t.label}
               </SLink>
             ))}

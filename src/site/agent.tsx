@@ -28,7 +28,7 @@ export function NewChat({ glow, className }: { glow?: Omit<ComposerGlowProps, "c
       <ul className="grid w-full gap-0.5">
         {SUGGESTIONS.map(({ icon: Icon, text }) => (
           <li key={text}>
-            <button type="button" className="flex h-control w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left text-body text-ink-muted transition-colors duration-[160ms] ease-ad hover:text-ink">
+            <button type="button" className="flex h-control w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left text-body text-ink-muted transition-colors duration-[160ms] ease-ad hover:text-ink focus-visible:bg-fill focus-visible:text-ink">
               <Icon size={16} className="shrink-0" />
               <span className="truncate">{text}</span>
             </button>
@@ -88,7 +88,8 @@ export function ThreadCard({ title = CHATS[0].label, className }: { title?: stri
   }, []);
   return (
     <Card data-thread className={cn("flex min-h-0 min-w-0 flex-col gap-3", className)}>
-      <CardHeader title={title} />
+      {/* On the conversation column's left edge, so the title, the turns and the box share one edge. */}
+      <CardHeader title={title} className={COLUMN} />
       <div ref={scroller} className="-ms-2 -me-3 flex min-h-0 flex-1 flex-col overflow-y-auto ps-2 pe-3">
         {/* Turns pair up: a question sits close to its answer, and exchanges get more room between them. */}
         <div className={cn(COLUMN, "mt-auto grid gap-6 pt-1")}>
@@ -161,7 +162,7 @@ export function ChatsCard({ active, onActive, className }: { active: number; onA
             className={cn(
               "relative flex h-item shrink-0 cursor-pointer items-center gap-3 rounded-control px-2.5 text-left text-body transition-colors duration-[160ms] ease-ad",
               i >= PHONE_CHATS && "max-lg:hidden",
-              i === active ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+              i === active ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink",
             )}
           >
             <span className="min-w-0 flex-1 truncate">{c.label}</span>

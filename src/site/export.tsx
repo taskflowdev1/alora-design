@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Copy, Download, ExternalLink } from "react-feather";
+import { Check, Copy, Download, ExternalLink } from "react-feather";
 import { serializeConfig, tokensCss, tokensJson } from "@/lib/config";
 import { kitMarkdown, registryUrl, tailwindCss } from "@/lib/kit";
 import { REGISTRY_ITEMS, SITE } from "@/lib/registry";
@@ -8,16 +8,24 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/ui/toolbar";
 import themeCss from "@/styles/theme.css?raw";
 import baseCss from "@/styles/base.css?raw";
 import { useConfig } from "./config";
 import { CodeBlock } from "./gallery";
 
-function copy(text: string, what = "Copied") {
-  void navigator.clipboard?.writeText(text);
-  toast(what, "neutral");
+/** Copies and confirms on the button itself: the icon turns into a check for a moment (no far-away toast). */
+function useCopy() {
+  const [done, setDone] = React.useState(false);
+  const t = React.useRef<number>(undefined);
+  React.useEffect(() => () => window.clearTimeout(t.current), []);
+  const copy = (text: string) => {
+    void navigator.clipboard?.writeText(text);
+    setDone(true);
+    window.clearTimeout(t.current);
+    t.current = window.setTimeout(() => setDone(false), 1500);
+  };
+  return [done, copy] as const;
 }
 
 function download(name: string, type: string, body: string) {
@@ -28,13 +36,14 @@ function download(name: string, type: string, body: string) {
 }
 
 function LinkRow({ label, value, open }: { label: string; value: string; open?: boolean }) {
+  const [done, copy] = useCopy();
   return (
     <div className="grid gap-1.5">
       <span className="text-body text-ink-muted">{label}</span>
-      <div className="flex gap-2">
+      <div className="flex gap-gap">
         <Input aria-label={label} readOnly value={value} wrapperClassName="flex-1" className="truncate" onFocus={(e) => e.currentTarget.select()} />
-        <Button icon aria-label={`Copy ${label.toLowerCase()}`} onClick={() => copy(value)}>
-          <Copy />
+        <Button icon aria-label={done ? "Copied" : `Copy ${label.toLowerCase()}`} onClick={() => copy(value)}>
+          {done ? <Check /> : <Copy />}
         </Button>
         {open ? (
           <Button icon aria-label={`Open ${label.toLowerCase()}`} asChild>
@@ -42,7 +51,10 @@ function LinkRow({ label, value, open }: { label: string; value: string; open?: 
               <ExternalLink />
             </a>
           </Button>
-        ) : null}
+        ) : (
+          // The Open slot stays reserved, so every link field ends at the same right edge.
+          <span aria-hidden className="w-control shrink-0" />
+        )}
       </div>
     </div>
   );
@@ -71,16 +83,19 @@ export function ExportPage() {
     ["Theme", config.theme === "dark" ? "Dark" : "Light"],
   ];
   const all = `npx shadcn@latest add ${REGISTRY_ITEMS.map((i) => `"${registryUrl(i.name, config)}"`).join(" ")}`;
+  const [copiedAll, copyAll] = useCopy();
 
   return (
-    <main className="mx-auto grid w-full max-w-[1080px] gap-6 px-4 pb-24 pt-2 sm:px-6">
+    // The same 1280 px container as every other page, so the title and the credit sit on the shared left edge; the
+    // two columns keep their 1080 px measure, left-aligned.
+    <main className="mx-auto grid w-full max-w-[1280px] gap-6 px-4 pb-24 pt-2 sm:px-6">
       <PageHeader title="Export" />
-      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <Card inset="nest" className="self-start">
-          <CardHeader title="Settings" className="px-2 pt-2" />
+      <div className="grid max-w-[1080px] gap-4 lg:grid-cols-[320px_1fr]">
+        <Card className="grid gap-4 self-start">
+          <CardHeader title="Settings" />
           <div className="grid gap-px">
             {settings.map(([k, v]) => (
-              <div key={k} className="flex h-row items-center justify-between gap-3 rounded-item px-2 text-body">
+              <div key={k} className="flex h-row items-center justify-between gap-3 text-body">
                 <span className="text-ink-muted">{k}</span>
                 <span className="tabular-nums">{v}</span>
               </div>
@@ -109,7 +124,7 @@ export function ExportPage() {
                 <Download />
                 Tailwind v4 theme
               </Button>
-              <Button variant="ghost" onClick={() => download("alora-design-kit.md", "text/markdown", kitMarkdown(config))}>
+              <Button onClick={() => download("alora-design-kit.md", "text/markdown", kitMarkdown(config))}>
                 <Download />
                 Kit (markdown)
               </Button>
@@ -126,8 +141,8 @@ export function ExportPage() {
             />
             <CodeBlock code={`npx shadcn@latest add "${registryUrl(component ?? "button", config)}"`} />
             <div className="flex">
-              <Button variant="ghost" onClick={() => copy(all, "Command for every component copied")}>
-                <Copy />
+              <Button onClick={() => copyAll(all)}>
+                {copiedAll ? <Check /> : <Copy />}
                 Copy command for all components
               </Button>
             </div>

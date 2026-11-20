@@ -131,7 +131,9 @@ export function CollectionIndex({ section }: { section: CollectionSection }) {
   const groups = items.length <= 4 ? [{ title: "", items }] : kinds.map((k) => ({ title: k, items: items.filter((i) => (i.kind ?? SECTION_TITLE[section]) === k) }));
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
-      <h1 className="mb-6 text-heading font-semibold">{SECTION_TITLE[section]}</h1>
+      <div className="mb-6 flex min-h-control items-center">
+        <h1 className="text-heading font-semibold">{SECTION_TITLE[section]}</h1>
+      </div>
       {section === "ai" ? (
         <div data-group="AI" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
           {items.map((i) => (
@@ -144,6 +146,7 @@ export function CollectionIndex({ section }: { section: CollectionSection }) {
         <SpotGroups
           groups={groups}
           span={(i) => (i.stage === "field" ? 12 : 4)}
+          flush={(i) => i.stage === "field"}
           render={(i) => <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />}
         />
       )}
@@ -185,7 +188,9 @@ export function CollectionItem({ section }: { section: CollectionSection }) {
   }
   return (
     <GalleryLayout current={name} groups={[...groups]}>
-      <h1 className="mb-5 text-heading font-semibold">{item.title}</h1>
+      <div className="mb-5 flex min-h-control items-center">
+        <h1 className="text-heading font-semibold">{item.title}</h1>
+      </div>
       <div className="grid gap-4 xl:grid-cols-[1fr_288px]">
         <TokenScope
           data-stage

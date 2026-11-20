@@ -145,7 +145,7 @@ export interface Promotion {
 
 export const PROMOTIONS: Promotion[] = [
   { id: "p1", name: "Payday sale", from: day(-3), to: day(2), discount: "15% off", budget: 6000000, used: 4320000, markets: ["shopee", "tiktok"], status: "Live" },
-  { id: "p2", name: "Rotan week", from: day(-1), to: day(5), discount: "Rp 25.000 off", budget: 2500000, used: 640000, markets: ["offline", "shopee"], status: "Live" },
+  { id: "p2", name: "Rotan week", from: day(-1), to: day(5), discount: "Rp\u00a025.000 off", budget: 2500000, used: 640000, markets: ["offline", "shopee"], status: "Live" },
   { id: "p3", name: "12.12 sale", from: day(26), to: day(26), discount: "20% off", budget: 12000000, used: 0, markets: ["shopee", "tiktok", "offline"], status: "Scheduled" },
   { id: "p4", name: "Free shipping, Jabodetabek", from: day(4), to: day(11), discount: "Free shipping", budget: 3000000, used: 0, markets: ["tiktok"], status: "Scheduled" },
   { id: "p5", name: "11.11 sale", from: day(-5), to: day(-5), discount: "11% off", budget: 8000000, used: 7880000, markets: ["shopee", "tiktok"], status: "Ended" },
@@ -195,7 +195,7 @@ export const CANCELLATIONS: Cancellation[] = (() => {
 export const TEAM_ACTIVITY = [
   { id: "a1", time: "Today, 14:05", who: "Intan Permata", what: "packed 12 orders at Kemang" },
   { id: "a2", time: "Today, 13:40", who: "Dewi Anggraini", what: "changed the courier for Dago to SiCepat" },
-  { id: "a3", time: "Today, 11:12", who: "Bayu Saputra", what: "closed the Senopati till, Rp 4.820.000" },
+  { id: "a3", time: "Today, 11:12", who: "Bayu Saputra", what: "closed the Senopati till, Rp\u00a04.820.000" },
   { id: "a4", time: "Today, 09:30", who: "Rizky Hartono", what: "started the Rotan week promotion" },
   { id: "a5", time: "Yesterday, 18:02", who: "Dewi Anggraini", what: "invited Wulan Sari as Cashier" },
   { id: "a6", time: "Yesterday, 16:45", who: "Intan Permata", what: "counted stock at Dago, 2 differences" },

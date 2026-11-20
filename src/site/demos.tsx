@@ -214,7 +214,7 @@ export const DEMOS: Record<string, Demo> = {
           tone={p.tone as never}
           showSafeArea={!!p.safe}
           trigger={
-            <Button variant={p.tone === "dark" ? "ghost" : "secondary"} className={p.tone === "dark" ? "text-side-ink hover:bg-side-fill" : ""}>
+            <Button variant={p.tone === "dark" ? "ghost" : "secondary"} className={p.tone === "dark" ? "text-side-ink hover:bg-side-fill focus-visible:bg-side-fill" : ""}>
               Actions
             </Button>
           }
@@ -484,7 +484,7 @@ export const DEMOS: Record<string, Demo> = {
             ["Print receipts", a, setA],
             ["Round cash totals", b, setB],
           ].map(([l, v, s]) => (
-            <label key={l as string} className="flex h-row cursor-pointer items-center justify-between rounded-item px-2 text-body hover:bg-fill">
+            <label key={l as string} className="flex h-row cursor-pointer items-center justify-between rounded-item px-2 text-body hover:bg-fill has-[:focus-visible]:bg-fill">
               {l as string}
               <Switch size={p.size as "lg"} checked={v as boolean} onCheckedChange={s as (v: boolean) => void} disabled={!!p.disabled} />
             </label>
@@ -644,7 +644,15 @@ export const DEMOS: Record<string, Demo> = {
               className="mt-2"
               selected={sel}
               onSelect={setSel}
-              data={SHOPS.map((s, i) => ({ key: s, label: s, value: [42, 36, 28, 19, 51, 33][i], display: `Rp ${[42, 36, 28, 19, 51, 33][i]} jt` }))}
+              // The four shops only (marketplaces are a different dimension), largest first.
+              data={(
+                [
+                  ["Kemang", 42],
+                  ["Senopati", 36],
+                  ["Dago", 28],
+                  ["Darmo", 19],
+                ] as const
+              ).map(([s, v]) => ({ key: s, label: s, value: v, display: `Rp ${v} jt` }))}
             />
           ) : (
             <BarChart data={DAILY} current={29} labelEvery={5} className="mt-4" aria-label="Sales, last 30 days" />
@@ -793,7 +801,8 @@ export const DEMOS: Record<string, Demo> = {
               <Button variant="ghost">Keep order</Button>
             </DialogClose>
             <DialogClose asChild>
-              <Button variant="primary" onClick={() => toast("Order cancelled")}>
+              {/* A destructive confirm stays ink, like AlertDialog's action: negatives stay quiet, the accent is for "Add". */}
+              <Button className="bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" onClick={() => toast("Order cancelled")}>
                 Cancel order
               </Button>
             </DialogClose>
@@ -805,7 +814,8 @@ export const DEMOS: Record<string, Demo> = {
         </Field>
       </Dialog>
     ),
-    usage: () => `<Dialog title="Cancel order?" trigger={<Button>Cancel order</Button>}\n  footer={<><DialogClose asChild><Button variant="ghost">Keep</Button></DialogClose><Button variant="primary">Cancel order</Button></>}>\n  …\n</Dialog>`,
+    usage: () =>
+      `<Dialog\n  title="Cancel order RMB-24817?"\n  trigger={<Button>Cancel order</Button>}\n  footer={\n    <>\n      <DialogClose asChild><Button variant="ghost">Keep order</Button></DialogClose>\n      <DialogClose asChild><Button className="bg-on text-on-ink hover:bg-ink-muted">Cancel order</Button></DialogClose>\n    </>\n  }\n>\n  <Field label="Reason">\n    <Select value={reason} onValueChange={setReason} options={reasons} />\n  </Field>\n</Dialog>`,
   },
   sheet: {
     render: () => {

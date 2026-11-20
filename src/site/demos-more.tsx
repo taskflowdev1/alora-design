@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 // Detail-page demos for the shadcn-parity components: each one live with its controls, plus its usage snippet.
 import * as React from "react";
-import { Bold, Box, Copy, Database, Download, FileText, Italic, Package, Printer, RefreshCw, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
+import { Bold, Box, Copy, Database, Download, FileText, Italic, Package, Printer, RefreshCw, Save, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -212,6 +212,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
             { label: "Dashboard", href: "#" },
             {
               label: "Orders",
+              active: true,
               columns: 2,
               links: [
                 { title: "All orders", icon: ShoppingBag, active: true },
@@ -239,7 +240,9 @@ export const MORE_DEMOS: Record<string, Demo> = {
                   <MenuItem icon={FileText} shortcut="⌘N" onSelect={say("New template")}>
                     New template
                   </MenuItem>
-                  <MenuItem onSelect={say("Saved")}>Save</MenuItem>
+                  <MenuItem icon={Save} onSelect={say("Saved")}>
+                    Save
+                  </MenuItem>
                 </>
               ),
             },
@@ -307,7 +310,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
     render: (p) => {
       const [on, setOn] = React.useState(true);
       return (
-        <div className="flex w-64 items-center justify-between">
+        <div className="flex items-center gap-3">
           <Label htmlFor="lbl-demo" required={!!p.required}>
             Print receipts
           </Label>
@@ -370,7 +373,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
           <div className="relative grid w-48 gap-px">
             <SlidingPill selector='[aria-current="true"]' className="rounded-control bg-fill-strong" />
             {[["pack", "To pack"], ["ship", "To ship"], ["done", "Done"]].map(([k, l]) => (
-              <button key={k} type="button" aria-current={mine === k || undefined} onClick={() => setMine(k)} className={cn("relative flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body", mine === k ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink")}>
+              <button key={k} type="button" aria-current={mine === k || undefined} onClick={() => setMine(k)} className={cn("relative flex h-item cursor-pointer items-center rounded-control px-2.5 text-left text-body", mine === k ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink")}>
                 {l}
               </button>
             ))}
@@ -501,27 +504,27 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: (p) => `<AspectRatio ratio={${p.ratio}}>\n  <img src={photo} className="size-full object-cover" />\n</AspectRatio>`,
   },
   typography: {
+    // A plain type-scale specimen: each style names itself, no story copy.
     render: () => (
       <div className="grid w-full max-w-lg gap-3">
-        <H1>Stock count</H1>
-        <H2>Saturday, Kemang</H2>
-        <H3>Before you start</H3>
-        <P>We close the shop at 18:00 and count before 21:00. Scan each shelf once; the app adds them up.</P>
-        <div className="flex items-baseline gap-2">
-          <Num>1.284</Num>
-          <Muted>items to count</Muted>
-        </div>
+        <H1>Heading</H1>
+        <H2>Title</H2>
+        <H3>Section</H3>
+        <P>Body</P>
+        <Muted>Muted</Muted>
+        <Small>Small</Small>
+        <Num>1.284</Num>
+        <P>
+          <InlineCode>InlineCode</InlineCode>
+        </P>
         <List>
-          <li>Start with the clay shelf</li>
-          <li>
-            Damaged goes under <InlineCode>RMB-RUSAK</InlineCode>
-          </li>
+          <li>List</li>
         </List>
-        <Quote>Count twice where the shelf is mixed.</Quote>
-        <Small>Last count: 7 Nov 2026</Small>
+        <Quote>Quote</Quote>
       </div>
     ),
-    usage: () => `import { H1, H2, H3, P, Muted, Num, List, InlineCode, Quote } from "@/components/ui/typography";\n\n<H2>Saturday, Kemang</H2>\n<P>We close the shop at 18:00…</P>\n<Num>1.284</Num>`,
+    usage: () =>
+      `import { H1, H2, H3, P, Muted, Small, Num, InlineCode, List, Quote } from "@/components/ui/typography";\n\n<H1>Heading</H1>\n<H2>Title</H2>\n<H3>Section</H3>\n<P>Body</P>\n<Muted>Muted</Muted>\n<Small>Small</Small>\n<Num>1.284</Num>\n<InlineCode>InlineCode</InlineCode>`,
   },
 
   /* ---------------------------------------------------------- overlays */
@@ -620,7 +623,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
   marker: {
     controls: [{ key: "variant", type: "select", label: "Variant", options: ["note", "soft", "label"], default: "note" }],
     render: (p) => (
-      <div className="w-80">
+      <div className="w-full max-w-md">
         <Marker variant={p.variant as "note"} icon={p.variant === "label" ? undefined : Truck}>
           {p.variant === "label" ? "Today" : "Transfer TRF-0412 booked, pickup 15:00"}
         </Marker>

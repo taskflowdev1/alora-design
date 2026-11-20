@@ -22,8 +22,14 @@ function FromGallery() {
   return <Navigate to={`/components${name ? `/${name}` : ""}${search}`} replace />;
 }
 
+/** The 404: the empty-state look, but its title is the page's h1. The header above is the way on. */
 function NotFound() {
-  return <EmptyState icon={Inbox} title="Nothing here" className="py-32" />;
+  return (
+    <main className="flex flex-col items-center justify-center gap-3 px-4 py-32 text-center">
+      <Inbox size={40} style={{ strokeWidth: 1.5 }} className="text-ink-muted" />
+      <h1 className="text-heading font-semibold text-ink">Nothing here</h1>
+    </main>
+  );
 }
 
 export const router = createBrowserRouter([

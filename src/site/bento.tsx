@@ -156,7 +156,7 @@ function CustomerName({ o }: { o: Order }) {
   return (
     <HoverCard
       trigger={
-        <a href="#customer" onClick={(e) => (e.preventDefault(), e.stopPropagation())} className="rounded-small text-ink hover:bg-fill">
+        <a href="#customer" onClick={(e) => (e.preventDefault(), e.stopPropagation())} className="rounded-small text-ink hover:bg-fill focus-visible:bg-fill">
           {o.customer}
         </a>
       }
@@ -441,7 +441,9 @@ function PaletteCard({ className }: { className?: string }) {
           label: "Go to",
           items: [
             { id: "orders", label: "Orders", icon: ShoppingBag, shortcut: ["G", "O"], onSelect: say("Orders") },
+            { id: "products", label: "Products", icon: Package, shortcut: ["G", "P"], onSelect: say("Products") },
             { id: "promotions", label: "Promotions", icon: Tag, onSelect: say("Promotions") },
+            { id: "cancellations", label: "Cancellations", icon: XCircle, onSelect: say("Cancellations") },
             { id: "settings", label: "Settings", icon: Settings, shortcut: ["mod", ","], onSelect: say("Settings") },
           ],
         },
@@ -473,7 +475,7 @@ function ShellCard({ className }: { className?: string }) {
       <Menu
         tone="dark"
         trigger={
-          <button type="button" className="flex h-control w-full cursor-pointer items-center justify-between gap-2 rounded-control bg-side-fill px-2.5 text-body hover:bg-side-fill-strong">
+          <button type="button" className="flex h-control w-full cursor-pointer items-center justify-between gap-2 rounded-control bg-side-fill px-2.5 text-body hover:bg-side-fill-strong focus-visible:bg-side-fill-strong">
             <span className="truncate">Rimba · All shops</span>
             <ChevronDown size={16} className="shrink-0 text-side-muted" />
           </button>
@@ -727,11 +729,11 @@ function SettingsCard({ className }: { className?: string }) {
     <Card inset="nest" className={cn(setCard, className)}>
       <CardHeader title="Kemang" className={row} />
       <div className="grid flex-1 auto-rows-fr">
-        <label className={cn(row, "cursor-pointer hover:bg-fill")}>
+        <label className={cn(row, "cursor-pointer hover:bg-fill has-[:focus-visible]:bg-fill")}>
           <span className="text-body">Print receipts</span>
           <Switch size="lg" checked={receipts} onCheckedChange={set(setReceipts)} />
         </label>
-        <label className={cn(row, "cursor-pointer hover:bg-fill")}>
+        <label className={cn(row, "cursor-pointer hover:bg-fill has-[:focus-visible]:bg-fill")}>
           <span className="text-body">Round cash totals</span>
           <Switch size="lg" checked={round} onCheckedChange={set(setRound)} />
         </label>
@@ -1060,7 +1062,8 @@ function SyncCard({ className }: { className?: string }) {
           </div>
         ))}
       </div>
-      <div className="grid gap-2 text-body">
+      {/* At the card's foot: when the band is taller than this card, the room sits between the rings and the bar. */}
+      <div className="mt-auto grid gap-2 text-body">
         <div className="flex justify-between">
           <span>Adding up 1.240 sales</span>
           <span className="tabular-nums text-ink-muted">64%</span>
@@ -1107,6 +1110,7 @@ function ByShopCard({ className }: { className?: string }) {
     ["offline", "Senopati", 9800000, [9, 11, 10, 9, 12, 11, 10, 9, 11, 10, 12, 11]],
     ["shopee", "Rimba Official", 8900000, [6, 7, 9, 8, 10, 12, 11, 13, 12, 14, 15, 16]],
     ["offline", "Dago", 7100000, [14, 13, 12, 12, 11, 10, 11, 9, 9, 8, 8, 7]],
+    ["offline", "Darmo", 5200000, [7, 6, 8, 7, 6, 7, 5, 6, 6, 5, 6, 5]],
     ["tiktok", "Rimba Live", 4800000, [3, 4, 4, 6, 5, 7, 8, 7, 9, 10, 9, 11]],
   ];
   return (

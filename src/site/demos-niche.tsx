@@ -426,7 +426,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
           Last order from{" "}
           <HoverCard
             trigger={
-              <a href="#customer" onClick={(e) => e.preventDefault()} className="rounded-small font-medium text-ink hover:bg-fill">
+              <a href="#customer" onClick={(e) => e.preventDefault()} className="rounded-small font-medium text-ink hover:bg-fill focus-visible:bg-fill">
                 {o.customer}
               </a>
             }
@@ -438,11 +438,12 @@ export const NICHE_DEMOS: Record<string, Demo> = {
                 <p className="text-small text-ink-muted">Customer since Mar 2025</p>
               </div>
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-body">
+            {/* Plain label and number, no tile around each stat (a box in a box inside the card). */}
+            <div className="mt-3 grid grid-cols-3 gap-3 text-body">
               {[["Orders", "14"], ["Spent", "Rp 3,2 jt"], ["Returns", "0"]].map(([k, v]) => (
-                <div key={k} className="grid gap-0.5 rounded-item bg-fill px-2.5 py-2">
+                <div key={k} className="grid gap-0.5">
                   <span className="text-small text-ink-muted">{k}</span>
-                  <span className="font-semibold tabular-nums">{v}</span>
+                  <span className="whitespace-nowrap font-semibold tabular-nums">{v}</span>
                 </div>
               ))}
             </div>
@@ -567,7 +568,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
           <Card key={s as string} className="flex items-center gap-4 py-3">
             <span className="min-w-0 flex-1 truncate text-body">{s as string}</span>
             <Sparkline data={d as number[]} kind={p.kind as "line"} aria-label={`${s} last 12 weeks`} />
-            <span className="w-28 text-right text-body font-medium tabular-nums">{formatRp(v as number)}</span>
+            <span className="min-w-[112px] shrink-0 whitespace-nowrap text-right text-body font-medium tabular-nums">{formatRp(v as number)}</span>
           </Card>
         ))}
       </div>

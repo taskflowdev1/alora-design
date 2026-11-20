@@ -45,7 +45,8 @@ export function Mark({ name, className, children }: { name: string; className?: 
       }}
       className={cn("ad-mark -m-1.5 min-w-0 cursor-pointer p-1.5", className)}
     >
-      <SLink to={itemPath(item)} className="ad-mark-chip">
+      {/* Keyboard focus shows the chip too (index.css hides it until hover), with the focus fill. */}
+      <SLink to={itemPath(item)} className="ad-mark-chip focus-visible:pointer-events-auto! focus-visible:transform-none! focus-visible:bg-fill-strong! focus-visible:opacity-100!">
         <Sliders size={14} />
         {item.title}
       </SLink>

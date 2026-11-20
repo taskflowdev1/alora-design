@@ -498,9 +498,10 @@ function SuppliersTile({ className }: { className?: string }) {
 
 function ConfirmTile({ className }: { className?: string }) {
   return (
-    <Tile className={className}>
-      <Mark name="alert-dialog" className="flex flex-1">
-        <div className={frame}>
+    // The dimmed page runs to the card's edge: no lighter rim around it (a frame inside a frame).
+    <Tile inset="none" className={className}>
+      <Mark name="alert-dialog" className="m-0 flex flex-1 p-0 rounded-[inherit]!">
+        <div className={cn(frame, "rounded-[inherit]")}>
           <BackPage />
           <div className="absolute inset-0 bg-overlay" />
           <div role="alertdialog" aria-label="Cancel 3 orders?" className="absolute inset-x-3 top-1/2 mx-auto grid max-w-[340px] -translate-y-1/2 gap-3 rounded-sheet bg-surface p-pad shadow-dialog">
@@ -510,7 +511,7 @@ function ConfirmTile({ className }: { className?: string }) {
               <Button variant="ghost" onClick={say("Kept")}>
                 Keep
               </Button>
-              <Button className="bg-on text-on-ink hover:bg-on" onClick={() => toast("3 orders cancelled")}>
+              <Button className="bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" onClick={() => toast("3 orders cancelled")}>
                 Cancel orders
               </Button>
             </div>
@@ -630,15 +631,16 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
   Overlays: [
     { items: ["alert-dialog"], render: () => <ConfirmTile className={S[12]} /> },
   ],
+  // Chat: the two threads share the first row (7 + 5, with Ask from MOTION_TILES), the two decision cards the second
+  // (6 + 6), so no card is stretched to a much taller neighbour.
   Chat: [
-    { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: () => <AgentChatTile className={S[8]} /> },
-    { items: ["questionnaire"], render: () => <BeforeRestockTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
+    { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: () => <AgentChatTile className={S[7]} /> },
+    { items: ["questionnaire"], render: () => <BeforeRestockTile className={S[6]} /> },
   ],
 };
 
 /** The order the landing shows the new bands in. */
 const LANDING_GROUPS: Group[] = ["Charts", "Navigation", "Inputs", "Display", "Overlays", "Chat"];
-const BAND_TITLE: Partial<Record<Group, string>> = { Inputs: "More inputs", Display: "More display", Overlays: "More overlays" };
 
 /** On the landing: the shadcn-parity components live, one band per category, the same tiles as the Components page. */
 export function MoreBento() {
@@ -650,7 +652,7 @@ export function MoreBento() {
       <section aria-label="More components" data-landing="more" data-more={names.filter((n) => findItem(n)).join(",")} className="mx-auto mt-20 grid w-full max-w-[1280px] gap-14 px-4 sm:px-6">
         {LANDING_GROUPS.map((g) => (
           <section key={g} aria-label={g} data-band={g} className="grid gap-4">
-            <h2 className="px-1 text-title font-semibold text-ink">{BAND_TITLE[g] ?? g}</h2>
+            <h2 className="px-1 text-title font-semibold text-ink">{g}</h2>
             <div className="grid grid-flow-row-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
               {tiles(g).map((t) => (
                 <React.Fragment key={t.items.join()}>{t.render(config)}</React.Fragment>

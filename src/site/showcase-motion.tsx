@@ -1,7 +1,7 @@
 // The motion set (number dial, password, theme switch, step form, linked highlight and the chat upgrades): the live
 // pieces the Components page, the landing bands and the detail pages share, then their bento tiles.
 import * as React from "react";
-import { BarChart2, Database, FileText, Layers, Package, TrendingDown, TrendingUp } from "react-feather";
+import { BarChart2, Database, FileText, Layers, Package, TrendingDown } from "react-feather";
 import { cn, formatDate, formatRp } from "@/lib/ad";
 import { DEFAULTS } from "@/lib/config";
 import { Button } from "@/components/ui/button";
@@ -128,7 +128,7 @@ export function PasswordDemo({ suggest = true, minLength = 8, className }: { sug
       <Field label="Password" htmlFor={id}>
         <PasswordInput id={id} value={pw} onValueChange={setPw} minLength={minLength} suggest={suggest} submitted={submitted} />
       </Field>
-      <Button type="submit" variant="primary" className="w-full">
+      <Button type="submit" variant="primary" className="justify-self-end">
         Create account
       </Button>
     </form>
@@ -145,18 +145,10 @@ export function ThemePreview({ system = true, iconOnly = false, className }: { s
   const config = React.useMemo(() => ({ ...DEFAULTS, ...global, theme }), [global, theme]);
   return (
     <div className={cn("grid gap-3", className)}>
-      <TokenScope config={config} className="grid gap-2 rounded-card bg-page p-[calc(var(--ad-nest)*3)] text-ink">
-        <div className="grid gap-1 rounded-item bg-surface p-3 shadow-card">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-body font-medium">Today</span>
-            <span className="text-small text-ink-muted">18 Nov</span>
-          </div>
-          <span className="text-number font-semibold tabular-nums">{formatRp(12_480_000)}</span>
-          <span className="flex items-center gap-1.5 text-small text-ink-muted">
-            <TrendingUp size={14} />
-            12% on last Tuesday
-          </span>
-        </div>
+      {/* One box in the chosen theme's page colour (no card inside a frame): just the label and the number. */}
+      <TokenScope config={config} className="grid gap-1 rounded-card bg-page px-4 py-3 text-ink">
+        <span className="text-body font-medium">Today</span>
+        <span className="text-number font-semibold tabular-nums">{formatRp(12_480_000)}</span>
       </TokenScope>
       <ThemeSwitch value={choice} onValueChange={setChoice} system={system} iconOnly={iconOnly} className="justify-self-start" />
     </div>
@@ -516,15 +508,14 @@ export function PriceChange({ className }: { className?: string }) {
 function StockCountTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
-      <div className="flex items-center justify-between gap-gap">
-        <h3 className="min-w-0 truncate text-title font-semibold">Gelas kopi tanah liat at Dago</h3>
-        <Button variant="primary" size="sm" onClick={() => toast("Count saved")}>
-          Save count
-        </Button>
-      </div>
+      <h3 className="min-w-0 truncate text-title font-semibold">Gelas kopi tanah liat at Dago</h3>
       <Mark name="number-dial" className="flex-1 content-center">
         <DialDemo preset="quantity" />
       </Mark>
+      {/* The form fits, so Save sits at its bottom right, like the other tiles' main actions. */}
+      <Button variant="primary" className="self-end" onClick={() => toast("Count saved")}>
+        Save count
+      </Button>
     </Tile>
   );
 }
@@ -604,7 +595,7 @@ export const MOTION_TILES: Partial<Record<"Inputs" | "Charts" | "Chat", TileDef[
   ],
   Charts: [{ items: ["brush"], render: () => <LinkedSalesTile className={S[12]} /> }],
   Chat: [
-    { items: ["streaming-text", "citation", "reactions", "prompt-suggestions"], render: () => <AskTile className={S[7]} /> },
-    { items: ["proposed-change"], render: () => <PriceChangeTile className={cn(S[5], "md:col-span-2 lg:col-span-5")} /> },
+    { items: ["streaming-text", "citation", "reactions", "prompt-suggestions"], render: () => <AskTile className={cn(S[5], "md:col-span-2 lg:col-span-5")} /> },
+    { items: ["proposed-change"], render: () => <PriceChangeTile className={S[6]} /> },
   ],
 };

@@ -20,6 +20,7 @@ import { ComponentBento } from "./showcase";
 import { Segmented } from "@/components/ui/segmented";
 import { PhoneFrame } from "./phone";
 import { MobileOverview } from "./mobile-overview";
+import { useEdgeFade } from "./layout";
 
 const sources = import.meta.glob("../components/*/*.tsx", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
 /** Lazy source text of an item's first file, for its Source tab. */
@@ -64,8 +65,22 @@ export function PlatformSwitch({ className, icons = true }: { className?: string
 function GallerySidebar({ groups, platform }: { groups: Group[]; platform?: boolean }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
+  const ref = React.useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+  useEdgeFade(ref);
+  // Keep the current page in view: deep items (Calendar month) sit far below the sidebar's first screen. Scrolls only
+  // the sidebar, never the page, and only when the item is out of view.
+  React.useLayoutEffect(() => {
+    const aside = ref.current;
+    const a = aside?.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!aside || !a) return;
+    const top = a.offsetTop - aside.offsetTop;
+    if (top < aside.scrollTop || top + a.offsetHeight > aside.scrollTop + aside.clientHeight) aside.scrollTop = top - aside.clientHeight / 2 + a.offsetHeight / 2;
+  }, [pathname]);
   return (
-    <aside className="sticky top-20 hidden max-h-[calc(100dvh-96px)] w-52 shrink-0 overflow-auto pb-8 lg:block">
+    // Sticky needs room in its row: the bottom padding sits on <main> (inside the row), and the list is short enough
+    // (viewport minus header, row padding and the footer line) that at the page's end it still clears the header.
+    <aside ref={ref} className="ad-fade-y sticky top-20 hidden max-h-[calc(100dvh-224px)] w-52 shrink-0 self-start overflow-auto overscroll-contain pb-4 lg:block">
       <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
       {platform ? <PlatformSwitch icons={false} className="mb-4 flex w-full [&>button]:flex-1" /> : null}
       {groups.map((g) => (
@@ -78,7 +93,7 @@ function GallerySidebar({ groups, platform }: { groups: Group[]; platform?: bool
               className={({ isActive }) =>
                 cn(
                   "relative flex h-item items-center rounded-control px-2.5 text-body transition-colors duration-[160ms]",
-                  isActive ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink",
+                  isActive ? "text-ink" : "text-ink-muted hover:bg-fill hover:text-ink focus-visible:bg-fill focus-visible:text-ink",
                 )
               }
             >
@@ -118,9 +133,9 @@ function PhonePicker({ current, groups, platform }: { current?: string; groups: 
 /** A detail page: the section's item list on the left (a picker on phones), the page on the right. */
 export function GalleryLayout({ children, current, groups = GROUPS, platform }: { children: React.ReactNode; current?: string; groups?: Group[]; platform?: boolean }) {
   return (
-    <div className="mx-auto flex w-full max-w-[1280px] gap-8 px-4 pb-24 pt-2 sm:px-6">
+    <div className="mx-auto flex w-full max-w-[1280px] gap-8 px-4 pt-2 sm:px-6">
       <GallerySidebar groups={groups} platform={platform} />
-      <main className="min-w-0 flex-1">
+      <main className="min-w-0 flex-1 pb-24">
         <PhonePicker current={current} groups={groups} platform={platform} />
         {children}
       </main>
@@ -150,7 +165,7 @@ const INTERACTIVE = "a,button,input,textarea,select,label,[role=button],[role=co
  * with its name that opens its page with the sliders; a click on its empty space does the same. The component itself
  * stays fully interactive. On touch screens the chip always shows.
  */
-export function Spot({ item, className, children }: { item: Item; className?: string; children: React.ReactNode }) {
+export function Spot({ item, className, flush, children }: { item: Item; className?: string; flush?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate();
   const href = useHref(itemPath(item));
   return (
@@ -162,18 +177,23 @@ export function Spot({ item, className, children }: { item: Item; className?: st
         navigate(href);
       }}
       className={cn(
-        "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-surface focus-within:bg-surface sm:px-6",
+        "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet",
+        // A full-bleed stage (a background behind a screen) is its own card: it sits on the content edge, the chip on top of it.
+        flush ? "" : "px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-surface focus-within:bg-surface sm:px-6",
         className,
       )}
     >
       <SLink
         to={itemPath(item)}
-        className="absolute left-3 top-3 inline-flex h-7 items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink group-hover/spot:opacity-100 group-focus-within/spot:opacity-100 [@media(hover:none)]:opacity-100 sm:left-5"
+        className={cn(
+          "absolute left-3 top-3 z-10 inline-flex h-7 items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink group-hover/spot:opacity-100 group-focus-within/spot:opacity-100 [@media(hover:none)]:opacity-100",
+          flush ? "bg-fill sm:left-4 sm:top-4" : "sm:left-5",
+        )}
       >
         <Sliders size={14} />
         {item.title}
       </SLink>
-      <div className="flex min-h-16 min-w-0 flex-1 items-center justify-center-safe">{children}</div>
+      <div className={cn("flex min-w-0 flex-1 items-center justify-center-safe", !flush && "min-h-16")}>{children}</div>
     </div>
   );
 }
@@ -194,11 +214,11 @@ export function TileSpot({ item, className, children }: { item: Item; className?
         if (t.closest(INTERACTIVE) || t.closest("[data-radix-popper-content-wrapper],[role=dialog]")) return;
         navigate(href);
       }}
-      className={cn("relative flex min-h-[232px] min-w-0 cursor-pointer flex-col p-[calc(var(--ad-nest)*2)] transition-shadow duration-[220ms] ease-ad hover:shadow-raised", className)}
+      className={cn("group/tile relative flex min-h-[232px] min-w-0 cursor-pointer flex-col p-[calc(var(--ad-nest)*2)] transition-shadow duration-[220ms] ease-ad hover:shadow-raised", className)}
     >
       <SLink
         to={itemPath(item)}
-        className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted transition-colors duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink"
+        className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full px-bubble-sm text-small font-medium text-ink-muted opacity-0 transition-[opacity,background-color,color] duration-[160ms] ease-ad hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink group-hover/tile:opacity-100 group-focus-within/tile:opacity-100 [@media(hover:none)]:opacity-100"
       >
         <Sliders size={14} />
         {item.title}
@@ -236,7 +256,17 @@ function Cell({ className, children }: { className?: string; children: React.Rea
 }
 
 /** A section's groups: a small heading each, then its components live, packed in a 12-column grid. */
-export function SpotGroups({ groups, render, span }: { groups: { title: string; items: Item[] }[]; render: (i: Item) => React.ReactNode; span: (i: Item) => 3 | 4 | 6 | 8 | 12 }) {
+export function SpotGroups({
+  groups,
+  render,
+  span,
+  flush,
+}: {
+  groups: { title: string; items: Item[] }[];
+  render: (i: Item) => React.ReactNode;
+  span: (i: Item) => 3 | 4 | 6 | 8 | 12;
+  flush?: (i: Item) => boolean;
+}) {
   return (
     <div className="grid gap-10">
       {groups.map((g) => (
@@ -244,8 +274,10 @@ export function SpotGroups({ groups, render, span }: { groups: { title: string; 
           {g.title ? <h2 className="mb-2 px-1 text-title font-semibold text-ink">{g.title}</h2> : null}
           <div className="-mx-1 grid grid-flow-row-dense auto-rows-[4px] grid-cols-1 gap-x-2 md:grid-cols-2 lg:grid-cols-12">
             {g.items.map((i) => (
-              <Cell key={i.name} className={SPAN_CLASS[span(i)]}>
-                <Spot item={i}>{render(i)}</Spot>
+              <Cell key={i.name} className={cn(SPAN_CLASS[span(i)], flush?.(i) && "px-1")}>
+                <Spot item={i} flush={flush?.(i)}>
+                  {render(i)}
+                </Spot>
               </Cell>
             ))}
           </div>
@@ -270,7 +302,7 @@ export function GalleryIndex() {
         <h1 className="text-heading font-semibold">Components</h1>
         <PlatformSwitch />
         <span className="flex-1" />
-        {mobile ? null : <Search value={q} onValueChange={setQ} placeholder="Find a component" />}
+        {mobile ? null : <Search value={q} onValueChange={setQ} placeholder="Filter this page" aria-label="Filter this page" />}
       </div>
       {mobile ? <MobileOverview /> : <ComponentBento query={q} />}
     </main>
@@ -340,7 +372,7 @@ export function GalleryItem() {
   const stage = demo.stage ?? "surface";
   return (
     <GalleryLayout current={name} platform groups={mobile ? MOBILE_GROUPS : GROUPS}>
-      <div className="mb-5 flex flex-wrap items-center gap-3">
+      <div className="mb-5 flex min-h-control flex-wrap items-center gap-3">
         <h1 className="mr-auto text-heading font-semibold">{item.title}</h1>
       </div>
       <div className="grid gap-4 xl:grid-cols-[1fr_288px]">

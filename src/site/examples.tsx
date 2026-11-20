@@ -34,7 +34,7 @@ import { Select } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { PeriodStepper } from "@/components/ui/period-stepper";
 import { Sheet } from "@/components/ui/sheet";
-import { PageHeader, Toolbar, ToolbarSpacer } from "@/components/ui/toolbar";
+import { PageHeader, Toolbar } from "@/components/ui/toolbar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { Avatar } from "@/components/ui/avatar";
@@ -45,7 +45,7 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { Dialog, DialogClose } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
-import { Loading, LoadingText } from "@/components/ui/skeleton";
+import { Loading, LoadingText, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BottomNav, BottomNavItem, Fab } from "@/components/ui/bottom-nav";
 import { Alert } from "@/components/ui/alert";
@@ -68,10 +68,10 @@ import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
 import { CommentThread, type Comment } from "@/components/ui/comment-thread";
 import { CopyChip } from "@/components/ui/copy-chip";
 import { Timeline } from "@/components/ui/timeline";
-import { AvatarGroup } from "@/components/ui/avatar-group";
 import { CalendarMonth } from "@/components/ui/calendar-month";
 import { SplitButton } from "@/components/ui/split-button";
 import { SLink, useConfig } from "./config";
+import { useEdgeFade } from "./layout";
 import { OrderDetail } from "./demos";
 import {
   CANCEL_REASONS,
@@ -115,6 +115,22 @@ const NOTICES: Notice[] = [
   { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
 ];
 
+/**
+ * A sidebar link. SidebarItem asChild clones its child around the row and also prints its children as the label; the
+ * label copy renders inside the outer link (InLink), so it comes out as plain text: one link, one Tab stop per item.
+ */
+const InLink = React.createContext(false);
+function NavLink({ to, children, ...props }: { to: string; children: React.ReactNode } & Omit<React.ComponentProps<typeof SLink>, "to">) {
+  if (React.useContext(InLink)) return <>{children}</>;
+  return (
+    <InLink.Provider value={true}>
+      <SLink to={to} {...props}>
+        {children}
+      </SLink>
+    </InLink.Provider>
+  );
+}
+
 function AppSidebar({ page }: { page: Page }) {
   const [shop, setShop] = React.useState("All shops");
   const [notices, setNotices] = React.useState(NOTICES);
@@ -123,7 +139,7 @@ function AppSidebar({ page }: { page: Page }) {
       <Menu
         tone="dark"
         trigger={
-          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink transition-[background-color,transform] duration-[160ms] hover:bg-side-fill-strong active:scale-[0.98]">
+          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink transition-[background-color,transform] duration-[160ms] hover:bg-side-fill-strong focus-visible:bg-side-fill-strong active:scale-[0.98]">
             <span className="min-w-0 flex-1 truncate font-medium">Rimba · {shop}</span>
             <ChevronDown size={16} className="shrink-0 text-side-muted" />
           </button>
@@ -138,16 +154,16 @@ function AppSidebar({ page }: { page: Page }) {
       <SidebarSection>
         {NAV.map((n) => (
           <SidebarItem key={n.key} icon={n.icon} active={page === n.key} count={n.count} asChild>
-            <SLink to={`/examples/${n.key}`}>{n.label}</SLink>
+            <NavLink to={`/examples/${n.key}`}>{n.label}</NavLink>
           </SidebarItem>
         ))}
       </SidebarSection>
       <SidebarSection label="Shop">
         <SidebarItem icon={Users} active={page === "team"} asChild>
-          <SLink to="/examples/team">Team</SLink>
+          <NavLink to="/examples/team">Team</NavLink>
         </SidebarItem>
         <SidebarItem icon={SettingsIcon} active={page === "settings"} asChild>
-          <SLink to="/examples/settings">Settings</SLink>
+          <NavLink to="/examples/settings">Settings</NavLink>
         </SidebarItem>
       </SidebarSection>
       <div className="mt-auto flex items-center justify-between pl-1">
@@ -205,11 +221,16 @@ function PhoneNavBar({ page }: { page: Page }) {
 export function Examples() {
   const { page = "dashboard" } = useParams();
   const p = (PAGES.includes(page as Page) ? page : "dashboard") as Page;
+  const app = React.useRef<HTMLDivElement>(null);
+  useEdgeFade(app);
+  React.useLayoutEffect(() => {
+    if (app.current) app.current.scrollTop = 0;
+  }, [p]);
   return (
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
       <AppSidebar page={p} />
-      <div data-app className="min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24" key={p}>
-        <div className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
+      <div ref={app} data-app className="ad-fade-y min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24">
+        <div key={p} className="animate-[ad-fade-in_220ms_var(--ad-ease)] px-1 py-1 sm:px-4 sm:py-2">
           {p === "dashboard" ? (
             <Dashboard />
           ) : p === "orders" ? (
@@ -234,6 +255,14 @@ export function Examples() {
 
 /* ------------------------------------------------------------ dashboard */
 
+/** Sales today per shop, in Rp jt: the four shops only (marketplaces have their own picker), largest first. */
+const BY_SHOP: [string, number][] = [
+  ["Kemang", 12.4],
+  ["Senopati", 9.8],
+  ["Dago", 7.1],
+  ["Darmo", 5.2],
+];
+
 function Dashboard() {
   const loading = useLoading();
   const [range, setRange] = React.useState("day");
@@ -241,7 +270,12 @@ function Dashboard() {
   const [shop, setShop] = React.useState<string | null>(null);
   const low = PRODUCTS.filter((p) => p.stock < 5);
   const unpaid = ORDERS.filter((o) => o.status === "Unpaid").slice(0, 4);
-  const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
+  // Attention rows sit on a fill, so their skeleton bars take the next step up to show.
+  const L = ({ children }: { children: React.ReactNode }) => (
+    <LoadingText loading={loading} className="bg-fill-strong">
+      {children}
+    </LoadingText>
+  );
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Dashboard">
@@ -284,7 +318,7 @@ function Dashboard() {
             loading={loading}
             selected={shop}
             onSelect={setShop}
-            data={SHOPS.map((s, i) => ({ key: s, label: s, value: [12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i], display: `Rp ${[12.4, 9.8, 7.1, 5.2, 8.9, 4.8][i].toLocaleString("id-ID")} jt` }))}
+            data={BY_SHOP.map(([s, v]) => ({ key: s, label: s, value: v, display: `Rp ${v.toLocaleString("id-ID")} jt` }))}
           />
         </Card>
       </div>
@@ -295,11 +329,7 @@ function Dashboard() {
             {low.map((p) => (
               <AttentionItem
                 key={p.sku}
-                media={
-                  <Loading loading={loading}>
-                    <Thumb alt={p.name} />
-                  </Loading>
-                }
+                media={loading ? <Skeleton className="size-[32px] rounded-small bg-fill-strong" /> : <Thumb alt={p.name} />}
                 title={<L>{p.name}</L>}
                 meta={<L>{p.sku}</L>}
                 value={<L>{p.stock === 0 ? "Out" : `${p.stock} left`}</L>}
@@ -314,11 +344,7 @@ function Dashboard() {
             {unpaid.map((o) => (
               <AttentionItem
                 key={o.id}
-                media={
-                  <Loading loading={loading}>
-                    <Avatar name={o.customer} size="md" className="bg-surface" />
-                  </Loading>
-                }
+                media={loading ? <Skeleton className="size-8 rounded-full bg-fill-strong" /> : <Avatar name={o.customer} size="md" className="bg-surface" />}
                 title={<L>{o.customer}</L>}
                 meta={<L>{`${o.id} · ${o.shop}`}</L>}
                 value={<L>{formatRp(o.total)}</L>}
@@ -390,23 +416,24 @@ function Orders() {
 
   return (
     <div className="flex h-[calc(100dvh-64px-16px-16px)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
-      <PageHeader title="Orders">
-        <Button>
-          <Download />
-          Export
-        </Button>
-        <Button variant="primary" className="max-lg:hidden" onClick={() => toast("New order")}>
-          <Plus />
-          Add order
-        </Button>
-      </PageHeader>
+      <PageHeader title="Orders" />
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />
         <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
         <MultiSelect aria-label="Status" placeholder="Status" value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} />
         <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
-        <ToolbarSpacer />
-        <ColumnMenu columns={ORDER_COLS} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
+        {/* Columns, Export and Add stay together at the right end, also when the row wraps (1024). */}
+        <div className="ml-auto flex items-center gap-gap">
+          <ColumnMenu columns={ORDER_COLS} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
+          <Button>
+            <Download />
+            Export
+          </Button>
+          <Button variant="primary" className="max-lg:hidden" onClick={() => toast("New order")}>
+            <Plus />
+            Add order
+          </Button>
+        </div>
       </Toolbar>
       <Card inset="nest" className="flex min-h-0 flex-1 flex-col max-lg:min-h-[480px]" data-orders>
         {rows.length === 0 ? (
@@ -421,7 +448,8 @@ function Orders() {
                   {show("shop") ? <TH>Shop</TH> : null}
                   {show("customer") ? <TH>Customer</TH> : null}
                   {show("items") ? <TH>Items</TH> : null}
-                  {show("payment") ? <TH>Payment</TH> : null}
+                  {/* Below xl the payment method gives way, so Status and Total stay in view. */}
+                  {show("payment") ? <TH className="max-xl:hidden">Payment</TH> : null}
                   <TH>Status</TH>
                   <TH align="right">Total</TH>
                   {show("fee") ? <TH align="right">Fee</TH> : null}
@@ -454,7 +482,7 @@ function Orders() {
                       </TD>
                     ) : null}
                     {show("payment") ? (
-                      <TD>
+                      <TD className="max-xl:hidden">
                         <L>{o.payment}</L>
                       </TD>
                     ) : null}
@@ -513,6 +541,15 @@ const PRODUCT_ROWS: ProductRow[] = PRODUCTS.map((p, i) => ({
   sold: Array.from({ length: 12 }, (_, w) => Math.max(1, Math.round(8 + 6 * Math.sin((w + i) / 2) + ((i * 7 + w * 3) % 5)))),
 }));
 
+/** An inline-edit cell while loading: the same row height and right edge, the value's text as a pulsing bar. */
+function SkeletonValue({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="flex h-item items-center justify-end tabular-nums">
+      <LoadingText loading>{children}</LoadingText>
+    </span>
+  );
+}
+
 function stockStatus(n: number) {
   if (n === 0) return <Pill>Out of stock</Pill>;
   if (n < 5) return <Status tone="attention">Low</Status>;
@@ -536,16 +573,7 @@ function Products() {
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
     <div className="grid grid-cols-1 gap-4">
-      <PageHeader title="Products">
-        <Button>
-          <Download />
-          Export
-        </Button>
-        <Button variant="primary" onClick={() => setAdding(true)}>
-          <Plus />
-          Add product
-        </Button>
-      </PageHeader>
+      <PageHeader title="Products" />
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Name or SKU" wrapperClassName="max-sm:w-full" />
         <ChipGroup aria-label="Stock" className="flex-nowrap">
@@ -559,6 +587,16 @@ function Products() {
             </Chip>
           ))}
         </ChipGroup>
+        <div className="ml-auto flex items-center gap-gap">
+          <Button>
+            <Download />
+            Export
+          </Button>
+          <Button variant="primary" onClick={() => setAdding(true)}>
+            <Plus />
+            Add product
+          </Button>
+        </div>
       </Toolbar>
       <Card inset="nest">
         {list.length === 0 ? (
@@ -592,30 +630,44 @@ function Products() {
                     <L>{p.sku}</L>
                   </TD>
                   <TD align="right" className="w-40">
-                    <InlineEdit
-                      align="right"
-                      aria-label={`${p.name} price`}
-                      inputMode="numeric"
-                      value={String(p.price)}
-                      prefix="Rp"
-                      {...grouped}
-                      validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
-                      onSave={(v) => set(p.sku, { price: Number(v) })}
-                    />
+                    {loading ? (
+                      <SkeletonValue>
+                        Rp<span className="ml-1.5">{p.price.toLocaleString("id-ID")}</span>
+                      </SkeletonValue>
+                    ) : (
+                      <InlineEdit
+                        align="right"
+                        aria-label={`${p.name} price`}
+                        inputMode="numeric"
+                        value={String(p.price)}
+                        prefix="Rp"
+                        {...grouped}
+                        validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
+                        onSave={(v) => set(p.sku, { price: Number(v) })}
+                      />
+                    )}
                   </TD>
                   <TD align="right" className="w-28">
-                    <InlineEdit
-                      align="right"
-                      aria-label={`${p.name} stock`}
-                      inputMode="numeric"
-                      value={String(p.stock)}
-                      validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
-                      onSave={(v) => set(p.sku, { stock: Number(v) })}
-                    />
+                    {loading ? (
+                      <SkeletonValue>{p.stock}</SkeletonValue>
+                    ) : (
+                      <InlineEdit
+                        align="right"
+                        aria-label={`${p.name} stock`}
+                        inputMode="numeric"
+                        value={String(p.stock)}
+                        validate={(v) => (/^\d+$/.test(v) ? null : "Numbers only")}
+                        onSave={(v) => set(p.sku, { stock: Number(v) })}
+                      />
+                    )}
                   </TD>
-                  <TD>{loading ? <L>In stock</L> : stockStatus(p.stock)}</TD>
                   <TD>
-                    <Sparkline data={p.sold} aria-label={`${p.name}, sold per week`} width={88} height={22} />
+                    <Loading loading={loading}>{stockStatus(p.stock)}</Loading>
+                  </TD>
+                  <TD>
+                    <Loading loading={loading}>
+                      <Sparkline data={p.sold} aria-label={`${p.name}, sold per week`} width={88} height={22} />
+                    </Loading>
                   </TD>
                 </TRow>
               ))}
@@ -971,12 +1023,13 @@ function Cancellations() {
 /* ------------------------------------------------------------ team */
 
 function Team() {
+  const loading = useLoading();
   const [roles, setRoles] = React.useState(Object.fromEntries(TEAM_DETAIL.map((t) => [t.email, t.role])));
   const [inviting, setInviting] = React.useState(false);
+  const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Team">
-        <AvatarGroup people={TEAM_DETAIL} max={4} className="max-sm:hidden" />
         <Button variant="primary" onClick={() => setInviting(true)}>
           <UserPlus />
           Invite
@@ -986,25 +1039,37 @@ function Team() {
         <Card inset="nest" className="grid gap-px">
           {TEAM_DETAIL.map((t) => (
             <div key={t.email} className="flex min-h-[calc(var(--ad-row-h)+16px)] items-center gap-3 rounded-item px-2.5 py-1.5 hover:bg-fill">
-              <Avatar name={t.name} />
+              {loading ? <Skeleton className="size-8 rounded-full" /> : <Avatar name={t.name} />}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-body font-medium">{t.name}</p>
-                <p className="truncate text-small text-ink-muted">{t.email}</p>
+                <p className="truncate text-body font-medium">
+                  <L>{t.name}</L>
+                </p>
+                <p className="truncate text-small text-ink-muted">
+                  <L>{t.email}</L>
+                </p>
               </div>
-              <span className="w-28 truncate text-body text-ink-muted max-md:hidden">{t.shops}</span>
-              <span className="w-28 max-md:hidden">
-                {t.active === "Online" ? <Status tone="attention">Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
+              <span className="w-28 truncate text-body text-ink-muted max-md:hidden">
+                <L>{t.shops}</L>
               </span>
-              <Select
-                aria-label={`${t.name} role`}
-                align="end"
-                value={roles[t.email]}
-                onValueChange={(v) => {
-                  setRoles({ ...roles, [t.email]: v });
-                  toast(`${t.name.split(" ")[0]} is now ${v}`);
-                }}
-                options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
-              />
+              <span className="w-28 max-md:hidden">
+                <Loading loading={loading}>
+                  {t.active === "Online" ? <Status tone="attention">Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
+                </Loading>
+              </span>
+              {/* One width for every role, so the shop and last-active columns line up row to row. */}
+              <Loading loading={loading} className="w-28">
+                <Select
+                  aria-label={`${t.name} role`}
+                  align="end"
+                  value={roles[t.email]}
+                  onValueChange={(v) => {
+                    setRoles({ ...roles, [t.email]: v });
+                    toast(`${t.name.split(" ")[0]} is now ${v}`);
+                  }}
+                  options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
+                  className="w-28"
+                />
+              </Loading>
             </div>
           ))}
         </Card>
@@ -1014,12 +1079,14 @@ function Team() {
             events={TEAM_ACTIVITY.map((a) => ({
               id: a.id,
               time: a.time,
+              // Two lines before it cuts, so "changed the courier for Dago to SiCepat" reads whole in the 380 px card.
               title: (
-                <>
-                  <span className="font-medium">{a.who.split(" ")[0]}</span> {a.what}
-                </>
+                <span className="line-clamp-2 whitespace-normal">
+                  <L>
+                    <span className="font-medium">{a.who.split(" ")[0]}</span> {a.what}
+                  </L>
+                </span>
               ),
-              media: <Avatar name={a.who} size="sm" className="size-5 text-[9px]" />,
             }))}
           />
         </Card>
@@ -1091,7 +1158,11 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+/** While the settings load, every row's value pulses in place (the labels are the page's own copy, not data). */
+const SettingsLoading = React.createContext(false);
+
 function Row({ label, children, onClick }: { label: React.ReactNode; children: React.ReactNode; onClick?: () => void }) {
+  const loading = React.useContext(SettingsLoading);
   const Comp = onClick ? "button" : "div";
   return (
     <Comp
@@ -1103,12 +1174,15 @@ function Row({ label, children, onClick }: { label: React.ReactNode; children: R
       )}
     >
       <span className="min-w-0 truncate text-ink">{label}</span>
-      <span className="flex shrink-0 items-center gap-2">{children}</span>
+      <span className="flex shrink-0 items-center gap-2">
+        <Loading loading={loading}>{children}</Loading>
+      </span>
     </Comp>
   );
 }
 
 function Settings() {
+  const loading = useLoading();
   const [saved, setSaved] = React.useState(INITIAL);
   const [form, setForm] = React.useState(INITIAL);
   const [member, setMember] = React.useState<(typeof TEAM)[number] | null>(null);
@@ -1117,143 +1191,145 @@ function Settings() {
   const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && currentLocation.pathname !== nextLocation.pathname);
 
   return (
-    <div className="mx-auto grid max-w-[720px] gap-6 pb-4">
-      <PageHeader title="Settings" />
-      <Group title="Shop">
-        <Row label="Shop name">
-          <Input aria-label="Shop name" value={form.name} onChange={(e) => set("name", e.target.value)} wrapperClassName="w-60 max-sm:w-40" />
-        </Row>
-        <Row label="Legal name">
-          <Input aria-label="Legal name" value={form.legal} onChange={(e) => set("legal", e.target.value)} wrapperClassName="w-60 max-sm:w-40" />
-        </Row>
-        <Row label="Time zone">
-          <Select
-            aria-label="Time zone"
-            value={form.tz}
-            onValueChange={(v) => set("tz", v)}
-            options={[
-              { value: "wib", label: "Jakarta, WIB" },
-              { value: "wita", label: "Makassar, WITA" },
-              { value: "wit", label: "Jayapura, WIT" },
-            ]}
-          />
-        </Row>
-        <Row label="Language">
-          <LanguagePicker value={form.lang} onValueChange={(v) => set("lang", v)} />
-        </Row>
-        <Row label="Money">
-          <Select
-            aria-label="Money format"
-            value={form.money}
-            onValueChange={(v) => set("money", v)}
-            options={[
-              { value: "full", label: "Rp 12.400.000" },
-              { value: "short", label: "Rp 12,4 jt" },
-            ]}
-          />
-        </Row>
-      </Group>
-      <Group title="Checkout">
-        {(
-          [
-            ["round", "Round cash totals to Rp 100"],
-            ["receipts", "Print receipts"],
-            ["reason", "Ask why a sale is cancelled"],
-          ] as const
-        ).map(([k, label]) => (
-          <Row key={k} label={label} onClick={() => set(k, !form[k])}>
-            <Switch checked={form[k]} onCheckedChange={(v) => set(k, v)} onClick={(e) => e.stopPropagation()} tabIndex={-1} aria-label={label} />
+    <SettingsLoading.Provider value={loading}>
+      <div className="grid max-w-[720px] gap-6 pb-4">
+        <PageHeader title="Settings" />
+        <Group title="Shop">
+          <Row label="Shop name">
+            <Input aria-label="Shop name" value={form.name} onChange={(e) => set("name", e.target.value)} wrapperClassName="w-60 max-sm:w-40" />
           </Row>
-        ))}
-      </Group>
-      <Group title="Marketplaces">
-        <Row label="Shopee" onClick={() => toast("Shopee is connected", "neutral")}>
-          <Status>Connected</Status>
-        </Row>
-        <Row label="TikTok Shop" onClick={() => toast("TikTok Shop is connected", "neutral")}>
-          <Status>Connected</Status>
-        </Row>
-        <Row label="Tokopedia" onClick={() => toast("Connect Tokopedia", "neutral")}>
-          <Status tone="muted">Not connected</Status>
-        </Row>
-        <Row label="Sync stock every">
-          <Select
-            aria-label="Sync stock every"
-            value={form.sync}
-            onValueChange={(v) => set("sync", v)}
-            options={[
-              { value: "1", label: "1 minute" },
-              { value: "5", label: "5 minutes" },
-              { value: "15", label: "15 minutes" },
-            ]}
-          />
-        </Row>
-      </Group>
-      <Group title="Team">
-        {TEAM.map((t) => (
-          <Row
-            key={t.email}
-            onClick={() => setMember(t)}
-            label={
-              <span className="flex items-center gap-3">
-                <Avatar name={t.name} size="sm" />
-                {t.name}
-              </span>
-            }
-          >
-            <span className="text-ink-muted">{t.role}</span>
+          <Row label="Legal name">
+            <Input aria-label="Legal name" value={form.legal} onChange={(e) => set("legal", e.target.value)} wrapperClassName="w-60 max-sm:w-40" />
           </Row>
-        ))}
-      </Group>
-      <SaveBar
-        open={dirty}
-        onDiscard={() => setForm(saved)}
-        onSave={() => {
-          setSaved(form);
-          toast("Changes saved");
-        }}
-      />
-      <Dialog
-        open={!!member}
-        onOpenChange={(o) => !o && setMember(null)}
-        title={member?.name}
-        footer={
-          <>
-            <DialogClose asChild>
-              <Button variant="ghost">Cancel</Button>
-            </DialogClose>
-            <DialogClose asChild>
-              <Button variant="primary" onClick={() => toast("Role updated")}>
-                Save role
+          <Row label="Time zone">
+            <Select
+              aria-label="Time zone"
+              value={form.tz}
+              onValueChange={(v) => set("tz", v)}
+              options={[
+                { value: "wib", label: "Jakarta, WIB" },
+                { value: "wita", label: "Makassar, WITA" },
+                { value: "wit", label: "Jayapura, WIT" },
+              ]}
+            />
+          </Row>
+          <Row label="Language">
+            <LanguagePicker value={form.lang} onValueChange={(v) => set("lang", v)} />
+          </Row>
+          <Row label="Money">
+            <Select
+              aria-label="Money format"
+              value={form.money}
+              onValueChange={(v) => set("money", v)}
+              options={[
+                { value: "full", label: "Rp 12.400.000" },
+                { value: "short", label: "Rp 12,4 jt" },
+              ]}
+            />
+          </Row>
+        </Group>
+        <Group title="Checkout">
+          {(
+            [
+              ["round", "Round cash totals to Rp 100"],
+              ["receipts", "Print receipts"],
+              ["reason", "Ask why a sale is cancelled"],
+            ] as const
+          ).map(([k, label]) => (
+            <Row key={k} label={label} onClick={() => set(k, !form[k])}>
+              <Switch checked={form[k]} onCheckedChange={(v) => set(k, v)} onClick={(e) => e.stopPropagation()} tabIndex={-1} aria-label={label} />
+            </Row>
+          ))}
+        </Group>
+        <Group title="Marketplaces">
+          <Row label="Shopee" onClick={() => toast("Shopee is connected", "neutral")}>
+            <Status>Connected</Status>
+          </Row>
+          <Row label="TikTok Shop" onClick={() => toast("TikTok Shop is connected", "neutral")}>
+            <Status>Connected</Status>
+          </Row>
+          <Row label="Tokopedia" onClick={() => toast("Connect Tokopedia", "neutral")}>
+            <Status tone="muted">Not connected</Status>
+          </Row>
+          <Row label="Sync stock every">
+            <Select
+              aria-label="Sync stock every"
+              value={form.sync}
+              onValueChange={(v) => set("sync", v)}
+              options={[
+                { value: "1", label: "1 minute" },
+                { value: "5", label: "5 minutes" },
+                { value: "15", label: "15 minutes" },
+              ]}
+            />
+          </Row>
+        </Group>
+        <Group title="Team">
+          {TEAM.map((t) => (
+            <Row
+              key={t.email}
+              onClick={() => setMember(t)}
+              label={
+                <span className="flex items-center gap-3">
+                  <Avatar name={t.name} size="sm" />
+                  {t.name}
+                </span>
+              }
+            >
+              <span className="text-ink-muted">{t.role}</span>
+            </Row>
+          ))}
+        </Group>
+        <SaveBar
+          open={dirty}
+          onDiscard={() => setForm(saved)}
+          onSave={() => {
+            setSaved(form);
+            toast("Changes saved");
+          }}
+        />
+        <Dialog
+          open={!!member}
+          onOpenChange={(o) => !o && setMember(null)}
+          title={member?.name}
+          footer={
+            <>
+              <DialogClose asChild>
+                <Button variant="ghost">Cancel</Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button variant="primary" onClick={() => toast("Role updated")}>
+                  Save role
+                </Button>
+              </DialogClose>
+            </>
+          }
+        >
+          <Field label="Role">
+            <Select
+              aria-label="Role"
+              value={member?.role ?? "Admin"}
+              onValueChange={() => {}}
+              options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
+            />
+          </Field>
+        </Dialog>
+        <Dialog
+          open={blocker.state === "blocked"}
+          onOpenChange={(o) => !o && blocker.reset?.()}
+          title="Leave without saving?"
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => blocker.proceed?.()}>
+                Discard changes
               </Button>
-            </DialogClose>
-          </>
-        }
-      >
-        <Field label="Role">
-          <Select
-            aria-label="Role"
-            value={member?.role ?? "Admin"}
-            onValueChange={() => {}}
-            options={["Owner", "Admin", "Cashier", "Stock"].map((r) => ({ value: r, label: r }))}
-          />
-        </Field>
-      </Dialog>
-      <Dialog
-        open={blocker.state === "blocked"}
-        onOpenChange={(o) => !o && blocker.reset?.()}
-        title="Leave without saving?"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => blocker.proceed?.()}>
-              Discard changes
-            </Button>
-            <Button variant="primary" onClick={() => blocker.reset?.()}>
-              Keep editing
-            </Button>
-          </>
-        }
-      />
-    </div>
+              <Button variant="primary" onClick={() => blocker.reset?.()}>
+                Keep editing
+              </Button>
+            </>
+          }
+        />
+      </div>
+    </SettingsLoading.Provider>
   );
 }
