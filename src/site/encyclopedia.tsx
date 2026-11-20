@@ -147,6 +147,59 @@ function useSlowMotion(on: boolean) {
   }, [on]);
 }
 
+/**
+ * The rule list, memoised: it only re-renders when the deferred filters (or the open rule) change, so a key in the
+ * search field or a press on a segment paints first and the 300-row list follows.
+ */
+const RuleSections = React.memo(function RuleSections({ shown, openRule }: { shown: Rule[]; openRule: string | null }) {
+  const sections = CATEGORIES.map((c) => ({ ...c, rules: rulesIn(c.id, shown) })).filter((c) => c.rules.length);
+  return (
+    <>
+      {sections.length ? (
+        sections.map((c) => (
+          <section key={c.id} aria-labelledby={`cat-${c.id}`} className="grid min-w-0 grid-cols-1 gap-3">
+            <h2 id={`cat-${c.id}`} className="text-balance px-1 text-title font-semibold text-ink">
+              {c.title} <span className="font-normal tabular-nums text-ink-muted">{c.rules.length}</span>
+            </h2>
+            <Card inset="nest">
+              <Accordion
+                key={openRule && c.rules.some((r) => r.id === openRule) ? openRule : undefined}
+                type="multiple"
+                className="grid-cols-1"
+                defaultValue={openRule && c.rules.some((r) => r.id === openRule) ? [openRule] : undefined}
+                items={c.rules.map((r) => ({
+                  value: r.id,
+                  title: (
+                    <span data-rule={r.id}>
+                      <span className="text-ink">{r.title}</span>
+                      <span className="ml-2 font-normal text-ink-muted group-data-[state=open]:hidden max-sm:hidden">{plain(r.rule)}</span>
+                    </span>
+                  ),
+                  meta: (
+                    // Three fixed slots from sm up, so Demo, Platform and Level each keep their own column row to row.
+                    <span className="flex items-center gap-3 sm:gap-2">
+                      <span className="empty:hidden sm:w-10 sm:empty:block">{DEMOS[r.id] ? "Demo" : null}</span>
+                      <span data-platform={platformOf(r) !== "both" ? platformOf(r) : undefined} className="empty:hidden sm:w-14 sm:empty:block">
+                        {platformOf(r) === "both" ? null : platformOf(r) === "mobile" ? "Mobile" : "Desktop"}
+                      </span>
+                      <span className="empty:hidden sm:w-16 sm:empty:block">{r.level !== "should" ? levelTitle(r.level) : null}</span>
+                    </span>
+                  ),
+                  content: <RuleBody rule={r} />,
+                }))}
+              />
+            </Card>
+          </section>
+        ))
+      ) : (
+        <Card>
+          <EmptyState icon={SearchIcon} title="No rules match" />
+        </Card>
+      )}
+    </>
+  );
+});
+
 type Filters = { q: string; cat: string; level: LevelFilter; platform: PlatformFilter; demos: boolean };
 const NO_FILTERS: Filters = { q: "", cat: "all", level: "all", platform: "all", demos: false };
 
@@ -230,16 +283,17 @@ export function EncyclopediaPage() {
 
   // The list follows a deferred copy, so the field and the segments answer first.
   const deferred = React.useDeferredValue(filters);
-  const terms = deferred.q.toLowerCase().split(/\s+/).filter(Boolean);
-  const shown = RULES.filter(
-    (r) =>
-      (deferred.cat === "all" || r.category === deferred.cat) &&
-      (deferred.level === "all" || r.level === deferred.level) &&
-      (deferred.platform === "all" || forPlatform(r, deferred.platform)) &&
-      (!deferred.demos || DEMOS[r.id]) &&
-      terms.every((t) => haystack.get(r.id)!.includes(t)),
-  );
-  const sections = CATEGORIES.map((c) => ({ ...c, rules: rulesIn(c.id, shown) })).filter((c) => c.rules.length);
+  const shown = React.useMemo(() => {
+    const terms = deferred.q.toLowerCase().split(/\s+/).filter(Boolean);
+    return RULES.filter(
+      (r) =>
+        (deferred.cat === "all" || r.category === deferred.cat) &&
+        (deferred.level === "all" || r.level === deferred.level) &&
+        (deferred.platform === "all" || forPlatform(r, deferred.platform)) &&
+        (!deferred.demos || DEMOS[r.id]) &&
+        terms.every((t) => haystack.get(r.id)!.includes(t)),
+    );
+  }, [deferred]);
   const filtered = shown.length !== RULES.length;
 
   React.useEffect(() => {
@@ -329,47 +383,7 @@ export function EncyclopediaPage() {
         </Toggle>
       </Toolbar>
 
-      {sections.length ? (
-        sections.map((c) => (
-          <section key={c.id} aria-labelledby={`cat-${c.id}`} className="grid min-w-0 grid-cols-1 gap-3">
-            <h2 id={`cat-${c.id}`} className="text-balance px-1 text-title font-semibold text-ink">
-              {c.title} <span className="font-normal tabular-nums text-ink-muted">{c.rules.length}</span>
-            </h2>
-            <Card inset="nest">
-              <Accordion
-                key={openRule && c.rules.some((r) => r.id === openRule) ? openRule : undefined}
-                type="multiple"
-                className="grid-cols-1"
-                defaultValue={openRule && c.rules.some((r) => r.id === openRule) ? [openRule] : undefined}
-                items={c.rules.map((r) => ({
-                  value: r.id,
-                  title: (
-                    <span data-rule={r.id}>
-                      <span className="text-ink">{r.title}</span>
-                      <span className="ml-2 font-normal text-ink-muted group-data-[state=open]:hidden max-sm:hidden">{plain(r.rule)}</span>
-                    </span>
-                  ),
-                  meta: (
-                    // Three fixed slots from sm up, so Demo, Platform and Level each keep their own column row to row.
-                    <span className="flex items-center gap-3 sm:gap-2">
-                      <span className="empty:hidden sm:w-10 sm:empty:block">{DEMOS[r.id] ? "Demo" : null}</span>
-                      <span data-platform={platformOf(r) !== "both" ? platformOf(r) : undefined} className="empty:hidden sm:w-14 sm:empty:block">
-                        {platformOf(r) === "both" ? null : platformOf(r) === "mobile" ? "Mobile" : "Desktop"}
-                      </span>
-                      <span className="empty:hidden sm:w-16 sm:empty:block">{r.level !== "should" ? levelTitle(r.level) : null}</span>
-                    </span>
-                  ),
-                  content: <RuleBody rule={r} />,
-                }))}
-              />
-            </Card>
-          </section>
-        ))
-      ) : (
-        <Card>
-          <EmptyState icon={SearchIcon} title="No rules match" />
-        </Card>
-      )}
+      <RuleSections shown={shown} openRule={openRule} />
 
       <section aria-labelledby="old-ids" className="grid min-w-0 grid-cols-1 gap-3 pt-6">
         <h2 id="old-ids" className="px-1 text-title font-semibold text-ink">
