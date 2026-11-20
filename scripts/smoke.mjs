@@ -310,11 +310,11 @@ await page.goto(BASE + "/encyclopedia", { waitUntil: "networkidle" });
 const enc = async () =>
   page.evaluate(() => ({ rows: document.querySelectorAll("[data-encyclopedia] [data-rule]").length, count: document.querySelector("[data-rule-count]")?.textContent }));
 const encAll = await enc();
-check(encAll.rows >= 200 && encAll.count === `${encAll.rows} rules`, `encyclopedia renders every rule (${JSON.stringify(encAll)})`);
+check(encAll.rows >= 200 && encAll.count === String(encAll.rows), `encyclopedia renders every rule (${JSON.stringify(encAll)})`);
 await page.getByRole("searchbox", { name: "Search rules" }).fill("tabular");
 await sleep(300);
 const encQ = await enc();
-check(encQ.rows > 0 && encQ.rows < encAll.rows && encQ.count === `${encQ.rows} of ${encAll.rows} rules` && page.url().includes("q=tabular"), `encyclopedia search filters rules (${JSON.stringify(encQ)}, ${page.url()})`);
+check(encQ.rows > 0 && encQ.rows < encAll.rows && encQ.count === `${encQ.rows} of ${encAll.rows}` && page.url().includes("q=tabular"), `encyclopedia search filters rules (${JSON.stringify(encQ)}, ${page.url()})`);
 await page.locator('[data-rule="type.tabular-nums"]').click();
 await sleep(400);
 const encOpen = await page.evaluate(() => {
@@ -433,6 +433,39 @@ check(await page.locator("text=1–50 of").isVisible(), "table bar shows count")
 await page.goto(`${BASE}/examples/settings`, { waitUntil: "networkidle" });
 await page.fill("input[aria-label='Shop name']", "Rimba Home");
 check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears on edit");
+
+// Keyboard path: the first Tab lands on "Skip to content"; tabbing on never opens the Customize flap.
+await page.goto(BASE + "/", { waitUntil: "networkidle" });
+await page.mouse.move(1000, 450);
+await page.keyboard.press("Tab");
+const firstTab = await page.evaluate(() => document.activeElement?.textContent?.trim());
+for (let i = 0; i < 5; i++) await page.keyboard.press("Tab");
+await sleep(400);
+const flapAfterTabs = await page.locator("[data-customize-panel]").getAttribute("data-state");
+check(firstTab === "Skip to content" && flapAfterTabs === "closed", `Tab 1 focuses the skip link, the flap stays closed (${firstTab}, ${flapAfterTabs})`);
+
+// No link inside a link (two tab stops, read twice): the example sidebar rows are one link each.
+await page.goto(BASE + "/examples/orders", { waitUntil: "networkidle" });
+check((await page.locator("a a").count()) === 0, "no nested links on /examples/orders");
+
+// Each page names itself in the tab.
+await page.goto(BASE + "/components/button", { waitUntil: "networkidle" });
+check((await page.title()) === "Button · Alora Design", `document title on /components/button (${await page.title()})`);
+
+// Pagination arrows say where they go.
+await page.goto(BASE + "/components/pagination", { waitUntil: "networkidle" });
+const pagerLabels = await page.evaluate(() => [...document.querySelectorAll('[data-stage] nav[aria-label="Pages"] button[aria-label]')].map((b) => b.getAttribute("aria-label")));
+check(pagerLabels.includes("Previous page, 3") && pagerLabels.includes("Next page, 5"), `pagination arrows name their page (${JSON.stringify(pagerLabels)})`);
+
+// /components: a full scroll-through mounts every tile and none throws.
+const beforeScroll = errors.length;
+await page.goto(BASE + "/components", { waitUntil: "networkidle" });
+for (let y = 0, h = await page.evaluate(() => document.documentElement.scrollHeight); y < h; y += 700) {
+  await page.evaluate((top) => scrollTo(0, top), y);
+  await sleep(120);
+}
+await sleep(400);
+check(errors.length === beforeScroll, `no page errors on /components after a scroll-through${errors.length > beforeScroll ? `: ${errors.slice(beforeScroll, beforeScroll + 3).join(" | ")}` : ""}`);
 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
 // The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
@@ -781,16 +814,18 @@ await page.goto(BASE + "/mobile/mobile-keypad", { waitUntil: "networkidle" });
 await page.locator("[data-phone-screen] button", { hasText: "Exact" }).click();
 await page.getByRole("button", { name: "Delete, hold to clear" }).click();
 const amount = await page.locator("[data-phone-screen] output").textContent();
-check(amount === "Rp 41.200", `keypad: Exact then Delete (${amount})`);
+check(amount === "Rp\u00a041.200", `keypad: Exact then Delete (${amount})`);
 
 // Full-screen modal: an edit turns Save on; Cancel with changes asks first.
 await page.goto(BASE + "/mobile/mobile-modal?open=1", { waitUntil: "networkidle" });
 await sleep(600);
+const modalSave = page.locator("[data-phone-screen] [role=dialog] [data-mobile-action-bar] button", { hasText: "Save" });
+const saveOff = await modalSave.isDisabled();
 await page.locator("[data-phone-screen] [role=dialog] input").first().fill("Gelas kopi tanah liat, biru");
-const saveOn = await page.locator("[data-phone-screen] [role=dialog] header button", { hasText: "Save" }).isEnabled();
+const saveOn = saveOff && (await modalSave.isEnabled());
 await page.locator("[data-phone-screen] [role=dialog] header button", { hasText: "Cancel" }).click();
 await sleep(400);
-check(saveOn && (await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count()), "modal: an edit turns Save on, Cancel asks before discarding");
+check(saveOn && (await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count()), "modal: Save sits in the bottom bar, an edit turns it on, Cancel asks before discarding");
 
 // A–Z index: a tap low on the strip jumps the list down.
 await page.goto(BASE + "/mobile/mobile-index-list", { waitUntil: "networkidle" });

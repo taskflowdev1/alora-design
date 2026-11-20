@@ -606,7 +606,8 @@ function Products() {
             <THead>
               <tr>
                 <TH>Product</TH>
-                <TH>SKU</TH>
+                {/* SKU yields first below xl, so the sales trend never sits past the table's edge at 1024. */}
+                <TH className="max-xl:hidden">SKU</TH>
                 <TH align="right">Price</TH>
                 <TH align="right">Stock</TH>
                 <TH>Status</TH>
@@ -626,7 +627,7 @@ function Products() {
                       </span>
                     </span>
                   </TD>
-                  <TD className="text-ink-muted">
+                  <TD className="text-ink-muted max-xl:hidden">
                     <L>{p.sku}</L>
                   </TD>
                   <TD align="right" className="w-40">
@@ -948,7 +949,8 @@ function Cancellations() {
         <MetricCard loading={loading} label="Disputed" value={CANCELLATIONS.filter((c) => c.status === "Disputed").length} />
         <MetricCard loading={loading} label="Fees not returned" unit="Rp" value={Math.abs(lost)} />
       </div>
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Stacked at every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
+      <div className="grid items-start gap-4">
         <Card inset="nest" data-cancels>
           <Table>
             <THead>
