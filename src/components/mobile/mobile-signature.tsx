@@ -6,6 +6,8 @@ type Pt = { x: number; y: number; w: number };
 
 export interface MobileSignaturePadProps {
   /** Called after every stroke: a PNG data URL of the signature, or null once it is cleared. */
+  onValueChange?: (png: string | null) => void;
+  /** @deprecated Use `onValueChange` (the name every other component uses). */
   onChange?: (png: string | null) => void;
   /** The faint word in the empty pad. */
   placeholder?: string;
@@ -18,14 +20,14 @@ export interface MobileSignaturePadProps {
  * scroll under it), thins a little on fast strokes like a real pen, and is redrawn in the current ink colour when the
  * theme or size changes. Undo removes the last stroke, Clear removes all; both are real buttons, never a gesture.
  */
-export function MobileSignaturePad({ onChange, placeholder = "Sign here", className, ...aria }: MobileSignaturePadProps) {
+export function MobileSignaturePad({ onValueChange, onChange, placeholder = "Sign here", className, ...aria }: MobileSignaturePadProps) {
   const canvas = React.useRef<HTMLCanvasElement>(null);
   const strokes = React.useRef<Pt[][]>([]);
   const live = React.useRef<Pt[] | null>(null);
   const [count, setCount] = React.useState(0);
   const [drawing, setDrawing] = React.useState(false);
-  const changed = React.useRef(onChange);
-  changed.current = onChange;
+  const changed = React.useRef(onValueChange ?? onChange);
+  changed.current = onValueChange ?? onChange;
 
   const draw = React.useCallback(() => {
     const c = canvas.current;
@@ -103,7 +105,7 @@ export function MobileSignaturePad({ onChange, placeholder = "Sign here", classN
     emit();
   };
   const tool =
-    "flex h-touch cursor-pointer items-center gap-1.5 rounded-control px-3 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.96] active:bg-fill disabled:pointer-events-none disabled:opacity-40 [-webkit-tap-highlight-color:transparent]";
+    "flex h-touch cursor-pointer items-center gap-1.5 rounded-control px-3 text-[15px] text-ink ad-press focus-visible:bg-fill active:scale-[0.97] data-pressed:scale-[0.97] active:bg-fill data-pressed:bg-fill disabled:pointer-events-none disabled:opacity-40";
   return (
     <div className={cn("grid gap-1", className)}>
       <div className="relative h-[200px] overflow-hidden rounded-card bg-surface shadow-card">

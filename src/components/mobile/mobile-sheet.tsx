@@ -1,12 +1,31 @@
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion, SAFE_BOTTOM, SAFE_TOP } from "@/lib/ad";
+import { useJustOpened } from "@/lib/ad-hooks";
 
 /**
  * Where phone overlays (sheets, action sheets, snackbars) mount. An app leaves it empty and they go to <body>; a phone
  * frame on a docs page passes its screen element so they stay inside the frame.
  */
 export const MobileLayer = React.createContext<HTMLElement | null>(null);
+
+/**
+ * Gives focus back to whatever had it when `open` turned true: controlled phone overlays have no Radix trigger to
+ * return to, so Radix would drop focus at the top of the page. Call `restore()` when it closes.
+ */
+export function useReturnFocus(open: boolean) {
+  const prev = React.useRef<HTMLElement | null>(null);
+  const was = React.useRef(false);
+  if (open && !was.current && typeof document !== "undefined") {
+    const a = document.activeElement;
+    prev.current = a instanceof HTMLElement && a !== document.body ? a : null;
+  }
+  was.current = open;
+  return React.useCallback(() => {
+    const p = prev.current;
+    if (p?.isConnected) p.focus({ preventScroll: true });
+  }, []);
+}
 
 /** A resting height: a fraction of the screen (0.5, 0.92) or "fit" (as tall as its content, up to 88 %). */
 export type Detent = number | "fit";
@@ -30,13 +49,10 @@ export interface MobileSheetProps {
   className?: string;
 }
 
-const SAFE_TOP = "var(--ad-safe-top, env(safe-area-inset-top, 0px))";
-const SAFE_BOTTOM = "var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px))";
 // Critically damped spring (no wobble) that starts from the release speed, so a throw carries on into the settle.
 const W = 20;
 // Closing settles about 25 % faster than opening (exits are quicker than entrances).
 const W_CLOSE = 26;
-const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * The phone's bottom sheet. It floats with a margin and full rounding, rises from the bottom and rests at its detents.
@@ -44,7 +60,8 @@ const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-r
  * against a rubber band past the top detent (its bottom stays put), and on release a flick steps to the next detent
  * the way it was thrown, a slow drag settles on the nearest one, and a flick down from the smallest one closes it. Every move is a spring that keeps the release speed and can be grabbed again mid-flight.
  * Esc, the backdrop and a Close button close it too (the gesture is never the only way). It sits above the keyboard
- * (`--ad-keyboard`) and the home indicator, and contains its own scroll.
+ * (`--ad-keyboard`) and the home indicator, and contains its own scroll. While it leaves it keeps showing what it showed
+ * (an owner may clear its content on close), lets taps through to the screen, and hands focus back to whatever had it.
  */
 export function MobileSheet({
   open: openProp,
@@ -62,8 +79,29 @@ export function MobileSheet({
   const layer = React.useContext(MobileLayer);
   const [own, setOwn] = React.useState(false);
   const open = openProp ?? own;
-  const setOpen = React.useCallback((o: boolean) => (onOpenChange ? onOpenChange(o) : setOwn(o)), [onOpenChange]);
+  const justOpened = useJustOpened(open);
+  const isOpen = React.useRef(open);
+  isOpen.current = open;
+  // The second tap of the double tap that opened it lands on the new backdrop: that is not a tap outside. A closing
+  // sheet ignores further close requests, so its owner hears "closed" once.
+  const setOpen = React.useCallback(
+    (o: boolean) => {
+      if (!o && (!isOpen.current || justOpened())) return;
+      if (onOpenChange) onOpenChange(o);
+      else setOwn(o);
+    },
+    [onOpenChange, justOpened],
+  );
   const [mounted, setMounted] = React.useState(open);
+  // What it shows while closing: the last open render's content, so it never empties or shrinks on its way out.
+  const shown = React.useRef({ title, children, footer });
+  if (open) shown.current = { title, children, footer };
+  const view = shown.current;
+  const restoreFocus = useReturnFocus(open);
+  // A close that follows a tap inside the sheet (an action, a pick) keeps the shade for the rest of 400 ms, so the
+  // double tap's second half can't fall through to the screen below. Other closes let the next tap through at once.
+  const tapAt = React.useRef(-Infinity);
+  const [shield, setShield] = React.useState(false);
   const sheet = React.useRef<HTMLDivElement>(null);
   const shade = React.useRef<HTMLDivElement>(null);
   const s = React.useRef({ y: 0, v: 0, t: 0, from: 0, on: false, raf: 0, stops: [0], closed: 600, flingV: 0, full: 0 });
@@ -78,6 +116,8 @@ export function MobileSheet({
     const el = sheet.current;
     if (el) {
       const low = st.stops[st.stops.length - 1];
+      // A layer only while it moves: a resting sheet stays an ordinary box.
+      el.style.willChange = st.raf || st.on ? "transform" : "";
       // Past the top the sheet stretches (bottom anchored, as native sheets do) instead of lifting off its rest.
       if (st.full && (st.stops.length > 1 || y < 0)) el.style.height = `${st.full - Math.min(y, low)}px`;
       else if (st.full) el.style.height = heightCss.current ?? "";
@@ -93,7 +133,8 @@ export function MobileSheet({
   const animate = (to: number, v: number, done?: () => void, w = W) => {
     const st = s.current;
     cancelAnimationFrame(st.raf);
-    if (reduced()) {
+    st.raf = 0;
+    if (prefersReducedMotion()) {
       place(to);
       return done?.();
     }
@@ -103,6 +144,7 @@ export function MobileSheet({
       const t = (now - t0) / 1000;
       const d = (y0 + (v + w * y0) * t) * Math.exp(-w * t);
       if (Math.abs(d) < 0.5 && t > 0.05) {
+        st.raf = 0;
         place(to);
         return done?.();
       }
@@ -144,11 +186,19 @@ export function MobileSheet({
     if (el) riseRef.current(true);
   }, []);
   React.useEffect(() => {
+    let t = 0;
     if (open) {
       if (mounted && sheet.current) rise(false);
       else setMounted(true);
-    } else if (mounted) animate(s.current.closed, s.current.flingV, () => setMounted(false), W_CLOSE);
+    } else if (mounted) {
+      animate(s.current.closed, s.current.flingV, () => setMounted(false), W_CLOSE);
+      if (sheet.current?.contains(document.activeElement)) restoreFocus();
+      const left = 400 - (performance.now() - tapAt.current);
+      setShield(left > 0);
+      if (left > 0) t = window.setTimeout(() => setShield(false), left);
+    }
     s.current.flingV = 0;
+    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
   React.useEffect(() => () => cancelAnimationFrame(s.current.raf), []);
@@ -158,6 +208,7 @@ export function MobileSheet({
     const st = s.current;
     if (!open) return false;
     cancelAnimationFrame(st.raf);
+    st.raf = 0;
     measure();
     Object.assign(st, { from: clientY - st.y, t: performance.now(), v: 0, on: true });
     return true;
@@ -266,59 +317,68 @@ export function MobileSheet({
   const heightCss = React.useRef<string | undefined>(undefined);
   heightCss.current = fit || !tallest ? undefined : `calc((100% - ${SAFE_TOP} - 8px - max(8px, ${SAFE_BOTTOM})) * ${tallest})`;
   return (
-    <D.Root open={mounted} onOpenChange={(o) => !o && setOpen(false)} modal={!layer}>
+    // Radix sees the real open state, so a closing sheet stops trapping focus and blocking the screen at once (a tap
+    // on a row right after dismissing reaches the row); the content stays mounted until the close spring ends.
+    <D.Root open={open} onOpenChange={setOpen} modal={!layer}>
       {trigger ? <D.Trigger asChild>{trigger}</D.Trigger> : null}
-      <D.Portal container={layer ?? undefined}>
-        <div ref={shade} aria-hidden onClick={() => setOpen(false)} className="fixed inset-0 z-50 bg-overlay opacity-0" />
-        <D.Content
-          ref={attach}
-          aria-describedby={undefined}
-          aria-label={title ? undefined : aria["aria-label"]}
-          onOpenAutoFocus={(e) => {
-            // No keyboard popping up on open (touch): focus the sheet itself.
-            e.preventDefault();
-            sheet.current?.focus({ preventScroll: true });
-          }}
-          onInteractOutside={(e) => layer && e.preventDefault()}
-          style={{
-            ["--ad-sheet-top" as string]: `calc(${SAFE_TOP} + 8px)`,
-            transform: "translate3d(0, 120%, 0)",
-            height: heightCss.current,
-            maxHeight: `calc(100% - ${SAFE_TOP} - 16px - max(8px, ${SAFE_BOTTOM}, var(--ad-keyboard, 0px)))`,
-            bottom: `max(8px, ${SAFE_BOTTOM}, calc(var(--ad-keyboard, 0px) + 8px))`,
-          }}
-          className={cn(
-            "fixed inset-x-2 z-50 mx-auto flex max-w-[520px] flex-col text-ink outline-none will-change-transform",
-            surface ? "rounded-sheet bg-surface shadow-dialog" : "gap-2",
-            className,
-          )}
-        >
-          {surface ? (
-            <>
-              {/* 24 px of strip, with a hit area that reaches 34 px under the title's top edge (it is a handle too). */}
-              <div {...grab} className="relative z-10 -mb-[10px] flex h-[34px] shrink-0 cursor-grab touch-none justify-center pt-[14px] active:cursor-grabbing">
-                <span aria-hidden className="h-[5px] w-9 rounded-full bg-fill-strong" />
-              </div>
-              {title ? (
-                <D.Title {...grab} className="shrink-0 cursor-grab touch-none px-pad pb-2 pt-2 text-[17px] font-semibold active:cursor-grabbing">
-                  {title}
-                </D.Title>
-              ) : (
-                <D.Title className="sr-only">{aria["aria-label"]}</D.Title>
-              )}
-              <div ref={bodyRef} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-pad", !footer && "pb-pad")}>
-                {children}
-              </div>
-              {footer ? <div className="grid shrink-0 gap-2 p-pad [&>*]:h-touch [&>*]:w-full [&>*]:text-[15px]">{footer}</div> : null}
-            </>
-          ) : (
-            <>
-              <D.Title className="sr-only">{title ?? aria["aria-label"]}</D.Title>
-              {children}
-            </>
-          )}
-        </D.Content>
-      </D.Portal>
+      {mounted ? (
+        <D.Portal forceMount container={layer ?? undefined}>
+          <div ref={shade} aria-hidden onClick={() => setOpen(false)} className={cn("fixed inset-0 z-50 bg-overlay opacity-0", !open && !shield && "pointer-events-none")} />
+          <D.Content
+            forceMount
+            ref={attach}
+            onPointerDownCapture={() => (tapAt.current = performance.now())}
+            aria-describedby={undefined}
+            aria-label={view.title ? undefined : aria["aria-label"]}
+            onOpenAutoFocus={(e) => {
+              // No keyboard popping up on open (touch): focus the sheet itself.
+              e.preventDefault();
+              sheet.current?.focus({ preventScroll: true });
+            }}
+            // Focus already went back on close (above); Radix would send it to the top of the page.
+            onCloseAutoFocus={(e) => e.preventDefault()}
+            onInteractOutside={(e) => layer && e.preventDefault()}
+            style={{
+              ["--ad-sheet-top" as string]: `calc(${SAFE_TOP} + 8px)`,
+              transform: "translate3d(0, 120%, 0)",
+              height: heightCss.current,
+              maxHeight: `calc(100% - ${SAFE_TOP} - 16px - max(8px, ${SAFE_BOTTOM}, var(--ad-keyboard, 0px)))`,
+              bottom: `max(8px, ${SAFE_BOTTOM}, calc(var(--ad-keyboard, 0px) + 8px))`,
+            }}
+            className={cn(
+              "fixed inset-x-2 z-50 mx-auto flex max-w-[520px] flex-col text-ink outline-none",
+              !open && "pointer-events-none",
+              surface ? "rounded-sheet bg-surface shadow-dialog" : "gap-2",
+              className,
+            )}
+          >
+            {surface ? (
+              <>
+                {/* 24 px of strip, with a hit area that reaches 34 px under the title's top edge (it is a handle too). */}
+                <div {...grab} className="relative z-10 -mb-[10px] flex h-[34px] shrink-0 cursor-grab touch-none justify-center pt-[14px] active:cursor-grabbing">
+                  <span aria-hidden className="h-[5px] w-9 rounded-full bg-fill-strong" />
+                </div>
+                {view.title ? (
+                  <D.Title {...grab} className="shrink-0 cursor-grab touch-none px-pad pb-2 pt-2 text-[17px] font-semibold active:cursor-grabbing">
+                    {view.title}
+                  </D.Title>
+                ) : (
+                  <D.Title className="sr-only">{aria["aria-label"]}</D.Title>
+                )}
+                <div ref={bodyRef} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-pad", !view.footer && "pb-pad")}>
+                  {view.children}
+                </div>
+                {view.footer ? <div className="grid shrink-0 gap-2 p-pad [&>*]:h-touch [&>*]:w-full [&>*]:text-[15px]">{view.footer}</div> : null}
+              </>
+            ) : (
+              <>
+                <D.Title className="sr-only">{view.title ?? aria["aria-label"]}</D.Title>
+                {view.children}
+              </>
+            )}
+          </D.Content>
+        </D.Portal>
+      ) : null}
     </D.Root>
   );
 }

@@ -59,9 +59,10 @@ export function MobileTextField({ label, value, onValueChange, error, prefix, cl
             aria-label={`Clear ${label}`}
             onPointerDown={(e) => e.preventDefault()}
             onClick={() => (onValueChange(""), ref.current?.focus())}
-            className="grid size-touch shrink-0 cursor-pointer place-items-center text-ink-muted [-webkit-tap-highlight-color:transparent] active:scale-[0.9] transition-transform duration-[150ms] ease-ad"
+            className="group/clear grid size-touch shrink-0 cursor-pointer place-items-center text-ink-muted outline-none ad-press active:scale-[0.92] data-pressed:scale-[0.92]"
           >
-            <span className="grid size-[20px] place-items-center rounded-full bg-ink-muted text-surface">
+            {/* Keyboard focus darkens the disc, as the search bar's clear does. */}
+            <span className="grid size-[20px] place-items-center rounded-full bg-ink-muted text-surface transition-colors duration-[150ms] group-focus-visible/clear:bg-ink">
               <X size={12} strokeWidth={2.5} />
             </span>
           </button>
@@ -70,7 +71,8 @@ export function MobileTextField({ label, value, onValueChange, error, prefix, cl
       </div>
       <div className="grid transition-[grid-template-rows] duration-[200ms] ease-ad motion-reduce:transition-none" style={{ gridTemplateRows: error ? "1fr" : "0fr" }}>
         <div className="min-h-0 overflow-hidden">
-          <p id={`${id}-error`} role={error ? "alert" : undefined} className="flex items-start gap-1.5 px-1 pt-1.5 text-[13px] leading-[18px] text-danger">
+          {/* Polite: an error that appears as you type shouldn't cut off what a screen reader is saying. */}
+          <p id={`${id}-error`} aria-live="polite" className="flex items-start gap-1.5 px-1 pt-1.5 text-[13px] leading-[18px] text-danger">
             <AlertCircle size={16} strokeWidth={1.75} className="mt-px shrink-0" />
             <span>{shown.current}</span>
           </p>

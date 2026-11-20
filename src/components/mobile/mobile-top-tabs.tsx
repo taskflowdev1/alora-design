@@ -1,5 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
+import { useCenterSelected } from "@/lib/ad-hooks";
 
 /** The pager tells its tabs how far it is scrolled (page index, fractional), so the pill can ride along mid-swipe. */
 const PROGRESS = "ad-tab-progress";
@@ -53,12 +54,7 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
   const b = rects[Math.ceil(p)] ?? a;
   const f = p - Math.floor(p);
   const pill = a ? { left: a.left + (b.left - a.left) * f, width: a.width + (b.width - a.width) * f } : null;
-  React.useEffect(() => {
-    const el = track.current;
-    const on = el?.querySelector<HTMLElement>('[aria-selected="true"]');
-    if (!el || !on) return;
-    el.scrollTo({ left: Math.max(0, on.offsetLeft - (el.clientWidth - on.offsetWidth) / 2), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  }, [value]);
+  useCenterSelected(track, '[aria-selected="true"]', value);
   return (
     <div ref={track} className={cn("-mx-pad overflow-x-auto overscroll-x-contain px-pad [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>
       <div
@@ -79,7 +75,8 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
         {pill ? (
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-y-nest rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] bg-sel shadow-sel group-has-[:focus-visible]/tl:bg-fill-strong motion-reduce:transition-none"
+            // Keyboard focus is always on the chosen tab (roving tabindex): its pill darkens, as a chosen filter chip does.
+            className="pointer-events-none absolute inset-y-nest rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] bg-sel shadow-sel group-has-[:focus-visible]/tl:bg-ink-muted motion-reduce:transition-none"
             style={{ left: pill.left, width: pill.width, transition: drag != null ? "none" : "left 300ms var(--ad-ease), width 300ms var(--ad-ease)" }}
           />
         ) : null}
@@ -95,15 +92,15 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
               tabIndex={on ? 0 : -1}
               onClick={() => onValueChange(t.value)}
               className={cn(
-                "relative flex h-touch min-w-touch flex-1 shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] px-3.5 text-[15px] [-webkit-tap-highlight-color:transparent] transition-[color,background-color,transform] duration-[150ms] ease-ad active:scale-[0.96]",
-                on ? "font-medium text-ink" : "text-ink-muted",
+                "relative flex h-touch min-w-touch flex-1 shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] px-3.5 text-[15px] ad-press active:scale-[0.97] data-pressed:scale-[0.97]",
+                on ? "font-medium text-ink focus-visible:text-surface" : "text-ink-muted",
               )}
             >
               <span className="ad-hold">
                 <span aria-hidden>{t.label}</span>
                 <span>{t.label}</span>
               </span>
-              {t.count != null ? <span className="font-normal tabular-nums text-ink-muted">{t.count}</span> : null}
+              {t.count != null ? <span className={cn("font-normal tabular-nums text-ink-muted", on && "in-focus-visible:text-surface")}>{t.count}</span> : null}
             </button>
           );
         })}
@@ -121,26 +118,37 @@ export interface MobileTabPagerProps<T extends string> {
 
 /**
  * The content under top tabs, one page per tab, side by side: swipe sideways to change tab (native scroll snap, so a
- * flick glides to the next page), and picking a tab scrolls its page in. The screen still scrolls up and down.
+ * flick glides to the next page), and picking a tab scrolls its page in. The screen still scrolls up and down. Only a
+ * swipe drives the tabs' pill; a scroll the pager runs itself (after a tap on a tab) leaves the pill to its own slide.
  */
 export function MobileTabPager<T extends string>({ value, onValueChange, pages, className }: MobileTabPagerProps<T>) {
   const track = React.useRef<HTMLDivElement>(null);
   const settle = React.useRef(0);
   const own = React.useRef(false);
+  // Set while the pager scrolls itself to a tapped tab; a finger on the pager clears it (that scroll is the user's).
+  const auto = React.useRef(false);
   const index = pages.findIndex((p) => p.value === value);
   React.useEffect(() => {
     const el = track.current;
     if (!el || own.current) return void (own.current = false);
-    el.scrollTo({ left: index * el.clientWidth, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    const left = index * el.clientWidth;
+    if (Math.abs(el.scrollLeft - left) < 1) return;
+    auto.current = true;
+    el.scrollTo({ left, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }, [index]);
+  const mine = () => void (auto.current = false);
   return (
     <div
       ref={track}
+      onPointerDown={mine}
+      onTouchStart={mine}
+      onWheel={mine}
       onScroll={(e) => {
         const el = e.currentTarget;
-        hub(el)?.dispatchEvent(new CustomEvent(PROGRESS, { detail: el.scrollLeft / el.clientWidth }));
+        if (!auto.current) hub(el)?.dispatchEvent(new CustomEvent(PROGRESS, { detail: el.scrollLeft / el.clientWidth }));
         window.clearTimeout(settle.current);
         settle.current = window.setTimeout(() => {
+          if (auto.current) return void (auto.current = false);
           hub(el)?.dispatchEvent(new CustomEvent(PROGRESS, { detail: null }));
           const i = Math.round(el.scrollLeft / el.clientWidth);
           if (pages[i] && i !== index) {

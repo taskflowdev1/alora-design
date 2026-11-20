@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 
 export interface CountBadgeProps {
   /** The count. 0 or less hides it (no "0" badge). */
@@ -26,7 +26,7 @@ export function CountBadge({ count = 0, max = 99, dot, tone = "ink", className, 
   React.useEffect(() => {
     const prev = last.current;
     last.current = count;
-    if (prev === count || !ref.current || count <= 0 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prev === count || !ref.current || count <= 0 || prefersReducedMotion()) return;
     // First appearance grows in from small; a change ticks.
     if (prev <= 0) ref.current.animate([{ transform: "scale(0.6)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }], { duration: 200, easing: "cubic-bezier(0.32, 0.72, 0, 1)" });
     else ref.current.animate([{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 260, easing: "cubic-bezier(0.32, 0.72, 0, 1)" });

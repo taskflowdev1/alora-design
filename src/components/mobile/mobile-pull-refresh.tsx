@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 
 export interface PullToRefreshProps {
   /** Resolve when the new data is in; the dots wave until then. */
@@ -11,7 +11,6 @@ export interface PullToRefreshProps {
 const ARM = 64;
 const HOLD = 52;
 const W = 18;
-const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * Pull down at the top of a list to reload. The list follows the finger against growing resistance while three dots
@@ -28,14 +27,18 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
 
   const place = React.useCallback((y: number) => {
     s.current.at = y;
-    if (body.current) body.current.style.transform = y ? `translate3d(0, ${y}px, 0)` : "";
+    if (body.current) {
+      body.current.style.transform = y ? `translate3d(0, ${y}px, 0)` : "";
+      // A layer only while pulled: at rest a transform or will-change would trap fixed children (a FAB, an action bar).
+      body.current.style.willChange = y ? "transform" : "";
+    }
     setPull(y);
   }, []);
   const settle = React.useCallback(
     (to: number) => {
       const st = s.current;
       cancelAnimationFrame(st.raf);
-      if (reduced()) return place(to);
+      if (prefersReducedMotion()) return place(to);
       const d0 = st.at - to;
       const t0 = performance.now();
       const step = (now: number) => {
@@ -148,7 +151,7 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
         })}
         <style href="ad-pull-refresh" precedence="default">{`@keyframes ad-pull-wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
       </div>
-      <div ref={body} className="flex grow flex-col will-change-transform">
+      <div ref={body} className="flex grow flex-col">
         {children}
       </div>
     </div>

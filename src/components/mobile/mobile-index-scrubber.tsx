@@ -1,8 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
-
-const SAFE_TOP = "var(--ad-safe-top, env(safe-area-inset-top, 0px))";
-const SAFE_BOTTOM = "var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px))";
+import { cn, SAFE_BOTTOM, SAFE_TOP } from "@/lib/ad";
 
 export interface MobileIndexedListProps<T> {
   /** Sections in order; each letter gets a sticky heading. */
@@ -100,14 +97,14 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
           show(i);
           jump(letters[i]);
         }}
-        className="fixed right-0 z-20 flex w-touch cursor-pointer touch-none select-none flex-col items-center justify-center outline-none [-webkit-tap-highlight-color:transparent]"
+        className="fixed right-0 z-20 flex w-touch cursor-pointer touch-none select-none flex-col items-center justify-center outline-none"
         style={{ top: `calc(${SAFE_TOP} + 96px)`, bottom: `calc(${SAFE_BOTTOM} + ${bottomInset}px)` }}
       >
         {letters.map((l) => (
           <span
             key={l}
             className={cn(
-              "grid min-h-0 w-full flex-1 place-items-center text-[11px] font-semibold leading-none transition-[color,transform] duration-[100ms] ease-ad",
+              "grid min-h-0 w-full flex-1 place-items-center text-[11px] font-semibold leading-none transition-[color,scale] duration-[100ms] ease-ad",
               (scrubbing || kb) && l === active ? "scale-125 text-ink" : "text-ink-muted",
             )}
             style={{ maxHeight: 22 }}
@@ -120,7 +117,7 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
           aria-hidden
           data-shape="round"
           className={cn(
-            "pointer-events-none absolute right-[52px] grid size-[56px] place-items-center rounded-full bg-tip text-[26px] font-semibold text-tip-ink shadow-raised transition-[opacity,transform] duration-[120ms] ease-ad",
+            "pointer-events-none absolute right-[52px] grid size-[56px] place-items-center rounded-full bg-tip text-[26px] font-semibold text-tip-ink shadow-raised transition-[opacity,scale] duration-[120ms] ease-ad",
             (scrubbing || kb) && active ? "scale-100 opacity-100" : "scale-75 opacity-0",
           )}
           style={{ top: bubbleY - 28 }}

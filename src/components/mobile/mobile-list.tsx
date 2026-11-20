@@ -73,14 +73,14 @@ export function MobileListRow({ media, title, subtitle, value, chevron, onClick,
   return (
     <div role="listitem" className={cn("flex min-w-0 items-center", className)}>
       {toggle ? (
-        <label className={cn(row, "cursor-pointer touch-manipulation select-none [-webkit-tap-highlight-color:transparent] has-[:focus-visible]:bg-fill")}>{body}</label>
+        <label className={cn(row, "cursor-pointer touch-manipulation select-none has-[:focus-visible]:bg-fill")}>{body}</label>
       ) : onClick ? (
         <button
           type="button"
           onClick={onClick}
           className={cn(
             row,
-            "cursor-pointer touch-manipulation select-none transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill",
+            "cursor-pointer touch-manipulation select-none transition-colors duration-[120ms] active:bg-fill active:duration-0 data-pressed:bg-fill data-pressed:duration-0 focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill",
           )}
         >
           {body}
@@ -104,7 +104,7 @@ export interface MobileListSkeletonProps {
   className?: string;
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] bg-fill";
+const pulse = "animate-ad-pulse bg-fill";
 /** Pulsing text that keeps the exact line box of the real text. */
 const Line = ({ text, className }: { text: string; className?: string }) => (
   <span aria-hidden className={cn("w-fit max-w-full truncate rounded-small text-transparent select-none", pulse, className)}>

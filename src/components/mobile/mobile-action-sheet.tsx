@@ -18,21 +18,26 @@ export interface MobileActionSheetProps {
   title?: string;
   actions: MobileAction[];
   cancelLabel?: string;
+  className?: string;
 }
 
 /**
  * A short list of actions for one thing, rising from the bottom in thumb reach: the actions on one card, Cancel on its
  * own card under it (the safest action is the easiest to hit). Rows are 56 px, icon then label; the backdrop, Esc and
- * Cancel all close it. Each card's corners follow the sheet radius, rows sit one nest gap inside, concentric.
+ * Cancel all close it. Each card's corners follow the sheet radius, rows sit one nest gap inside, concentric. A pick
+ * runs once: the sheet stops taking taps as it starts to close.
  */
-export function MobileActionSheet({ open, onOpenChange, title, actions, cancelLabel = "Cancel" }: MobileActionSheetProps) {
+export function MobileActionSheet({ open, onOpenChange, title, actions, cancelLabel = "Cancel", className }: MobileActionSheetProps) {
   const pick = (a: MobileAction) => {
+    if (!open) return;
     onOpenChange(false);
     a.onSelect();
   };
-  const row = "flex h-[56px] w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))] px-[calc(var(--ad-pad)-var(--ad-nest))] text-[17px] transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill focus-visible:bg-fill disabled:pointer-events-none disabled:opacity-40 [@media(hover:hover)]:hover:bg-fill";
+  // Edge-to-edge rows don't scale: the fill lands at once on press and fades on release.
+  const row =
+    "flex h-[56px] w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))] px-[calc(var(--ad-pad)-var(--ad-nest))] text-[17px] transition-colors duration-[120ms] active:bg-fill active:duration-0 data-pressed:bg-fill data-pressed:duration-0 focus-visible:bg-fill disabled:pointer-events-none disabled:opacity-40 [@media(hover:hover)]:hover:bg-fill";
   return (
-    <MobileSheet open={open} onOpenChange={onOpenChange} surface={false} aria-label={title ?? "Actions"}>
+    <MobileSheet open={open} onOpenChange={onOpenChange} surface={false} aria-label={title ?? "Actions"} className={className}>
       <div className="grid rounded-sheet bg-surface p-nest shadow-dialog">
         {title ? <p className="px-pad pb-1 pt-2 text-center text-[13px] text-ink-muted">{title}</p> : null}
         {actions.map((a) => (

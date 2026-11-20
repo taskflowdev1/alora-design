@@ -1,9 +1,9 @@
 import * as React from "react";
 import { ChevronRight } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 import { ScrubHold } from "./mobile-scrub-chart";
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite] rounded-small bg-fill text-transparent select-none";
+const pulse = "animate-ad-pulse rounded-small bg-fill text-transparent select-none";
 
 export interface MobileStatTileProps {
   label: string;
@@ -34,7 +34,7 @@ export function MobileStatTile({ label, value, onClick, loading, className }: Mo
     <button
       type="button"
       onClick={onClick}
-      className={cn(box, "cursor-pointer touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.97]")}
+      className={cn(box, "cursor-pointer touch-manipulation ad-press focus-visible:bg-fill active:scale-[0.97] data-pressed:scale-[0.97]")}
     >
       {body}
     </button>
@@ -83,7 +83,7 @@ export function MobileKpiCarousel({ children, className, ...aria }: { children: 
     const second = el?.children[1] as HTMLElement | undefined;
     return first && second ? second.offsetLeft - first.offsetLeft : (el?.clientWidth ?? 1);
   };
-  const go = (i: number) => track.current?.scrollTo({ left: i * step(), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const go = (i: number) => track.current?.scrollTo({ left: i * step(), behavior: prefersReducedMotion() ? "auto" : "smooth" });
   return (
     <section aria-roledescription="carousel" aria-label={aria["aria-label"]} className={cn("grid", className)}>
       <div
@@ -112,7 +112,7 @@ export function MobileKpiCarousel({ children, className, ...aria }: { children: 
             aria-label={`Card ${i + 1}`}
             aria-current={i === at ? "true" : undefined}
             onClick={() => go(i)}
-            className="group/dot grid size-touch cursor-pointer place-items-center rounded-control [-webkit-tap-highlight-color:transparent] focus-visible:bg-fill"
+            className="group/dot grid size-touch cursor-pointer place-items-center rounded-control focus-visible:bg-fill"
           >
             <span className={cn("h-[6px] rounded-full transition-[width,background-color] duration-[220ms] ease-ad", i === at ? "w-[18px] bg-ink" : "w-[6px] bg-fill-strong")} />
           </button>

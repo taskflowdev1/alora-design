@@ -1,5 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, SAFE_BOTTOM } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 
 /**
  * Tracks the on-screen keyboard and writes its height to `--ad-keyboard` on <html>, so bars and sheets can sit on top
@@ -22,7 +23,7 @@ export function useKeyboardInset() {
   }, []);
 }
 
-const BAR_BOTTOM = "max(10px, var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px)), calc(var(--ad-keyboard, 0px) + 8px))";
+const BAR_BOTTOM = `max(10px, ${SAFE_BOTTOM}, calc(var(--ad-keyboard, 0px) + 8px))`;
 
 /**
  * Content scrolls under a floating bar: this fades it into the page from the screen's bottom edge to 16 px above the
@@ -38,14 +39,27 @@ export function MobileBarScrim({ height, className }: { height: string; classNam
  * action use MobileFab instead. It rides on top of the keyboard when one is open and clears the home indicator
  * otherwise. Buttons keep the control radius like every other button on the screen; the card is that radius plus its
  * inset, so the corners stay concentric. Give the screen bottomInset="action-bar" so the last row stays visible.
+ * A second tap within 400 ms of the last one is dropped, so a double tap never saves, pays or submits twice.
  */
 export function MobileActionBar({ children, className }: { children: React.ReactNode; className?: string }) {
+  const last = React.useRef(-Infinity);
   return (
     <>
       <MobileBarScrim className="z-[29] transition-[height] duration-[250ms] ease-ad" height={`calc(${BAR_BOTTOM} + 44px + 2 * var(--ad-nest) + 16px)`} />
       <div
         data-mobile-action-bar
         style={{ bottom: BAR_BOTTOM }}
+        onClickCapture={(e) => {
+          if (!(e.target as Element).closest("button, a")) return;
+          const now = performance.now();
+          // Capture phase: the button's own handler (and a form submit) never sees the repeat.
+          if (now - last.current < 400) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          last.current = now;
+        }}
         className={cn(
           "fixed inset-x-3 z-30 flex gap-gap rounded-[calc(var(--ad-radius-control)+var(--ad-nest))] bg-surface p-nest shadow-dialog transition-[bottom] duration-[250ms] ease-ad",
           "[&>*]:h-touch [&>*]:min-w-0 [&>*]:flex-1 [&>*]:rounded-control [&>*]:text-[15px]",
@@ -72,8 +86,10 @@ export interface MobileFabProps extends Omit<React.ButtonHTMLAttributes<HTMLButt
  * reach, above the tab bar. One per screen, and only where creating is the main job; forms and detail screens pin
  * their action in a MobileActionBar instead. Give the screen bottomInset="tab-bar-fab" so the last row clears it.
  */
-export function MobileFab({ icon: Icon, label, iconOnly = false, above = "tab-bar", className, ...props }: MobileFabProps) {
-  const safe = "max(10px, var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px)))";
+export function MobileFab({ icon: Icon, label, iconOnly = false, above = "tab-bar", className, onClick, ...props }: MobileFabProps) {
+  const safe = `max(10px, ${SAFE_BOTTOM})`;
+  // It pushes or opens a sheet: one double tap does it once.
+  const click = useDoubleTapGuard(onClick);
   return (
     <button
       type="button"
@@ -81,11 +97,12 @@ export function MobileFab({ icon: Icon, label, iconOnly = false, above = "tab-ba
       data-mobile-fab
       style={{ bottom: above === "tab-bar" ? `calc(${safe} + 52px + 2 * var(--ad-nest) + 12px)` : safe }}
       className={cn(
-        "fixed right-3 z-30 flex h-[52px] cursor-pointer select-none items-center justify-center gap-2 rounded-sheet bg-brand font-medium text-brand-ink shadow-dialog transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-brand-hover active:scale-[0.96] [-webkit-tap-highlight-color:transparent] [@media(hover:hover)]:hover:bg-brand-hover",
+        "fixed right-3 z-30 flex h-[52px] cursor-pointer select-none items-center justify-center gap-2 rounded-sheet bg-brand font-medium text-brand-ink shadow-dialog ad-press focus-visible:bg-brand-hover active:scale-[0.97] data-pressed:scale-[0.97] [@media(hover:hover)]:hover:bg-brand-hover",
         iconOnly ? "w-[52px]" : "pl-4 pr-5 text-[15px]",
         className,
       )}
       {...props}
+      onClick={click}
     >
       <Icon size={20} strokeWidth={2} />
       {iconOnly ? null : label}

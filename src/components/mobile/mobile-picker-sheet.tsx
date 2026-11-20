@@ -18,7 +18,7 @@ export interface PickerOption {
 }
 
 const row =
-  "relative flex min-h-touch w-full cursor-pointer touch-manipulation select-none items-center gap-3 rounded-control px-3 py-1.5 text-left outline-none [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[120ms] ease-ad active:scale-[0.99] focus-visible:bg-fill aria-checked:focus-visible:bg-ink-muted aria-checked:focus-visible:text-surface";
+  "relative flex min-h-touch w-full cursor-pointer touch-manipulation select-none items-center gap-3 rounded-control px-3 py-1.5 text-left outline-none transition-colors duration-[120ms] active:duration-0 data-pressed:duration-0 focus-visible:bg-fill aria-checked:focus-visible:bg-ink-muted aria-checked:focus-visible:text-surface";
 /** Search shows once a list is longer than this. */
 const SEARCH_FROM = 8;
 
@@ -47,13 +47,14 @@ export interface MobilePickerSheetProps {
   options: PickerOption[];
   value: string;
   onValueChange: (value: string) => void;
+  className?: string;
 }
 
 /**
  * The phone's dropdown: a sheet of options, the chosen one on a grey pill with a tick. Tapping an option slides the
  * pill to it and the sheet closes a beat later, so you see what you picked. Past eight options a search bar sits on top.
  */
-export function MobilePickerSheet({ open, onOpenChange, title, options, value, onValueChange }: MobilePickerSheetProps) {
+export function MobilePickerSheet({ open, onOpenChange, title, options, value, onValueChange, className }: MobilePickerSheetProps) {
   const [q, setQ] = React.useState("");
   const [draft, setDraft] = React.useState(value);
   const timer = React.useRef(0);
@@ -71,12 +72,12 @@ export function MobilePickerSheet({ open, onOpenChange, title, options, value, o
     timer.current = window.setTimeout(() => (onValueChange(v), onOpenChange(false)), 220);
   };
   return (
-    <MobileSheet open={open} onOpenChange={onOpenChange} title={title} detents={options.length > SEARCH_FROM ? [0.6, 0.92] : ["fit"]}>
+    <MobileSheet open={open} onOpenChange={onOpenChange} title={title} detents={options.length > SEARCH_FROM ? [0.6, 0.92] : ["fit"]} className={className}>
       {options.length > SEARCH_FROM ? <MobileSearchBar value={q} onValueChange={setQ} placeholder={`Search ${title.toLowerCase()}`} className="mb-2" /> : null}
       <div role="radiogroup" aria-label={title} className="relative grid gap-px">
         <SlidingPill selector='[aria-checked="true"]' className="rounded-control bg-fill-strong" />
         {list.map((o) => (
-          <button key={o.value} type="button" role="radio" aria-checked={draft === o.value} onClick={() => pick(o.value)} className={row}>
+          <button key={o.value} type="button" role="radio" aria-checked={draft === o.value} onClick={() => pick(o.value)} className={cn(row, "not-aria-checked:active:bg-fill not-aria-checked:data-pressed:bg-fill")}>
             <OptionBody o={o} />
             <Check size={20} strokeWidth={2} className={cn("shrink-0 transition-opacity duration-[160ms] ease-ad", draft === o.value ? "opacity-100" : "opacity-0")} />
           </button>
@@ -96,13 +97,14 @@ export interface MobileMultiSelectSheetProps {
   onValueChange: (value: string[]) => void;
   /** The primary button, given the draft count: (n) => `Show ${n} shops`. */
   doneLabel?: (count: number) => string;
+  className?: string;
 }
 
 /**
  * Pick several: the chosen ones collect as chips at the top of the sheet (tap a chip to drop it), every row is a
  * check row. The sheet edits a draft; Done keeps it, Clear empties it, closing any other way changes nothing.
  */
-export function MobileMultiSelectSheet({ open, onOpenChange, title, options, value, onValueChange, doneLabel = (n) => (n ? `Done · ${n}` : "Done") }: MobileMultiSelectSheetProps) {
+export function MobileMultiSelectSheet({ open, onOpenChange, title, options, value, onValueChange, doneLabel = (n) => (n ? `Done · ${n}` : "Done"), className }: MobileMultiSelectSheetProps) {
   const [q, setQ] = React.useState("");
   const [draft, setDraft] = React.useState<string[]>(value);
   React.useEffect(() => {
@@ -120,6 +122,7 @@ export function MobileMultiSelectSheet({ open, onOpenChange, title, options, val
       onOpenChange={onOpenChange}
       title={title}
       detents={[0.6, 0.92]}
+      className={className}
       footer={
         <div className="flex gap-gap [&>*]:h-touch [&>*]:flex-1 [&>*]:text-[15px]">
           <Button onClick={() => setDraft([])} disabled={!draft.length}>
@@ -141,7 +144,7 @@ export function MobileMultiSelectSheet({ open, onOpenChange, title, options, val
                 type="button"
                 aria-label={`Remove ${o.label}`}
                 onClick={() => toggle(o.value)}
-                className="flex h-touch shrink-0 cursor-pointer items-center gap-1.5 rounded-control bg-fill-strong pl-3.5 pr-2.5 text-[15px] text-ink animate-[ad-fade-in_160ms_var(--ad-ease)] transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-ink-muted focus-visible:text-surface active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
+                className="flex h-touch shrink-0 cursor-pointer items-center gap-1.5 rounded-control bg-fill-strong pl-3.5 pr-2.5 text-[15px] text-ink animate-[ad-fade-in_160ms_var(--ad-ease)] ad-press focus-visible:bg-ink-muted focus-visible:text-surface active:scale-[0.97] data-pressed:scale-[0.97]"
               >
                 {o.label}
                 <X size={16} strokeWidth={2} className="text-ink-muted" />
@@ -155,7 +158,7 @@ export function MobileMultiSelectSheet({ open, onOpenChange, title, options, val
         {list.map((o) => {
           const on = draft.includes(o.value);
           return (
-            <button key={o.value} type="button" role="checkbox" aria-checked={on} onClick={() => toggle(o.value)} className={cn(row, "active:bg-fill [@media(hover:hover)]:hover:bg-fill")}>
+            <button key={o.value} type="button" role="checkbox" aria-checked={on} onClick={() => toggle(o.value)} className={cn(row, "active:bg-fill data-pressed:bg-fill [@media(hover:hover)]:hover:bg-fill")}>
               <OptionBody o={o} />
               <CheckMark checked={on} />
             </button>

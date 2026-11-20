@@ -5,8 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 
 const row =
-  "relative flex w-full min-w-0 cursor-pointer touch-manipulation select-none items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] text-left [-webkit-tap-highlight-color:transparent] transition-[background-color,transform] duration-[120ms] ease-ad active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45";
-const press = "active:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill";
+  "relative flex w-full min-w-0 cursor-pointer touch-manipulation select-none items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] text-left transition-colors duration-[120ms] active:duration-0 data-pressed:duration-0 disabled:pointer-events-none disabled:opacity-45";
+const press = "active:bg-fill data-pressed:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill";
 
 type Icon = React.ComponentType<{ size?: number | string; strokeWidth?: number | string }>;
 
@@ -54,7 +54,7 @@ export function CheckMark({ checked, className }: { checked: boolean; className?
       aria-hidden
       data-shape="round"
       className={cn(
-        "grid size-[22px] shrink-0 place-items-center rounded-full transition-[background-color,transform] duration-[160ms] ease-ad",
+        "grid size-[22px] shrink-0 place-items-center rounded-full transition-colors duration-[160ms] ease-ad",
         checked ? "bg-on text-on-ink" : "bg-fill-strong text-transparent",
         className,
       )}
@@ -146,7 +146,7 @@ export function MobileRadioList<T extends string>({ value, onValueChange, option
         >
           <Body icon={o.icon} title={o.title} subtitle={o.subtitle} />
           {o.value2 != null ? <span className="shrink-0 text-[15px] tabular-nums text-ink-muted">{o.value2}</span> : null}
-          <Check size={20} strokeWidth={2} className={cn("shrink-0 text-ink transition-[opacity,transform] duration-[160ms] ease-ad", o.value === value ? "scale-100 opacity-100" : "scale-75 opacity-0")} />
+          <Check size={20} strokeWidth={2} className={cn("shrink-0 text-ink transition-[opacity,scale] duration-[160ms] ease-ad", o.value === value ? "scale-100 opacity-100" : "scale-75 opacity-0")} />
         </button>
       ))}
     </div>

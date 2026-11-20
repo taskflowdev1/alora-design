@@ -80,7 +80,7 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
           type="button"
           aria-label="Read the code in the frame"
           onClick={hit}
-          className="group/frame absolute inset-[14%_10%] cursor-pointer outline-none [container-type:size] [-webkit-tap-highlight-color:transparent]"
+          className="group/frame absolute inset-[14%_10%] cursor-pointer outline-none [container-type:size]"
         >
           {(["left-0 top-0", "right-0 top-0 rotate-90", "right-0 bottom-0 rotate-180", "left-0 bottom-0 -rotate-90"] as const).map((pos) => (
             <svg key={pos} aria-hidden width="30" height="30" viewBox="0 0 30 30" className={cn("absolute transition-transform duration-[200ms] ease-ad group-focus-visible/frame:scale-90", pos, read && "scale-90")}>
@@ -100,7 +100,7 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
           aria-pressed={torch}
           onClick={() => setTorch(!torch)}
           className={cn(
-            "absolute right-2 top-2 grid size-touch cursor-pointer place-items-center rounded-full transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.92] [-webkit-tap-highlight-color:transparent]",
+            "absolute right-2 top-2 grid size-touch cursor-pointer place-items-center rounded-full ad-press active:scale-[0.92] data-pressed:scale-[0.92]",
             torch ? "bg-side-ink text-side focus-visible:bg-side-muted" : "bg-side-fill text-side-ink focus-visible:bg-side-fill-strong",
           )}
         >
@@ -122,8 +122,15 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
             inputMode="numeric"
             enterKeyHint="done"
             placeholder="8991234500017"
+            // Mounted by the tap on "Type the code": focus it now, so the keyboard comes up without a second tap.
+            autoFocus
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            translate="no"
             trailing={
-              <button type="submit" className="h-touch shrink-0 cursor-pointer rounded-control px-3.5 text-[15px] font-semibold text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.95] [-webkit-tap-highlight-color:transparent]">
+              <button type="submit" className="h-touch shrink-0 cursor-pointer rounded-control px-3.5 text-[15px] font-semibold text-ink ad-press focus-visible:bg-fill-strong active:scale-[0.97] data-pressed:scale-[0.97]">
                 Add
               </button>
             }

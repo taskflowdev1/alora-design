@@ -1,9 +1,7 @@
 import * as React from "react";
 import { ChevronLeft } from "react-feather";
-import { cn } from "@/lib/ad";
-
-const SAFE_TOP = "var(--ad-safe-top, env(safe-area-inset-top, 0px))";
-const SAFE_BOTTOM = "var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px))";
+import { cn, SAFE_BOTTOM, SAFE_TOP } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 
 export interface MobileScreenProps {
   title: string;
@@ -11,7 +9,7 @@ export interface MobileScreenProps {
   barTitle?: string;
   /** A large title under the bar that shrinks into it as you scroll. Off: the small title only (detail screens). */
   large?: boolean;
-  /** Back to the previous screen: a chevron and the previous screen's name. */
+  /** Back to the previous screen: a chevron and the previous screen's name. A double tap goes back once. */
   back?: { label: string; onClick: () => void };
   /** Instead of back, on a screen that ends a flow: one text button on the left ("Done"). */
   leading?: React.ReactNode;
@@ -25,6 +23,8 @@ export interface MobileScreenProps {
   className?: string;
   /** The scroll area, for scrolling to top or restoring a position. */
   ref?: React.Ref<HTMLDivElement>;
+  /** false when the title is a code or name a browser must not translate (an order id, a SKU). */
+  translateTitle?: boolean;
 }
 
 /**
@@ -32,10 +32,34 @@ export interface MobileScreenProps {
  * scrolls under the bar the bar's small title fades in and the bar takes the page colour, so the content never shows
  * through behind the title. Clears the status bar (safe area) at the top and the tab or action bar at the bottom.
  */
-export function MobileScreen({ title, barTitle, large = true, back, leading, trailing, header, bottomInset = "tab-bar", children, className, ref: outer }: MobileScreenProps) {
+export function MobileScreen({ title, barTitle, large = true, back, leading, trailing, header, bottomInset = "tab-bar", children, className, ref: outer, translateTitle = true }: MobileScreenProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const big = React.useRef<HTMLHeadingElement>(null);
+  const head = React.useRef<HTMLDivElement>(null);
+  const body = React.useRef<HTMLDivElement>(null);
+  const spacer = React.useRef<HTMLDivElement>(null);
+  const goBack = useDoubleTapGuard(back?.onClick);
+  const tr = translateTitle ? undefined : "no";
   React.useImperativeHandle(outer, () => ref.current!);
+  // A list a little taller than the screen could stop scrolling with a sliver of the search bar still showing under
+  // the collapsed bar. Then a spacer adds just enough room for the large title and header to scroll fully away. A list
+  // that fits never scrolls, so an empty state stays centred.
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const gap = spacer.current;
+    if (!el || !gap || !large) return;
+    const fit = () => {
+      const extra = gap.offsetHeight;
+      const max = el.scrollHeight - el.clientHeight - extra;
+      const need = (big.current?.offsetHeight ?? 0) + (head.current?.offsetHeight ?? 0);
+      gap.style.height = max > 0 && max < need ? `${need - max}px` : "0px";
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    if (body.current) ro.observe(body.current);
+    return () => ro.disconnect();
+  }, [large, header]);
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -74,8 +98,8 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
             {leading ?? (back ? (
               <button
                 type="button"
-                onClick={back.onClick}
-                className="flex h-touch min-w-touch max-w-full cursor-pointer items-center gap-0.5 rounded-control pr-2 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.97] [-webkit-tap-highlight-color:transparent]"
+                onClick={goBack}
+                className="flex h-touch min-w-touch max-w-full cursor-pointer items-center gap-0.5 rounded-control pr-2 text-[15px] text-ink ad-press focus-visible:bg-fill active:scale-[0.97] data-pressed:scale-[0.97]"
               >
                 <ChevronLeft size={24} strokeWidth={1.75} className="shrink-0" />
                 <span className="truncate">{back.label}</span>
@@ -83,6 +107,7 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
             ) : null)}
           </div>
           <span
+            translate={tr}
             className="min-w-0 max-w-full truncate text-center text-[17px] font-semibold"
             style={large ? { opacity: "var(--ad-collapse, 0)", transform: "translateY(calc((1 - var(--ad-collapse, 0)) * 4px))" } : undefined}
           >
@@ -92,14 +117,19 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
         </div>
       </header>
       {large ? (
-        <h1 ref={big} className="shrink-0 px-pad pb-2 text-[30px] font-semibold leading-[1.15]">
+        <h1 ref={big} translate={tr} className="shrink-0 text-balance px-pad pb-2 text-[30px] font-semibold leading-[1.15]">
           {title}
         </h1>
       ) : null}
-      {header ? <div className="grid shrink-0 gap-3 px-pad pb-3">{header}</div> : null}
-      <div className="flex grow flex-col" style={{ paddingBottom: pad }}>
+      {header ? (
+        <div ref={head} className="grid shrink-0 gap-3 px-pad pb-3">
+          {header}
+        </div>
+      ) : null}
+      <div ref={body} className="flex grow flex-col" style={{ paddingBottom: pad }}>
         {children}
       </div>
+      {large ? <div ref={spacer} aria-hidden className="shrink-0" /> : null}
     </div>
   );
 }
@@ -110,7 +140,7 @@ export function MobileBarTextButton({ className, ...props }: React.ButtonHTMLAtt
     <button
       type="button"
       className={cn(
-        "h-touch shrink-0 cursor-pointer truncate rounded-control px-2.5 text-[15px] font-medium text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.96] [-webkit-tap-highlight-color:transparent]",
+        "h-touch shrink-0 cursor-pointer truncate rounded-control px-2.5 text-[15px] font-medium text-ink ad-press focus-visible:bg-fill active:scale-[0.97] data-pressed:scale-[0.97]",
         className,
       )}
       {...props}
@@ -124,7 +154,7 @@ export function MobileBarButton({ className, ...props }: React.ButtonHTMLAttribu
     <button
       type="button"
       className={cn(
-        "grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.92] [-webkit-tap-highlight-color:transparent] [&_svg]:size-[22px] [&_svg]:stroke-[1.75]",
+        "grid size-touch shrink-0 cursor-pointer place-items-center rounded-control text-ink ad-press focus-visible:bg-fill active:scale-[0.92] data-pressed:scale-[0.92] [&_svg]:size-[22px] [&_svg]:stroke-[1.75]",
         className,
       )}
       {...props}

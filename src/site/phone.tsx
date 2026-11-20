@@ -32,7 +32,7 @@ function StatusBar() {
 }
 
 /** A plain on-screen keyboard (letters, shift, delete, space, return), only to show what sits above it. */
-function Keyboard() {
+function Keyboard({ returnKey }: { returnKey: string }) {
   const rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
   const key = "grid h-[42px] place-items-center rounded-[6px] bg-surface text-[20px] text-ink shadow-thumb";
   return (
@@ -51,16 +51,83 @@ function Keyboard() {
       <div className="flex gap-[6px] px-[3px]">
         <span className={cn(key, "w-[88px] bg-fill text-[16px]")}>123</span>
         <span className={cn(key, "flex-1 text-[16px]")}>space</span>
-        <span className={cn(key, "w-[88px] bg-fill text-[16px]")}>search</span>
+        <span className={cn(key, "w-[88px] bg-fill text-[16px]")}>{returnKey}</span>
       </div>
     </div>
   );
 }
 
-export interface PhoneFrameProps {
+// Touch press feedback. CSS :active is unreliable under a finger: iOS Safari applies it only where a touch listener
+// exists, Chrome waits to see whether the touch becomes a scroll, and either way a quick tap ends it before a 150 ms
+// press has drawn. One document-level tracker sets `data-pressed` on the pressed control instead: shown 50 ms after
+// touch-down (so a scroll that starts on a row doesn't flash it), at once on a quick release, kept at least 120 ms, and
+// dropped as soon as the finger moves or the browser takes the gesture. Components pair each `active:` class with a
+// `data-pressed:` twin. It only sets an attribute: no click is synthesised, so nothing can fire twice.
+const PRESSABLE = "button, a[href], label, summary, [role=button], [role=tab], [role=option], [role=radio], [role=menuitem], [role=menuitemradio], [role=checkbox], [role=switch], [role=link]";
+let pressInstalled = false;
+
+function installPressFeedback() {
+  if (pressInstalled || typeof document === "undefined") return;
+  pressInstalled = true;
+  let el: HTMLElement | null = null;
+  let x = 0;
+  let y = 0;
+  let showTimer = 0;
+  let shownAt = 0;
+  const show = () => {
+    if (!el) return;
+    el.setAttribute("data-pressed", "");
+    shownAt = performance.now();
+  };
+  const clear = () => {
+    window.clearTimeout(showTimer);
+    el?.removeAttribute("data-pressed");
+    el = null;
+  };
+  const opts = { capture: true, passive: true } as const;
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      clear();
+      if (e.pointerType === "mouse" || !e.isPrimary) return;
+      const t = (e.target as Element | null)?.closest?.<HTMLElement>(PRESSABLE);
+      if (!t || t.matches(":disabled, [aria-disabled=true], [data-disabled]")) return;
+      el = t;
+      x = e.clientX;
+      y = e.clientY;
+      showTimer = window.setTimeout(show, 50);
+    },
+    opts,
+  );
+  document.addEventListener("pointermove", (e) => el && e.isPrimary && Math.hypot(e.clientX - x, e.clientY - y) > 10 && clear(), opts);
+  document.addEventListener("pointercancel", clear, opts);
+  document.addEventListener("scroll", clear, opts);
+  document.addEventListener(
+    "pointerup",
+    (e) => {
+      if (!el || !e.isPrimary) return;
+      window.clearTimeout(showTimer);
+      if (!el.hasAttribute("data-pressed")) show();
+      const held = el;
+      el = null;
+      // A second press on the same control before this runs keeps its own state.
+      window.setTimeout(() => el !== held && held.removeAttribute("data-pressed"), Math.max(0, 120 - (performance.now() - shownAt)));
+    },
+    opts,
+  );
+}
+
+/** Installs the touch press tracker once per page (idempotent). PhoneFrame calls it; so does any full-screen phone app. */
+export function usePressFeedback() {
+  React.useEffect(installPressFeedback, []);
+}
+
+interface PhoneFrameProps {
   children: React.ReactNode;
   /** Draws the keyboard and sets --ad-keyboard, so bars and sheets that avoid it can be seen doing so. */
   keyboard?: boolean;
+  /** The keyboard's return key, as the focused field would set it (enterkeyhint). */
+  returnKey?: "return" | "send" | "search" | "done" | "go";
   className?: string;
   /** Largest scale; the frame also shrinks to fit its column. */
   maxScale?: number;
@@ -72,7 +139,8 @@ export interface PhoneFrameProps {
  * block for fixed bars and the mount point for sheets (MobileLayer), so everything stays inside the screen. It scales
  * down to fit narrow columns, never up.
  */
-export function PhoneFrame({ children, keyboard = false, className, maxScale = 1 }: PhoneFrameProps) {
+export function PhoneFrame({ children, keyboard = false, returnKey = "return", className, maxScale = 1 }: PhoneFrameProps) {
+  usePressFeedback();
   const box = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = React.useState(maxScale);
   const [screen, setScreen] = React.useState<HTMLDivElement | null>(null);
@@ -108,7 +176,7 @@ export function PhoneFrame({ children, keyboard = false, className, maxScale = 1
         <MobileLayer.Provider value={screen}>
           <div className="absolute inset-0">{screen ? children : null}</div>
         </MobileLayer.Provider>
-        {keyboard ? <Keyboard /> : null}
+        {keyboard ? <Keyboard returnKey={returnKey} /> : null}
         <span aria-hidden className="pointer-events-none absolute bottom-2 left-1/2 z-[70] h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-ink" />
       </div>
     </div>

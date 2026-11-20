@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn, MONTHS } from "@/lib/ad";
+import { cn, MONTHS, prefersReducedMotion } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { MobileSheet } from "./mobile-sheet";
 
@@ -46,7 +46,7 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
     const i = Math.max(0, Math.min(options.length - 1, Math.round(el.scrollTop / ROW)));
     if (options[i] && options[i].value !== value) onValueChange(options[i].value);
   };
-  const go = (i: number) => ref.current?.scrollTo({ top: i * ROW, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const go = (i: number) => ref.current?.scrollTo({ top: i * ROW, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   return (
     <div className={cn("relative min-w-0 flex-1", className)} style={{ height: ROW * VISIBLE }}>
       <div
@@ -94,7 +94,7 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
             role="option"
             aria-selected={i === index}
             onClick={() => go(i)}
-            className={cn("grid cursor-pointer snap-center select-none place-items-center text-[20px] tabular-nums will-change-transform", i === index ? "text-ink" : "text-ink-muted")}
+            className={cn("grid cursor-pointer snap-center select-none place-items-center text-[20px] tabular-nums", i === index ? "text-ink" : "text-ink-muted")}
             style={{ height: ROW }}
           >
             {o.label}

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { ArrowUp, Paperclip } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, SAFE_BOTTOM } from "@/lib/ad";
+import { useDoubleTapGuard, useEdgeFade } from "@/lib/ad-hooks";
 
-const SAFE_BOTTOM = "var(--ad-safe-bottom, env(safe-area-inset-bottom, 0px))";
 const LIFT = `max(10px, ${SAFE_BOTTOM}, calc(var(--ad-keyboard, 0px) + 8px))`;
 
 export interface MobileChatMessage {
@@ -103,31 +103,35 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
     t.style.height = `${Math.min(t.scrollHeight, 22 * 5 + 22)}px`;
   }, [value]);
   const can = !!value.trim() && !busy;
-  const send = (text: string) => {
+  // A double tap on Send or a suggestion sends once.
+  const send = useDoubleTapGuard((text: string) => {
     if (!text.trim() || busy) return;
     onSend(text.trim());
-  };
+  });
+  const chips = React.useRef<HTMLDivElement>(null);
+  useEdgeFade(chips, { axis: "x", size: 24 });
   const round = "rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))]";
   return (
     <div ref={box} data-mobile-composer className="fixed inset-x-3 z-30 grid gap-1 rounded-sheet bg-surface p-nest shadow-dialog transition-[bottom] duration-[250ms] ease-ad" style={{ bottom: LIFT }}>
       {suggestions?.length ? (
-        <div className="-mx-nest flex gap-1 overflow-x-auto px-nest [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div ref={chips} className="-mx-nest flex gap-1 overflow-x-auto px-nest [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {suggestions.map((s) => (
             <button
               key={s}
               type="button"
               disabled={busy}
               onClick={() => send(s)}
-              className={cn("h-touch shrink-0 cursor-pointer whitespace-nowrap bg-fill px-3.5 text-[15px] text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill-strong active:scale-[0.96] active:bg-fill-strong disabled:opacity-45 [-webkit-tap-highlight-color:transparent]", round)}
+              className={cn("h-touch shrink-0 cursor-pointer whitespace-nowrap bg-fill px-3.5 text-[15px] text-ink ad-press focus-visible:bg-fill-strong active:scale-[0.97] data-pressed:scale-[0.97] active:bg-fill-strong data-pressed:bg-fill-strong disabled:opacity-45", round)}
             >
               {s}
             </button>
           ))}
         </div>
       ) : null}
-      <div className="flex items-end gap-1">
+      {/* The field row fills while you type, as every other phone field does on focus. */}
+      <div className={cn("flex items-end gap-1 transition-colors duration-[150ms] has-[textarea:focus]:bg-fill", round)}>
         {onAttach ? (
-          <button type="button" aria-label="Attach" onClick={onAttach} className={cn("grid size-touch shrink-0 cursor-pointer place-items-center text-ink transition-[background-color,transform] duration-[150ms] ease-ad focus-visible:bg-fill active:scale-[0.9] [-webkit-tap-highlight-color:transparent]", round)}>
+          <button type="button" aria-label="Attach" onClick={onAttach} className={cn("grid size-touch shrink-0 cursor-pointer place-items-center text-ink ad-press focus-visible:bg-fill active:scale-[0.92] data-pressed:scale-[0.92]", round)}>
             <Paperclip size={20} strokeWidth={1.75} />
           </button>
         ) : null}
@@ -148,7 +152,7 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
           onPointerDown={(e) => e.preventDefault()}
           onClick={() => send(value)}
           className={cn(
-            "grid size-touch shrink-0 cursor-pointer place-items-center transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.9] disabled:cursor-default [-webkit-tap-highlight-color:transparent]",
+            "grid size-touch shrink-0 cursor-pointer place-items-center ad-press active:scale-[0.92] data-pressed:scale-[0.92] disabled:cursor-default",
             round,
             can ? "bg-brand text-brand-ink focus-visible:bg-brand-hover" : "bg-fill text-ink-muted",
           )}

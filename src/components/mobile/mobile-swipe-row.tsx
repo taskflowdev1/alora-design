@@ -1,5 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 
 export interface SwipeAction {
   label: string;
@@ -20,7 +21,6 @@ export interface SwipeRowProps {
 
 const ACTION_W = 76;
 const W = 22;
-const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 // One open row at a time: opening a row closes the last one.
 let closeOpen: (() => void) | null = null;
 
@@ -33,7 +33,8 @@ const toneClass = { neutral: "bg-fill-strong text-ink", accent: "bg-brand text-b
  * and once letting go would run it (60 % of the row) the others fold away, so you know before you lift the finger. A
  * tap on an open row closes it. Swiping is a shortcut: put the same actions in the row's detail screen or a "more"
  * button, so nobody has to discover the gesture. What a full swipe runs happens in one motion, so offer Undo for it
- * (a MobileSnackbar with an Undo action).
+ * (a MobileSnackbar with an Undo action). After a full swipe the row folds shut (200 ms) before the action runs, so the
+ * rows below close the gap smoothly instead of jumping when the owner removes it.
  */
 export function SwipeRow({ children, leading = [], trailing = [], className }: SwipeRowProps) {
   const front = React.useRef<HTMLDivElement>(null);
@@ -41,6 +42,8 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
   const [side, setSide] = React.useState<"left" | "right" | null>(null);
   const trail = React.useRef<HTMLDivElement>(null);
   const [armed, setArmed] = React.useState(false);
+  const [gone, setGone] = React.useState(false);
+  const fold = React.useRef(0);
   const armedRef = React.useRef(false);
   const lw = leading.length * ACTION_W;
   const tw = trailing.length * ACTION_W;
@@ -61,7 +64,7 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
     const s = g.current;
     cancelAnimationFrame(s.raf);
     s.rest = to;
-    if (reduced()) return place(to), done?.();
+    if (prefersReducedMotion()) return place(to), done?.();
     const x0 = s.x - to;
     const t0 = performance.now();
     const step = (now: number) => {
@@ -74,94 +77,108 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
     s.raf = requestAnimationFrame(step);
   };
   const close = React.useCallback(() => settle(0, 0), []); // eslint-disable-line react-hooks/exhaustive-deps
-  React.useEffect(() => () => cancelAnimationFrame(g.current.raf), []);
-
-  const run = (a: SwipeAction) => {
-    settle(0, 0);
-    a.onSelect();
+  React.useEffect(() => () => (cancelAnimationFrame(g.current.raf), window.clearTimeout(fold.current)), []);
+  /** Fold the row shut, then run the action; a row its owner keeps opens again. */
+  const commit = (a: SwipeAction) => {
+    const after = () => {
+      a.onSelect();
+      place(0);
+      setGone(false);
+    };
+    if (prefersReducedMotion()) return after();
+    setGone(true);
+    fold.current = window.setTimeout(after, 200);
   };
 
+  // A double tap on a revealed action runs it once.
+  const run = useDoubleTapGuard((a: SwipeAction) => {
+    settle(0, 0);
+    a.onSelect();
+  });
+
   return (
-    <div className={cn("relative overflow-hidden rounded-item", className)}>
-      {/* Actions sit behind the row, flush with its edges. */}
-      {leading.length ? (
-        <div className="absolute inset-y-0 left-0 flex" style={{ width: lw, visibility: side === "left" ? "visible" : "hidden" }}>
-          {leading.map((a) => (
-            <ActionButton key={a.label} a={a} onClick={() => run(a)} />
-          ))}
-        </div>
-      ) : null}
-      {trailing.length ? (
-        <div ref={trail} className="absolute inset-y-0 right-0 flex" style={{ width: tw, visibility: side === "right" ? "visible" : "hidden" }}>
-          {trailing.map((a, i) => (
-            <ActionButton key={a.label} a={a} onClick={() => run(a)} grow={i === 0} folded={i > 0 && armed} />
-          ))}
-        </div>
-      ) : null}
-      <div
-        ref={front}
-        className="relative bg-surface [touch-action:pan-y]"
-        onPointerDown={(e) => {
-          const s = g.current;
-          cancelAnimationFrame(s.raf);
-          Object.assign(s, { sx: e.clientX - s.x, sy: e.clientY, lock: "", v: 0, t: performance.now(), moved: false });
-        }}
-        onPointerMove={(e) => {
-          const s = g.current;
-          if (e.buttons === 0 && e.pointerType === "mouse") return;
-          const dx = e.clientX - s.sx - s.x;
-          const dy = e.clientY - s.sy;
-          if (!s.lock) {
-            if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-            s.lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-            if (s.lock === "x") {
-              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-              if (closeOpen && closeOpen !== close) closeOpen();
-              closeOpen = close;
+    <div className="grid transition-[grid-template-rows] duration-[200ms] ease-ad" style={{ gridTemplateRows: gone ? "0fr" : "1fr" }}>
+      <div className={cn("relative min-h-0 overflow-hidden rounded-item", className)} inert={gone || undefined}>
+        {/* Actions sit behind the row, flush with its edges. */}
+        {leading.length ? (
+          <div className="absolute inset-y-0 left-0 flex" style={{ width: lw, visibility: side === "left" ? "visible" : "hidden" }}>
+            {leading.map((a) => (
+              <ActionButton key={a.label} a={a} onClick={() => run(a)} />
+            ))}
+          </div>
+        ) : null}
+        {trailing.length ? (
+          <div ref={trail} className="absolute inset-y-0 right-0 flex" style={{ width: tw, visibility: side === "right" ? "visible" : "hidden" }}>
+            {trailing.map((a, i) => (
+              <ActionButton key={a.label} a={a} onClick={() => run(a)} grow={i === 0} folded={i > 0 && armed} />
+            ))}
+          </div>
+        ) : null}
+        <div
+          ref={front}
+          className="relative bg-surface [touch-action:pan-y]"
+          onPointerDown={(e) => {
+            const s = g.current;
+            cancelAnimationFrame(s.raf);
+            Object.assign(s, { sx: e.clientX - s.x, sy: e.clientY, lock: "", v: 0, t: performance.now(), moved: false });
+          }}
+          onPointerMove={(e) => {
+            const s = g.current;
+            if (e.buttons === 0 && e.pointerType === "mouse") return;
+            const dx = e.clientX - s.sx - s.x;
+            const dy = e.clientY - s.sy;
+            if (!s.lock) {
+              if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+              s.lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+              if (s.lock === "x") {
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                if (closeOpen && closeOpen !== close) closeOpen();
+                closeOpen = close;
+              }
             }
-          }
-          if (s.lock !== "x") return;
-          s.moved = true;
-          const raw = e.clientX - s.sx;
-          // Past the leading actions the row pulls against a rubber band; leftward it follows (a long swipe runs the
-          // first action). A side with no actions barely gives.
-          const x = raw > 0 ? (lw ? (raw <= lw ? raw : lw + (raw - lw) * 0.25) : raw * 0.15) : tw ? raw : raw * 0.15;
-          const now = performance.now();
-          s.v = s.v * 0.4 + ((x - s.x) / Math.max(1, now - s.t)) * 1000 * 0.6;
-          s.t = now;
-          place(x);
-        }}
-        onPointerUp={(e) => {
-          const s = g.current;
-          if (s.lock !== "x") return;
-          s.lock = "";
-          const v = performance.now() - s.t > 90 ? 0 : s.v;
-          const width = e.currentTarget.offsetWidth;
-          if (trailing.length && s.x < -width * 0.6) {
-            // Full swipe: slide out and run the first trailing action.
-            return settle(-width, v, () => (trailing[0].onSelect(), settle(0, 0)));
-          }
-          const aim = s.x + v * 0.15;
-          const to = aim > lw / 2 && lw ? lw : aim < -tw / 2 && tw ? -tw : 0;
-          settle(to, v);
-        }}
-        onPointerCancel={() => ((g.current.lock = ""), settle(g.current.rest, 0))}
-        onClickCapture={(e) => {
-          // A drag is not a tap, and a tap on an open row closes it.
-          const s = g.current;
-          if (s.moved) {
-            // The click that ends a drag: swallow it, keep the row where the drag left it.
-            e.preventDefault();
-            e.stopPropagation();
-            s.moved = false;
-          } else if (s.x !== 0) {
-            e.preventDefault();
-            e.stopPropagation();
-            settle(0, 0);
-          }
-        }}
-      >
-        {children}
+            if (s.lock !== "x") return;
+            s.moved = true;
+            const raw = e.clientX - s.sx;
+            // Past the leading actions the row pulls against a rubber band; leftward it follows (a long swipe runs the
+            // first action). A side with no actions barely gives.
+            const x = raw > 0 ? (lw ? (raw <= lw ? raw : lw + (raw - lw) * 0.25) : raw * 0.15) : tw ? raw : raw * 0.15;
+            const now = performance.now();
+            s.v = s.v * 0.4 + ((x - s.x) / Math.max(1, now - s.t)) * 1000 * 0.6;
+            s.t = now;
+            place(x);
+          }}
+          onPointerUp={(e) => {
+            const s = g.current;
+            if (s.lock !== "x") return;
+            s.lock = "";
+            const v = performance.now() - s.t > 90 ? 0 : s.v;
+            const width = e.currentTarget.offsetWidth;
+            if (trailing.length && s.x < -width * 0.6) {
+              // Full swipe: slide out and run the first trailing action.
+              return settle(-width, v, () => commit(trailing[0]));
+            }
+            const aim = s.x + v * 0.15;
+            const to = aim > lw / 2 && lw ? lw : aim < -tw / 2 && tw ? -tw : 0;
+            settle(to, v);
+          }}
+          onPointerCancel={() => ((g.current.lock = ""), settle(g.current.rest, 0))}
+          onClickCapture={(e) => {
+            // A drag is not a tap, and a tap on an open row closes it.
+            const s = g.current;
+            if (s.moved) {
+              // The click that ends a drag: swallow it, keep the row where the drag left it.
+              e.preventDefault();
+              e.stopPropagation();
+              s.moved = false;
+            } else if (s.x !== 0) {
+              e.preventDefault();
+              e.stopPropagation();
+              settle(0, 0);
+            }
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -176,7 +193,7 @@ function ActionButton({ a, onClick, grow, folded }: { a: SwipeAction; onClick: (
       tabIndex={folded ? -1 : undefined}
       style={grow ? { minWidth: ACTION_W } : { width: folded ? 0 : ACTION_W }}
       className={cn(
-        "flex h-full shrink-0 cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden whitespace-nowrap text-[12px] font-medium transition-[width,transform,filter] duration-[150ms] ease-out focus-visible:brightness-90 active:scale-[0.96]",
+        "flex h-full shrink-0 cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden whitespace-nowrap text-[12px] font-medium transition-[width,transform,scale,filter] duration-[150ms] ease-out focus-visible:brightness-90 active:scale-[0.97] data-pressed:scale-[0.97]",
         grow && "flex-1",
         toneClass[a.tone ?? "neutral"],
       )}

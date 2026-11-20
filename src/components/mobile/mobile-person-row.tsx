@@ -54,7 +54,7 @@ export function MobilePersonRow({ name, src, subtitle, meta, unread, badge, chev
       onClick={onClick}
       className={cn(
         row,
-        "cursor-pointer touch-manipulation select-none transition-[background-color,transform] duration-[120ms] ease-ad [-webkit-tap-highlight-color:transparent] active:scale-[0.99] active:bg-fill focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill",
+        "cursor-pointer touch-manipulation select-none transition-colors duration-[120ms] active:bg-fill active:duration-0 data-pressed:bg-fill data-pressed:duration-0 focus-visible:bg-fill [@media(hover:hover)]:hover:bg-fill",
       )}
     >
       {body}
