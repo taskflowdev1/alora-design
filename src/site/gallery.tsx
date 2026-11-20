@@ -309,7 +309,7 @@ export function SpotGroups({
 }
 
 /**
- * The Components page, both halves: Desktop (every component live, composed into a bento by category, showcase.tsx)
+ * The Components page, both halves: Desktop (every component live, composed into a bento by category, showcase/)
  * and Mobile (the example app and composed phone screens, mobile-overview.tsx). One element for both routes, so the
  * Desktop | Mobile switch slides between them.
  */
