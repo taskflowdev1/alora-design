@@ -183,7 +183,8 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
                 key={i}
                 className={cn(
                   "h-[4px] w-[6px] rounded-full transition-colors duration-[160ms] ease-ad",
-                  s.strong ? "bg-ink" : i < Math.min(3, Math.ceil(s.score * 4)) ? "bg-ink-muted" : "bg-fill-strong",
+                  // Unlit slots are the surface step, so they show on the field at rest (fill) and focused (fill-strong).
+                  s.strong ? "bg-ink" : i < Math.min(3, Math.max(1, Math.floor(s.score * 4))) ? "bg-ink-muted" : "bg-surface",
                 )}
               />
             ))}

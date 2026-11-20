@@ -103,6 +103,8 @@ function Column({ label, list, selected, open, onPick, onCross, colRef }: Column
 export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pick a time", className }: TimePickerProps) {
   const [open, setOpen] = React.useState(false);
   const press = usePressOpen(open, setOpen);
+  // Opened from the keyboard, focus lands on the chosen hour; opened with a pointer, on the panel (no focus fill shows).
+  const viaKeyboard = React.useRef(false);
   const [h, m] = (value ?? "").split(":").map(Number);
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 / step }, (_, i) => i * step);
@@ -136,7 +138,15 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
 
   return (
     <P.Root open={open} onOpenChange={setOpen}>
-      <P.Trigger {...press} className={cn(triggerClass, "tabular-nums", className)}>
+      <P.Trigger
+        {...press}
+        onPointerDown={(e) => {
+          viaKeyboard.current = false;
+          press.onPointerDown(e);
+        }}
+        onKeyDown={() => (viaKeyboard.current = true)}
+        className={cn(triggerClass, "tabular-nums", className)}
+      >
         <Clock size={16} className="shrink-0 text-ink-muted" />
         {value ? <span>{value}</span> : <span className="text-ink-muted">{placeholder}</span>}
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
@@ -146,9 +156,11 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
           align="start"
           sideOffset={6}
           collisionPadding={8}
+          tabIndex={-1}
           onOpenAutoFocus={(e) => {
             e.preventDefault();
-            requestAnimationFrame(() => focusCol(0));
+            const panel = e.currentTarget as HTMLElement;
+            requestAnimationFrame(() => (viaKeyboard.current ? focusCol(0) : panel.focus()));
           }}
           className={cn(dropdownSurface, "flex items-start gap-nest")}
         >
