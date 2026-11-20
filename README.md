@@ -144,7 +144,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Slider](https://design.alorawork.com/components/slider) | `slider` | `Slider` | `value`, `onValueChange`, `min`, `max`, `step=1`, `label`, `display`, `className` |
 | [Number dial](https://design.alorawork.com/components/number-dial) | `number-dial` | `RollingNumber`, `NumberDial` | `value`, `format=(n) => n.toLocaleString("id-ID")`, `blur`, `instant`, `className`, `onValueChange`, `min=0`, `max=100`, `majorEvery=10`, `spacing=9`, `unit`, `onTick`, `aria-label` |
 | [Password](https://design.alorawork.com/components/password-input) | `password-input` | `PasswordInput` | `value`, `onValueChange`, `minLength=8`, `suggest=true`, `error`, `submitted`, `wrapperClassName` |
-| [Theme switch](https://design.alorawork.com/components/theme-switch) | `theme-switch` | `ThemeSwitch` | `value`, `onValueChange`, `system=true`, `iconOnly`, `className` |
+| [Theme switch](https://design.alorawork.com/components/theme-switch) | `theme-switch` | `ThemeSwitch` | `value`, `onValueChange`, `system=true`, `iconOnly`, `within`, `className` |
 | [Step form](https://design.alorawork.com/components/step-form) | `step-form` | `StepPanels`, `StepForm` | `step`, `children`, `className`, `steps`, `onStepChange`, `finishLabel="Finish"`, `onFinish` |
 
 ### Display
