@@ -20,6 +20,9 @@ function useNarrow() {
   return narrow;
 }
 
+/** The drawn keyboard's return key, as the screen's focused field would set it (enterkeyhint). */
+const RETURN_KEY: Record<string, "send" | "search"> = { chat: "send", assistant: "send", login: "send", search: "search", orders: "search", products: "search", customers: "search", pos: "search" };
+
 export function MobileAppPage() {
   useKeyboardInset();
   const narrow = useNarrow();
@@ -35,7 +38,8 @@ export function MobileAppPage() {
     if (!["state", "at", "keyboard", "t", "r", "c", "k", "p", "h", "a", "g", "sh", "f"].includes(k)) params[k] = v;
   });
   if (at === "actions") params.actions = "1";
-  const app = <MobileApp key={`${screen}?${query.toString()}`} screen={screen} params={params} state={state} />;
+  // Keyed on the screen only: a theme or customise change rewrites the query, and must not reset the app's stack.
+  const app = <MobileApp key={screen} screen={screen} params={params} state={state} page />;
   // Full screen on a phone: let the page run under the status bar and home indicator, then clear them with env().
   React.useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
@@ -59,7 +63,9 @@ export function MobileAppPage() {
               <ChevronLeft size={18} />
               Mobile components
             </SLink>
-            <PhoneFrame keyboard={query.get("keyboard") === "1"}>{app}</PhoneFrame>
+            <PhoneFrame keyboard={query.get("keyboard") === "1"} returnKey={RETURN_KEY[screen] ?? "return"}>
+              {app}
+            </PhoneFrame>
           </div>
         </main>
       )}
