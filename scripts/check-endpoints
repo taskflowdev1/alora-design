@@ -3,15 +3,18 @@
 set -uo pipefail
 B=${1:-https://design.alorawork.com}
 fail=0
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
 probe() { # path expected-type must-contain
   local body type
-  type=$(curl -s -o /tmp/ad-probe.$$ -w '%{http_code} %{content_type}' "$B$1")
-  if [[ "$type" == 200\ $2* ]] && grep -qF -- "$3" /tmp/ad-probe.$$; then echo "ok   $1"; else echo "FAIL $1 ($type)"; fail=1; fi
+  type=$(curl -s -o "$tmp" -w '%{http_code} %{content_type}' "$B$1")
+  if [[ "$type" == 200\ $2* ]] && grep -qF -- "$3" "$tmp"; then echo "ok   $1"; else echo "FAIL $1 ($type)"; fail=1; fi
 }
 probe "/api/kit?r=14&c=r" "text/markdown" "Control radius | 14 px"
 probe "/r/button.json?r=16&a=d9622b" "application/json" '/r/theme.json?r=16&a=d9622b"'
 probe "/r/theme.json?r=16" "application/json" '"ad-radius-control": "16px"'
 probe "/r/ad.json" "application/json" "extendTailwindMerge"
+probe "/r/ad.json" "application/json" "useEdgeFade"
 probe "/tokens.css?t=d" "text/css" "--ad-radius-card"
 probe "/tokens.json?c=s" "application/json" '"corner": "square"'
 probe "/tailwind.css" "text/css" "@theme inline"
@@ -29,5 +32,4 @@ probe "/components/line-chart" "text/html" '<div id="root">'
 probe "/components/button?r=16" "text/html" '<div id="root">'
 probe "/ai/thinking-orbs" "text/html" '<div id="root">'
 probe "/encyclopedia" "text/html" '<div id="root">'
-rm -f /tmp/ad-probe.$$
 [ $fail = 0 ] && echo "ENDPOINTS PASS" || { echo "ENDPOINTS FAIL"; exit 1; }

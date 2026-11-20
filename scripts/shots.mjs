@@ -1,6 +1,5 @@
-// Headless review screenshots + automatic taste checks. Run through the job queue:
-//   job submit --kind script --name alora-design-shots ... --cmd './scripts/shots'
-// Serves the built site on its own port, writes output/review-v2/*.png, index.md and checks.json.
+// Headless review screenshots + automatic taste checks, run by scripts/shots after a build.
+// Serves the build in SITE_DIST (default dist) on its own port, writes OUT (default output/shots)/*.png, shots.md and checks.json.
 // Dark is the default theme; light shots add t=l. ONLY=<regex> limits the shots.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
@@ -8,13 +7,13 @@ import { chromium } from "playwright-core";
 
 const PORT = Number(process.env.SHOTS_PORT || 5197);
 const BASE = `http://127.0.0.1:${PORT}`;
-const OUT = process.env.OUT || "output/review-v2";
+const OUT = process.env.OUT || "output/shots";
 const ONLY = process.env.ONLY ? new RegExp(process.env.ONLY) : null;
 
 mkdirSync(OUT, { recursive: true });
 for (const f of readdirSync(OUT)) if (f.endsWith(".png") || f === "index.md" || f === "checks.json") rmSync(`${OUT}/${f}`);
 
-const server = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
+const server = spawn("npx", ["vite", "preview", "--outDir", process.env.SITE_DIST || "dist", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
 const stop = () => server.kill("SIGTERM");
 process.on("exit", stop);
 

@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Build, then capture per-component review screenshots + automatic taste checks (borders, fonts, hover shifts) into output/review-v2/. Run through the job queue.
+# Build into TMPDIR, then capture per-component screenshots + automatic taste checks (borders, fonts, hover shifts)
+# into output/shots/ (OUT= to change). Heavy: run it as a background job.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 . scripts/env.sh
-npx vite build --logLevel warn
-node scripts/shots.mjs
+SITE_DIST="$(mktemp -d "${TMPDIR:-/tmp}/ad-shots.XXXXXX")"
+trap 'rm -rf "$SITE_DIST"' EXIT
+npx vite build --logLevel warn --outDir "$SITE_DIST" --emptyOutDir
+SITE_DIST="$SITE_DIST" node scripts/shots.mjs
