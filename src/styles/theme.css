@@ -85,4 +85,8 @@
   --shadow-dialog: var(--ad-shadow-dialog);
   --shadow-thumb: var(--ad-shadow-thumb);
   --ease-ad: var(--ad-ease);
+  --ease-ad-page: var(--ad-ease-page);
+  /* Plain transition-colors and friends take the house curve too, not Tailwind's default. */
+  --default-transition-timing-function: var(--ad-ease);
+  --animate-ad-pulse: ad-pulse 1.6s ease-in-out infinite;
 }

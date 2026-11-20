@@ -99,11 +99,6 @@ export function serializeConfig(c: Config): string {
   return out.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
 }
 
-export const withQuery = (path: string, c: Config) => {
-  const q = serializeConfig(c);
-  return q ? `${path}${path.includes("?") ? "&" : "?"}${q}` : path;
-};
-
 /* ---------------------------------------------------------------- radius */
 
 /**
@@ -141,7 +136,7 @@ export function radii(c: Config, shaped: boolean) {
   };
 }
 
-export const nestGap = (c: Config) => Math.max(2, Math.round(c.radius / 3));
+const nestGap = (c: Config) => Math.max(2, Math.round(c.radius / 3));
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
 /* ---------------------------------------------------------------- colour */
@@ -171,7 +166,7 @@ const rgba = (hex: string, a: number) => {
  * keeps only a hint of it.
  */
 export const GREY_STEPS = ["page", "surface", "fill", "fill-strong", "ink-muted", "ink"] as const;
-export type GreyStep = (typeof GREY_STEPS)[number];
+type GreyStep = (typeof GREY_STEPS)[number];
 
 export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
   const g = (l: number, s: number) => grey(tone, l, dark ? s * DARK_TINT : s);
@@ -201,14 +196,15 @@ export function greyRamp(tone: Tone, dark: boolean): Record<GreyStep, string> {
  * ramp in both themes (the side-* tokens).
  */
 export const GREY_ROLES: Record<string, { light: GreyStep | "white"; dark: GreyStep | "white"; use: string }> = {
-  // Joshua (2026-11-09): menus, selects, popovers and hover cards sit darker than the page around them in dark mode, the
-  // same step as tooltips; the raised shadow separates them. In light they are white and lift by shadow.
+  // House rule: in dark mode menus, selects, popovers and hover cards sit darker than the page around them, the same
+  // step as tooltips, and the raised shadow separates them. A lighter card would glare. In light they are white and
+  // lift by shadow.
   raised: { light: "surface", dark: "page", use: "menus, selects, popovers, hover cards: white in light, the darkest step in dark" },
   track: { light: "fill", dark: "fill", use: "segmented and toggle-group track, chips in a field" },
   sel: { light: "surface", dark: "fill-strong", use: "the raised pill in a track" },
   on: { light: "ink", dark: "ink", use: "ink surfaces: checked boxes, radios, progress, sliders, the today mark" },
   "on-ink": { light: "surface", dark: "surface", use: "text and marks on ink surfaces" },
-  // Joshua (Board, 2026-11-09): popovers and previews sit darker than the page in dark mode, never a white card.
+  // Tooltips and floating previews sit darker than the page in dark mode, never a light card.
   tip: { light: "ink", dark: "page", use: "tooltips and chart tooltips: ink in light, the darkest step in dark" },
   "tip-ink": { light: "surface", dark: "ink", use: "text on tooltips" },
   pop: { light: "surface", dark: "page", use: "previews that float over content (citation): white in light, the darkest step in dark" },
@@ -224,8 +220,8 @@ function shadows(strength: number, dark: boolean, ink: string) {
   const base = dark ? "#000000" : ink;
   const k = dark ? 2.2 : 1;
   const s = (a: number) => rgba(base, Math.min(0.6, a * m * k));
-  // Selected pill (segmented, toggle group, chips in a field): a soft drop only, never an edge or ring (Joshua, v5.2).
-  // A faint drop stays at shadow 0 so the pill still reads.
+  // Selected pill (segmented, toggle group, chips in a field): a soft drop only, never an edge or ring, which would
+  // read as a border. A faint drop stays at shadow 0 so the pill still reads.
   const sel0 = dark ? `0 1px 2px rgba(0, 0, 0, 0.3)` : `0 1px 2px ${rgba(ink, 0.06)}`;
   // Switch and slider thumbs: an even halo with no y offset, so the thumb sits centred in its track.
   // It stays at shadow 0, so a white thumb never melts into a light track.
@@ -246,7 +242,7 @@ function shadows(strength: number, dark: boolean, ink: string) {
  * hue until white passes. Dark mode never lifts the fill, because a lighter blue loses white text (2.8:1 at L 0.64).
  * Hover steps one shade darker, so the label still passes.
  */
-export function brandFill(accent: string, darkInk: string) {
+function brandFill(accent: string, darkInk: string) {
   const acc = hexToOklch(accent);
   const at = (l: number) => oklchToHex({ l, c: acc.c, h: acc.h });
   const MIN = 4.5;
@@ -275,7 +271,7 @@ function themeColors(c: Config, dark: boolean) {
   const chart = dark ? [shades[5], shades[4], shades[3], shades[2], shades[6]] : [shades[5], shades[4], shades[3], shades[6], shades[2]];
   // Series colours for multi-series charts: one accent hue, lightness steps far enough apart that neighbours read as
   // different marks (about 0.2 L between series 1-2 and 1-3), validated against the card surface in each theme.
-  // Sorted, the five steps sit at least 0.09 L apart in dark and 0.1 in light (v2 refine: series 2 and 4 read alike).
+  // Sorted, the five steps sit at least 0.09 L apart in dark and 0.1 in light, so no two series read alike.
   const seriesL = dark ? [0.66, 0.88, 0.48, 0.77, 0.57] : [0.56, 0.8, 0.36, 0.68, 0.46];
   const seriesC = dark ? [0.95, 0.6, 0.9, 0.75, 0.9] : [1, 0.65, 0.8, 0.85, 0.95];
   const series = seriesL.map((l, i) => oklchToHex({ l, c: acc.c * seriesC[i], h: acc.h }));
@@ -323,7 +319,7 @@ function themeColors(c: Config, dark: boolean) {
 
 /* ---------------------------------------------------------------- tokens */
 
-export const FONT_STACK =
+const FONT_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, "Helvetica Neue", Arial, sans-serif';
 
 export function typeScale(c: Config) {
@@ -331,7 +327,7 @@ export function typeScale(c: Config) {
   return { small: f - 1, body: f, title: f + 2, heading: Math.round(f * 1.46), number: Math.round(f * 1.85) };
 }
 
-export type TokenMap = Record<string, string>;
+type TokenMap = Record<string, string>;
 
 /** Every CSS variable, split into what is shared and what differs per theme. */
 export function tokens(c: Config) {
@@ -359,6 +355,8 @@ export function tokens(c: Config) {
     "--ad-gap": px(Math.round(c.padding / 2)),
     "--ad-corner": cornerValue(c),
     "--ad-ease": "cubic-bezier(0.22, 1, 0.36, 1)",
+    // Whole-screen moves on a phone (a pushed screen, a full-screen modal, a snackbar): a longer, softer landing.
+    "--ad-ease-page": "cubic-bezier(0.32, 0.72, 0, 1)",
     "--ad-dur": "220ms",
   };
   shades.forEach((s, i) => (common[`--ad-brand-${i + 1}`] = s));

@@ -1,5 +1,5 @@
 // Export generators shared by the site (/export) and the API (/api/kit, /r/*.json, /tokens.*).
-// Pure: callers pass the CSS files and component sources in.
+// Pure: callers pass the CSS files, component sources and rules in.
 
 import { cornerValue, GREY_ROLES, radii, serializeConfig, tokens, tokensCss, typeScale, type Config } from "./config.js";
 import { ITEMS, REGISTRY_ITEMS, SITE, itemPath, sourceKey, type Item } from "./registry.js";
@@ -7,14 +7,17 @@ import { ITEMS, REGISTRY_ITEMS, SITE, itemPath, sourceKey, type Item } from "./r
 export interface Assets {
   themeCss: string;
   baseCss: string;
-  /** source key -> source: src/components/ui/* by file name, ai/* and backgrounds/* with their folder, src/lib/ad.ts as "ad.ts". */
+  /**
+   * source key -> source: src/components/ui/* by file name, ai/*, backgrounds/* and mobile/* with their folder,
+   * src/lib/ad.ts as "ad.ts" and src/lib/ad-hooks.ts as "ad-hooks.ts".
+   */
   sources: Record<string, string>;
 }
 
 type CssObject = { [key: string]: string | CssObject };
 
-/** Tiny CSS parser for our own base.css: selectors, at-rules and declarations. */
-export function cssToObject(src: string): CssObject {
+/** Tiny CSS parser for our own base.css: selectors, at-rules (@utility included) and declarations. */
+function cssToObject(src: string): CssObject {
   const s = src.replace(/\/\*[\s\S]*?\*\//g, "");
   let i = 0;
   const block = (): CssObject => {
@@ -46,7 +49,7 @@ export function cssToObject(src: string): CssObject {
 }
 
 /** "@theme inline { --color-x: var(--ad-x); }" -> { "color-x": "var(--ad-x)" } */
-export function themeVars(themeCss: string): Record<string, string> {
+function themeVars(themeCss: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const m of themeCss.matchAll(/--([\w-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
   return out;
@@ -54,7 +57,7 @@ export function themeVars(themeCss: string): Record<string, string> {
 
 const strip = (m: Record<string, string>) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k.replace(/^--/, ""), v]));
 
-export const query = (c: Config) => {
+const query = (c: Config) => {
   const q = serializeConfig(c);
   return q ? `?${q}` : "";
 };
@@ -62,7 +65,7 @@ export const query = (c: Config) => {
 /* ---------------------------------------------------------------- tailwind */
 
 /** `dark:` matches the dark theme: inside .dark when light is the default, outside .light when dark is. */
-export const darkVariant = (c: Config) =>
+const darkVariant = (c: Config) =>
   c.theme === "dark" ? `@custom-variant dark (&:not(:where(.light, .light *)));` : `@custom-variant dark (&:where(.dark, .dark *));`;
 
 /** One file to paste into a Tailwind v4 project: tokens, theme mapping, base rules. */
@@ -123,6 +126,7 @@ export function themeItem(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) {
   };
 }
 
+/** The shared helpers every component may import: lib/ad.ts (cn, formatters, dates) and lib/ad-hooks.ts (React hooks). */
 export function libItem(a: Pick<Assets, "sources">) {
   return {
     $schema: SCHEMA,
@@ -130,7 +134,7 @@ export function libItem(a: Pick<Assets, "sources">) {
     type: "registry:lib",
     title: "Alora Design utils",
     dependencies: ["clsx", "tailwind-merge"],
-    files: [{ path: "registry/alora/lib/ad.ts", type: "registry:lib", content: a.sources["ad.ts"] ?? "" }],
+    files: ["ad.ts", "ad-hooks.ts"].map((f) => ({ path: `registry/alora/lib/${f}`, type: "registry:lib", content: a.sources[f] ?? "" })),
   };
 }
 
@@ -141,7 +145,8 @@ export function componentItem(item: Item, c: Config, a: Pick<Assets, "sources">)
     type: "registry:ui",
     title: item.title,
     dependencies: ["react-feather", ...(item.deps ?? [])],
-    registryDependencies: [registryUrl("theme", c), `${SITE}/r/ad.json`, ...(item.registryDeps ?? []).map((n) => registryUrl(n, c))],
+    // Companions (parts a usage example sits next to) install too, so a pasted example works as shown.
+    registryDependencies: [registryUrl("theme", c), `${SITE}/r/ad.json`, ...[...(item.registryDeps ?? []), ...(item.companions ?? [])].map((n) => registryUrl(n, c))],
     // registry:ui files land in the app's ui folder, collections included, so their relative imports resolve.
     // Mobile files land there too, so imports between the two folders become same-folder imports.
     files: item.files.map((f) => ({
@@ -167,7 +172,11 @@ export function registryIndex(c: Config) {
 
 /* ---------------------------------------------------------------- agent kit */
 
-export function kitMarkdown(c: Config) {
+/** The part of a rule the kit lists (encyclopedia.ts `Rule`; passed in so this module stays small for the site). */
+export type KitRule = { id: string; level: string; rule: string };
+
+/** Markdown an agent reads before building with the kit. `rules`: the encyclopedia's RULES; the must ones are listed. */
+export function kitMarkdown(c: Config, rules: readonly KitRule[] = []) {
   const t = tokens(c);
   const r = radii(c, false);
   const rs = radii(c, true);
@@ -238,38 +247,19 @@ export function kitMarkdown(c: Config) {
       "The sidebar, save bar and bottom nav are a dark island in both themes (`side-*` = the dark ramp). Accent only on primary or key actions.",
   );
   lines.push("", `Chart shades: ${[1, 2, 3, 4, 5].map((i) => light[`--ad-chart-${i}`]).join(", ")}.`, "");
+  lines.push(
+    `${c.theme === "dark" ? "Dark" : "Light"} theme by default; the other theme is a class away (\`.${c.theme === "dark" ? "light" : "dark"}\`). Dark is a neutral near-black with no blue tint; light is an off-white page with white cards on a soft shadow.`,
+    "",
+  );
 
   lines.push(`## Rules`, "");
-  [
-    "Radii are concentric where a child sits close to its parent's edge (pill in a track, item in a menu): inner = outer - inset. A control well inside a padded card keeps the control radius.",
-    "Corner shape is one setting: square, round or squircle (`corner-shape: superellipse(k)`). People (avatars) and dots stay circles.",
-    "Borders and outlines never shift layout. Controls have no borders; they are soft fills.",
-    "Keyboard focus is always visible as a fill (`fill` on a surface, `fill-strong` on a fill; an already-filled selected item darkens a notch). No focus rings, outlines or border colour changes.",
-    "Buttons, chips, cards and tabs shrink slightly while pressed (0.97; cards 0.99) and keep their colour. Table rows and menu items don't scale.",
-    "Accent only on the primary or key action (Add, Save), and in shades for charts. Active nav, numbers and selected states stay neutral.",
-    "No dividing lines anywhere: not between rows, list items, stats, footer sections or columns. Separate with space or soft cards.",
-    "No slop captions: no eyebrows, no subtitles that restate a title, no micro-copy under buttons, no meta lines, no grey corner text.",
-    "Motion: about 220 ms, ease-out. Skeletons only for real fetches, matching the loaded layout exactly (same rows, thumbs and column widths, no real data under them); filtering loaded rows swaps at once. No spinners.",
-    "Spacing: Tailwind steps are rem on a 13 px root (`gap-2` = 6.5 px); use the tokens (`p-pad`, `gap-gap`, `px-bubble`). Icons are 16 px and desktop hit areas at least 24 px (transparent `::after`), set in px.",
-    "In dark mode, menus, selects, popovers, hover cards, tooltips and toasts are darker than the page around them (the page grey) and separate by shadow.",
-    "Phone: a floating button for the create action on list screens; a pinned full-width action bar on forms and detail screens. Touch targets at least 44 px.",
-    "Status = small dot centred on the text. A soft pill only for the one status that needs attention.",
-    "Tables: dense rows, no row lines, sticky header that never overlaps, columns sized to data, one-line cells, bottom bar with count + pager (50 per page). Whole-row click opens a side pane.",
-    "Toolbars: every control one height, one centre line. Popovers from one toolbar never stack.",
-    "Controls side by side, wrapped or stacked keep one gap, `--ad-gap` (half the card padding; `gap-gap`), in both axes. They never touch.",
-    "Nothing sits under a scrollbar: a scroll area whose content runs edge to edge gives the bar its own lane (see MessageScroller).",
-    "Dropdowns, popovers, tooltips, dialogs and date/time pickers are always our own components, never the browser's (no <select>, no title= tooltips, no date inputs, no alert/confirm). Language picker = flag + EN/ID/CN.",
-    "Dates read \"7 Nov 2026\" or relative (\"Today, 14:05\"). Money reads \"Rp 12.400.000\".",
-    "Empty state = one 40 px Feather icon (1.5 stroke) + a short title. Nothing else.",
-    "Icons: Feather, 1.75 stroke, 16 px beside body text, same colour as the text, no containers.",
-    "Toasts sit at the far right and never cover actions (they rise above save bars and move left of side panes).",
-    `${c.theme === "dark" ? "Dark" : "Light"} theme by default. Dark is a neutral near-black with no blue tint; light is an off-white page with white cards on a soft shadow. The other theme is a class away (.${c.theme === "dark" ? "light" : "dark"}). The sidebar is dark in both.`,
-    "Every pill, chip, filter bubble and segment shares one padding scale (`--ad-bubble-x`, `--ad-bubble-x-sm`).",
-    "Triggers (date, select) size to their value; they are not stretched.",
-    "A one-line alert centres icon, text and action on one line; a multi-line alert keeps the icon on the first line.",
-    "Metric cards: Tile (A) by default; Hero (D) for the one main number on a page; Scale (B) where a few short counts sit together. In a Tile, one or two digits sit in a soft tile beside the label; long values stay on one line with a muted unit.",
-  ].forEach((rule) => lines.push(`- ${rule}`));
-  lines.push("", `Before review, run every UI change through the UI checklist: ${SITE}/ui-checklist.md (every rule with its check; why, how and sources at ${SITE}/encyclopedia).`, "");
+  const must = rules.filter((r) => r.level === "must");
+  if (must.length) {
+    lines.push(`Every **must** rule (${must.length}); the checklist adds the **should** rules and a check for each.`, "");
+    for (const r of must) lines.push(`- \`${r.id}\` ${r.rule}`);
+    lines.push("");
+  }
+  lines.push(`Before review, run every UI change through the UI checklist: ${SITE}/ui-checklist.md (every rule with its check; why, how and sources at ${SITE}/encyclopedia).`, "");
 
   lines.push(`## Components`, "");
   row("Component", "Install", "Page");

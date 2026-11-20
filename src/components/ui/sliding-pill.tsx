@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
 
 export interface SlidingPillProps {
   /**
@@ -51,7 +51,6 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
     const pill = ref.current;
     const host = pill?.parentElement;
     if (!pill || !host) return;
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
     let cur: Box | null = null;
     let target: Box | null = null;
     let active: HTMLElement | null = null;
@@ -79,7 +78,9 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
     };
     const tick = (now: number) => {
       if (!cur || !target) return stop();
-      let dt = Math.min(0.05, (now - last) / 1000);
+      // At most 25 ms per frame: a long frame (the change that moved the choice also restyled the page, as a theme
+      // switch does) would otherwise jump the pill half way in one step. 60 Hz frames run in real time.
+      let dt = Math.min(0.025, (now - last) / 1000);
       last = now;
       // Small fixed steps keep the spring stable on slow frames.
       while (dt > 0) {
@@ -115,7 +116,7 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
         return paint(null);
       }
       // Slide only when the choice changed (or is already sliding); a first paint, resize or font load just places it.
-      if (!cur || reduce.matches || (!moved && !raf) || (moved && performance.now() - keyAt < 300)) {
+      if (!cur || prefersReducedMotion() || (!moved && !raf) || (moved && performance.now() - keyAt < 300)) {
         stop();
         cur = { ...target };
         return paint(cur);
@@ -156,8 +157,29 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
       fonts?.removeEventListener?.("loadingdone", measure);
     };
   }, [selector]);
-  return <span ref={ref} aria-hidden data-sliding-pill className={cn(
-        "pointer-events-none absolute left-0 top-0 transition-[filter] duration-[150ms] ease-ad data-[focus]:brightness-[0.88] dark:data-[focus]:brightness-[0.78]",
+  // The focus notch lands at once (data-[focus]:duration-0) and fades out when focus leaves.
+  return (
+    <span
+      ref={ref}
+      aria-hidden
+      data-sliding-pill
+      className={cn(
+        "pointer-events-none absolute left-0 top-0 transition-[filter] duration-[150ms] ease-ad data-[focus]:brightness-[0.88] data-[focus]:duration-0 dark:data-[focus]:brightness-[0.78]",
         className,
-      )} />;
+      )}
+    />
+  );
+}
+
+/**
+ * A label laid out twice in one cell, the hidden copy at medium weight, so an option turning medium when chosen never
+ * changes its width or moves its neighbours (and the pill under it). Uses `.ad-hold` from the theme.
+ */
+export function HoldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="ad-hold">
+      <span aria-hidden>{children}</span>
+      <span>{children}</span>
+    </span>
+  );
 }

@@ -1,6 +1,10 @@
 // Invented demo data: the brand "Rimba", its shops, products and orders are made up.
 // "Now" is pinned to Monday 16 Nov 2026, 14:20 so screenshots stay stable.
 
+import { MONTHS, dayDiff } from "@/lib/ad";
+import type { CalendarEvent } from "@/components/ui/calendar-month";
+import type { Notice } from "@/components/ui/notification-bell";
+
 export const NOW = new Date(2026, 10, 16, 14, 20);
 
 function rng(seed: number) {
@@ -29,7 +33,7 @@ export const PRODUCTS = [
   { sku: "RMB-NP-026", name: "Nampan anyaman bambu", price: 175000, stock: 4 },
 ];
 
-export const PAYMENTS = ["QRIS", "Bank transfer", "COD", "Debit", "ShopeePay", "Cash"];
+const PAYMENTS = ["QRIS", "Bank transfer", "COD", "Debit", "ShopeePay", "Cash"];
 export type OrderStatus = "Paid" | "Packed" | "Shipped" | "Unpaid" | "Cancelled";
 
 export interface Order {
@@ -75,14 +79,16 @@ export const ORDERS: Order[] = (() => {
   return out;
 })();
 
+/** Paid orders waiting to be packed, newest first. Callers take the slice they show. */
+export const PAID_ORDERS = ORDERS.filter((o) => o.status === "Paid");
+
 /** "14:05" today, "Yesterday, 18:40", otherwise "7 Nov, 09:12". */
 export function smartTime(d: Date) {
   const hm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  const day = (x: Date) => Math.floor(new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime() / 864e5);
-  const diff = day(NOW) - day(d);
+  const diff = dayDiff(NOW, d);
   if (diff === 0) return `Today, ${hm}`;
   if (diff === 1) return `Yesterday, ${hm}`;
-  return `${d.getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()]}, ${hm}`;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}, ${hm}`;
 }
 
 export const HOURLY = [
@@ -130,6 +136,8 @@ export const MARKET_SHOPS: { id: string; name: string; market: "shopee" | "tikto
 export const SPARK = [12, 14, 13, 17, 16, 19, 18, 22, 21, 24, 23, 27];
 
 const day = (n: number, h = 9, m = 0) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n, h, m);
+/** Midnight `n` days from NOW (negative for the past). */
+export const dayFrom = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
 
 export interface Promotion {
   id: string;
@@ -207,4 +215,26 @@ export const TEAM_DETAIL = [
   { ...TEAM[2], shops: "Senopati", active: "Today, 11:12" },
   { ...TEAM[3], shops: "Kemang, Dago", active: "Today, 14:05" },
   { name: "Wulan Sari", role: "Cashier", email: "wulan@rimba.example", shops: "Kemang", active: "Invited" },
+];
+
+/** The notification bell's list. */
+export const NOTICES: Notice[] = [
+  { id: "1", title: "2 shops haven’t synced since 09:40", time: "Today, 10:10", unread: true },
+  { id: "2", title: "Payout of Rp 12.840.000 sent", time: "Today, 08:02", unread: true },
+  { id: "3", title: "Keranjang pandan besar is out of stock", time: "Yesterday, 19:45" },
+];
+
+/**
+ * A month of shop events for the calendars. Titles stay short so a month cell shows them whole; the one promotion going
+ * live is the only accent. Callers drop the ones they don't show.
+ */
+export const CALENDAR_EVENTS: CalendarEvent[] = [
+  { id: "a", date: dayFrom(-12), title: "Payday", tone: "accent" },
+  { id: "b", date: dayFrom(-9), title: "Stock count" },
+  { id: "c", date: dayFrom(-2), title: "Restock" },
+  { id: "d", date: NOW, title: "Payout" },
+  { id: "e", date: NOW, title: "Sync" },
+  { id: "f", date: NOW, title: "Courier" },
+  { id: "g", date: dayFrom(4), title: "12.12 prep" },
+  { id: "h", date: dayFrom(9), title: "Tax filing" },
 ];

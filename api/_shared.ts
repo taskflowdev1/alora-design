@@ -10,7 +10,7 @@ const read = (p: string) => readFileSync(join(root, p), "utf8");
 let cache: Assets | null = null;
 export function assets(): Assets {
   if (cache) return cache;
-  const sources: Record<string, string> = { "ad.ts": read("src/lib/ad.ts") };
+  const sources: Record<string, string> = { "ad.ts": read("src/lib/ad.ts"), "ad-hooks.ts": read("src/lib/ad-hooks.ts") };
   // ui files are keyed by name ("button.tsx"); the collections by folder ("ai/thinking-orbs.tsx"), as sourceKey() expects.
   for (const dir of ["ui", "ai", "backgrounds", "mobile"])
     for (const f of readdirSync(join(root, "src/components", dir))) if (f.endsWith(".tsx")) sources[dir === "ui" ? f : `${dir}/${f}`] = read(`src/components/${dir}/${f}`);

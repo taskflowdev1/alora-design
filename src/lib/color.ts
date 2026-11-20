@@ -1,6 +1,6 @@
 // OKLCH helpers. Pure functions, shared by the site and the API.
 
-export type Oklch = { l: number; c: number; h: number };
+type Oklch = { l: number; c: number; h: number };
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -11,7 +11,7 @@ function linearToSrgb(v: number) {
   return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
 }
 
-export function parseHex(hex: string): [number, number, number] | null {
+function parseHex(hex: string): [number, number, number] | null {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return null;
   let s = m[1];
@@ -68,7 +68,7 @@ export function oklchToHex(color: Oklch): string {
   );
 }
 
-export function luminance(hex: string) {
+function luminance(hex: string) {
   const [r, g, b] = (parseHex(hex) ?? [0, 0, 0]).map(srgbToLinear);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }

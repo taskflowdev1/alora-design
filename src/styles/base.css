@@ -113,6 +113,7 @@ html {
   visibility: hidden;
   font-weight: 500;
 }
+/* Loading pulse (animate-ad-pulse in theme.css): opacity only, so a pulsing block keeps its size. */
 @keyframes ad-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -129,11 +130,26 @@ html {
 .ad-theme-switch, .ad-theme-switch *, .ad-theme-switch ::before, .ad-theme-switch ::after {
   transition: none !important;
 }
-/* A trigger that opens a menu, list or popover doesn't shrink while pressed. The pop-up is placed against the
-   trigger's box, so a shrinking trigger nudged it a few pixels on every open and close. Unlayered, so it beats
-   each trigger's active:scale utility. */
-:is([aria-haspopup]:not([aria-haspopup="false"]), [role="combobox"]):active {
-  scale: none;
+/* The press: a button, chip or tab shrinks a little while held (its active:scale-[…] sets how far) and eases back,
+   with its hover fill on the same 150 ms. Tailwind's scale utilities set the `scale` property, so it is listed here
+   next to `transform`. */
+@utility ad-press {
+  transition-property: background-color, color, transform, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ad-ease);
+}
+/* A trigger whose pop-up is anchored to it (popover, menu, select, combobox, date picker, hover or context menu)
+   doesn't shrink while pressed: the pop-up is placed against the trigger's box, so a shrinking trigger nudged it a few
+   pixels on every open and close. Such triggers carry data-ad-anchor; menu and listbox triggers are anchored by
+   definition. Dialog and sheet triggers press as usual: their pop-up is centred, not anchored. Important, so it beats
+   each trigger's active:scale utility even where an install puts this file in a layer. */
+:is([data-ad-anchor], [aria-haspopup="menu"], [aria-haspopup="listbox"], [role="combobox"]):active {
+  scale: none !important;
+}
+/* Keyboard focus shows at once: the hover fade would smear the fill along a row while Tab is held. Leaving focus
+   still fades, since the rule stops matching first. A wrapper that paints its focused child's fill counts too. */
+:focus-visible, :has(> :focus-visible) {
+  transition-duration: 0s !important;
 }
 /* Overlays grow from 0.97 (never from 0) toward the trigger via transform-origin, and leave the same way. */
 @keyframes ad-in {

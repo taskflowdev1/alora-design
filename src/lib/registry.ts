@@ -34,10 +34,13 @@ export interface Item {
   /** Files under src/components/<dir> (default "ui"). Empty for foundation pages. */
   files: string[];
   dir?: "ui" | "ai" | "backgrounds" | "mobile";
-  /** An old install name kept working: it installs a re-export of this item, and its page redirects there. */
+  /** For a renamed item: the current name. Its install is a re-export of that item, and its page redirects there. */
   alias?: string;
   deps?: string[];
+  /** Registry items this one's files import. */
   registryDeps?: string[];
+  /** Items installed alongside that the files don't import: the parts a usage example puts next to this one. */
+  companions?: string[];
   /** AI and Backgrounds only: the component the file exports, and the controls its page shows. */
   export?: string;
   params?: Param[];
@@ -61,7 +64,7 @@ export const ITEMS: Item[] = [
   { name: "menu", title: "Menu", group: "Actions", files: ["menu.tsx"], deps: [RADIX, "@floating-ui/react-dom"] },
   { name: "toolbar", title: "Toolbar", group: "Actions", files: ["toolbar.tsx"], registryDeps: ["popover"] },
   { name: "save-bar", title: "Save bar", group: "Actions", files: ["save-bar.tsx"], registryDeps: ["button"] },
-  { name: "button-group", title: "Button group", group: "Actions", files: ["button-group.tsx"], registryDeps: ["button"] },
+  { name: "button-group", title: "Button group", group: "Actions", files: ["button-group.tsx"], companions: ["button"] },
 
   { name: "input", title: "Input", group: "Inputs", files: ["input.tsx"] },
   { name: "textarea", title: "Textarea", group: "Inputs", files: ["input.tsx"] },
@@ -93,7 +96,7 @@ export const ITEMS: Item[] = [
   { name: "card", title: "Card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
   { name: "metric-card", title: "Metric card", group: "Display", files: ["card.tsx"], registryDeps: ["tooltip"] },
   { name: "table", title: "Table", group: "Display", files: ["table.tsx"], registryDeps: ["pagination"] },
-  { name: "attention-list", title: "Attention list", group: "Display", files: ["attention-list.tsx"], registryDeps: ["thumb"] },
+  { name: "attention-list", title: "Attention list", group: "Display", files: ["attention-list.tsx"], companions: ["thumb"] },
   { name: "bar-chart", title: "Bar chart", group: "Display", files: ["bar-chart.tsx"] },
   { name: "status", title: "Status, pill, chip", group: "Display", files: ["status.tsx"], registryDeps: ["sliding-pill"] },
   { name: "badge", title: "Badge", group: "Display", files: ["badge.tsx"] },
@@ -118,9 +121,9 @@ export const ITEMS: Item[] = [
   { name: "pie-chart", title: "Pie and donut", group: "Charts", files: ["pie-chart.tsx"], registryDeps: ["chart"] },
   { name: "radar-chart", title: "Radar chart", group: "Charts", files: ["radar-chart.tsx"], registryDeps: ["chart"] },
   { name: "radial-chart", title: "Radial chart", group: "Charts", files: ["radial-chart.tsx"], registryDeps: ["chart"] },
-  { name: "brush", title: "Linked highlight", group: "Charts", files: ["brush.tsx"], registryDeps: ["line-chart", "table"] },
+  { name: "brush", title: "Linked highlight", group: "Charts", files: ["brush.tsx"], companions: ["line-chart", "table"] },
 
-  { name: "breadcrumb", title: "Breadcrumb", group: "Navigation", files: ["breadcrumb.tsx"], deps: [RADIX], registryDeps: ["menu"] },
+  { name: "breadcrumb", title: "Breadcrumb", group: "Navigation", files: ["breadcrumb.tsx"], registryDeps: ["menu"] },
   { name: "navigation-menu", title: "Navigation menu", group: "Navigation", files: ["navigation-menu.tsx"], deps: [RADIX], registryDeps: ["button", "sliding-pill"] },
   { name: "menubar", title: "Menubar", group: "Navigation", files: ["menubar.tsx"], registryDeps: ["button", "menu"] },
   { name: "pagination", title: "Pagination", group: "Navigation", files: ["pagination.tsx"], registryDeps: ["button", "sliding-pill", "tooltip"] },
@@ -131,7 +134,6 @@ export const ITEMS: Item[] = [
   { name: "tooltip", title: "Tooltip", group: "Overlays", files: ["tooltip.tsx"], deps: [RADIX] },
   { name: "toast", title: "Toast", group: "Overlays", files: ["toast.tsx"] },
   { name: "alert-dialog", title: "Alert dialog", group: "Overlays", files: ["alert-dialog.tsx"], deps: [RADIX], registryDeps: ["button", "dialog"] },
-
 
   { name: "sidebar", title: "Sidebar", group: "Layout", files: ["sidebar.tsx"], deps: [RADIX], registryDeps: ["sliding-pill"] },
 
@@ -167,54 +169,54 @@ export const ITEMS: Item[] = [
   { name: "context-menu", title: "Context menu", group: "Niche", files: ["context-menu.tsx"], deps: [RADIX], registryDeps: ["kbd", "menu"] },
   { name: "hover-card", title: "Hover card", group: "Niche", files: ["hover-card.tsx"], deps: [RADIX] },
   { name: "column-menu", title: "Column menu", group: "Niche", files: ["column-menu.tsx"], registryDeps: ["button", "checkbox", "popover"] },
-  { name: "inline-edit", title: "Inline edit", group: "Niche", files: ["inline-edit.tsx"], deps: [RADIX], registryDeps: ["tooltip"] },
+  { name: "inline-edit", title: "Inline edit", group: "Niche", files: ["inline-edit.tsx"], registryDeps: ["tooltip"] },
   { name: "copy-chip", title: "Copy chip", group: "Niche", files: ["copy-chip.tsx"] },
   { name: "kbd", title: "Keyboard shortcut", group: "Niche", files: ["kbd.tsx"] },
   { name: "sparkline", title: "Sparkline", group: "Niche", files: ["sparkline.tsx"] },
   { name: "progress-ring", title: "Progress ring", group: "Niche", files: ["progress-ring.tsx"] },
   { name: "steps", title: "Step progress", group: "Niche", files: ["steps.tsx"] },
   { name: "timeline", title: "Activity timeline", group: "Niche", files: ["timeline.tsx"] },
-  { name: "comment-thread", title: "Comment thread", group: "Niche", files: ["comment-thread.tsx"], deps: [RADIX], registryDeps: ["avatar", "button", "popover", "tooltip"] },
+  { name: "comment-thread", title: "Comment thread", group: "Niche", files: ["comment-thread.tsx"], registryDeps: ["avatar", "button", "popover", "tooltip"] },
   { name: "dropzone", title: "File dropzone", group: "Niche", files: ["dropzone.tsx"], registryDeps: ["button", "progress"] },
   { name: "tag-input", title: "Tag input", group: "Niche", files: ["tag-input.tsx"], registryDeps: ["input"] },
-  { name: "avatar-group", title: "Avatar group", group: "Niche", files: ["avatar-group.tsx"], deps: [RADIX], registryDeps: ["avatar", "tooltip"] },
+  { name: "avatar-group", title: "Avatar group", group: "Niche", files: ["avatar-group.tsx"], registryDeps: ["avatar", "tooltip"] },
   { name: "notification-bell", title: "Notification bell", group: "Niche", files: ["notification-bell.tsx"], registryDeps: ["button", "popover"] },
   { name: "kanban-card", title: "Kanban card", group: "Niche", files: ["kanban-card.tsx"], registryDeps: ["avatar-group", "badge"] },
-  { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], deps: [RADIX], registryDeps: ["button", "popover", "tooltip"] },
+  { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], registryDeps: ["button", "popover", "tooltip"] },
 
   // Mobile: phone components. Own files in src/components/mobile (they import each other relatively, so they install
   // next to each other); shared parts appear here with their touch size. Shown at /mobile in a 390 × 844 phone frame.
   { name: "mobile-tab-bar", title: "Tab bar", group: "Bars", dir: "mobile", files: ["mobile-tab-bar.tsx"], registryDeps: ["sliding-pill", "mobile-badge", "mobile-action-bar"] },
   { name: "mobile-nav-bar", title: "Large-title nav bar", group: "Bars", dir: "mobile", files: ["mobile-nav-bar.tsx"] },
-  { name: "mobile-action-bar", title: "Action bar", group: "Bars", dir: "mobile", files: ["mobile-action-bar.tsx"], registryDeps: ["button"] },
+  { name: "mobile-action-bar", title: "Action bar", group: "Bars", dir: "mobile", files: ["mobile-action-bar.tsx"], companions: ["button"] },
   { name: "mobile-list", title: "Grouped list", group: "Lists", dir: "mobile", files: ["mobile-list.tsx"] },
-  { name: "mobile-swipe-row", title: "Swipe actions", group: "Lists", dir: "mobile", files: ["mobile-swipe-row.tsx"], registryDeps: ["mobile-list"] },
-  { name: "mobile-pull-refresh", title: "Pull to refresh", group: "Lists", dir: "mobile", files: ["mobile-pull-refresh.tsx"], registryDeps: ["mobile-nav-bar"] },
+  { name: "mobile-swipe-row", title: "Swipe actions", group: "Lists", dir: "mobile", files: ["mobile-swipe-row.tsx"], companions: ["mobile-list"] },
+  { name: "mobile-pull-refresh", title: "Pull to refresh", group: "Lists", dir: "mobile", files: ["mobile-pull-refresh.tsx"], companions: ["mobile-nav-bar"] },
   { name: "mobile-list-skeleton", title: "Skeleton list", group: "Lists", dir: "mobile", files: ["mobile-list.tsx"] },
   { name: "mobile-empty-state", title: "Empty state", group: "Lists", files: ["empty-state.tsx"] },
   { name: "mobile-sheet", title: "Bottom sheet", group: "Sheets", dir: "mobile", files: ["mobile-sheet.tsx"], deps: [RADIX] },
-  { name: "mobile-action-sheet", title: "Action sheet", group: "Sheets", dir: "mobile", files: ["mobile-action-sheet.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
-  { name: "mobile-date-picker", title: "Wheel date picker", group: "Sheets", dir: "mobile", files: ["mobile-wheel-picker.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-action-sheet", title: "Action sheet", group: "Sheets", dir: "mobile", files: ["mobile-action-sheet.tsx"], registryDeps: ["mobile-sheet"] },
+  { name: "mobile-date-picker", title: "Wheel date picker", group: "Sheets", dir: "mobile", files: ["mobile-wheel-picker.tsx"], registryDeps: ["button", "mobile-sheet"] },
   { name: "mobile-segmented", title: "Segmented control", group: "Touch inputs", files: ["segmented.tsx"], registryDeps: ["sliding-pill"] },
   { name: "mobile-search-bar", title: "Search bar", group: "Touch inputs", dir: "mobile", files: ["mobile-search-bar.tsx"] },
   { name: "mobile-stepper", title: "Stepper", group: "Touch inputs", files: ["quantity-stepper.tsx"] },
-  { name: "mobile-snackbar", title: "Snackbar", group: "Feedback", dir: "mobile", files: ["mobile-snackbar.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
-  // Mobile v2: inputs, data, sheets and flows for the example app's screens.
+  { name: "mobile-snackbar", title: "Snackbar", group: "Feedback", dir: "mobile", files: ["mobile-snackbar.tsx"], registryDeps: ["mobile-sheet"] },
+    // Inputs, data, sheets and flows the example app's screens use.
   { name: "mobile-filter-chips", title: "Filter chips", group: "Bars", dir: "mobile", files: ["mobile-chip-row.tsx"], registryDeps: ["sliding-pill"] },
-  { name: "mobile-top-tabs", title: "Top tabs", group: "Bars", dir: "mobile", files: ["mobile-top-tabs.tsx"], registryDeps: ["sliding-pill"] },
-  { name: "mobile-choice-rows", title: "Switch, check and radio rows", group: "Lists", dir: "mobile", files: ["mobile-choice-rows.tsx"], deps: [RADIX], registryDeps: ["switch", "sliding-pill"] },
+  { name: "mobile-top-tabs", title: "Top tabs", group: "Bars", dir: "mobile", files: ["mobile-top-tabs.tsx"] },
+  { name: "mobile-choice-rows", title: "Switch, check and radio rows", group: "Lists", dir: "mobile", files: ["mobile-choice-rows.tsx"], registryDeps: ["switch", "sliding-pill"] },
   { name: "mobile-person-row", title: "Avatar rows", group: "Lists", dir: "mobile", files: ["mobile-person-row.tsx"], registryDeps: ["avatar", "mobile-badge"] },
   { name: "mobile-index-list", title: "A–Z index", group: "Lists", dir: "mobile", files: ["mobile-index-scrubber.tsx"] },
-  { name: "mobile-picker-sheet", title: "Picker sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], deps: [RADIX], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
-  { name: "mobile-multi-select", title: "Multi-select sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], deps: [RADIX], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
-  { name: "mobile-date-range", title: "Date range sheet", group: "Sheets", dir: "mobile", files: ["mobile-date-range.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet", "mobile-filter-chips"] },
+  { name: "mobile-picker-sheet", title: "Picker sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
+  { name: "mobile-multi-select", title: "Multi-select sheet", group: "Sheets", dir: "mobile", files: ["mobile-picker-sheet.tsx"], registryDeps: ["button", "sliding-pill", "mobile-sheet", "mobile-search-bar", "mobile-choice-rows"] },
+  { name: "mobile-date-range", title: "Date range sheet", group: "Sheets", dir: "mobile", files: ["mobile-date-range.tsx"], registryDeps: ["button", "mobile-sheet", "mobile-filter-chips"] },
   { name: "mobile-context-menu", title: "Long-press menu", group: "Sheets", dir: "mobile", files: ["mobile-context-menu.tsx"], registryDeps: ["mobile-sheet"] },
   { name: "mobile-modal", title: "Full-screen modal", group: "Sheets", dir: "mobile", files: ["mobile-modal.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet", "mobile-alert", "mobile-action-bar"] },
   { name: "mobile-alert", title: "Alert dialog", group: "Sheets", dir: "mobile", files: ["mobile-alert.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"] },
   { name: "mobile-text-field", title: "Text field", group: "Touch inputs", dir: "mobile", files: ["mobile-text-field.tsx"] },
-  { name: "mobile-keypad", title: "Amount keypad", group: "Touch inputs", dir: "mobile", files: ["mobile-keypad.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-keypad", title: "Amount keypad", group: "Touch inputs", dir: "mobile", files: ["mobile-keypad.tsx"], registryDeps: ["button", "mobile-sheet"] },
   { name: "mobile-slider", title: "Slider", group: "Touch inputs", dir: "mobile", files: ["mobile-slider.tsx"] },
-  { name: "mobile-photo-picker", title: "Photo picker", group: "Touch inputs", dir: "mobile", files: ["mobile-photo-picker.tsx"], deps: [RADIX], registryDeps: ["button", "mobile-sheet"] },
+  { name: "mobile-photo-picker", title: "Photo picker", group: "Touch inputs", dir: "mobile", files: ["mobile-photo-picker.tsx"], registryDeps: ["button", "mobile-sheet"] },
   { name: "mobile-scanner", title: "Barcode scanner", group: "Touch inputs", dir: "mobile", files: ["mobile-scanner.tsx"], registryDeps: ["button", "mobile-text-field"] },
   { name: "mobile-signature", title: "Signature pad", group: "Touch inputs", dir: "mobile", files: ["mobile-signature.tsx"] },
   { name: "mobile-otp", title: "One-time code", group: "Touch inputs", files: ["input-otp.tsx"] },
@@ -229,9 +231,6 @@ export const ITEMS: Item[] = [
   { name: "mobile-upload-row", title: "Upload progress", group: "Feedback", dir: "mobile", files: ["mobile-upload-row.tsx"] },
   { name: "mobile-onboarding", title: "Onboarding pager", group: "Flows", dir: "mobile", files: ["mobile-pager.tsx"], registryDeps: ["button"] },
   { name: "mobile-chat", title: "Chat and composer", group: "Flows", dir: "mobile", files: ["mobile-chat.tsx"] },
-  // Old names, kept installable: each installs a re-export of its mobile replacement, and its page redirects there.
-  { name: "bottom-nav", title: "Bottom nav", group: "Bars", files: ["bottom-nav.tsx"], registryDeps: ["mobile-tab-bar"], alias: "mobile-tab-bar", showcase: false },
-  { name: "drawer", title: "Drawer", group: "Sheets", files: ["drawer.tsx"], deps: [RADIX], registryDeps: ["mobile-sheet"], alias: "mobile-sheet", showcase: false },
 
   // AI: loaders and agent chrome. Add one = a file in src/components/ai + an entry here (see README).
   {
@@ -318,7 +317,7 @@ export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "
 
 export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 
-export const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
+const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
   { id: "components", title: "Components", path: "/components", groups: GROUPS },
   { id: "mobile", title: "Mobile", path: "/mobile", groups: MOBILE_GROUPS },
   { id: "ai", title: "AI", path: "/ai", groups: ["AI"] },
@@ -340,5 +339,3 @@ export const REGISTRY_ITEMS = ITEMS.filter((i) => i.files.length);
 export const findItem = (name: string) => ITEMS.find((i) => i.name === name);
 /** Items in the Components section (desktop: everything but Mobile, AI and Backgrounds). */
 export const COMPONENT_ITEMS = ITEMS.filter((i) => sectionOf(i) === "components");
-/** The Mobile items with their own page (aliases redirect). */
-export const MOBILE_ITEMS = ITEMS.filter((i) => sectionOf(i) === "mobile" && !i.alias);
