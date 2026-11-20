@@ -54,7 +54,7 @@ export function RadialChart({ data, size = 168, thickness = 10, gap = 6, sweep =
               <g key={d.key} onPointerEnter={() => setHover(i)} tabIndex={0} onFocus={() => setHover(i)} onBlur={() => setHover(null)} className="outline-none" aria-label={`${d.label} ${Math.round(pct(d) * 100)}%`}>
                 <path d={arcPath(r, start, start + sweep)} fill="none" stroke="var(--ad-fill)" strokeWidth={thickness} strokeLinecap="round" />
                 {pct(d) > 0 ? (
-                  <path d={arcPath(r, start, start + Math.max(0.5, sweep * pct(d)))} fill="none" stroke={seriesColor(i)} strokeWidth={hover === i ? thickness + 2 : thickness} strokeLinecap="round" className="transition-[stroke-width] duration-[160ms]" />
+                  <path d={arcPath(r, start, start + Math.max(0.5, sweep * pct(d)))} fill="none" stroke={seriesColor(i)} strokeWidth={hover === i ? thickness + 2 : thickness} strokeLinecap="round" className="transition-[stroke-width] duration-[150ms]" />
                 ) : null}
               </g>
             );
@@ -66,7 +66,7 @@ export function RadialChart({ data, size = 168, thickness = 10, gap = 6, sweep =
       {data.length > 1 ? (
         <ul className="grid min-w-0 flex-1 gap-1 text-body">
           {data.map((d, i) => (
-            <li key={d.key} onPointerEnter={() => setHover(i)} onPointerLeave={() => setHover(null)} className={cn("flex min-w-0 items-center gap-2 rounded-small px-1.5 py-0.5 transition-colors duration-[160ms]", hover === i && "bg-fill")}>
+            <li key={d.key} onPointerEnter={() => setHover(i)} onPointerLeave={() => setHover(null)} className={cn("flex min-w-0 items-center gap-2 rounded-small px-1.5 py-0.5 transition-colors duration-[150ms]", hover === i && "bg-fill")}>
               <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: seriesColor(i) }} />
               <span className="min-w-0 flex-1 truncate text-ink-muted">{d.label}</span>
               <span className="tabular-nums text-ink">{Math.round(pct(d) * 100)}%</span>

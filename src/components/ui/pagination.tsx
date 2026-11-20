@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -34,7 +34,7 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
   const go = (p: number) => onPageChange(Math.min(pageCount, Math.max(1, p)));
   const from = total ? (page - 1) * pageSize + 1 : 0;
   const to = total != null ? Math.min(total, page * pageSize) : 0;
-  const fmt = (n: number) => n.toLocaleString("id-ID");
+  const fmt = (n: number) => formatNumber(n);
   const arrow = (dir: -1 | 1) => {
     const target = page + dir;
     const can = dir < 0 ? page > 1 : page < pageCount;
@@ -74,7 +74,7 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
                 aria-current={n === page ? "page" : undefined}
                 onClick={() => go(n)}
                 className={cn(
-                  "relative grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+                  "relative grid h-item min-w-[var(--ad-item-h)] cursor-pointer place-items-center rounded-control px-1.5 text-body tabular-nums ad-press active:scale-[0.97]",
                   n === page ? "text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
                 )}
               >

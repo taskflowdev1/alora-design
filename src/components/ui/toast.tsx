@@ -52,7 +52,7 @@ export function toast(message: string, tone: ToastItem["tone"] = "success") {
  * bottom bar marked data-toast-avoid, and move left of an open side pane
  * (data-toast-avoid="side").
  */
-export function Toaster() {
+export function Toaster({ className }: { className?: string }) {
   const list = React.useSyncExternalStore(
     (f) => (subs.add(f), () => subs.delete(f)),
     () => items,
@@ -86,7 +86,7 @@ export function Toaster() {
     <div
       aria-live="polite"
       // Pinned to the corner and moved with transform (not right/bottom), so stepping clear of a bar never re-lays it out.
-      className="pointer-events-none fixed bottom-0 right-0 z-[80] flex flex-col items-end gap-2 transition-transform duration-[220ms] ease-ad"
+      className={cn("pointer-events-none fixed bottom-0 right-0 z-[80] flex flex-col items-end gap-2 transition-transform duration-[220ms] ease-ad", className)}
       style={{ transform: `translate(${-pos.right}px, ${-pos.bottom}px)` }}
     >
       {list.map((t) => (

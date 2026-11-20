@@ -36,7 +36,7 @@ function Chunk({ chunk, cite }: { chunk: string; cite?: (n: number) => React.Rea
   );
 }
 
-const pulse = "animate-[ad-pulse_1.6s_ease-in-out_infinite]";
+const pulse = "animate-ad-pulse";
 
 /** Skeleton lines: one text line each (1em bar in a 1.625em line), the last one shorter. */
 function Lines({ n }: { n: number }) {

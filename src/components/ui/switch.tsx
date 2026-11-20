@@ -20,7 +20,7 @@ export function Switch({ size = "default", className, ...props }: React.Componen
   return (
     <S.Root
       className={cn(
-        "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] after:absolute after:-inset-[2px] after:rounded-full [transition:background-color_220ms_var(--ad-ease),transform_150ms_var(--ad-ease)] active:scale-[0.97]",
+        "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] after:absolute after:-inset-[2px] after:rounded-full [transition:background-color_220ms_var(--ad-ease),transform_150ms_var(--ad-ease),scale_150ms_var(--ad-ease)] active:scale-[0.97]",
         "bg-fill-strong data-[state=checked]:bg-switch-on disabled:pointer-events-none disabled:opacity-45",
         // Hover and keyboard focus take the next ramp step: off fill-strong -> ink-muted; on ink -> ink-muted (light),
         // on ink-muted -> ink (dark).
@@ -30,7 +30,7 @@ export function Switch({ size = "default", className, ...props }: React.Componen
       )}
       {...props}
     >
-      <S.Thumb className={cn("block rounded-full bg-thumb shadow-thumb transition-[transform,background-color] duration-[220ms] ease-ad data-[state=checked]:bg-switch-thumb", sizes[size].thumb)} />
+      <S.Thumb className={cn("block rounded-full bg-thumb shadow-thumb transition-[translate,background-color] duration-[220ms] ease-ad data-[state=checked]:bg-switch-thumb", sizes[size].thumb)} />
     </S.Root>
   );
 }

@@ -16,10 +16,11 @@ export function Toggle({ size = "default", icon, className, ...props }: TogglePr
   return (
     <T.Root
       className={cn(
-        "inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-control text-body font-medium transition-[transform,background-color,color] duration-[150ms] ease-ad active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[16px]",
+        "inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-control text-body font-medium transition-[background-color,color,transform,scale,filter] duration-[150ms] ease-ad active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[16px]",
         "text-ink-muted data-[state=off]:hover:bg-fill data-[state=off]:focus-visible:bg-fill data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:bg-fill-strong data-[state=on]:text-ink",
-        // On + keyboard focus: one notch darker than on, so focus never disappears on a pressed toggle.
-        "data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",
+        // On + hover or keyboard focus: a notch darker than on, so the hover cue (a click turns it off) and focus show on a
+        // pressed toggle too.
+        "data-[state=on]:hover:brightness-[0.94] dark:data-[state=on]:hover:brightness-[0.85] data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",
         size === "sm" ? "h-item" : "h-control",
         icon ? (size === "sm" ? "w-item" : "w-control") : size === "sm" ? "px-2.5" : "px-3.5",
         className,

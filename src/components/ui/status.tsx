@@ -1,7 +1,7 @@
 import * as React from "react";
 import { X } from "react-feather";
 import { cn } from "@/lib/ad";
-import { SlidingPill } from "@/components/ui/sliding-pill";
+import { HoldLabel, SlidingPill } from "@/components/ui/sliding-pill";
 
 /*
  * One padding scale for every bubble: pills, chips, filter bubbles, segments and tabs.
@@ -53,14 +53,6 @@ export function Pill({ tone = "attention", dot: d, children, className }: PillPr
   );
 }
 
-/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
-const hold = (label: React.ReactNode) => (
-  <span className="ad-hold">
-    <span aria-hidden>{label}</span>
-    <span>{label}</span>
-  </span>
-);
-
 export interface ChipProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> {
   /** A pressed filter chip shows the grey pill (fill-strong) with its label in ink and medium; nothing moves. */
   selected?: boolean;
@@ -82,7 +74,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
           type="button"
           aria-label="Remove"
           onClick={onRemove}
-          className="relative grid size-[20px] shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]"
+          className="relative grid size-[20px] shrink-0 cursor-pointer place-items-center rounded-item text-ink-muted ad-press after:absolute after:-inset-[2px] hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]"
         >
           <X size={14} />
         </button>
@@ -95,7 +87,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
+        "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body ad-press active:scale-[0.97] [&_svg]:size-[16px]",
         height,
         selected
           ? // Selected + keyboard focus darkens the pill a notch (in a ChipGroup the sliding pill does it).
@@ -109,7 +101,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
       )}
       {...props}
     >
-      {hold(children)}
+      <HoldLabel>{children}</HoldLabel>
     </button>
   );
 }

@@ -3,7 +3,7 @@ import { cn } from "@/lib/ad";
 
 // fill on a surface in light; in dark, fill sits too close to the surface at the pulse's low point, so it takes fill-strong.
 // On a fill surface (attention rows, a filled card) pass `onFill`: the bar is fill-strong in both themes.
-const pulse = (onFill?: boolean) => cn("animate-[ad-pulse_1.6s_ease-in-out_infinite]", onFill ? "bg-fill-strong" : "bg-fill dark:bg-fill-strong");
+const pulse = (onFill?: boolean) => cn("animate-ad-pulse", onFill ? "bg-fill-strong" : "bg-fill dark:bg-fill-strong");
 
 export interface SkeletonToneProps {
   /** The skeleton sits on a fill (not a surface): the bar takes fill-strong so it still shows. */

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ArrowDown } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, prefersReducedMotion } from "@/lib/ad";
+import { useEdgeFade } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 
 export interface MessageScrollerProps {
@@ -8,26 +9,6 @@ export interface MessageScrollerProps {
   /** Change this when a message arrives (its count or id): pinned to the bottom, the list follows it. */
   watch?: unknown;
   className?: string;
-}
-
-/** Fades the cut edges (16 px), only on a side with more to scroll to, so a message cut at the edge reads as "more". */
-function useEdgeFade(ref: React.RefObject<HTMLElement | null>) {
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => {
-      const top = el.scrollTop > 1;
-      const bottom = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
-      const mask = top || bottom ? `linear-gradient(to bottom, ${top ? "transparent" : "#000"}, #000 16px, #000 calc(100% - 16px), ${bottom ? "transparent" : "#000"})` : "";
-      el.style.maskImage = mask;
-    };
-    measure();
-    el.addEventListener("scroll", measure, { passive: true });
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    if (el.firstElementChild) ro.observe(el.firstElementChild);
-    return () => (el.removeEventListener("scroll", measure), ro.disconnect());
-  }, [ref]);
 }
 
 /**
@@ -42,7 +23,7 @@ export function MessageScroller({ children, watch, className }: MessageScrollerP
   const [away, setAway] = React.useState(false);
   useEdgeFade(box);
   const toBottom = (smooth?: boolean) =>
-    box.current?.scrollTo({ top: box.current.scrollHeight, behavior: smooth && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant" });
+    box.current?.scrollTo({ top: box.current.scrollHeight, behavior: smooth && !prefersReducedMotion() ? "smooth" : "instant" });
   React.useLayoutEffect(() => {
     if (pinned.current) toBottom();
     else setAway(true);
@@ -57,12 +38,12 @@ export function MessageScroller({ children, watch, className }: MessageScrollerP
           pinned.current = atEnd;
           setAway(!atEnd);
         }}
-        className="-me-[min(12px,var(--ad-pad))] flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pe-[min(12px,var(--ad-pad))]"
+        className="-me-[min(12px,var(--ad-pad))] flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain rounded-card pe-[min(12px,var(--ad-pad))] focus-visible:bg-fill"
       >
         <div className="mt-auto grid gap-5 py-1">{children}</div>
       </div>
-      <div className={cn("pointer-events-none absolute inset-x-0 bottom-2 flex justify-center transition-[opacity,transform] duration-[220ms] ease-ad", away ? "opacity-100" : "translate-y-1 opacity-0")}>
-        <Button size="sm" tabIndex={away ? 0 : -1} className="pointer-events-auto shadow-raised" onClick={() => toBottom(true)}>
+      <div className={cn("pointer-events-none absolute inset-x-0 bottom-2 flex justify-center transition-[opacity,translate] duration-[220ms] ease-ad", away ? "opacity-100" : "translate-y-1 opacity-0")}>
+        <Button size="sm" tabIndex={away ? 0 : -1} className={cn("shadow-raised", away && "pointer-events-auto")} onClick={() => toBottom(true)}>
           <ArrowDown />
           Latest
         </Button>

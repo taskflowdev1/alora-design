@@ -25,7 +25,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
     setDraft(null);
   };
   const btn = cn(
-    "grid aspect-square h-full shrink-0 cursor-pointer place-items-center rounded-item text-ink transition-[background-color,transform] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]",
+    "grid aspect-square h-full shrink-0 cursor-pointer place-items-center rounded-item text-ink ad-press hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[16px]",
   );
   return (
@@ -47,7 +47,7 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
         enterKeyHint="done"
         aria-label={aria["aria-label"] ?? "Quantity"}
         value={draft ?? String(value)}
-        onChange={(e) => setDraft(e.target.value)}
+        onChange={(e) => setDraft(e.target.value.replace(/\D/g, ""))}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === "Enter") commit();
@@ -61,7 +61,8 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
           }
         }}
         className={cn("w-[calc(var(--w)*1ch+16px)] min-w-9 grow bg-transparent text-center font-medium tabular-nums text-ink outline-none", size === "touch" ? "min-w-touch text-[16px]" : "text-body pointer-coarse:text-[16px]")}
-        style={{ ["--w" as string]: Math.max(2, String(draft ?? value).length) }}
+        // Grows with the number, but never past the widest valid value, so typing can't push the row around.
+        style={{ ["--w" as string]: Math.min(Math.max(2, String(draft ?? value).length), Math.max(2, Number.isFinite(max) ? String(max).length : 4)) }}
       />
       <button type="button" aria-label="More" className={btn} disabled={value >= max} onClick={() => onValueChange(clamp(value + step))}>
         <Plus />

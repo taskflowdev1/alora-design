@@ -1,10 +1,8 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber, prefersReducedMotion } from "@/lib/ad";
 
 const KEYFRAMES = `@keyframes ad-digit-in { from { opacity: 0; transform: translateY(calc(var(--ad-dir) * 0.55em)); filter: blur(var(--ad-blur, 0px)); } }
 @keyframes ad-digit-out { to { opacity: 0; transform: translateY(calc(var(--ad-dir) * -0.55em)); filter: blur(var(--ad-blur, 0px)); } }`;
-
-const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** One digit slot: when its character changes, the old one leaves and the new one arrives in the direction of change. */
 function Digit({ ch, dir, instant }: { ch: string; dir: 1 | -1; instant?: boolean }) {
@@ -40,12 +38,18 @@ export interface RollingNumberProps {
  * A number that changes digit by digit: only the digits that changed roll, up when the value grows and down when it
  * shrinks. Tabular figures and overflow clipping keep the width and the line still.
  */
-export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID"), blur, instant, className }: RollingNumberProps) {
+export function RollingNumber({ value, format = formatNumber, blur, instant, className }: RollingNumberProps) {
   const prev = React.useRef(value);
   const dir: 1 | -1 = value >= prev.current ? 1 : -1;
+  // Changes closer together than the roll (a held arrow key, a fast wheel) swap at once instead of replaying it.
+  const changedAt = React.useRef(-Infinity);
+  const rapid = React.useRef(false);
+  if (value !== prev.current) rapid.current = performance.now() - changedAt.current < 220;
   React.useEffect(() => {
+    if (prev.current !== value) changedAt.current = performance.now();
     prev.current = value;
   }, [value]);
+  const still = instant || rapid.current;
   // A plain space would collapse inside its own slot ("Rp1.896.000"), so it holds a non-breaking one.
   const chars = format(value)
     .split("")
@@ -59,7 +63,7 @@ export function RollingNumber({ value, format = (n) => n.toLocaleString("id-ID")
       <span aria-hidden className="inline-flex">
         {chars.map((c, i) => (
           // Keyed from the right, so 99 → 100 keeps the ones and tens slots and adds a hundreds slot.
-          <Digit key={chars.length - i} ch={c} dir={dir} instant={instant} />
+          <Digit key={chars.length - i} ch={c} dir={dir} instant={still} />
         ))}
       </span>
     </span>
@@ -122,7 +126,7 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   const settle = React.useCallback(
     (target: number, v = 0, report = true) => {
       cancelAnimationFrame(raf.current);
-      if (reduced()) {
+      if (prefersReducedMotion()) {
         pos.current = target;
         return paint(report);
       }

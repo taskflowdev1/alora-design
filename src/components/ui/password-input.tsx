@@ -155,7 +155,7 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
                 window.clearTimeout(timer.current);
                 timer.current = window.setTimeout(() => setCopied(false), 1400);
               }}
-              className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
+              className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted ad-press after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
             >
               <Copy size={14} className={cn(swap, copied && off)} />
               <Check size={14} className={cn(swap, !copied && off)} />
@@ -166,7 +166,7 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             aria-label={shown ? "Hide password" : "Show password"}
             aria-pressed={shown}
             onClick={(e) => (e.stopPropagation(), setShown((x) => !x))}
-            className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted transition-[background-color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
+            className="relative grid size-[20px] cursor-pointer place-items-center rounded-item text-ink-muted ad-press after:absolute after:-inset-[2px] hover:bg-fill focus-visible:bg-fill active:scale-[0.97]"
           >
             <Eye size={14} className={cn(swap, shown && off)} />
             <EyeOff size={14} className={cn(swap, !shown && off)} />

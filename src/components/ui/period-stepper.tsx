@@ -1,22 +1,20 @@
 import { ChevronLeft, ChevronRight } from "react-feather";
-import { cn, MONTHS } from "@/lib/ad";
+import { addDays, cn, MONTHS, MONTHS_LONG, startOfDay, startOfWeek } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 
 export type Period = "day" | "week" | "month";
 
 function startOf(d: Date, p: Period) {
-  if (p === "day") return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (p === "day") return startOfDay(d);
   if (p === "month") return new Date(d.getFullYear(), d.getMonth(), 1);
-  const s = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
-  return s;
+  return startOfWeek(d);
 }
 
 export function stepPeriod(d: Date, p: Period, n: number) {
   const s = startOf(d, p);
-  if (p === "day") return new Date(s.getFullYear(), s.getMonth(), s.getDate() + n);
-  if (p === "week") return new Date(s.getFullYear(), s.getMonth(), s.getDate() + 7 * n);
+  if (p === "day") return addDays(s, n);
+  if (p === "week") return addDays(s, 7 * n);
   return new Date(s.getFullYear(), s.getMonth() + n, 1);
 }
 
@@ -24,8 +22,8 @@ export function stepPeriod(d: Date, p: Period, n: number) {
 export function periodLabel(d: Date, p: Period) {
   const s = startOf(d, p);
   if (p === "day") return `${s.getDate()} ${MONTHS[s.getMonth()]} ${s.getFullYear()}`;
-  if (p === "month") return `${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][s.getMonth()]} ${s.getFullYear()}`;
-  const e = new Date(s.getFullYear(), s.getMonth(), s.getDate() + 6);
+  if (p === "month") return `${MONTHS_LONG[s.getMonth()]} ${s.getFullYear()}`;
+  const e = addDays(s, 6);
   return s.getMonth() === e.getMonth()
     ? `${s.getDate()}–${e.getDate()} ${MONTHS[e.getMonth()]}`
     : `${s.getDate()} ${MONTHS[s.getMonth()]} – ${e.getDate()} ${MONTHS[e.getMonth()]}`;
@@ -55,7 +53,7 @@ export function PeriodStepper({ value, period, onValueChange, max, className }: 
           <ChevronLeft />
         </Button>
       </Tooltip>
-      <span className="inline-flex h-control min-w-28 items-center justify-center px-1 text-body tabular-nums text-ink">
+      <span className="inline-flex h-control min-w-32 items-center justify-center px-1 text-body tabular-nums text-ink">
         {periodLabel(value, period)}
       </span>
       <Tooltip content={nextDisabled ? "No later period" : periodLabel(next, period)}>

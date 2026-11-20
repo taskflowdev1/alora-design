@@ -86,7 +86,7 @@ export function PieChart({ data, size = 168, thickness = 0.32, center, legend = 
         legend === "side" ? (
           <ul className="grid min-w-0 flex-1 gap-1 text-body">
             {slices.map((s) => (
-              <li key={s.key} onPointerEnter={() => setHover(s.i)} onPointerLeave={() => setHover(null)} className={cn("flex min-w-0 items-center gap-2 rounded-small px-1.5 py-0.5 transition-colors duration-[160ms]", hover === s.i && "bg-fill")}>
+              <li key={s.key} onPointerEnter={() => setHover(s.i)} onPointerLeave={() => setHover(null)} className={cn("flex min-w-0 items-center gap-2 rounded-small px-1.5 py-0.5 transition-colors duration-[150ms]", hover === s.i && "bg-fill")}>
                 <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: seriesColor(s.i) }} />
                 <span className="min-w-0 flex-1 truncate text-ink-muted">{s.label}</span>
                 <span className="tabular-nums text-ink">{share(s.value)}</span>

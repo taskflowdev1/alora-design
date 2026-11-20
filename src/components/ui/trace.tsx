@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AlertCircle, Check, ChevronDown, Circle } from "react-feather";
 import { Collapsible as C } from "radix-ui";
-import { cn } from "@/lib/ad";
+import { cn, formatNumber } from "@/lib/ad";
 
 export type TraceStatus = "done" | "running" | "pending" | "error";
 
@@ -28,11 +28,11 @@ function Elapsed({ from }: { from: number }) {
     const id = window.setInterval(() => setNow(Date.now()), 100);
     return () => window.clearInterval(id);
   }, []);
-  return <>{`${(Math.max(0, now - from) / 1000).toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s`}</>;
+  return <>{`${formatNumber(Math.max(0, now - from) / 1000, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s`}</>;
 }
 
 const glyph = (s: TraceStatus) =>
-  s === "done" ? <Check size={14} className="text-ink-muted" /> : s === "error" ? <AlertCircle size={14} className="text-danger" /> : s === "running" ? <span className="size-2 animate-[ad-pulse_1.2s_ease-in-out_infinite] rounded-full bg-ink" /> : <Circle size={10} className="text-ink-muted" />;
+  s === "done" ? <Check size={14} className="text-ink-muted" /> : s === "error" ? <AlertCircle size={14} className="text-danger" /> : s === "running" ? <span className="size-2 animate-[ad-pulse_1.2s_ease-in-out_infinite] rounded-full bg-ink" /> : <Circle size={14} className="text-ink-muted" />;
 
 /**
  * What an agent did, step by step (reasoning, tool calls, sources): a glyph per step on a quiet rail of spacing, the

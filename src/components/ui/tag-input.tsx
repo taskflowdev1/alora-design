@@ -36,9 +36,9 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
               type="button"
               aria-label={`Remove ${t}`}
               onClick={(e) => (e.stopPropagation(), onValueChange(value.filter((x) => x !== t)))}
-              className="relative grid size-[16px] cursor-pointer place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[4px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
+              className="relative grid size-[18px] cursor-pointer place-items-center rounded-small text-ink-muted ad-press after:absolute after:-inset-[3px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
             >
-              <X size={12} />
+              <X size={14} />
             </button>
           </span>
         ))}
@@ -62,7 +62,9 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
             if (e.key === "Backspace" && !text && value.length) onValueChange(value.slice(0, -1));
           }}
           onBlur={() => text && add(text)}
-          className="h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] min-w-24 flex-1 bg-transparent pl-1.5 text-ink outline-none placeholder:text-ink-muted"
+          // Room for a word only while typing (or when empty, for the placeholder). Idle after the chips it takes whatever is
+          // left on the row (the field focuses it on click), so committing a tag on blur never pushes a blank second row.
+          className={cn("h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] flex-1 bg-transparent pl-1.5 text-ink outline-none placeholder:text-ink-muted", text || !value.length ? "min-w-24" : "min-w-4")}
         />
       </div>
       {hits.length ? (
@@ -73,7 +75,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => add(h)}
-              className="relative inline-flex h-6 cursor-pointer items-center rounded-item px-bubble-sm after:absolute after:inset-x-0 after:-inset-y-[3px] text-small text-ink-muted transition-colors duration-[160ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
+              className="relative inline-flex h-6 cursor-pointer items-center rounded-item px-bubble-sm after:absolute after:inset-x-0 after:-inset-y-[3px] text-small text-ink-muted transition-colors duration-[150ms] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink"
             >
               {h}
             </button>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tabs as T } from "radix-ui";
 import { cn } from "@/lib/ad";
-import { SlidingPill } from "@/components/ui/sliding-pill";
+import { HoldLabel, SlidingPill } from "@/components/ui/sliding-pill";
 
 /**
  * Tabs: no track and no underline. A grey pill (fill-strong) slides behind the active tab; its label turns ink and medium.
@@ -10,14 +10,6 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 export function Tabs(props: React.ComponentProps<typeof T.Root>) {
   return <T.Root {...props} />;
 }
-
-/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
-const hold = (label: React.ReactNode) => (
-  <span className="ad-hold">
-    <span aria-hidden>{label}</span>
-    <span>{label}</span>
-  </span>
-);
 
 export function TabsList({ className, children, ...props }: React.ComponentProps<typeof T.List>) {
   return (
@@ -32,17 +24,17 @@ export function TabsTrigger({ className, children, ...props }: React.ComponentPr
   return (
     <T.Trigger
       className={cn(
-        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
+        "relative z-10 inline-flex h-control cursor-pointer select-none items-center gap-2 whitespace-nowrap rounded-control px-bubble text-body transition-[color,transform,scale] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         "text-ink-muted data-[state=inactive]:hover:text-ink data-[state=inactive]:focus-visible:text-ink data-[state=inactive]:focus-visible:bg-fill data-[state=active]:font-medium data-[state=active]:text-ink",
         className,
       )}
       {...props}
     >
-      {hold(children)}
+      <HoldLabel>{children}</HoldLabel>
     </T.Trigger>
   );
 }
 
 export function TabsContent({ className, ...props }: React.ComponentProps<typeof T.Content>) {
-  return <T.Content className={cn("pt-3 data-[state=active]:animate-[ad-fade-in_220ms_var(--ad-ease)]", className)} {...props} />;
+  return <T.Content className={cn("rounded-card pt-3 focus-visible:bg-fill data-[state=active]:animate-[ad-fade-in_220ms_var(--ad-ease)]", className)} {...props} />;
 }

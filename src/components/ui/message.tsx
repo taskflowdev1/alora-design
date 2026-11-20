@@ -58,19 +58,19 @@ export function Message({ from, time, mine, actions, children, className }: Mess
     return (
       <div className={cn("group grid gap-1", className)}>
         <Bubble align="end">{children}</Bubble>
-        {actions ? <div className="ml-auto flex gap-0.5 opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-within:opacity-100">{actions}</div> : null}
+        {actions ? <div className="ml-auto flex gap-0.5 opacity-0 transition-opacity duration-[150ms] ease-ad group-hover:opacity-100 group-focus-within:opacity-100">{actions}</div> : null}
       </div>
     );
   return (
     <div className={cn("group grid grid-cols-[auto_minmax(0,1fr)] gap-x-2.5", className)}>
-      {from.agent ? <span aria-hidden className="mt-0.5 size-6" /> : <Avatar name={from.name} src={from.avatar} size="sm" className="mt-0.5" />}
+      {from.agent ? <span aria-hidden className="mt-0.5 size-[24px] shrink-0" /> : <Avatar name={from.name} src={from.avatar} size="sm" className="mt-0.5" />}
       <div className="grid min-w-0 gap-1">
         <div className="flex min-w-0 items-baseline gap-2 text-body">
           <span className="truncate font-medium text-ink">{from.name}</span>
           {time != null ? <span className="shrink-0 text-small text-ink-muted">{time}</span> : null}
         </div>
         <div className="text-body leading-relaxed text-ink [&_p+p]:mt-2">{children}</div>
-        {actions ? <div className="-ml-1.5 flex gap-0.5 opacity-0 transition-opacity duration-[160ms] group-hover:opacity-100 group-focus-within:opacity-100">{actions}</div> : null}
+        {actions ? <div className="-ml-1.5 flex gap-0.5 opacity-0 transition-opacity duration-[150ms] ease-ad group-hover:opacity-100 group-focus-within:opacity-100">{actions}</div> : null}
       </div>
     </div>
   );

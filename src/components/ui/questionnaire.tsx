@@ -80,7 +80,7 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
                 aria-checked={on(o)}
                 onClick={() => pick(o)}
                 className={cn(
-                  "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body transition-[background-color,color,transform] duration-[150ms] ease-ad active:scale-[0.99]",
+                  "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body ad-press active:scale-[0.99]",
                   // Chosen: the grey pill (fill-strong), medium, with its check; never solid ink. Keyboard focus on it darkens
                   // it a notch. A skipped question doesn't tint the options; the message under them says what to do.
                   on(o)

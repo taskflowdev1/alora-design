@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ToggleGroup as T } from "radix-ui";
 import { cn } from "@/lib/ad";
-import { SlidingPill } from "@/components/ui/sliding-pill";
+import { HoldLabel, SlidingPill } from "@/components/ui/sliding-pill";
 
 type Option = { value: string; label: React.ReactNode; "aria-label"?: string };
 
@@ -20,14 +20,6 @@ export type ToggleGroupProps = {
  * Pressed items get the raised pill (sel + shadow-sel) on the grey track, in ink and medium; the rest stay muted and
  * regular. Track and pills are concentric.
  */
-/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
-const hold = (label: React.ReactNode) => (
-  <span className="ad-hold">
-    <span aria-hidden>{label}</span>
-    <span>{label}</span>
-  </span>
-);
-
 export function ToggleGroup(props: ToggleGroupProps) {
   const { options, className } = props;
   const single = props.type === "single";
@@ -37,17 +29,17 @@ export function ToggleGroup(props: ToggleGroupProps) {
       value={o.value}
       aria-label={o["aria-label"]}
       className={cn(
-        "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
+        "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform,scale,filter] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:font-medium data-[state=on]:text-ink",
         // Multiple: each pressed item carries its own pill. Single: one shared pill slides under the choice (SlidingPill
         // darkens itself when the chosen item has keyboard focus). Off + focus takes the hover step on a track
         // (fill-strong); on + focus darkens the raised pill a notch, so focus never disappears.
         single
           ? "data-[state=off]:focus-visible:bg-fill-strong"
-          : "data-[state=off]:focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",
+          : "data-[state=off]:focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel data-[state=on]:hover:brightness-[0.94] dark:data-[state=on]:hover:brightness-[0.85] data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",
       )}
     >
-      {hold(o.label)}
+      <HoldLabel>{o.label}</HoldLabel>
     </T.Item>
   );
   const track = cn("relative inline-flex h-control shrink-0 items-stretch gap-nest rounded-control bg-track p-nest", className);
