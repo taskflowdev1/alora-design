@@ -43,7 +43,7 @@ function Parts({ names }: { names: string[] }) {
       {names.map((n) => {
         const item = findItem(n);
         return item ? (
-          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="relative inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad after:absolute after:inset-x-0 after:-inset-y-[2px] after:content-[''] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink pointer-coarse:after:-inset-y-[8.5px]">
+          <SLink key={n} to={itemPath(item)} data-mobile-part={n} className="relative inline-flex h-7 items-center rounded-full bg-fill px-bubble-sm text-small text-ink-muted transition-colors duration-[150ms] ease-ad after:absolute after:inset-x-0 after:-inset-y-[2px] after:content-[''] hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong focus-visible:text-ink pointer-coarse:after:inset-y-[calc(50%-22px)]">
             {item.title}
           </SLink>
         ) : null;
