@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# jobq: portable (scripts/env.sh installs deps + browser; builds BEFORE_REF from git, or a public clone when the copy has no .git)
+# Before/after review sheets for one round: ./scripts/review <shots.mjs> [ONLY-regex]
+# Builds BEFORE_REF (default origin/main) and this tree, then runs scripts/review.mjs on the shot list (format in its
+# header). Output goes to OUT, default the shot list's folder + /review. The before copy gets its own `npm ci`
+# (never a symlink to this tree's node_modules). Builds go to TMPDIR, never dist/.
+set -euo pipefail
+LIST="$(realpath "${1:?usage: scripts/review <shots.mjs> [ONLY-regex]}")"
+if [ -n "${2:-}" ]; then export ONLY="$2"; fi
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+OUT="${OUT:-$(dirname "$LIST")/review}"
+REF="${BEFORE_REF:-origin/main}"
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/ad-review.XXXXXX")"
+trap 'rm -rf "$WORK"' EXIT
+mkdir -p "$WORK/before" "$OUT"
+npx vite build --logLevel warn --outDir "$WORK/dist-after" --emptyOutDir
+if git rev-parse -q --verify "$REF^{commit}" >/dev/null 2>&1; then
+  git archive "$REF" | tar -x -C "$WORK/before"
+else
+  git clone -q --filter=blob:none --no-checkout https://github.com/taskflowdev1/alora-design "$WORK/clone"
+  git -C "$WORK/clone" archive "${REF#origin/}" | tar -x -C "$WORK/before"
+fi
+(cd "$WORK/before" && npm ci --no-audit --no-fund --loglevel=error && npx vite build --logLevel warn --outDir "$WORK/dist-before" --emptyOutDir)
+BEFORE_DIST="$WORK/dist-before" AFTER_DIST="$WORK/dist-after" REF="$REF" OUT="$OUT" node scripts/review.mjs "$LIST" 2>&1 | tee "$OUT/run.log"
