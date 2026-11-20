@@ -131,15 +131,21 @@ interface PhoneFrameProps {
   className?: string;
   /** Largest scale; the frame also shrinks to fit its column. */
   maxScale?: number;
+  /**
+   * No frame at all: the app fills its parent with the device's own safe areas and keyboard, and overlays mount on
+   * <body> (a phone viewing the app full screen). The element tree stays the same, so switching it on a resize keeps the
+   * app (and its stack) mounted.
+   */
+  bare?: boolean;
 }
 
 /**
  * A 390 × 844 phone screen for the docs: continuous rounded corners, a status bar and a home indicator, and the safe
  * areas a real phone reports (47 px top, 34 px bottom) as `--ad-safe-top` / `--ad-safe-bottom`. It is the containing
  * block for fixed bars and the mount point for sheets (MobileLayer), so everything stays inside the screen. It scales
- * down to fit narrow columns, never up.
+ * down to fit narrow columns, never up. `bare` drops the frame and keeps only the app.
  */
-export function PhoneFrame({ children, keyboard = false, returnKey = "return", className, maxScale = 1 }: PhoneFrameProps) {
+export function PhoneFrame({ children, keyboard = false, returnKey = "return", className, maxScale = 1, bare = false }: PhoneFrameProps) {
   usePressFeedback();
   const box = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = React.useState(maxScale);
@@ -154,13 +160,18 @@ export function PhoneFrame({ children, keyboard = false, returnKey = "return", c
     return () => ro.disconnect();
   }, [maxScale]);
   return (
-    <div ref={box} data-phone-frame className={cn("mx-auto w-full min-w-0 [contain:inline-size]", className)} style={{ maxWidth: PHONE.w * maxScale, height: PHONE.h * scale }}>
+    <div
+      ref={box}
+      data-phone-frame={bare ? undefined : ""}
+      className={bare ? "contents" : cn("mx-auto w-full min-w-0 [contain:inline-size]", className)}
+      style={bare ? undefined : { maxWidth: PHONE.w * maxScale, height: PHONE.h * scale }}
+    >
       <div
         ref={setScreen}
-        data-phone-screen
-        className="relative overflow-hidden bg-page text-ink shadow-dialog [corner-shape:superellipse(1.6)]"
+        data-phone-screen={bare ? undefined : ""}
+        className={bare ? "contents" : "relative overflow-hidden bg-page text-ink shadow-dialog [corner-shape:superellipse(1.6)]"}
         style={
-          {
+          bare ? undefined : {
             width: PHONE.w,
             height: PHONE.h,
             borderRadius: 52,
@@ -172,12 +183,12 @@ export function PhoneFrame({ children, keyboard = false, returnKey = "return", c
           } as React.CSSProperties
         }
       >
-        <StatusBar />
-        <MobileLayer.Provider value={screen}>
+        {bare ? null : <StatusBar />}
+        <MobileLayer.Provider value={bare ? null : screen}>
           <div className="absolute inset-0">{screen ? children : null}</div>
         </MobileLayer.Provider>
-        {keyboard ? <Keyboard returnKey={returnKey} /> : null}
-        <span aria-hidden className="pointer-events-none absolute bottom-2 left-1/2 z-[70] h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-ink" />
+        {keyboard && !bare ? <Keyboard returnKey={returnKey} /> : null}
+        {bare ? null : <span aria-hidden className="pointer-events-none absolute bottom-2 left-1/2 z-[70] h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-ink" />}
       </div>
     </div>
   );

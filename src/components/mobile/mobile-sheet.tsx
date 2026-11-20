@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { cn, prefersReducedMotion, SAFE_BOTTOM, SAFE_TOP } from "@/lib/ad";
-import { useJustOpened } from "@/lib/ad-hooks";
 
 /**
  * Where phone overlays (sheets, action sheets, snackbars) mount. An app leaves it empty and they go to <body>; a phone
@@ -25,6 +24,19 @@ export function useReturnFocus(open: boolean) {
     const p = prev.current;
     if (p?.isConnected) p.focus({ preventScroll: true });
   }, []);
+}
+
+/**
+ * `early(t)` is true for a pointerdown (pass its `timeStamp`) less than `ms` after `open` turned true: the second tap
+ * of the double tap that opened an overlay lands on its new backdrop and must not close it. Use the pointerdown's time:
+ * it is when the finger touched, while a click's time is when a busy main thread got round to it.
+ */
+export function useOpenedRecently(open: boolean, ms = 350) {
+  const at = React.useRef(-Infinity);
+  const was = React.useRef(false);
+  if (open && !was.current) at.current = typeof performance === "undefined" ? 0 : performance.now();
+  was.current = open;
+  return React.useCallback((t: number = performance.now()) => t - at.current < ms, [ms]);
 }
 
 /** A resting height: a fraction of the screen (0.5, 0.92) or "fit" (as tall as its content, up to 88 %). */
@@ -79,18 +91,18 @@ export function MobileSheet({
   const layer = React.useContext(MobileLayer);
   const [own, setOwn] = React.useState(false);
   const open = openProp ?? own;
-  const justOpened = useJustOpened(open);
+  const early = useOpenedRecently(open);
   const isOpen = React.useRef(open);
   isOpen.current = open;
   // The second tap of the double tap that opened it lands on the new backdrop: that is not a tap outside. A closing
   // sheet ignores further close requests, so its owner hears "closed" once.
   const setOpen = React.useCallback(
-    (o: boolean) => {
-      if (!o && (!isOpen.current || justOpened())) return;
+    (o: boolean, t?: number) => {
+      if (!o && (!isOpen.current || early(t))) return;
       if (onOpenChange) onOpenChange(o);
       else setOwn(o);
     },
-    [onOpenChange, justOpened],
+    [onOpenChange, early],
   );
   const [mounted, setMounted] = React.useState(open);
   // What it shows while closing: the last open render's content, so it never empties or shrinks on its way out.
@@ -101,6 +113,7 @@ export function MobileSheet({
   // A close that follows a tap inside the sheet (an action, a pick) keeps the shade for the rest of 400 ms, so the
   // double tap's second half can't fall through to the screen below. Other closes let the next tap through at once.
   const tapAt = React.useRef(-Infinity);
+  const shadeDown = React.useRef(-Infinity);
   const [shield, setShield] = React.useState(false);
   const sheet = React.useRef<HTMLDivElement>(null);
   const shade = React.useRef<HTMLDivElement>(null);
@@ -319,11 +332,11 @@ export function MobileSheet({
   return (
     // Radix sees the real open state, so a closing sheet stops trapping focus and blocking the screen at once (a tap
     // on a row right after dismissing reaches the row); the content stays mounted until the close spring ends.
-    <D.Root open={open} onOpenChange={setOpen} modal={!layer}>
+    <D.Root open={open} onOpenChange={(o) => setOpen(o)} modal={!layer}>
       {trigger ? <D.Trigger asChild>{trigger}</D.Trigger> : null}
       {mounted ? (
         <D.Portal forceMount container={layer ?? undefined}>
-          <div ref={shade} aria-hidden onClick={() => setOpen(false)} className={cn("fixed inset-0 z-50 bg-overlay opacity-0", !open && !shield && "pointer-events-none")} />
+          <div ref={shade} aria-hidden onPointerDown={(e) => void (shadeDown.current = e.timeStamp)} onClick={() => setOpen(false, shadeDown.current)} className={cn("fixed inset-0 z-50 bg-overlay opacity-0", !open && !shield && "pointer-events-none")} />
           <D.Content
             forceMount
             ref={attach}
@@ -337,7 +350,7 @@ export function MobileSheet({
             }}
             // Focus already went back on close (above); Radix would send it to the top of the page.
             onCloseAutoFocus={(e) => e.preventDefault()}
-            onInteractOutside={(e) => layer && e.preventDefault()}
+            onInteractOutside={(e) => (layer || early(e.detail.originalEvent.timeStamp)) && e.preventDefault()}
             style={{
               ["--ad-sheet-top" as string]: `calc(${SAFE_TOP} + 8px)`,
               transform: "translate3d(0, 120%, 0)",

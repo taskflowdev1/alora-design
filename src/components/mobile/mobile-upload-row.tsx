@@ -13,6 +13,7 @@ export interface MobileUploadRowProps {
   media?: React.ReactNode;
   onCancel?: () => void;
   onRetry?: () => void;
+  className?: string;
 }
 
 /**
@@ -20,10 +21,10 @@ export interface MobileUploadRowProps {
  * upload (linear, it shows progress), and one action at the right: cancel while it runs, retry if it failed. Done
  * swaps the bar for a tick and the size. A failed row says so in words, not red.
  */
-export function MobileUploadRow({ name, size, progress, state, media, onCancel, onRetry }: MobileUploadRowProps) {
+export function MobileUploadRow({ name, size, progress, state, media, onCancel, onRetry, className }: MobileUploadRowProps) {
   const pct = Math.round(Math.max(0, Math.min(1, progress)) * 100);
   return (
-    <div role="listitem" className="flex min-h-[60px] min-w-0 items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] py-2">
+    <div role="listitem" className={cn("flex min-h-[60px] min-w-0 items-center gap-3 rounded-item px-[calc(var(--ad-pad)-var(--ad-nest))] py-2", className)}>
       {media ? <span className="shrink-0">{media}</span> : null}
       <span className="grid min-w-0 flex-1 gap-1.5">
         <span className="flex min-w-0 items-baseline justify-between gap-2">

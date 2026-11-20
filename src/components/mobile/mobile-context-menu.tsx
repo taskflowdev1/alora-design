@@ -123,7 +123,10 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     window.addEventListener("pointerup", up, true);
     window.addEventListener("pointercancel", up, true);
   };
-  const guarded = () => performance.now() < guard.current;
+  // Compared with the time the finger touched (the pointerdown's timeStamp), so a click a busy main thread handles late
+  // still counts as early. Keyboard clicks have no pointerdown and are never guarded.
+  const downAt = React.useRef(-Infinity);
+  const guarded = (t: number = performance.now()) => t < guard.current;
   const trigger = (
     <div
       ref={(el) => void (target.current = el)}
@@ -193,7 +196,7 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
         ? createPortal(
             <>
               {/* While closing the dim still takes taps (and drops them), so a stray second tap can't hit the screen. */}
-              <div aria-hidden className="fixed inset-0 z-50 bg-overlay animate-[ad-fade-in_160ms_var(--ad-ease)]" style={{ animation: fade }} onClick={() => open && !guarded() && setOpen(false)} />
+              <div aria-hidden className="fixed inset-0 z-50 bg-overlay animate-[ad-fade-in_160ms_var(--ad-ease)]" style={{ animation: fade }} onPointerDown={(e) => void (downAt.current = e.timeStamp)} onClick={() => open && !guarded(downAt.current) && setOpen(false)} />
               {/* The pressed item, lifted above the dim: a still copy in the item's place (not interactive). */}
               <div
                 aria-hidden
@@ -221,8 +224,9 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
                     key={a.label}
                     type="button"
                     role="menuitem"
-                    onClick={() => {
-                      if (!open || guarded()) return;
+                    onPointerDown={(e) => void (downAt.current = e.timeStamp)}
+                    onClick={(e) => {
+                      if (!open || (e.detail > 0 && guarded(downAt.current))) return;
                       setOpen(false);
                       a.onSelect();
                     }}

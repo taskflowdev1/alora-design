@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { cn } from "@/lib/ad";
-import { useJustOpened } from "@/lib/ad-hooks";
-import { MobileLayer, useReturnFocus } from "./mobile-sheet";
+import { MobileLayer, useOpenedRecently, useReturnFocus } from "./mobile-sheet";
 
 export interface MobileAlertAction {
   label: string;
@@ -31,7 +30,7 @@ export interface MobileAlertProps {
  */
 export function MobileAlert({ open, onOpenChange, title, message, actions, className }: MobileAlertProps) {
   const layer = React.useContext(MobileLayer);
-  const justOpened = useJustOpened(open);
+  const early = useOpenedRecently(open);
   const restoreFocus = useReturnFocus(open);
   const content = React.useRef<HTMLDivElement>(null);
   const tone = {
@@ -42,7 +41,7 @@ export function MobileAlert({ open, onOpenChange, title, message, actions, class
   };
   return (
     // The second tap of the double tap that opened it lands on the new backdrop: not a tap outside.
-    <D.Root open={open} onOpenChange={(o) => (o || !justOpened()) && onOpenChange(o)} modal={!layer}>
+    <D.Root open={open} onOpenChange={(o) => (o || !early()) && onOpenChange(o)} modal={!layer}>
       <D.Portal container={layer ?? undefined}>
         {/* While it fades out the backdrop still takes taps (and drops them), so a stray tap can't reach the screen. */}
         <D.Overlay className="fixed inset-0 z-50 bg-overlay data-[state=closed]:animate-[ad-fade-out_160ms_var(--ad-ease)_forwards] data-[state=open]:animate-[ad-fade-in_200ms_var(--ad-ease)]" />
@@ -59,7 +58,7 @@ export function MobileAlert({ open, onOpenChange, title, message, actions, class
             e.preventDefault();
             restoreFocus();
           }}
-          onInteractOutside={(e) => layer && e.target instanceof Node && !layer.contains(e.target) && e.preventDefault()}
+          onInteractOutside={(e) => ((layer && e.target instanceof Node && !layer.contains(e.target)) || early(e.detail.originalEvent.timeStamp)) && e.preventDefault()}
           className={cn(
             "ad-m-alert fixed left-1/2 top-1/2 z-50 grid w-[min(300px,calc(100%-48px))] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sheet bg-raised p-pad text-center text-ink shadow-dialog outline-none data-[state=closed]:pointer-events-none data-[state=closed]:animate-[ad-alert-out_150ms_var(--ad-ease)_forwards] data-[state=open]:animate-[ad-alert-in_220ms_var(--ad-ease)]",
             className,

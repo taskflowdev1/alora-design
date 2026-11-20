@@ -184,7 +184,8 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
           >
             <style href="ad-date-range" precedence="default">{`@keyframes ad-range-next { from { opacity: 0; transform: translateX(24px); } } @keyframes ad-range-prev { from { opacity: 0; transform: translateX(-24px); } } @media (prefers-reduced-motion: reduce) { .ad-range-grid { animation: none !important; } }`}</style>
             {cells.map((d, i) => {
-              if (!d) return <span key={i} />;
+              // A blank keeps its 44 px, so a month whose last week is empty is as tall as any other.
+              if (!d) return <span key={i} aria-hidden className="h-touch" />;
               const col = i % 7;
               const isFrom = sameDay(d, from);
               const isTo = sameDay(d, end);

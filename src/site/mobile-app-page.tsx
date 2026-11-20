@@ -52,23 +52,21 @@ export function MobileAppPage() {
   return (
     <>
       <ConfigTokens />
-      {narrow ? (
-        <div data-mobile-app className="fixed inset-0 bg-page">
-          {app}
-        </div>
-      ) : (
-        <main data-mobile-app className="grid min-h-dvh place-items-center gap-4 bg-page px-4 py-8">
-          <div className="grid w-[390px] max-w-full gap-4">
+      {/* One tree for both widths (only classes and the frame's chrome change), so rotating a tablet or resizing across
+          600 px keeps the app mounted, with its stack and open sheets. */}
+      <main data-mobile-app className={narrow ? "fixed inset-0 bg-page" : "grid min-h-dvh place-items-center gap-4 bg-page px-4 py-8"}>
+        <div className={narrow ? "contents" : "grid w-[390px] max-w-full gap-4"}>
+          {narrow ? null : (
             <SLink to="/mobile" className="inline-flex h-control w-fit items-center gap-1 rounded-control pl-1.5 pr-3 text-body text-ink transition-colors duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill">
               <ChevronLeft size={18} />
               Mobile components
             </SLink>
-            <PhoneFrame keyboard={query.get("keyboard") === "1"} returnKey={RETURN_KEY[screen] ?? "return"}>
-              {app}
-            </PhoneFrame>
-          </div>
-        </main>
-      )}
+          )}
+          <PhoneFrame bare={narrow} keyboard={query.get("keyboard") === "1"} returnKey={RETURN_KEY[screen] ?? "return"}>
+            {app}
+          </PhoneFrame>
+        </div>
+      </main>
     </>
   );
 }
