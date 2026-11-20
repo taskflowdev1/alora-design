@@ -162,6 +162,13 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
             const panel = e.currentTarget as HTMLElement;
             requestAnimationFrame(() => (viaKeyboard.current ? focusCol(0) : panel.focus()));
           }}
+          onKeyDown={(e) => {
+            // Opened with a pointer, the panel holds focus: the first arrow key moves into the hours.
+            if (e.target === e.currentTarget && e.key.startsWith("Arrow")) {
+              e.preventDefault();
+              focusCol(0);
+            }
+          }}
           className={cn(dropdownSurface, "flex items-start gap-nest")}
         >
           <Column label="Hours" list={hours} selected={h} open={open} colRef={hourCol} onPick={(n) => pick(0, n)} onCross={() => focusCol(1)} />
