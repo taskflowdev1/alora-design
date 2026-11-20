@@ -49,7 +49,7 @@ export function NavigationMenu({ items, className }: { items: NavigationMenuItem
           <N.Item key={i}>
             {it.links ? (
               <>
-                <N.Trigger className={cn(trigger, "gap-1.5")} data-active={it.active || undefined}>
+                <N.Trigger className={cn(trigger, "gap-1.5")} data-ad-anchor="" data-active={it.active || undefined}>
                   {it.label}
                   <ChevronDown size={14} aria-hidden className="transition-transform duration-[220ms] ease-ad [[data-state=open]>&]:rotate-180" />
                 </N.Trigger>

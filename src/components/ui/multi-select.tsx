@@ -2,6 +2,7 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown, X } from "react-feather";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 import { OptionList, dropdownSurface, triggerClass, useListNav, usePressOpen, type Option } from "@/components/ui/select";
 
 export interface MultiSelectProps {
@@ -9,7 +10,8 @@ export interface MultiSelectProps {
   onValueChange: (value: string[]) => void;
   options: Option[];
   placeholder?: string;
-  /** Chips shown inside the trigger before collapsing into "+n". */
+  /** Chips shown inside the trigger before collapsing into "+n". 0 shows "Status · 3" instead, so the trigger keeps one
+   *  width while you pick (a toolbar filter). */
   maxChips?: number;
   className?: string;
   "aria-label"?: string;
@@ -18,7 +20,7 @@ export interface MultiSelectProps {
 /** Several choices in one control. Chips sit inside the trigger, concentric with it. */
 export function MultiSelect({ value, onValueChange, options, placeholder = "Select", maxChips = 2, className, ...aria }: MultiSelectProps) {
   const id = React.useId();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = usePopupOpen();
   const press = usePressOpen(open, setOpen);
   const toggle = (v: string) => onValueChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v]);
   const nav = useListNav(options, (i) => toggle(options[i].value));
@@ -31,9 +33,10 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger
         {...press}
+        data-ad-anchor=""
         aria-haspopup="listbox"
         aria-label={aria["aria-label"]}
-        className={cn(triggerClass, chosen.length ? "pl-nest" : "", className)}
+        className={cn(triggerClass, chosen.length && maxChips > 0 ? "pl-nest" : "", className)}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
             e.preventDefault();
@@ -42,6 +45,11 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
         }}
       >
         {chosen.length === 0 ? <span className="truncate text-ink-muted">{placeholder}</span> : null}
+        {chosen.length && maxChips <= 0 ? (
+          <span className="truncate">
+            {placeholder} <span className="tabular-nums text-ink-muted">· {chosen.length}</span>
+          </span>
+        ) : null}
         <span className="flex min-w-0 items-center gap-1">
           {shown.map((o) => (
             <span
@@ -61,9 +69,9 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
                   e.stopPropagation();
                   toggle(o.value);
                 }}
-                className="relative grid size-[16px] place-items-center rounded-small text-ink-muted transition-[background-color,color,transform] duration-[150ms] ease-ad after:absolute after:-inset-[4px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
+                className="relative grid size-[18px] place-items-center rounded-small text-ink-muted ad-press after:absolute after:-inset-[3px] hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink active:scale-[0.97]"
               >
-                <X size={12} />
+                <X size={14} />
               </span>
             </span>
           ))}
@@ -73,6 +81,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
       </P.Trigger>
       <P.Portal>
         <P.Content
+          onEscapeKeyDown={() => setOpen(false, true)}
           ref={listRef}
           align="start"
           sideOffset={6}

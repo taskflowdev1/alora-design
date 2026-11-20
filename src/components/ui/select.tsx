@@ -2,6 +2,7 @@ import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { Check, ChevronDown } from "react-feather";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 
 export type Option = {
   value: string;
@@ -21,7 +22,7 @@ export const dropdownSurface = cn(
 
 export const triggerClass = cn(
   "inline-flex h-control min-w-0 cursor-pointer select-none items-center gap-2 rounded-control bg-fill pl-3 pr-2 text-body text-ink",
-  "transition-[transform,background-color] duration-[150ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.97]",
+  "ad-press hover:bg-fill-strong focus-visible:bg-fill-strong data-[state=open]:bg-fill-strong active:scale-[0.97]",
   "disabled:pointer-events-none disabled:opacity-45",
 );
 
@@ -166,11 +167,12 @@ export function Select({
   ...aria
 }: SelectProps) {
   const id = React.useId();
-  const [open, setOpen] = React.useState(false);
+  // A close within 300 ms of opening (a double click) is ignored; picking and Escape close at once.
+  const [open, setOpen] = usePopupOpen();
   const selectedIndex = Math.max(0, options.findIndex((o) => o.value === value));
   const pick = (i: number) => {
     onValueChange(options[i].value);
-    setOpen(false);
+    setOpen(false, true);
   };
   const nav = useListNav(options, pick, selectedIndex);
   const listRef = React.useRef<HTMLDivElement>(null);
@@ -185,6 +187,7 @@ export function Select({
     <P.Root open={open} onOpenChange={openChange}>
       <P.Trigger
         {...press}
+        data-ad-anchor=""
         disabled={disabled}
         aria-haspopup="listbox"
         aria-label={aria["aria-label"]}
@@ -211,6 +214,7 @@ export function Select({
       </P.Trigger>
       <P.Portal>
         <P.Content
+          onEscapeKeyDown={() => setOpen(false, true)}
           ref={listRef}
           align={align}
           sideOffset={6}

@@ -16,6 +16,7 @@ export function MarketMark({ market, size = 16, className }: { market: Market; s
     <span
       role="img"
       aria-label={m.label}
+      translate="no"
       className={cn("inline-grid shrink-0 place-items-center rounded-[calc(var(--ad-radius-small)*0.8)]", className)}
       style={{ width: size, height: size, background: m.bg }}
     >

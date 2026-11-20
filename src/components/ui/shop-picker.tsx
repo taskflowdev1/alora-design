@@ -1,8 +1,8 @@
-import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown } from "react-feather";
-import { SlidingPill } from "@/components/ui/sliding-pill";
+import { HoldLabel, SlidingPill } from "@/components/ui/sliding-pill";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 import { Checkbox } from "@/components/ui/checkbox";
 import { dropdownSurface, triggerClass, usePressOpen } from "@/components/ui/select";
 import { MarketMark, marketLabel, type Market } from "@/components/ui/marketplace-mark";
@@ -23,14 +23,6 @@ export interface ShopPickerProps {
   className?: string;
 }
 
-/** The label twice in one cell, the hidden copy at medium weight, so turning medium never changes the width. */
-const hold = (label: React.ReactNode) => (
-  <span className="ad-hold">
-    <span aria-hidden>{label}</span>
-    <span>{label}</span>
-  </span>
-);
-
 /** Shops with their marketplace marks, plus one-click "Only Shopee" / "Only TikTok". */
 export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "tiktok"], className }: ShopPickerProps) {
   const all = value.length === shops.length;
@@ -40,33 +32,35 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   });
   const markets = [...new Set(shops.filter((s) => value.includes(s.id)).map((s) => s.market))];
   const label = all ? "All shops" : only ? `${marketLabel(only)} only` : value.length === 1 ? shops.find((s) => s.id === value[0])?.name : value.length ? `${value.length} shops` : "No shops";
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = usePopupOpen();
   const press = usePressOpen(open, setOpen);
   const toggle = (id: string) => onValueChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
   const quickBtn = (active: boolean) =>
     cn(
-      "relative inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body transition-[background-color,transform] duration-[150ms] ease-ad active:scale-[0.97]",
+      "relative inline-flex h-item shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body ad-press active:scale-[0.97]",
       active ? "font-medium text-ink" : "text-ink-muted hover:bg-fill focus-visible:bg-fill hover:text-ink focus-visible:text-ink",
     );
 
   return (
     <P.Root open={open} onOpenChange={setOpen}>
-      <P.Trigger {...press} className={cn(triggerClass, className)} aria-label="Shops">
+      <P.Trigger {...press} data-ad-anchor="" className={cn(triggerClass, className)} aria-label="Shops">
         {/* 4 px apart, so the marks read as separate shops rather than one strip. */}
         <span className="flex shrink-0 items-center gap-[4px]">
           {(all || !markets.length ? [...new Set(shops.map((s) => s.market))] : markets).slice(0, 3).map((m) => (
             <MarketMark key={m} market={m} />
           ))}
         </span>
-        <span className="truncate">{label}</span>
+        <span translate={value.length === 1 && !only && !all ? "no" : undefined} className="truncate">
+          {label}
+        </span>
         <ChevronDown size={16} className="ml-auto shrink-0 text-ink-muted" />
       </P.Trigger>
       <P.Portal>
-        <P.Content align="start" sideOffset={6} collisionPadding={8} className={cn(dropdownSurface, "w-[320px]")}>
+        <P.Content align="start" sideOffset={6} collisionPadding={8} onEscapeKeyDown={() => setOpen(false, true)} className={cn(dropdownSurface, "w-[320px]")}>
           <div className="relative flex flex-wrap gap-1 pb-nest">
             <SlidingPill selector='[aria-pressed="true"]' className="rounded-control bg-fill-strong" />
             <button type="button" aria-pressed={all} className={quickBtn(all)} onClick={() => onValueChange(shops.map((s) => s.id))}>
-              {hold("All")}
+              <HoldLabel>All</HoldLabel>
             </button>
             {quick.map((m) => (
               <button
@@ -76,12 +70,10 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
                 className={quickBtn(only === m)}
                 onClick={() => onValueChange(shops.filter((s) => s.market === m).map((s) => s.id))}
               >
-                {hold(
-                  <>
-                    <MarketMark market={m} size={14} />
-                    Only {marketLabel(m).replace(" Shop", "")}
-                  </>,
-                )}
+                <HoldLabel>
+                  <MarketMark market={m} size={14} />
+                  Only {marketLabel(m).replace(" Shop", "")}
+                </HoldLabel>
               </button>
             ))}
           </div>
@@ -90,7 +82,9 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
               <label key={s.id} className="flex h-item cursor-pointer select-none items-center gap-2.5 rounded-control px-2.5 text-body hover:bg-fill has-[:focus-visible]:bg-fill">
                 <Checkbox checked={value.includes(s.id)} onCheckedChange={() => toggle(s.id)} />
                 <MarketMark market={s.market} />
-                <span className="min-w-0 flex-1 truncate">{s.name}</span>
+                <span translate="no" className="min-w-0 flex-1 truncate">
+                  {s.name}
+                </span>
               </label>
             ))}
           </div>

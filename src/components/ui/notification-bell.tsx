@@ -3,6 +3,7 @@ import { Bell } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export interface Notice {
   id: string;
@@ -20,15 +21,17 @@ export function NotificationBell({ notices, onMarkAllRead, className }: { notice
       align="end"
       className="w-80"
       trigger={
-        <Button variant="ghost" icon aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} className={cn("relative", className)}>
-          <Bell />
-          {unread ? (
-            // Pinned to the bell's top-right corner (the 16 px glyph sits in the middle), so it covers only the corner.
-            <span className="absolute left-[calc(50%+3px)] top-[calc(50%-13px)] grid h-[14px] min-w-[14px] place-items-center rounded-full bg-on px-[3px] text-[10px] font-semibold leading-none tabular-nums text-on-ink">
-              {unread > 9 ? "9+" : unread}
-            </span>
-          ) : null}
-        </Button>
+        <Tooltip content="Notifications">
+          <Button variant="ghost" icon aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} className={cn("relative", className)}>
+            <Bell />
+            {unread ? (
+              // Pinned to the bell's top-right corner (the 16 px glyph sits in the middle), so it covers only the corner.
+              <span className="absolute left-[calc(50%+3px)] top-[calc(50%-13px)] grid h-[14px] min-w-[14px] place-items-center rounded-full bg-on px-[3px] text-[10px] font-semibold leading-none tabular-nums text-on-ink">
+                {unread > 9 ? "9+" : unread}
+              </span>
+            ) : null}
+          </Button>
+        </Tooltip>
       }
     >
       <div className="flex min-h-item items-center justify-between gap-2 pb-1 pl-2">

@@ -4,6 +4,7 @@ import { Popover as P } from "radix-ui";
 import { autoUpdate, flip, offset, shift, useFloating } from "@floating-ui/react-dom";
 import { ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
+import { usePopupOpen } from "@/lib/ad-hooks";
 
 /*
  * Menu with submenus and a safe triangle (Kamens 2013, Alexoglou 2023).
@@ -165,18 +166,15 @@ export interface MenuProps {
 }
 
 export function Menu({ trigger, children, align = "start", side = "bottom", tone = "light", showSafeArea, open: openProp, onOpenChange, className }: MenuProps) {
-  const [openState, setOpenState] = React.useState(false);
-  const open = openProp ?? openState;
-  const setOpen = (o: boolean) => {
-    setOpenState(o);
-    onOpenChange?.(o);
-  };
+  // A close that lands within 300 ms of opening is the second click of a double click: ignored, so the menu stays open
+  // instead of flashing. Picking an item and Escape close at once.
+  const [open, setOpen] = usePopupOpen({ open: openProp, onOpenChange });
   const [viz, setViz] = React.useState<[Pt, Pt, Pt] | null>(null);
   const container = React.useRef<HTMLDivElement>(null);
   const viaKeyboard = React.useRef(false);
   // Mouse: open on pointer down (the menu is there when the button comes up); touch and pen keep the click.
   const pressed = React.useRef(false);
-  const root = React.useMemo<RootCtx>(() => ({ close: () => setOpen(false), setViz: showSafeArea ? setViz : () => {} }), [showSafeArea]); // eslint-disable-line react-hooks/exhaustive-deps
+  const root = React.useMemo<RootCtx>(() => ({ close: () => setOpen(false, true), setViz: showSafeArea ? setViz : () => {} }), [showSafeArea]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Root.Provider value={root}>
@@ -184,6 +182,7 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
         <P.Trigger
           asChild
           aria-haspopup="menu"
+          data-ad-anchor=""
           onPointerDown={(e) => {
             viaKeyboard.current = false;
             if (e.pointerType !== "mouse" || e.button !== 0 || e.ctrlKey) return;
@@ -216,6 +215,7 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
             sideOffset={6}
             collisionPadding={8}
             tabIndex={-1}
+            onEscapeKeyDown={() => setOpen(false, true)}
             onOpenAutoFocus={(e) => {
               e.preventDefault();
               const box = container.current;
@@ -269,9 +269,17 @@ function LevelKeys({ children }: { children: React.ReactNode }) {
 export interface MenuItemProps {
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
   children: React.ReactNode;
-  shortcut?: string;
+  /** Keys such as ["mod", "N"]: "mod" shows as ⌘ on Apple devices ("⌘N") and Ctrl elsewhere ("Ctrl+N"). A string is shown as is. */
+  shortcut?: string | string[];
   onSelect?: () => void;
   disabled?: boolean;
+}
+
+function shortcutText(keys: string | string[]) {
+  if (typeof keys === "string") return keys;
+  const apple = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const names = keys.map((k) => (k === "mod" ? (apple ? "⌘" : "Ctrl") : k));
+  return apple ? names.join("") : names.join("+");
 }
 
 export function MenuItem({ icon: Icon, children, shortcut, onSelect, disabled }: MenuItemProps) {
@@ -307,7 +315,7 @@ export function MenuItem({ icon: Icon, children, shortcut, onSelect, disabled }:
     >
       {Icon ? <Icon size={16} className="shrink-0 text-ink-muted" /> : null}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {shortcut ? <span className="pl-4 text-small text-ink-muted">{shortcut}</span> : null}
+      {shortcut ? <span className="pl-4 text-small text-ink-muted">{shortcutText(shortcut)}</span> : null}
     </div>
   );
 }
