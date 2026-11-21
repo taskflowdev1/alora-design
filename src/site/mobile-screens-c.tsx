@@ -693,7 +693,7 @@ export function OtpScreen({ params, back }: ScreenProps) {
       if (v === CODE) {
         setStatus("success");
         // The green boxes and the status line already said it: no "Signed in" snack on top.
-        window.setTimeout(() => nav.cover(null), otpLanded(6, "join") + 500);
+        window.setTimeout(() => nav.cover(null), otpLanded("join") + 500);
       } else {
         setStatus("invalid");
         window.setTimeout(() => (setCode(""), setStatus("idle")), 1000);

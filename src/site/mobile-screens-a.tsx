@@ -25,7 +25,7 @@ import {
   Camera,
   ShoppingCart,
 } from "react-feather";
-import { formatNumber, formatRp } from "@/lib/ad";
+import { cn, formatNumber, formatRp, skeletonFill, skeletonText } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
@@ -317,9 +317,9 @@ export function ReportsScreen({ back, state }: ScreenProps) {
                 <div className="rounded-card bg-surface p-pad shadow-card">
                   {phase === "loading" ? (
                     <div aria-busy className="grid gap-2">
-                      <span className="w-fit animate-ad-pulse rounded-small bg-fill text-[13px] text-transparent">Sales</span>
-                      <span className="w-fit animate-ad-pulse rounded-small bg-fill text-[24px] leading-tight text-transparent">Rp 000,0 jt</span>
-                      <span className="h-[140px] animate-ad-pulse rounded-control bg-fill" />
+                      <span className={cn("w-fit text-[13px]", skeletonText())}>Sales</span>
+                      <span className={cn("w-fit text-[24px] leading-tight", skeletonText())}>Rp 000,0 jt</span>
+                      <span className={cn("h-[140px] rounded-control", skeletonFill())} />
                       <span className="h-[17px]" />
                     </div>
                   ) : (

@@ -62,7 +62,7 @@ import { CodeBlock } from "@/components/ui/code-block";
 import { BackPage, Head, Mark, PlainMarks, S, Tile, frame, type TileDef } from "./mark";
 import { MOTION_TILES } from "./showcase-motion";
 import { useConfig } from "./config";
-import { DAILY, NOW, ORDERS, smartTime, type Order } from "./data";
+import { CUP_PHOTOS, DAILY, NOW, ORDERS, smartTime, type Order } from "./data";
 
 /* ------------------------------------------------------------ demo data (invented) */
 
@@ -437,30 +437,25 @@ function HelpTile({ className }: { className?: string }) {
 }
 
 function ProductPhotosTile({ className }: { className?: string }) {
-  const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2"]; // grey-ok: photo stand-ins (image content)
-  const photoIcon = "text-black/30"; // grey-ok: icon on a photo stand-in
   return (
     <Tile inset="pad" className={className}>
       <h3 className="truncate text-title font-semibold">Gelas kopi tanah liat</h3>
       <Mark name="carousel" className="min-w-0">
         <Carousel aria-label="Product photos" perView={3} gap={8}>
-          {tints.map((c, i) =>
-            i === 0 ? (
-              <Mark key={i} name="aspect-ratio">
-                <AspectRatio ratio={1}>
-                  <div className="grid size-full place-items-center" style={{ background: c }}>
-                    <Package size={28} className={photoIcon} />
-                  </div>
-                </AspectRatio>
+          {CUP_PHOTOS.map((photo, i) => {
+            const media = (
+              <AspectRatio ratio={1}>
+                <img src={photo.src} alt={photo.alt} loading="lazy" draggable={false} className="size-full object-cover" />
+              </AspectRatio>
+            );
+            return i === 0 ? (
+              <Mark key={photo.src} name="aspect-ratio">
+                {media}
               </Mark>
             ) : (
-              <AspectRatio key={i} ratio={1}>
-                <div className="grid size-full place-items-center" style={{ background: c }}>
-                  <Package size={28} className={photoIcon} />
-                </div>
-              </AspectRatio>
-            ),
-          )}
+              <React.Fragment key={photo.src}>{media}</React.Fragment>
+            );
+          })}
         </Carousel>
       </Mark>
     </Tile>

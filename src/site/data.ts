@@ -20,6 +20,14 @@ function rng(seed: number) {
 
 export const SHOPS = ["Kemang", "Senopati", "Dago", "Darmo", "Shopee", "TikTok Shop"];
 
+/** Real product photos for media demos (public/photos, all CC0; see CREDITS.md there). */
+export const CUP_PHOTOS = [
+  { src: "/photos/cup-terracotta.webp", alt: "Latte in a terracotta cup on a tray" },
+  { src: "/photos/cup-table.webp", alt: "Latte in a cup on a wooden table" },
+  { src: "/photos/cup-latte.webp", alt: "Latte art in a cup, from above" },
+  { src: "/photos/cup-white.webp", alt: "Coffee with cream in a white cup" },
+];
+
 export const PRODUCTS = [
   { sku: "RMB-GL-014", name: "Gelas kopi tanah liat", price: 89000, stock: 2 },
   { sku: "RMB-PR-022", name: "Piring rotan bundar", price: 145000, stock: 3 },

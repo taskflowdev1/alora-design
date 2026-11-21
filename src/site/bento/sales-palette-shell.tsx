@@ -23,13 +23,15 @@ const SALES: Record<Range, { label: string; value: number; delta: string; up: bo
   month: { label: "Sales this month", value: 1124600000, delta: "1,8%", up: false, orders: 7420, chart: DAILY, current: 29, every: 5 },
 };
 
+const LONGEST_SALE = Math.max(...Object.values(SALES).map((s) => s.value));
+
 export function SalesCard({ className }: { className?: string }) {
   const [range, setRange] = React.useState<Range>("day");
   const [loading, kick] = useBusy();
   const s = SALES[range];
   return (
     <Card className={cn("flex min-w-0 flex-col gap-4", className)}>
-      <MetricCard variant="hero" primary loading={loading} label={s.label} unit="Rp" value={s.value} delta={{ value: s.delta, direction: s.up ? "up" : "down" }} />
+      <MetricCard variant="hero" primary loading={loading} label={s.label} unit="Rp" value={s.value} fitTo={LONGEST_SALE} delta={{ value: s.delta, direction: s.up ? "up" : "down" }} />
       <BarChart data={s.chart} current={s.current} labelEvery={s.every} height={96} loading={loading} aria-label={s.label} />
       <div className="flex flex-wrap items-center justify-between gap-gap">
         <Segmented

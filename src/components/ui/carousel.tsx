@@ -25,13 +25,17 @@ function edgeFade({ start, end }: { start: boolean; end: boolean }): React.CSSPr
   return { maskImage: mask, WebkitMaskImage: mask };
 }
 
-/** How far an edge pull shows for a pull of x px: it gets harder the further you go and never passes d. */
-const band = (x: number, d: number) => Math.sign(x) * (1 - 1 / ((Math.abs(x) * 0.55) / d + 1)) * d;
+/** The most an edge pull ever shows (px): enough to feel the end, never a visible hole beside the last slide. */
+const EDGE_PULL = 20;
+/** The fastest a release may keep moving outward (px/s), so a hard throw can't carry the pull past EDGE_PULL. */
+const EDGE_THROW = 120;
+/** How far an edge pull shows for a pull of x px: it gets harder the further you go and never passes EDGE_PULL. */
+const band = (x: number) => Math.sign(x) * (1 - 1 / ((Math.abs(x) * 0.55) / EDGE_PULL + 1)) * EDGE_PULL;
 
 /**
  * Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse
- * can drag it too. Pulling past either end (mouse drag or trackpad) meets resistance that grows the further you pull,
- * then springs back keeping the release speed. Prev/next are ghost buttons beside the dots under it, never over the
+ * can drag it too. Pulling past either end (mouse drag or trackpad) gives a few px of firm resistance, then springs back
+ * without crossing the edge. Prev/next are ghost buttons beside the dots under it, never over the
  * content; the current dot is a solid ink pill.
  */
 export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots = true, className, ...aria }: CarouselProps) {
@@ -53,11 +57,13 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
     const x0 = p.shown;
     if (!x0) return;
     if (prefersReducedMotion()) return show(0);
-    const w = 16;
+    const w = 22;
+    // Only outward speed carries over, capped: inward speed would swing the slides past the edge to the other side.
+    const out = Math.sign(x0) * Math.min(EDGE_THROW, Math.max(0, v * Math.sign(x0)));
     const t0 = performance.now();
     const step = (now: number) => {
       const t = (now - t0) / 1000;
-      const x = (x0 + (v + w * x0) * t) * Math.exp(-w * t);
+      const x = (x0 + (out + w * x0) * t) * Math.exp(-w * t);
       show(Math.abs(x) < 0.3 ? 0 : x);
       if (Math.abs(x) >= 0.3) p.raf = requestAnimationFrame(step);
     };
@@ -110,7 +116,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
           if (!atStart && !atEnd && !p.over) return;
           cancelAnimationFrame(p.raf);
           p.over = Math.max(atEnd || p.over < 0 ? -Infinity : 0, Math.min(atStart || p.over > 0 ? Infinity : 0, p.over - e.deltaX));
-          show(band(p.over, el.clientWidth / 3));
+          show(band(p.over));
           window.clearTimeout(p.timer);
           p.timer = window.setTimeout(() => release(), 120);
         }}
@@ -135,7 +141,7 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
           const max = el.scrollWidth - el.clientWidth;
           // Follows the pointer 1:1 inside the range; past an end it pulls against the band.
           el.scrollLeft = Math.max(0, Math.min(max, want));
-          show(want < 0 ? band(-want, el.clientWidth / 3) : want > max ? band(max - want, el.clientWidth / 3) : 0);
+          show(want < 0 ? band(-want) : want > max ? band(max - want) : 0);
         }}
         onPointerUp={(e) => {
           const d = pull.current.drag;

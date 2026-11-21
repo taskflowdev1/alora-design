@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Popover as P } from "radix-ui";
 import { ChevronDown, X } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, fieldChipClass } from "@/lib/ad";
 import { usePopupOpen } from "@/lib/ad-hooks";
 import { OptionList, dropdownSurface, triggerClass, useListNav, usePressOpen, type Option } from "@/components/ui/select";
 
@@ -54,7 +54,7 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
           {shown.map((o) => (
             <span
               key={o.value}
-              className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-sel pl-bubble-sm pr-1 text-body text-ink shadow-sel"
+              className={fieldChipClass}
             >
               <span className="max-w-28 truncate">{o.label}</span>
               <span

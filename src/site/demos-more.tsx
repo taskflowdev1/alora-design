@@ -48,15 +48,13 @@ import { Trace } from "@/components/ui/trace";
 import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
 import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
-import { NOW, ORDERS } from "./data";
+import { CUP_PHOTOS, NOW, ORDERS } from "./data";
 import type { Demo } from "./demos";
 import { BY_CHANNEL, BY_HOUR, CHANNELS, ORDER_COLUMNS, SALES_14, SALES_SERIES, SHOP_SCORES, SHOP_SERIES, TARGETS } from "./showcase-more";
 
 const say = (m: string) => () => toast(m, "neutral");
 const chartCard = "w-full max-w-2xl";
 // Photo stand-ins: fixed colours in both themes, like a real photo, with a soft dark icon. grey-ok: image content.
-const tints = ["#c9b79c", "#a8b5a2", "#b9a3a0", "#a9b4c2", "#c2b0a4"]; // grey-ok
-const photoIcon = "text-black/30"; // grey-ok
 
 /** The running step's time counts up from when the page opened. */
 function TraceDemo() {
@@ -479,11 +477,9 @@ export const MORE_DEMOS: Record<string, Demo> = {
     ],
     render: (p) => (
       <Carousel aria-label="Photos" perView={Number(p.perView)} arrows={!!p.arrows} dots={!!p.dots} className="w-full max-w-lg">
-        {tints.map((c, i) => (
-          <AspectRatio key={i} ratio={4 / 3}>
-            <div className="grid size-full place-items-center" style={{ background: c }}>
-              <Package size={28} className={photoIcon} />
-            </div>
+        {CUP_PHOTOS.map((photo) => (
+          <AspectRatio key={photo.src} ratio={4 / 3}>
+            <img src={photo.src} alt={photo.alt} loading="lazy" draggable={false} className="size-full object-cover" />
           </AspectRatio>
         ))}
       </Carousel>
@@ -496,9 +492,7 @@ export const MORE_DEMOS: Record<string, Demo> = {
       const [a, b] = String(p.ratio).split("/").map(Number);
       return (
         <AspectRatio ratio={a / (b || 1)} className="w-80">
-          <div className="grid size-full place-items-center" style={{ background: tints[0] }}>
-            <Package size={28} className={photoIcon} />
-          </div>
+          <img src={CUP_PHOTOS[2].src} alt={CUP_PHOTOS[2].alt} loading="lazy" draggable={false} className="size-full object-cover" />
         </AspectRatio>
       );
     },

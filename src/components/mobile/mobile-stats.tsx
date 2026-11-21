@@ -1,9 +1,8 @@
 import * as React from "react";
 import { ChevronRight } from "react-feather";
-import { cn, prefersReducedMotion } from "@/lib/ad";
+import { cn, prefersReducedMotion, skeletonText } from "@/lib/ad";
 import { ScrubHold } from "./mobile-scrub-chart";
 
-const pulse = "animate-ad-pulse rounded-small bg-fill text-transparent select-none";
 
 export interface MobileStatTileProps {
   label: string;
@@ -26,7 +25,7 @@ export function MobileStatTile({ label, value, onClick, loading, className }: Mo
         <span className="truncate">{label}</span>
         {onClick ? <ChevronRight size={16} className="-mr-1 shrink-0" /> : null}
       </span>
-      <span className={cn("w-fit max-w-full truncate text-[24px] font-semibold leading-tight tabular-nums text-ink", loading && pulse)}>{value}</span>
+      <span className={cn("w-fit max-w-full truncate text-[24px] font-semibold leading-tight tabular-nums text-ink", loading && skeletonText())}>{value}</span>
     </>
   );
   const box = cn("grid min-w-0 content-between gap-1 rounded-card bg-surface p-pad text-left shadow-card", className);

@@ -240,8 +240,8 @@ Files: `src/components/ui/input-otp.tsx`.
 | `length` | `number` | `6` |  |
 | `group` | `number` | `3` | Split the boxes into groups with a gap (3 = 123 456). 0 keeps one row. |
 | `onComplete` | `((value: string) => void)` |  | Called once every box is filled. |
-| `status` | `InputOTPStatus` | `"idle"` | idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red. success: the boxes turn soft green one after another (see celebrate). |
-| `celebrate` | `InputOTPCelebrate` | `"join"` | success, how it lands. quiet: the boxes turn soft green one after another. join: then the gaps close into one green bar. seal: then the bar folds into a green circle and a check draws inside. |
+| `status` | `InputOTPStatus` | `"idle"` | idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red. success: the code locks and lands (see celebrate). The digits stay neutral; the caller's status line says it worked. |
+| `celebrate` | `InputOTPCelebrate` | `"join"` | success, how it lands. quiet: the boxes stay as they are. join: the gaps close into one bar. seal: the bar folds into a circle and a green check, the one green mark, draws inside. |
 | `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
 | `size` | `"default" \| "touch"` | `"default"` | "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. |
@@ -814,8 +814,9 @@ Files: `src/components/ui/card.tsx`. Installs too: `tooltip`.
 | `delta` | `{ value: ReactNode; direction: "up" \| "down"; }` |  | Change against the previous period, shown beside the number, e.g. "9,7%". |
 | `primary` | `boolean` |  | The one card that matters most may be highlighted. |
 | `interactive` | `boolean` |  |  |
-| `variant` | `MetricVariant` | `"tile"` | How short (1–2 digit) and long values are drawn: - "tile" (default): a short value sits big in a soft square tile beside its label; a long value stays on one line with a muted unit. - "scale": a short value grows to fill the card's height; a long value mutes its trailing zero groups. - "compact": a short value is a round count beside the label; a long value is shortened ("Rp 48,2 jt") with the exact value on hover. - "hero": the one figure that leads a card. No surface of its own (put it in a Card); the number is sized to the card's width (the longest value you show must fit), the unit small and grey, the change a soft pill beside the label. |
+| `variant` | `MetricVariant` | `"tile"` | How short (1–2 digit) and long values are drawn: - "tile" (default): a short value sits big in a soft square tile beside its label; a long value stays on one line with a muted unit. - "scale": a short value grows to fill the card's height; a long value mutes its trailing zero groups. - "compact": a short value is a round count beside the label; a long value is shortened ("Rp 48,2 jt") with the exact value on hover. - "hero": the one figure that leads a card. No surface of its own (put it in a Card); the number is sized to the card's width and always fits (pass fitTo when the value changes), the unit small and grey, the change a soft pill beside the label. |
 | `short` | `boolean` |  | Force the short or long treatment. By default: two digits or fewer is short. |
+| `fitTo` | `string \| number` |  | Hero: the longest value this card can show, so every value keeps one size and fits. Defaults to the current value. |
 | `loading` | `boolean` |  | Pulse in place while loading; the card keeps its size. |
 
 Also takes the native props of the element it renders.
@@ -1124,7 +1125,7 @@ Also takes the native props of the element it renders.
 | `className` | `string` |  |  |
 | `onFill` | `boolean` |  | The skeleton sits on a fill (not a surface): the bar takes fill-strong so it still shows. |
 
-`LoadingText`: Text that pulses in place while loading: same line box, same width.
+`LoadingText`: Text that pulses in place while loading: same line box and width, a bar at letter height.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1236,7 +1237,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/carousel.json"
 
 Files: `src/components/ui/carousel.tsx`. Installs too: `button`, `tooltip`.
 
-`Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse can drag it too. Pulling past either end (mouse drag or trackpad) meets resistance that grows the further you pull, then springs back keeping the release speed. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
+`Carousel`: Slides on native scroll snap: swipe, trackpad and arrow keys all work, and it never scrolls the page sideways. A mouse can drag it too. Pulling past either end (mouse drag or trackpad) gives a few px of firm resistance, then springs back without crossing the edge. Prev/next are ghost buttons beside the dots under it, never over the content; the current dot is a solid ink pill.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |

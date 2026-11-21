@@ -118,6 +118,28 @@ html {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+/* Loading text (skeletonText() in ad.ts sets the bar's colour): the text holds its box and baseline, unseen; one bar
+   at letter height sits on it, so a value never shifts when it lands and two stacked lines never touch. */
+.ad-skel {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  color: transparent !important;
+  user-select: none;
+}
+.ad-skel * {
+  visibility: hidden;
+}
+.ad-skel::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 0.8em;
+  translate: 0 -50%;
+  border-radius: min(var(--ad-radius-small), 0.3em);
+  animation: ad-pulse 1.6s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

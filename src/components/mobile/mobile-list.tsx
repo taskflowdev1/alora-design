@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChevronRight } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, skeletonFill, skeletonText } from "@/lib/ad";
 
 export interface MobileListProps {
   /** A plain heading above the group. */
@@ -104,10 +104,9 @@ export interface MobileListSkeletonProps {
   className?: string;
 }
 
-const pulse = "animate-ad-pulse bg-fill";
 /** Pulsing text that keeps the exact line box of the real text. */
 const Line = ({ text, className }: { text: string; className?: string }) => (
-  <span aria-hidden className={cn("w-fit max-w-full truncate rounded-small text-transparent select-none", pulse, className)}>
+  <span aria-hidden className={cn("w-fit max-w-full truncate", skeletonText(), className)}>
     {text}
   </span>
 );
@@ -125,7 +124,7 @@ export function MobileListSkeleton({ rows = 6, media = "thumb", subtitle = true,
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className={cn("flex items-center gap-3 px-[calc(var(--ad-pad)-var(--ad-nest))]", subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5")}>
             {/* Whole px, never rem steps: on the 13 px root size-10 is 32.5 px, not the 40 px thumbnail it stands for. */}
-            {media === "thumb" ? <span className={cn("size-[40px] shrink-0 rounded-small", pulse)} /> : media === "icon" ? <span className={cn("size-[20px] shrink-0 rounded-small", pulse)} /> : null}
+            {media === "thumb" ? <span className={cn("size-[40px] shrink-0 rounded-small", skeletonFill())} /> : media === "icon" ? <span className={cn("size-[20px] shrink-0 rounded-small", skeletonFill())} /> : null}
             <span className="grid min-w-0 flex-1 gap-0.5">
               <Line text={widths[i % widths.length]} className="text-[15px]" />
               {subtitle ? <Line text="ORD-1043 · 2 items" className="text-[13px]" /> : null}

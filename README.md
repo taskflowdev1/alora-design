@@ -169,7 +169,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
 | [Card](https://design.alorawork.com/components/card) | `card` | `Card`, `CardHeader` | `interactive`, `inset="pad"`, `title`, `action`, `className` |
-| [Metric card](https://design.alorawork.com/components/metric-card) | `metric-card` | `MetricCard` | `label`, `value`, `unit`, `delta`, `primary`, `interactive`, `variant="tile"`, `short`, `loading` |
+| [Metric card](https://design.alorawork.com/components/metric-card) | `metric-card` | `MetricCard` | `label`, `value`, `unit`, `delta`, `primary`, `interactive`, `variant="tile"`, `short`, `fitTo`, `loading` |
 | [Table](https://design.alorawork.com/components/table) | `table` | `Table`, `THead`, `TBody`, `TRow`, `TH`, `TD`, `TableBar` | `children`, `selected`, `onActivate`, `align="left"`, `className`, `width`, `maxWidth`, `page`, `total`, `pageSize=50`, `onPageChange` |
 | [Attention list](https://design.alorawork.com/components/attention-list) | `attention-list` | `AttentionList`, `AttentionItem` | `children`, `className`, `media`, `title`, `meta`, `value`, `action`, `onClick` |
 | [Bar chart](https://design.alorawork.com/components/bar-chart) | `bar-chart` | `BarChart`, `BarList` | `data`, `height=140`, `current`, `labelEvery=1`, `loading`, `className`, `aria-label`, `selected`, `onSelect` |

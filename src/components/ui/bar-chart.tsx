@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn, formatNumber } from "@/lib/ad";
+import { cn, formatNumber, skeletonFill, skeletonText } from "@/lib/ad";
 
 export type Bar = { label: string; value: number; /** Shown on hover, e.g. "Rp 12,4 jt". */ display?: string };
 
@@ -16,7 +16,8 @@ export interface BarChartProps {
   "aria-label"?: string;
 }
 
-const pulse = "animate-ad-pulse bg-fill";
+/** A fixed, chart-like outline while loading: never the real values, and never one flat row of equal bars. */
+const SKELETON_BARS = [46, 62, 40, 74, 54, 68, 36, 58, 82, 50, 64, 44];
 
 /** Slim bars in shades of the one accent, one shared bar radius. No gridlines, no axes. */
 export function BarChart({ data, height = 140, current, labelEvery = 1, loading, className, ...aria }: BarChartProps) {
@@ -32,9 +33,9 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, loading,
             <div
               className={cn(
                 "w-full max-w-[10px] rounded-small transition-[background-color,height] duration-[220ms] ease-ad",
-                loading ? pulse : i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
+                loading ? skeletonFill() : i === strong ? "bg-chart-1" : current != null ? "bg-chart-3" : "bg-chart-2",
               )}
-              style={{ height: loading ? "40%" : `${Math.max(2, (d.value / max) * 100)}%` }}
+              style={{ height: loading ? `${SKELETON_BARS[i % SKELETON_BARS.length]}%` : `${Math.max(2, (d.value / max) * 100)}%` }}
             />
           </div>
         ))}
@@ -42,7 +43,7 @@ export function BarChart({ data, height = 140, current, labelEvery = 1, loading,
       <div className="mt-2 flex justify-between gap-[3px] text-small text-ink-muted">
         {data.map((d, i) => (
           <span key={i} className="flex min-w-0 flex-1 justify-center whitespace-nowrap">
-            {i % labelEvery === 0 ? <span className={cn(loading && cn(pulse, "rounded-small text-transparent"))}>{d.label}</span> : ""}
+            {i % labelEvery === 0 ? <span className={cn(loading && skeletonText())}>{d.label}</span> : ""}
           </span>
         ))}
       </div>
@@ -86,12 +87,12 @@ export function BarList({ data, selected, onSelect, loading, className }: BarLis
               )}
             >
               <span className="truncate text-ink">
-                <span className={cn(loading && cn(pulse, "rounded-small text-transparent"))}>{d.label}</span>
+                <span className={cn(loading && skeletonText())}>{d.label}</span>
               </span>
-              <span className={cn("h-2 rounded-small", loading ? pulse : "bg-fill")}>
+              <span className={cn("h-2 rounded-small", loading ? skeletonFill() : "bg-fill")}>
                 {loading ? null : <span className="block h-full rounded-small bg-chart-2" style={{ width: `${(d.value / max) * 100}%` }} />}
               </span>
-              <span className={cn("tabular-nums text-ink", loading && cn(pulse, "rounded-small text-transparent"))}>{d.display ?? formatNumber(d.value)}</span>
+              <span className={cn("tabular-nums text-ink", loading && skeletonText())}>{d.display ?? formatNumber(d.value)}</span>
             </button>
           </li>
         );

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ArrowDown, ArrowUp, Search as SearchIcon } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, skeletonFill, skeletonText } from "@/lib/ad";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ColumnMenu } from "@/components/ui/column-menu";
@@ -53,7 +53,7 @@ export interface DataTableProps<T> {
   className?: string;
 }
 
-const pulse = "animate-ad-pulse rounded-small bg-fill text-transparent";
+const checkBar = cn(skeletonFill(), "block size-[18px] rounded-small");
 
 /**
  * The full table: search, filters and the column menu in one row of equal-height controls; sortable headers; a
@@ -142,12 +142,11 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
             ? slice.map((r) => (
                 // A refetch: the held rows laid out as usual but hidden, a bar over each cell's content.
                 <tr key={rowKey(r)} className="h-row" aria-hidden>
-                  {onSelectedChange ? <TD className="pl-3 pr-0"><span className={cn(pulse, "block size-[18px]")} /></TD> : null}
+                  {onSelectedChange ? <TD className="pl-3 pr-0"><span className={checkBar} /></TD> : null}
                   {shown.map((c) => (
                     <TD key={c.key} align={c.align} maxWidth={c.maxWidth}>
-                      <span className="relative inline-block max-w-full align-middle">
-                        <span className="invisible block truncate">{c.cell ? c.cell(r) : String(valueOf(c, r) ?? "")}</span>
-                        <span className={cn(pulse, "absolute inset-0")} />
+                      <span className={cn(skeletonText(), "align-middle")}>
+                        <span className="block truncate">{c.cell ? c.cell(r) : String(valueOf(c, r) ?? "")}</span>
                       </span>
                     </TD>
                   ))}
@@ -156,10 +155,10 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
             : loading
             ? Array.from({ length: skeletonRows ?? Math.min(pageSize, 10) }, (_, i) => (
                 <tr key={i} className="h-row" aria-hidden>
-                  {onSelectedChange ? <TD className="pl-3 pr-0"><span className={cn(pulse, "block size-[18px]")} /></TD> : null}
+                  {onSelectedChange ? <TD className="pl-3 pr-0"><span className={checkBar} /></TD> : null}
                   {shown.map((c) => (
                     <TD key={c.key} align={c.align}>
-                      <span className={pulse}>{"0000000000".slice(0, 6 + ((i + c.key.length) % 5))}</span>
+                      <span className={skeletonText()}>{"0000000000".slice(0, 6 + ((i + c.key.length) % 5))}</span>
                     </TD>
                   ))}
                 </tr>

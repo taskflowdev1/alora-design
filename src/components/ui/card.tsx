@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ArrowDownRight, ArrowUpRight } from "react-feather";
-import { cn, formatCompact, formatNumber } from "@/lib/ad";
+import { cn, formatCompact, formatNumber, skeletonFill, skeletonText } from "@/lib/ad";
 import { Tooltip } from "@/components/ui/tooltip";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -54,11 +54,13 @@ export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    * - "scale": a short value grows to fill the card's height; a long value mutes its trailing zero groups.
    * - "compact": a short value is a round count beside the label; a long value is shortened ("Rp 48,2 jt") with the exact value on hover.
    * - "hero": the one figure that leads a card. No surface of its own (put it in a Card); the number is sized to the
-   *   card's width (the longest value you show must fit), the unit small and grey, the change a soft pill beside the label.
+   *   card's width and always fits (pass fitTo when the value changes), the unit small and grey, the change a soft pill beside the label.
    */
   variant?: MetricVariant;
   /** Force the short or long treatment. By default: two digits or fewer is short. */
   short?: boolean;
+  /** Hero: the longest value this card can show, so every value keeps one size and fits. Defaults to the current value. */
+  fitTo?: number | string;
   /** Pulse in place while loading; the card keeps its size. */
   loading?: boolean;
 }
@@ -78,10 +80,15 @@ function isShort(value: number | string) {
   return value.replace(/[^\d]/g, "").length <= 2 && value.trim().length <= 3;
 }
 
-function Pulse({ loading, children }: { loading?: boolean; children: React.ReactNode }) {
+/** A loading value. onFill: it sits on a filled square. onInk: it sits on a primary (ink) card. */
+function Pulse({ loading, onFill, onInk, children }: { loading?: boolean; onFill?: boolean; onInk?: boolean; children: React.ReactNode }) {
   if (!loading) return <>{children}</>;
-  return <span className="animate-ad-pulse rounded-small bg-fill text-transparent [box-decoration-break:clone] select-none">{children}</span>;
+  return <span className={onInk ? "ad-skel after:bg-fill" : skeletonText(onFill)}>{children}</span>;
 }
+
+// Rough width in em at the hero's weight and tracking: tabular digits, narrow separators, the small unit before them.
+const heroEm = (text: string, unit?: string) =>
+  [...text].reduce((w, c) => w + (/\d/.test(c) ? 0.6 : /[.,:'\s]/.test(c) ? 0.27 : 0.68), 0) + (unit ? unit.length * 0.24 + 0.14 : 0);
 
 // Secondary text on an ink-filled (primary) card: the page's muted grey would sit at about 2:1 there, so it takes the
 // pale ramp step on the far side instead.
@@ -97,11 +104,12 @@ function Delta({ delta, primary }: { delta: NonNullable<MetricCardProps["delta"]
 }
 
 /** As wide as its number needs, never stretched. Short and long numbers each get their own treatment. */
-export function MetricCard({ label, value, unit, delta, primary, interactive, variant = "tile", short, loading, className, style, ...props }: MetricCardProps) {
+export function MetricCard({ label, value, unit, delta, primary, interactive, variant = "tile", short, fitTo, loading, className, style, ...props }: MetricCardProps) {
   const text = typeof value === "number" ? groups(value) : value;
   if (variant === "hero") {
+    const longest = fitTo == null ? text : typeof fitTo === "number" ? groups(fitTo) : fitTo;
     return (
-      <div className={cn("@container grid min-w-0 gap-1", className)} style={style} {...props}>
+      <div className={cn("@container grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1", className)} style={style} {...props}>
         <div className="flex min-h-6 items-center justify-between gap-3">
           <span className="truncate text-body text-ink-muted">{label}</span>
           {delta ? (
@@ -111,7 +119,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
               className={cn(
                 "inline-flex h-6 items-center gap-0.5 whitespace-nowrap rounded-full px-bubble-sm text-small font-medium tabular-nums",
                 loading
-                  ? "animate-ad-pulse bg-fill text-transparent"
+                  ? cn(skeletonFill(), "text-transparent")
                   : primary && delta.direction === "up"
                     ? "bg-brand-soft text-brand-soft-ink"
                     : "bg-fill text-ink",
@@ -122,8 +130,11 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
             </span>
           ) : null}
         </div>
-        {/* One size for every value in the card (sized to its width), so switching values never moves anything. */}
-        <span className="block whitespace-nowrap text-[length:clamp(30px,15cqi,72px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
+        {/* Sized to the card and to the longest value it can show: it always fits, and switching values moves nothing. */}
+        <span
+          className="block whitespace-nowrap font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums"
+          style={{ fontSize: `min(72px, 15cqi, calc(100cqi / ${heroEm(longest, unit).toFixed(2)}))` }}
+        >
           {unit ? <span className="mr-[0.14em] inline-block translate-y-[0.12em] align-top text-[length:0.36em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
           <Pulse loading={loading}>{text}</Pulse>
         </span>
@@ -155,7 +166,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
     return shell(
       <>
         <span className="grid aspect-square h-full place-items-center rounded-control bg-fill px-1 text-[calc(var(--ad-text-number)*1.3)] font-semibold leading-none tabular-nums">
-          <Pulse loading={loading}>{text}</Pulse>
+          <Pulse loading={loading} onFill>{text}</Pulse>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-0.5 pr-[calc(var(--ad-pad)-var(--ad-nest))]">
           {labelEl}
@@ -173,7 +184,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
           {delta ? <Delta delta={delta} primary={primary} /> : null}
         </span>
         <span className="text-[calc(var(--ad-metric-h)-var(--ad-pad)*2+6px)] font-semibold leading-[0.8] tracking-[-0.03em] tabular-nums">
-          <Pulse loading={loading}>{text}</Pulse>
+          <Pulse loading={loading} onInk={primary}>{text}</Pulse>
         </span>
       </>,
       "items-end gap-5 p-pad",
@@ -187,7 +198,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
           {delta ? <Delta delta={delta} primary={primary} /> : null}
         </span>
         <span data-shape="round" className="grid size-10 shrink-0 place-items-center rounded-full bg-fill text-title font-semibold tabular-nums">
-          <Pulse loading={loading}>{text}</Pulse>
+          <Pulse loading={loading} onFill>{text}</Pulse>
         </span>
       </>,
       "items-center gap-4 p-pad",
@@ -209,7 +220,7 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
       {labelEl}
       <span className="flex items-baseline gap-2 whitespace-nowrap">
         <span className="text-number font-semibold tabular-nums">
-          <Pulse loading={loading}>
+          <Pulse loading={loading} onInk={primary}>
             {unitEl}
             {digits}
           </Pulse>

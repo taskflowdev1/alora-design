@@ -15,12 +15,12 @@ export interface InputOTPProps {
   onComplete?: (value: string) => void;
   /**
    * idle: typing. checking: a soft wave runs across the boxes (read-only). invalid: the row shakes once and turns soft red.
-   * success: the boxes turn soft green one after another (see celebrate).
+   * success: the code locks and lands (see celebrate). The digits stay neutral; the caller's status line says it worked.
    */
   status?: InputOTPStatus;
   /**
-   * success, how it lands. quiet: the boxes turn soft green one after another. join: then the gaps close into one
-   * green bar. seal: then the bar folds into a green circle and a check draws inside.
+   * success, how it lands. quiet: the boxes stay as they are. join: the gaps close into one bar. seal: the bar folds
+   * into a circle and a green check, the one green mark, draws inside.
    */
   celebrate?: InputOTPCelebrate;
   /** Same as status="invalid". */
@@ -47,11 +47,10 @@ const css = `
 @keyframes ad-otp-rise { from { opacity: 0; transform: translateX(-4px); } }
 @keyframes ad-otp-hide { to { opacity: 0; } }`;
 
-/** One box's colour change, left to right (ms). */
-export const OTP_SWEEP = 55;
+/** When the gaps start closing on a correct code (ms). */
+const JOIN_AT = 120;
 /** When a correct code has finished landing (ms), so a status line can follow it. */
-export const otpLanded = (length: number, celebrate: InputOTPCelebrate) =>
-  length * OTP_SWEEP + (celebrate === "quiet" ? 160 : celebrate === "join" ? 380 : 900);
+export const otpLanded = (celebrate: InputOTPCelebrate) => (celebrate === "quiet" ? 0 : celebrate === "join" ? JOIN_AT + 280 : JOIN_AT + 780);
 const ease = "var(--ad-ease)";
 
 /**
@@ -104,8 +103,8 @@ export function InputOTP({
   const locked = disabled || s === "checking" || s === "success";
   const sync = () => setSel(inner.current?.selectionStart ?? value.length);
   const ok = s === "success";
-  // After the colour sweep, join and seal close the gaps so the code reads as one piece.
-  const joinAt = length * OTP_SWEEP + 120;
+  // Join and seal close the gaps so the code reads as one piece.
+  const joinAt = JOIN_AT;
   const joined = ok && celebrate !== "quiet";
   const r = "var(--ad-radius-control)";
   return (
@@ -133,9 +132,9 @@ export function InputOTP({
             style={
               ok
                 ? {
-                    transition: `background-color 220ms ${ease} ${i * OTP_SWEEP}ms, color 220ms ${ease} ${i * OTP_SWEEP}ms, border-radius 280ms ${ease} ${joinAt}ms`,
+                    transition: `border-radius 280ms ${ease} ${joinAt}ms`,
                     borderRadius: joined ? (i === 0 ? `${r} 0 0 ${r}` : i === length - 1 ? `0 ${r} ${r} 0` : 0) : undefined,
-                    // Seal: once the green bar covers them, the boxes go so only the circle is left.
+                    // Seal: once the bar covers them, the boxes go so only the circle is left.
                     animation: celebrate === "seal" ? `ad-otp-hide 1ms linear ${joinAt + 380}ms forwards` : undefined,
                   }
                 : { animationDelay: s === "checking" ? `${i * 90}ms` : undefined }
@@ -145,13 +144,11 @@ export function InputOTP({
               size === "touch" ? "text-[24px]" : "text-number",
               s === "invalid"
                 ? "bg-danger-soft text-danger"
-                : ok
-                  ? "bg-success-soft text-success"
-                  : s === "checking"
-                    ? "animate-[ad-otp-wave_900ms_ease-in-out_infinite] bg-fill text-ink"
-                    : typing && i === Math.min(value.length, at)
-                      ? "bg-fill-strong text-ink"
-                      : "bg-fill text-ink",
+                : s === "checking"
+                  ? "animate-[ad-otp-wave_900ms_ease-in-out_infinite] bg-fill text-ink"
+                  : typing && i === Math.min(value.length, at)
+                    ? "bg-fill-strong text-ink"
+                    : "bg-fill text-ink",
             )}
           >
             {chars[i] ? (
@@ -166,7 +163,7 @@ export function InputOTP({
       {ok && celebrate === "seal" ? (
         <span
           aria-hidden
-          className="absolute inset-0 grid place-items-center bg-success-soft text-success"
+          className="absolute inset-0 grid place-items-center bg-fill text-success"
           style={{ animation: `ad-otp-seal 520ms ${ease} ${joinAt + 200}ms both` }}
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">

@@ -1,9 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/ad";
-
-// fill on a surface in light; in dark, fill sits too close to the surface at the pulse's low point, so it takes fill-strong.
-// On a fill surface (attention rows, a filled card) pass `onFill`: the bar is fill-strong in both themes.
-const pulse = (onFill?: boolean) => cn("animate-ad-pulse", onFill ? "bg-fill-strong" : "bg-fill dark:bg-fill-strong");
+import { cn, skeletonFill, skeletonText } from "@/lib/ad";
 
 export interface SkeletonToneProps {
   /** The skeleton sits on a fill (not a surface): the bar takes fill-strong so it still shows. */
@@ -12,7 +8,7 @@ export interface SkeletonToneProps {
 
 /** A pulsing block. Give it the exact size of what will load. */
 export function Skeleton({ className, onFill, ...props }: React.HTMLAttributes<HTMLDivElement> & SkeletonToneProps) {
-  return <div aria-hidden className={cn("rounded-item", pulse(onFill), className)} {...props} />;
+  return <div aria-hidden className={cn("rounded-item", skeletonFill(onFill), className)} {...props} />;
 }
 
 /**
@@ -25,16 +21,16 @@ export function Loading({ loading, onFill, children, className }: { loading: boo
   return (
     <span aria-busy className={cn("relative inline-flex max-w-full align-top", className)}>
       <span className="invisible inline-flex max-w-full">{children}</span>
-      <span aria-hidden className={cn("absolute inset-0 rounded-small", pulse(onFill))} />
+      <span aria-hidden className={cn("absolute inset-0 rounded-small", skeletonFill(onFill))} />
     </span>
   );
 }
 
-/** Text that pulses in place while loading: same line box, same width. */
+/** Text that pulses in place while loading: same line box and width, a bar at letter height. */
 export function LoadingText({ loading, onFill, children, className }: { loading: boolean; children: React.ReactNode; className?: string } & SkeletonToneProps) {
   if (!loading) return <>{children}</>;
   return (
-    <span aria-busy className={cn("rounded-small text-transparent [box-decoration-break:clone] select-none", pulse(onFill), className)}>
+    <span aria-busy className={cn(skeletonText(onFill), className)}>
       {children}
     </span>
   );

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { X } from "react-feather";
-import { cn } from "@/lib/ad";
+import { cn, fieldChipClass } from "@/lib/ad";
 import { fieldBoxClass } from "@/components/ui/input";
 
 export interface TagInputProps {
@@ -30,7 +30,7 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
         className={cn(fieldBoxClass(), "h-auto min-h-control cursor-text flex-wrap gap-1 py-nest pl-nest")}
       >
         {value.map((t) => (
-          <span key={t} className="inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-sel pl-bubble-sm pr-1 text-body text-ink shadow-sel">
+          <span key={t} className={fieldChipClass}>
             <span className="max-w-40 truncate">{t}</span>
             <button
               type="button"

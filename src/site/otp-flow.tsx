@@ -17,7 +17,7 @@ export type OtpForce = "live" | "checking" | "wrong" | "open";
 /**
  * The playable one-time code flow (site only): a WhatsApp message with the code fills the boxes on tap (or type it),
  * checking waves across the boxes, a wrong code shakes red and clears, three wrong tries lock it until a new code,
- * the right one turns the boxes green. Centred: boxes, one status line, one quiet action.
+ * the right one locks the boxes and a green check says so. Centred: boxes, one status line, one quiet action.
  */
 export function OtpFlow({
   length = 6,
@@ -157,7 +157,7 @@ export function OtpFlow({
             Too many tries. Send a new code.
           </span>
         ) : null}
-        {shown.notice === "open" ? <Opened delay={otpLanded(length, celebrate)} icon={celebrate !== "seal"} text={done} /> : null}
+        {shown.notice === "open" ? <Opened delay={otpLanded(celebrate)} icon={celebrate !== "seal"} text={done} /> : null}
       </div>
       {shown.phase === "open" ? (
         <Button
@@ -165,7 +165,7 @@ export function OtpFlow({
           variant="ghost"
           onClick={() => live && reset()}
           className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
-          style={{ animationDelay: `${otpLanded(length, celebrate) + 200}ms` }}
+          style={{ animationDelay: `${otpLanded(celebrate) + 200}ms` }}
         >
           Start over
         </Button>
@@ -205,9 +205,10 @@ export function OtpFlow({
 function Opened({ delay, icon, text }: { delay: number; icon: boolean; text: string }) {
   const draw = (at: number) => ({ animation: `ad-otp-draw 320ms var(--ad-ease) ${delay + at}ms forwards` });
   return (
-    <span className="flex items-center gap-1.5 font-medium text-success">
+    <span className="flex items-center gap-1.5 font-medium text-ink">
       {icon ? (
         <svg
+          className="text-success"
           width="16"
           height="16"
           viewBox="0 0 24 24"

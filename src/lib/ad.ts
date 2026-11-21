@@ -23,6 +23,17 @@ export function cn(...inputs: ClassValue[]) {
   return merge(clsx(inputs));
 }
 
+// Loading fills. In dark, fill sits too close to a surface at the pulse's low point, so it takes fill-strong. On a fill
+// (an attention row, a filled square) pass onFill: the bar is fill-strong in both themes.
+// The class names stay whole: Tailwind only generates the ones it can read in the source.
+/** A pulsing block: thumbnails, checkboxes, chart bars. */
+export const skeletonFill = (onFill?: boolean) => cn("animate-ad-pulse", onFill ? "bg-fill-strong" : "bg-fill dark:bg-fill-strong");
+/** Loading text: keeps the text's exact box and draws one bar at letter height, so stacked lines keep their gap. */
+export const skeletonText = (onFill?: boolean) => cn("ad-skel", onFill ? "after:bg-fill-strong" : "after:bg-fill dark:after:bg-fill-strong");
+/** A removable chip inside a field. Surface, so it still reads when the field darkens or lightens on hover and focus. */
+export const fieldChipClass =
+  "inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-surface pl-bubble-sm pr-1 text-body text-ink shadow-sel";
+
 /* ---------------------------------------------------------------- numbers */
 
 /** The one locale for figures: "12.400.000", "48,2". Change it here and every component follows. */
