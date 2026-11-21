@@ -406,6 +406,8 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
   useEdgeFade(listRef, enabled);
   const openRef = React.useRef(open);
   openRef.current = open;
+  const widthRef = React.useRef(W);
+  widthRef.current = W;
 
   const clear = () => (window.clearTimeout(enterT.current), window.clearTimeout(leaveT.current), (leaveT.current = undefined));
   const show = React.useCallback((m: "hover" | "pinned") => {
@@ -437,7 +439,9 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
   React.useEffect(() => {
     const over = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" || !openRef.current) return;
-      if (inside(e.target, panelRef.current, flapRef.current)) {
+      // Mid-slide the panel isn't under the pointer yet: the strip it is sliding into already counts as inside, or a
+      // slow frame closes the flap the pointer just opened.
+      if (inside(e.target, panelRef.current, flapRef.current) || e.clientX < widthRef.current) {
         window.clearTimeout(leaveT.current);
         leaveT.current = undefined;
       } else closeSoon();

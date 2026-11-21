@@ -1,19 +1,76 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Typecheck, lint, unit, docs drift (README + docs/components.md), grey ramp, dead exports, build, headless smoke on its own port.
-# Cheapest first; stops at the first failure. Heavy: run it as a background job (see AGENTS.md).
-set -euo pipefail
+# The one gate: typecheck, unit, lint, docs drift (README + docs/components.md), grey ramp, dead exports, build, headless
+# smoke on a free port. Cheapest first; stops at the first failure. Heavy: run it as a background job (see AGENTS.md).
+#   ./scripts/verify                 every step
+#   ./scripts/verify --only <step>   one step (smoke builds first)
+# A failure ends with one line: GATE FAIL alora-design-verify: <step> | log: <path> | rerun: <command>
+set -uo pipefail
 cd "$(dirname "$0")/.."
-. scripts/env.sh
+steps=(typecheck unit lint docs greys knip build smoke)
+usage() { echo "usage: $0 [--only <step>], steps: ${steps[*]}" >&2; exit 2; }
+only=
+case "${1:-}" in
+  "") ;;
+  --only)
+    only=${2:-} known=0
+    for step in "${steps[@]}"; do [ "$step" != "$only" ] || known=1; done
+    [ "$known" = 1 ] && [ $# -eq 2 ] || usage ;;
+  *) usage ;;
+esac
+if [ -n "$only" ]; then
+  case $only in
+    smoke) steps=(build smoke) ;;
+    build) steps=(build); NEEDS_BROWSER=0 ;;
+    *) steps=("$only"); NEEDS_BROWSER=0 ;;
+  esac
+fi
+logs=$(mktemp -d "${TMPDIR:-/tmp}/alora-design-verify.XXXXXX")
+# The queue keeps a failed job's $TMPDIR logs on Yoga; a Mac job's output is in its job log.
+where() {
+  if [ -z "${JOBQ_ID:-}" ]; then echo "$1"
+  elif [ "${JOBQ_HOST:-}" = mac ]; then echo "job log $JOBQ_ID"
+  else echo "${JOBQ_STATE:-$HOME/.local/state/jobq}/logs/$JOBQ_ID-$JOBQ_ATTEMPT.files/${1#"$TMPDIR"/}"; fi
+}
+# Setup runs once on its own so a failed install gets the same last line; then this shell takes its Node.
+export NEEDS_BROWSER="${NEEDS_BROWSER:-1}"
+bash -c 'set -e; . scripts/env.sh' > "$logs/setup.log" 2>&1
+setup=$?
+if [ "$setup" -ne 0 ]; then
+  tail -n 25 "$logs/setup.log"
+  echo "GATE FAIL alora-design-verify: setup | log: $(where "$logs/setup.log") | rerun: npm ci --no-audit --no-fund"
+  exit 1
+fi
+NEEDS_BROWSER=0 . scripts/env.sh
+set +e # env.sh turns it on; each step's status is read below.
 export SITE_DIST="${TMPDIR:-/tmp}/alora-design-verify-site"
 trap 'rm -rf "$SITE_DIST"' EXIT
-step() { echo "== $1"; }
-step typecheck; npx tsc -p tsconfig.json --noEmit
-step unit; node scripts/unit.mjs
-step lint; npx eslint .
-step docs; node scripts/gen-docs.mjs --check
-step greys; node scripts/greys.mjs --check
-step knip; npx knip --no-progress
-step build; npx vite build --logLevel warn --outDir "$SITE_DIST" --emptyOutDir
-step smoke; node scripts/smoke.mjs
+
+run() {
+  case $1 in
+    typecheck) npx tsc -p tsconfig.json --noEmit ;;
+    unit) node scripts/unit.mjs ;;
+    lint) npx eslint . ;;
+    docs) node scripts/gen-docs.mjs --check ;;
+    greys) node scripts/greys.mjs --check ;;
+    knip) npx knip --no-progress ;;
+    build) npx vite build --logLevel warn --outDir "$SITE_DIST" --emptyOutDir ;;
+    smoke) node scripts/smoke.mjs ;;
+  esac
+}
+for step in "${steps[@]}"; do
+  echo "== $step"
+  run "$step" 2>&1 | tee "$logs/$step.log"
+  [ "${PIPESTATUS[0]}" -eq 0 ] && continue
+  name=$step
+  if [ "$step" = smoke ]; then
+    # The first failed check, without its measurements.
+    first=$(grep -m1 '^FAIL ' "$logs/smoke.log" | sed -E 's/^FAIL //; s/ \(.*//' | cut -c1-70)
+    more=$(($(grep -c '^FAIL ' "$logs/smoke.log") - 1))
+    if [ -n "$first" ]; then name="smoke: $first"; [ "$more" -le 0 ] || name="$name (+$more more)"
+    else name="smoke: crashed before its summary"; fi
+  fi
+  echo "GATE FAIL alora-design-verify: $name | log: $(where "$logs/$step.log") | rerun: ./scripts/verify --only $step"
+  exit 1
+done
 echo "VERIFY PASS"
