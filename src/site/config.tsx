@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link, useLocation, useNavigate, useSearchParams, type LinkProps } from "react-router";
 import { inlineTokens, parseConfig, serializeConfig, type Config } from "@/lib/config";
+import { crossfadeTheme } from "@/components/ui/theme-switch";
 
 export const shapedSupported = () => typeof CSS !== "undefined" && CSS.supports("corner-shape", "squircle");
 
@@ -43,11 +44,15 @@ export function useConfig(): [Config, (patch: Partial<Config>) => void] {
   const config = React.useMemo(() => parseConfig(params), [params]);
   const set = React.useCallback(
     (patch: Partial<Config>) => {
-      const next = { ...(draft ?? config), ...patch };
-      applyTokens(document.documentElement, next);
-      setDraft(next);
-      const q = serializeConfig(next);
-      navigate({ pathname: location.pathname, search: q ? `?${q}` : "", hash: location.hash }, { replace: true, preventScrollReset: true });
+      const commit = () => {
+        const next = { ...(draft ?? config), ...patch };
+        applyTokens(document.documentElement, next);
+        setDraft(next);
+        const q = serializeConfig(next);
+        navigate({ pathname: location.pathname, search: q ? `?${q}` : "", hash: location.hash }, { replace: true, preventScrollReset: true });
+      };
+      if (patch.theme && patch.theme !== (draft ?? config).theme) crossfadeTheme(commit);
+      else commit();
     },
     [config, navigate, location.pathname, location.hash],
   );

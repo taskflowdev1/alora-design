@@ -20,7 +20,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
-import { PRODUCTS } from "../data";
+import { PRODUCTS, productPhoto } from "../data";
 import { useLoading } from "./shared";
 
 /* ------------------------------------------------------------ products */
@@ -111,7 +111,7 @@ export function Products() {
                   <TD>
                     <span className="flex items-center gap-3">
                       <Loading loading={loading}>
-                        <Thumb alt={p.name} size={28} />
+                        <Thumb src={productPhoto(p.sku)} alt={p.name} size={28} />
                       </Loading>
                       <span className="max-w-[240px] truncate">
                         <L>{p.name}</L>

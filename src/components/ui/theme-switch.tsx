@@ -38,6 +38,49 @@ function changedBox(within: Element | null | undefined, live: HTMLElement | null
   return box ?? whole;
 }
 
+/** How long the full-page theme crossfade takes (ms). */
+const THEME_FADE = 240;
+
+/**
+ * Changes the whole page's theme with one short crossfade: the new page fades in over a still picture of the old one, so
+ * every colour moves together instead of element by element. A second switch finishes the first at once and the last one
+ * wins. Without the View Transitions API, or with reduced motion, it swaps instantly.
+ */
+export function crossfadeTheme(apply: () => void, duration = THEME_FADE) {
+  const root = document.documentElement;
+  const mine = ++generation;
+  running?.skipTransition?.();
+  running = null;
+  const done = () => {
+    root.classList.remove("ad-theme-fade");
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (mine === generation) root.classList.remove("ad-theme-switch");
+      }),
+    );
+  };
+  root.classList.add("ad-theme-switch");
+  const doc = document as DocVT;
+  if (!doc.startViewTransition || prefersReducedMotion()) {
+    flushSync(apply);
+    void getComputedStyle(root).backgroundColor;
+    return done();
+  }
+  root.classList.add("ad-theme-fade");
+  const t = doc.startViewTransition(() => flushSync(apply));
+  running = t;
+  t.ready
+    .then(() => root.animate({ opacity: [0, 1] }, { duration, easing: "ease-out", pseudoElement: "::view-transition-new(root)" }))
+    .catch(() => {});
+  t.finished
+    .catch(() => {})
+    .finally(() => {
+      if (mine !== generation) return;
+      running = null;
+      done();
+    });
+}
+
 /**
  * Applies a theme change so it spreads from a point: the new theme is revealed by a circle centred on `origin` (the
  * option you tapped) with the View Transitions API, over 500 ms at an even pace with soft ends. Pass `within` when only part

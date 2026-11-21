@@ -57,8 +57,8 @@ import { MobileOnboardingPager } from "@/components/mobile/mobile-pager";
 import { MobileStatTile } from "@/components/mobile/mobile-stats";
 import { MobileScrubChart } from "@/components/mobile/mobile-scrub-chart";
 import { CountBadge } from "@/components/mobile/mobile-badge";
-import { HOURLY, ORDERS, PRODUCTS, SHOPS } from "./data";
-import { APPROVALS, SHIFTS, productPhoto, weekDay, type Approval } from "./mobile-data";
+import { HOURLY, ORDERS, PRODUCTS, SHOPS, productPhoto } from "./data";
+import { APPROVALS, SHIFTS, weekDay, type Approval } from "./mobile-data";
 import { COURIERS, ScreenEmpty, useNav, type ScreenProps } from "./mobile-app-kit";
 
 /* ------------------------------------------------------------ More */

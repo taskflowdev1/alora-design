@@ -48,7 +48,7 @@ import { Trace } from "@/components/ui/trace";
 import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
 import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
-import { CUP_PHOTOS, NOW, ORDERS } from "./data";
+import { CUP_PHOTOS, NOW, ORDERS, productPhoto } from "./data";
 import type { Demo } from "./demos";
 import { BY_CHANNEL, BY_HOUR, CHANNELS, ORDER_COLUMNS, SALES_14, SALES_SERIES, SHOP_SCORES, SHOP_SERIES, TARGETS } from "./showcase-more";
 
@@ -428,11 +428,11 @@ export const MORE_DEMOS: Record<string, Demo> = {
     render: (p) => (
       <ItemList className="w-80">
         {[
-          ["Gerabah Kasongan", "Clay mugs, plates", "3 open"],
-          ["Rotan Cirebon", "Baskets, trays", "1 open"],
-          ["Tenun Troso", "Table linen", "Paid"],
-        ].map(([n, d, s]) => (
-          <Item key={n} asChild variant={p.variant as "plain"} media={<Thumb alt={n} />} title={n} description={p.description ? d : undefined} end={<span className="text-ink-muted">{s}</span>}>
+          ["Gerabah Kasongan", "Clay mugs, plates", "3 open", "RMB-GL-014"],
+          ["Rotan Cirebon", "Baskets, trays", "1 open", "RMB-PR-022"],
+          ["Tenun Troso", "Table linen", "Paid", "RMB-TP-040"],
+        ].map(([n, d, s, sku]) => (
+          <Item key={n} asChild variant={p.variant as "plain"} media={<Thumb src={productPhoto(sku)} alt={n} />} title={n} description={p.description ? d : undefined} end={<span className="text-ink-muted">{s}</span>}>
             <button type="button" onClick={say(n)} className="w-full" />
           </Item>
         ))}

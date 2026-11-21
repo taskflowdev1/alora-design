@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/toast";
 import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
 import { CalendarMonth } from "@/components/ui/calendar-month";
-import { CALENDAR_EVENTS, NOW, ORDERS, TEAM, type Order } from "../data";
+import { CALENDAR_EVENTS, NOW, ORDERS, TEAM, itemPhoto, type Order } from "../data";
 import { shopName } from "./shared";
 
 /* ------------------------------------------------------------ B5 packing board */
@@ -23,7 +23,7 @@ export function BoardCard({ className }: { className?: string }) {
       key={o.id}
       title={o.items}
       id={o.id}
-      media={<Thumb alt={o.items} />}
+      media={<Thumb src={itemPhoto(o.items)} alt={o.items} />}
       tags={[shopName(o.shop)]}
       people={[{ name: TEAM[(i + 1) % 4].name }]}
       due={attention ? "Today" : "Tomorrow"}

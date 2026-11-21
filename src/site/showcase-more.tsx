@@ -62,7 +62,7 @@ import { CodeBlock } from "@/components/ui/code-block";
 import { BackPage, Head, Mark, PlainMarks, S, Tile, frame, type TileDef } from "./mark";
 import { MOTION_TILES } from "./showcase-motion";
 import { useConfig } from "./config";
-import { CUP_PHOTOS, DAILY, NOW, ORDERS, smartTime, type Order } from "./data";
+import { CUP_PHOTOS, DAILY, NOW, ORDERS, productPhoto, smartTime, type Order } from "./data";
 
 /* ------------------------------------------------------------ demo data (invented) */
 
@@ -469,12 +469,12 @@ function SuppliersTile({ className }: { className?: string }) {
       <Mark name="item">
         <ItemList>
           {[
-            ["Gerabah Kasongan", "Clay mugs, plates", "3 open"],
-            ["Rotan Cirebon", "Baskets, trays", "1 open"],
-            ["Tenun Troso", "Table linen", "Paid"],
-            ["Kayu Jepara", "Spoons, coasters", "Paid"],
-          ].map(([n, d, s]) => (
-            <Item key={n} asChild media={<Thumb alt={n} size={32} />} title={n} description={d} end={<span className="text-ink-muted">{s}</span>}>
+            ["Gerabah Kasongan", "Clay mugs, plates", "3 open", "RMB-GL-014"],
+            ["Rotan Cirebon", "Baskets, trays", "1 open", "RMB-PR-022"],
+            ["Tenun Troso", "Table linen", "Paid", "RMB-TP-040"],
+            ["Kayu Jepara", "Spoons, coasters", "Paid", "RMB-SP-003"],
+          ].map(([n, d, s, sku]) => (
+            <Item key={n} asChild media={<Thumb src={productPhoto(sku)} alt={n} size={32} />} title={n} description={d} end={<span className="text-ink-muted">{s}</span>}>
               <button type="button" onClick={say(n)} className="w-full" />
             </Item>
           ))}

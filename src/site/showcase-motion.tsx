@@ -29,6 +29,7 @@ import { Reactions, type Reaction } from "@/components/ui/reactions";
 import { TokenScope, useConfig } from "./config";
 import { Mark, S, Tile, type TileDef } from "./mark";
 import { SALES_14 } from "./showcase-more";
+import { productPhoto } from "./data";
 
 /* ------------------------------------------------------------ number dial */
 
@@ -73,10 +74,10 @@ export function DialInUse({ preset = "quantity", sound = false, blur = false, cl
   due.setDate(due.getDate() + value);
   const head =
     preset === "quantity"
-      ? { title: "Gelas kopi tanah liat", meta: `${formatRp(MUG_PRICE)} each` }
+      ? { title: "Gelas kopi tanah liat", meta: `${formatRp(MUG_PRICE)} each`, photo: productPhoto("RMB-GL-014") }
       : preset === "days"
-        ? { title: "Keramik Plered", meta: "Pays by bank transfer" }
-        : { title: "Sales report", meta: "All shops" };
+        ? { title: "Keramik Plered", meta: "Pays by bank transfer", photo: productPhoto("RMB-VS-012") }
+        : { title: "Sales report", meta: "All shops", photo: undefined };
   const foot =
     preset === "quantity"
       ? { label: "Line total", value: <RollingNumber value={value * MUG_PRICE} format={formatRp} />, action: "Add to order", done: `${value} pcs added to PO-0418` }
@@ -86,7 +87,7 @@ export function DialInUse({ preset = "quantity", sound = false, blur = false, cl
   return (
     <div className={cn("grid w-full gap-4", className)}>
       <div className="flex min-w-0 items-center gap-3">
-        <Thumb alt={head.title} size={40} />
+        <Thumb src={head.photo} alt={head.title} size={40} />
         <div className="grid min-w-0">
           <span className="truncate text-body font-medium text-ink">{head.title}</span>
           <span className="truncate text-small text-ink-muted">{head.meta}</span>

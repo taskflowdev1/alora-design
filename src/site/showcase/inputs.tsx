@@ -17,7 +17,7 @@ import { CheckboxField } from "@/components/ui/checkbox";
 import { Radio, RadioGroup } from "@/components/ui/radio";
 import { Slider } from "@/components/ui/slider";
 import { Thumb } from "@/components/ui/thumb";
-import { NOW, ORDERS, PRODUCTS, SHOPS } from "../data";
+import { NOW, ORDERS, PRODUCTS, SHOPS, itemPhoto } from "../data";
 import { Head, Mark, Tile } from "../mark";
 
 /* ------------------------------------------------------------ Inputs */
@@ -121,7 +121,7 @@ export function FindTile({ className }: { className?: string }) {
           .slice(0, 4)
           .map((o) => (
             <div key={o.id} className="flex h-row items-center gap-3 rounded-item px-2 text-body hover:bg-fill">
-              <Thumb alt={o.items} size={24} />
+              <Thumb src={itemPhoto(o.items)} alt={o.items} size={24} />
               <span className="min-w-0 flex-1 truncate">{o.items}</span>
               <span className="shrink-0 tabular-nums text-ink-muted">{o.id}</span>
             </div>

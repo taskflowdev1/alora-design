@@ -51,8 +51,8 @@ import { MobileTimeline } from "@/components/mobile/mobile-timeline";
 import { MobilePhotoSheet, MobilePhotoStrip, type Photo } from "@/components/mobile/mobile-photo-picker";
 import { MobileTextField } from "@/components/mobile/mobile-text-field";
 import { MobileSignaturePad } from "@/components/mobile/mobile-signature";
-import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, smartTime, type Order } from "./data";
-import { CAMERA_ROLL, CUSTOMERS, NOTIFS, productPhoto, type Notif } from "./mobile-data";
+import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, productPhoto, smartTime, type Order } from "./data";
+import { CAMERA_ROLL, CUSTOMERS, NOTIFS, type Notif } from "./mobile-data";
 import { COURIERS, CourierPicker, OrderThumb, ScreenEmpty, SectionTitle, rowTime, short, smartDay, useNav, type ScreenProps } from "./mobile-app-kit";
 
 /* ------------------------------------------------------------ Home */

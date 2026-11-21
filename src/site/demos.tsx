@@ -64,7 +64,7 @@ import { Menu, MenuGroup, MenuItem, MenuLabel, MenuSub } from "@/components/ui/m
 import { Toolbar, ToolbarSpacer, PageHeader } from "@/components/ui/toolbar";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
-import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, smartTime, type OrderStatus } from "./data";
+import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, itemPhoto, productPhoto, smartTime, type OrderStatus } from "./data";
 import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
 import { MOBILE_DEMOS } from "./demos-mobile";
@@ -632,7 +632,7 @@ export const DEMOS: Record<string, Demo> = {
           {PRODUCTS.filter((p) => p.stock < 5)
             .slice(0, 4)
             .map((p) => (
-              <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={<span translate="no">{p.sku}</span>} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
+              <AttentionItem key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} />} title={p.name} meta={<span translate="no">{p.sku}</span>} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => {}} />
             ))}
         </AttentionList>
       </Card>
@@ -718,9 +718,9 @@ export const DEMOS: Record<string, Demo> = {
   thumb: {
     render: () => (
       <div className="flex items-center gap-3">
-        <Thumb alt="Gelas kopi" size={48} />
-        <Thumb alt="Piring rotan" size={32} />
-        <Thumb alt="Lilin" size={24} />
+        <Thumb src={itemPhoto("Gelas kopi")} alt="Gelas kopi" size={48} />
+        <Thumb src={itemPhoto("Piring rotan")} alt="Piring rotan" size={32} />
+        <Thumb src={itemPhoto("Lilin")} alt="Lilin" size={24} />
       </div>
     ),
     usage: () => `<Thumb src={product.image} alt={product.name} size={32} />`,
@@ -967,7 +967,7 @@ export function OrderDetail({ id, status }: { id: string; status?: OrderStatus }
       <div className="grid gap-1.5">
         <h3 className="text-body font-semibold">Items</h3>
         <div className="flex items-center gap-3 rounded-item bg-fill px-2.5 py-2">
-          <Thumb alt={o.items} />
+          <Thumb src={itemPhoto(o.items)} alt={o.items} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-body">{o.items}</p>
             <p className="text-small tabular-nums text-ink-muted">

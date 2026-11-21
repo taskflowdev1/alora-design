@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast, ToastView } from "@/components/ui/toast";
 import { MobileTab, MobileTabBar } from "@/components/mobile/mobile-tab-bar";
 import { InlineEdit, grouped } from "@/components/ui/inline-edit";
-import { ORDERS, PRODUCTS } from "../data";
+import { ORDERS, PRODUCTS, itemPhoto, productPhoto } from "../data";
 
 /* ------------------------------------------------------------ B14 products, edit in place */
 
@@ -41,7 +41,7 @@ export function ProductsCard({ className }: { className?: string }) {
               </TD>
               <TD maxWidth={240}>
                 <span className="flex min-w-0 items-center gap-2.5">
-                  <Thumb alt={r.name} size={24} />
+                  <Thumb src={productPhoto(r.sku)} alt={r.name} size={24} />
                   <span className="truncate">{r.name}</span>
                 </span>
               </TD>
@@ -103,7 +103,7 @@ export function LowStockCard({ className }: { className?: string }) {
       <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
       <AttentionList>
         {low.map((p) => (
-          <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => toast(`Restock ${p.name}`, "neutral")} />
+          <AttentionItem key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={() => toast(`Restock ${p.name}`, "neutral")} />
         ))}
       </AttentionList>
     </Card>
@@ -120,7 +120,7 @@ export function PhoneCard({ className }: { className?: string }) {
         <CardHeader title="To pack" action={<Badge>3</Badge>} className="px-2 pt-2" />
         {ORDERS.slice(0, 3).map((o) => (
           <div key={o.id} className="flex items-center gap-2.5 rounded-item bg-fill px-2.5 py-2">
-            <Thumb alt={o.items} />
+            <Thumb src={itemPhoto(o.items)} alt={o.items} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-body">{o.items}</p>
               <p className="text-small tabular-nums text-ink-muted">{o.id}</p>

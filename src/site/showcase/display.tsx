@@ -14,7 +14,7 @@ import { Alert } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Loading, LoadingText, Skeleton } from "@/components/ui/skeleton";
-import { DAILY, ORDERS, PRODUCTS, TEAM, smartTime } from "../data";
+import { DAILY, ORDERS, PRODUCTS, TEAM, itemPhoto, productPhoto, smartTime } from "../data";
 import { Head, Mark, Tile, stack } from "../mark";
 import { tone } from "./actions";
 import { say } from "./shared";
@@ -65,10 +65,10 @@ export function TableTile({ className }: { className?: string }) {
                   <span className="flex min-w-0 items-center gap-2.5">
                     {i === 0 ? (
                       <Mark name="thumb" className="shrink-0">
-                        <Thumb alt={o.items} size={24} />
+                        <Thumb src={itemPhoto(o.items)} alt={o.items} size={24} />
                       </Mark>
                     ) : (
-                      <Thumb alt={o.items} size={24} />
+                      <Thumb src={itemPhoto(o.items)} alt={o.items} size={24} />
                     )}
                     <span className="truncate">{o.items}</span>
                   </span>
@@ -147,7 +147,7 @@ export function LowStockTile({ className }: { className?: string }) {
           {PRODUCTS.filter((p) => p.stock < 4)
             .slice(0, 3)
             .map((p) => (
-              <AttentionItem key={p.sku} media={<Thumb alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={say(p.name)} />
+              <AttentionItem key={p.sku} media={<Thumb src={productPhoto(p.sku)} alt={p.name} />} title={p.name} meta={p.sku} value={p.stock === 0 ? "Out" : `${p.stock} left`} onClick={say(p.name)} />
             ))}
         </AttentionList>
       </Mark>

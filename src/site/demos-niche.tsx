@@ -62,7 +62,7 @@ import { AvatarGroup } from "@/components/ui/avatar-group";
 import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
 import { CalendarMonth } from "@/components/ui/calendar-month";
-import { CALENDAR_EVENTS, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM } from "./data";
+import { CALENDAR_EVENTS, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM, itemPhoto } from "./data";
 import type { Demo } from "./demos";
 
 
@@ -173,7 +173,7 @@ function KanbanDemo() {
       key={o.id}
       title={o.items}
       id={o.id}
-      media={<Thumb alt={o.items} />}
+      media={<Thumb src={itemPhoto(o.items)} alt={o.items} />}
       tags={[o.shop]}
       people={[{ name: TEAM[i % 4].name }]}
       due={i === 0 ? "Today" : "Tomorrow"}
@@ -222,7 +222,7 @@ export const NICHE_DEMOS: Record<string, Demo> = {
       const [v, setV] = React.useState(2);
       return (
         <div className="flex items-center gap-4">
-          <Thumb alt="Gelas kopi" size={40} />
+          <Thumb src={itemPhoto("Gelas kopi")} alt="Gelas kopi" size={40} />
           <div className="grid">
             <span className="text-body">Gelas kopi tanah liat</span>
             <span className="text-small tabular-nums text-ink-muted">{formatRp(89000 * v)}</span>

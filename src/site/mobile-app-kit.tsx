@@ -2,8 +2,7 @@
 import * as React from "react";
 import { Truck } from "react-feather";
 import { MONTHS, cn, dayDiff, formatCompact, formatRp } from "@/lib/ad";
-import { NOW, PRODUCTS, smartTime, type Order } from "./data";
-import { productPhoto } from "./mobile-data";
+import { NOW, itemPhoto, productPhoto, smartTime, type Order, type PRODUCTS } from "./data";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Thumb } from "@/components/ui/thumb";
@@ -108,12 +107,7 @@ export function ScreenEmpty(props: React.ComponentProps<typeof EmptyState>) {
 
 /* ------------------------------------------------------------ demo rows */
 
-/** The product photo for an order's first item, so every product shown has its picture. */
-export const orderPhoto = (items: string) => {
-  const p = PRODUCTS.find((x) => items.startsWith(x.name));
-  return p ? productPhoto(p.sku) : undefined;
-};
-export const OrderThumb = ({ o }: { o: Order }) => <Thumb src={orderPhoto(o.items)} alt={o.items} size={40} />;
+export const OrderThumb = ({ o }: { o: Order }) => <Thumb src={itemPhoto(o.items)} alt={o.items} size={40} />;
 
 /** An order in a list: its photo, the customer, the time first (truncation never eats it) and the items, the total. */
 export const orderRow = (o: Order, onClick: () => void = () => {}) => (

@@ -59,9 +59,9 @@ import { MobileUploadRow } from "@/components/mobile/mobile-upload-row";
 import { MobileOnboardingPager } from "@/components/mobile/mobile-pager";
 import { MobileChatThread, MobileComposer, type MobileChatMessage } from "@/components/mobile/mobile-chat";
 import { MobileSnackbar } from "@/components/mobile/mobile-snackbar";
-import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, SHOPS, smartTime } from "./data";
-import { CAMERA_ROLL, CHATS, CUSTOMERS, productPhoto } from "./mobile-data";
-import { COURIERS, orderPhoto, orderRow, productRow } from "./mobile-app-kit";
+import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, SHOPS, productPhoto, smartTime, itemPhoto } from "./data";
+import { CAMERA_ROLL, CHATS, CUSTOMERS } from "./mobile-data";
+import { COURIERS, orderRow, productRow } from "./mobile-app-kit";
 import type { Demo } from "./demos";
 
 const TO_PACK = PAID_ORDERS.slice(0, 10);
@@ -287,7 +287,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
                   ]}
                 >
                   <MobileListRow
-                    media={<Thumb src={orderPhoto(o.items)} alt={o.items} size={40} />}
+                    media={<Thumb src={itemPhoto(o.items)} alt={o.items} size={40} />}
                     title={o.customer}
                     subtitle={o.items}
                     onClick={() => {}}

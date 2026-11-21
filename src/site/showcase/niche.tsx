@@ -34,7 +34,7 @@ import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
-import { CALENDAR_EVENTS, MARKET_SHOPS, NOTICES, NOW, ORDERS, PRODUCTS, SPARK, TEAM, type Order } from "../data";
+import { CALENDAR_EVENTS, MARKET_SHOPS, NOTICES, NOW, ORDERS, PRODUCTS, SPARK, TEAM, itemPhoto, type Order } from "../data";
 import { CommentsDemo } from "../demos-niche";
 import { Head, Mark, Tile, stack } from "../mark";
 import { say } from "./shared";
@@ -367,7 +367,7 @@ export function CalendarTile({ className }: { className?: string }) {
 
 export function PackStack({ className }: { className?: string }) {
   const card = (o: Order, i: number) => (
-    <KanbanCard key={o.id} title={o.items} id={o.id} media={<Thumb alt={o.items} />} tags={[o.shop]} people={[{ name: TEAM[i % 4].name }]} due={i === 0 ? "Today" : "Tomorrow"} attention={i === 0} onClick={say(o.id)} />
+    <KanbanCard key={o.id} title={o.items} id={o.id} media={<Thumb src={itemPhoto(o.items)} alt={o.items} />} tags={[o.shop]} people={[{ name: TEAM[i % 4].name }]} due={i === 0 ? "Today" : "Tomorrow"} attention={i === 0} onClick={say(o.id)} />
   );
   return (
     <div className={cn(stack, "lg:grid-rows-[1fr_auto] [&>*:last-child]:h-auto", className)}>

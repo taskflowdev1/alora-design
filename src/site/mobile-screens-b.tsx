@@ -31,8 +31,8 @@ import { MobilePersonRow } from "@/components/mobile/mobile-person-row";
 import { MobileTopTabs, MobileTabPager } from "@/components/mobile/mobile-top-tabs";
 import { MobileContextMenu } from "@/components/mobile/mobile-context-menu";
 import { MobileChatThread, MobileComposer, type MobileChatMessage } from "@/components/mobile/mobile-chat";
-import { DAILY, ORDERS, PRODUCTS, SHOPS } from "./data";
-import { CAMERA_ROLL, CHATS, CUSTOMERS, productPhoto, type Chat } from "./mobile-data";
+import { DAILY, ORDERS, PRODUCTS, SHOPS, productPhoto, productPhotos } from "./data";
+import { CAMERA_ROLL, CHATS, CUSTOMERS, type Chat } from "./mobile-data";
 import { OrderThumb, ScreenEmpty, rowTime, short, useNav, type ScreenProps } from "./mobile-app-kit";
 
 type Product = (typeof PRODUCTS)[number];
@@ -121,7 +121,7 @@ export function ProductScreen({ params, back }: ScreenProps) {
   const { products } = useProducts();
   const p = products.find((x) => x.sku === params.sku) ?? products[0];
   const [edit, setEdit] = React.useState(params.edit === "1");
-  const photos = [0, 1, 2].map((a) => productPhoto(p.sku, a));
+  const photos = productPhotos(p.sku).slice(0, 3);
   const days = DAILY.slice(-14).map((d, i) => ({ label: `${d.label} Nov`, value: Math.max(0, Math.round((d.value / 9) * (1 + ((i + p.price) % 3) * 0.2))), display: "" }));
   const sold = days.reduce((s, d) => s + d.value, 0);
   // The shops' stock adds up to the total (half, about a third, the rest).
@@ -180,7 +180,7 @@ export function ProductScreen({ params, back }: ScreenProps) {
 function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { product: Product; open: boolean; onOpenChange: (o: boolean) => void; isNew?: boolean }) {
   const nav = useNav();
   const { update, add } = useProducts();
-  const initial = React.useMemo<Photo[]>(() => (isNew ? [] : [0, 1].map((a) => ({ id: `${p.sku}-${a}`, src: productPhoto(p.sku, a), alt: `${p.name}, photo ${a + 1}` }))), [p, isNew]);
+  const initial = React.useMemo<Photo[]>(() => (isNew ? [] : productPhotos(p.sku).slice(0, 2).map((src, a) => ({ id: `${p.sku}-${a}`, src, alt: `${p.name}, photo ${a + 1}` }))), [p, isNew]);
   const [photos, setPhotos] = React.useState<Photo[]>(initial);
   const [roll, setRoll] = React.useState<Photo[]>(CAMERA_ROLL);
   const [name, setName] = React.useState(p.name);

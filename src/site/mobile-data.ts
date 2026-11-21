@@ -1,43 +1,11 @@
 // Invented data for the Mobile example app (Rimba, a made-up homeware shop with three stores and three marketplace
 // shops). Every name, number and message here is made up. "Now" is data.ts's NOW (Monday 16 Nov 2026, 14:20).
-import { NOW, PRODUCTS } from "./data";
+import { NOW, PRODUCTS, productPhotos } from "./data";
 
 const at = (days: number, h: number, m = 0) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + days, h, m);
 
-/* ------------------------------------------------------------ product photos (image content, not UI colour) */
-
-// Earthy studio backdrops and object colours for the drawn product photos.
-const BACKDROPS = ["#efe4d6", "#e6ddd0", "#e9e0cf", "#ede2d9", "#e3e7dc", "#ece3d3"]; // grey-ok: photo content
-const OBJECTS = ["#b0714a", "#c79a63", "#a7824f", "#d9c9a8", "#8a5a3a", "#6f8a5c", "#c4a27a", "#9b6b43"]; // grey-ok: photo content
-const SHADOW = "#000000"; // grey-ok: photo content
-
-// Highlights on the drawn objects are white paint in the photo (image content, not a UI grey).
-const HI = "#ffffff"; // grey-ok: photo content
-const shapes: Record<string, (c: string) => string> = {
-  GL: (c) => `<rect x="105" y="110" width="80" height="96" rx="14" fill="${c}"/><path d="M185 132h14a18 18 0 0 1 0 36h-14" fill="none" stroke="${c}" stroke-width="12"/>`,
-  PR: (c) => `<ellipse cx="150" cy="170" rx="96" ry="34" fill="${c}"/><ellipse cx="150" cy="164" rx="70" ry="22" fill="${HI}" opacity=".18"/>`,
-  KR: (c) => `<path d="M88 120h124l-16 92H104z" fill="${c}"/><path d="M96 150h108M100 180h100" stroke="${HI}" stroke-opacity=".25" stroke-width="6"/>`,
-  LL: (c) => `<rect x="118" y="112" width="64" height="96" rx="10" fill="${c}"/><path d="M150 82c10 12 10 22 0 28c-10-6-10-16 0-28z" fill="#f2b25c"/>`,
-  TT: (c) => `<ellipse cx="150" cy="190" rx="70" ry="16" fill="${c}"/><ellipse cx="150" cy="176" rx="70" ry="16" fill="${c}" opacity=".85"/><ellipse cx="150" cy="162" rx="70" ry="16" fill="${c}" opacity=".7"/>`,
-  MB: (c) => `<path d="M80 140h140a70 64 0 0 1-140 0z" fill="${c}"/>`,
-  TP: (c) => `<path d="M70 120q40-14 80 0t80 0v80q-40-14-80 0t-80 0z" fill="${c}"/><path d="M70 150q40-14 80 0t80 0" stroke="${HI}" stroke-opacity=".3" stroke-width="8" fill="none"/>`,
-  VS: (c) => `<path d="M132 84h36v18c26 14 34 40 26 70c-6 24-22 36-44 36s-38-12-44-36c-8-30 0-56 26-70z" fill="${c}"/>`,
-  SP: (c) => `<ellipse cx="112" cy="150" rx="30" ry="20" fill="${c}"/><rect x="136" y="144" width="100" height="12" rx="6" fill="${c}"/>`,
-  NP: (c) => `<rect x="70" y="128" width="160" height="70" rx="18" fill="${c}"/><path d="M90 150h120M90 172h120" stroke="${HI}" stroke-opacity=".22" stroke-width="6"/>`,
-};
-
-/** A drawn studio photo of a product (an SVG data URL), different per sku and angle. */
-export function productPhoto(sku: string, angle = 0) {
-  const i = PRODUCTS.findIndex((p) => p.sku === sku);
-  const type = sku.split("-")[1] ?? "GL";
-  const bg = BACKDROPS[(Math.max(0, i) + angle) % BACKDROPS.length];
-  const c = OBJECTS[(Math.max(0, i) * 3 + angle) % OBJECTS.length];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="${bg}"/><rect y="200" width="300" height="100" fill="${SHADOW}" opacity=".05"/><ellipse cx="150" cy="${angle % 2 ? 214 : 212}" rx="92" ry="12" fill="${SHADOW}" opacity=".12"/><g transform="translate(${(angle % 3) * 8 - 8} 0)">${(shapes[type] ?? shapes.GL)(c)}</g></svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-}
-
 /** The phone's camera roll for the photo picker: a few angles of every product. */
-export const CAMERA_ROLL = PRODUCTS.flatMap((p, i) => [0, 1].map((a) => ({ id: `${p.sku}-${a}`, src: productPhoto(p.sku, a + i), alt: `${p.name}, photo ${a + 1}` }))).slice(0, 17);
+export const CAMERA_ROLL = PRODUCTS.flatMap((p) => productPhotos(p.sku).slice(0, 2).map((src, a) => ({ id: `${p.sku}-${a}`, src, alt: `${p.name}, photo ${a + 1}` }))).slice(0, 17);
 
 /* ------------------------------------------------------------ customers */
 

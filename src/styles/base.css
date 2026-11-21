@@ -152,6 +152,15 @@ html {
 .ad-theme-switch, .ad-theme-switch *, .ad-theme-switch ::before, .ad-theme-switch ::after {
   transition: none !important;
 }
+/* The full-page theme crossfade (crossfadeTheme in theme-switch.tsx): the new page fades in over a still picture of the
+   old one, and presses go through to the real page so a second switch isn't lost. */
+.ad-theme-fade::view-transition-old(root), .ad-theme-fade::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.ad-theme-fade::view-transition {
+  pointer-events: none;
+}
 /* The press: a button, chip or tab shrinks a little while held (its active:scale-[…] sets how far) and eases back,
    with its hover fill on the same 150 ms. Tailwind's scale utilities set the `scale` property, so it is listed here
    next to `transform`. */

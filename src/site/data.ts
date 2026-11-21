@@ -41,6 +41,32 @@ export const PRODUCTS = [
   { sku: "RMB-NP-026", name: "Nampan anyaman bambu", price: 175000, stock: 4 },
 ];
 
+const photoSet = (type: string, count: number) => Array.from({ length: count }, (_, i) => `/photos/products/${type}-${i + 1}.webp`);
+const PRODUCT_PHOTOS: Record<string, string[]> = {
+  GL: CUP_PHOTOS.map((p) => p.src),
+  PR: photoSet("pr", 3),
+  KR: photoSet("kr", 3),
+  LL: photoSet("ll", 2),
+  TT: photoSet("tt", 1),
+  MB: photoSet("mb", 3),
+  TP: photoSet("tp", 3),
+  VS: photoSet("vs", 3),
+  SP: photoSet("sp", 3),
+  NP: photoSet("np", 2),
+};
+/** Every photo of a product (public/photos, all CC0). */
+export const productPhotos = (sku: string) => PRODUCT_PHOTOS[sku.split("-")[1]] ?? [];
+/** One photo of a product; a higher angle takes the next one and wraps. */
+export const productPhoto = (sku: string, angle = 0) => {
+  const photos = productPhotos(sku);
+  return photos[angle % photos.length];
+};
+/** The photo for an item name ("Taplak meja tenun ikat +1", "Gelas kopi"); undefined when it isn't a product. */
+export const itemPhoto = (name: string) => {
+  const p = PRODUCTS.find((x) => name.startsWith(x.name) || x.name.startsWith(name));
+  return p ? productPhoto(p.sku) : undefined;
+};
+
 const PAYMENTS = ["QRIS", "Bank transfer", "COD", "Debit", "ShopeePay", "Cash"];
 export type OrderStatus = "Paid" | "Packed" | "Shipped" | "Unpaid" | "Cancelled";
 

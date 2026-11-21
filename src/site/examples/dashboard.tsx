@@ -15,7 +15,7 @@ import { LoadingText, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Alert } from "@/components/ui/alert";
 import { ShopPicker } from "@/components/ui/shop-picker";
-import { DAILY, HOURLY, MARKET_SHOPS, ORDERS, PRODUCTS } from "../data";
+import { DAILY, HOURLY, MARKET_SHOPS, ORDERS, PRODUCTS, productPhoto } from "../data";
 import { NoTranslate, useLoading } from "./shared";
 
 /* ------------------------------------------------------------ dashboard */
@@ -132,7 +132,7 @@ export function Dashboard() {
             {low.map((p) => (
               <AttentionItem
                 key={p.sku}
-                media={loading ? <Skeleton onFill className="size-[32px] rounded-small" /> : <Thumb alt={p.name} />}
+                media={loading ? <Skeleton onFill className="size-[32px] rounded-small" /> : <Thumb src={productPhoto(p.sku)} alt={p.name} />}
                 title={<L>{p.name}</L>}
                 meta={
                   <L>
