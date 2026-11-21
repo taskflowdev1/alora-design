@@ -1,19 +1,36 @@
 // Headless smoke test on its own port: every route renders without errors and the key interactions work.
 import { spawn } from "node:child_process";
+import { createServer } from "node:net";
 import { chromium } from "playwright-core";
 
-const PORT = Number(process.env.SMOKE_PORT || 5196);
+// A free port per run: on a fixed one a second run would silently test the first run's build.
+const freePort = () =>
+  new Promise((resolve, reject) => {
+    const s = createServer();
+    s.once("error", reject);
+    s.listen(0, "127.0.0.1", () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+  });
+const PORT = Number(process.env.SMOKE_PORT) || (await freePort());
 const BASE = `http://127.0.0.1:${PORT}`;
 // SITE_DIST: the build folder (scripts/verify builds into TMPDIR); default is vite's own dist/.
 const outDir = process.env.SITE_DIST ? ["--outDir", process.env.SITE_DIST] : [];
 const server = spawn("npx", ["vite", "preview", ...outDir, "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
 process.on("exit", () => server.kill("SIGTERM"));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-for (let i = 0; i < 60; i++) {
+let serving = false;
+for (let i = 0; i < 60 && !serving; i++) {
   try {
-    if ((await fetch(BASE)).ok) break;
+    serving = (await fetch(BASE)).ok;
   } catch {}
-  await sleep(250);
+  if (!serving) await sleep(250);
+}
+if (!serving) {
+  console.log(`FAIL preview server did not answer on port ${PORT}`);
+  console.log("SMOKE FAIL (1)");
+  process.exit(1);
 }
 
 // The flap pushes the page with a FLIP slide; on a loaded machine it can still be moving after a fixed wait, so wait
@@ -28,6 +45,15 @@ const browser = await chromium.launch();
 const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
+// "networkidle" means the bundle arrived, not that it ran: on a loaded machine React can mount after it, and a check then
+// reads an empty page. Every navigation, on every page of this run, also waits for the app to mount.
+const Page = Object.getPrototypeOf(page);
+const navigate = Page.goto;
+Page.goto = async function (url, options) {
+  const response = await navigate.call(this, url, options);
+  await this.waitForFunction(() => document.querySelector("#root")?.childElementCount > 0, null, { timeout: 15000 });
+  return response;
+};
 
 for (const [path, text] of [
   ["/", "just some random ui styling"],
@@ -236,7 +262,7 @@ for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashbo
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   boxes.add(await page.evaluate(() => JSON.stringify([document.querySelector("header")?.getBoundingClientRect(), document.querySelector("header a")?.getBoundingClientRect()])));
 }
-check(boxes.size === 1, "header sits in the same place on every page");
+check(boxes.size === 1, `header sits in the same place on every page${boxes.size === 1 ? "" : ` (${[...boxes].join(" vs ")})`}`);
 
 // Inline edit, the spreadsheet way: the editing box is the resting box (same rect, same text right edge, no input
 // scroll, the row keeps its height), "Rp" stays outside the input, digits regroup while typing, Esc reverts, Tab moves to
@@ -470,12 +496,18 @@ await page.goto(`${BASE}/components/menu`, { waitUntil: "networkidle" });
 await page.click("main button:has-text('Actions')");
 await page.click("[role=menuitem]:has-text('Move to')");
 check(await page.locator("[role=menuitem]:has-text('To pack')").isVisible(), "submenu opens on click");
-await page.keyboard.press("Escape");
+// Start from a closed menu. Escape closes one level at a time, and a pointer resting on "Move to" would reopen the submenu.
+await page.mouse.move(0, 0);
+for (let i = 0; i < 4 && (await page.locator("[role=menu]").count()); i++) {
+  await page.keyboard.press("Escape");
+  await sleep(100);
+}
+await page.locator("[role=menu]").first().waitFor({ state: "detached", timeout: 5000 });
 await page.focus("main button:has-text('Actions')");
 await page.keyboard.press("Enter");
-await sleep(200);
-await page.keyboard.press("ArrowDown");
-await page.keyboard.press("ArrowDown");
+// The menu takes focus on the frame after it opens; keys pressed before that go to the trigger.
+await page.waitForFunction(() => document.activeElement?.closest("[role=menu]"), null, { timeout: 5000 });
+for (let i = 0; i < 8 && !(await page.evaluate(() => document.activeElement?.textContent?.startsWith("Move to"))); i++) await page.keyboard.press("ArrowDown");
 await page.keyboard.press("ArrowRight");
 const viaKey = await page.locator("[role=menuitem]:has-text('To pack')").waitFor({ timeout: 2000 }).then(() => true, () => false);
 check(viaKey, `submenu opens with ArrowRight (focused: ${await page.evaluate(() => document.activeElement?.textContent?.slice(0, 30))})`);

@@ -55,8 +55,9 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
 - Quick (seconds): `npm run typecheck`, `npm run lint`, `npm run unit`, `npm run docs:check`, `npm run knip` (dead
   exports), `npx vite build --outDir "$TMPDIR/site"`. After changing a component's props, the settings, the registry
   or a rule: `npm run docs`.
-- Full verify (`./scripts/verify`: typecheck, lint, unit, docs drift, greys, knip, build, headless Playwright smoke on
-  5196) and shots are heavy: run them as a background job. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when
+- Full verify (`./scripts/verify`: typecheck, unit, lint, docs drift, greys, knip, build, headless Playwright smoke on a
+  free port) and shots are heavy: run them as a background job. A failure ends with one line, `GATE FAIL
+  alora-design-verify: <check> | log: <path> | rerun: ./scripts/verify --only <step>`; run that after a fix. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when
   deps are missing, Playwright headless shell; caches under `$HOME`) and carry a `# jobq: portable` line, which lets
   the maintainer's job runner run them from a fresh copy.
 - Shots: `./scripts/shots` (per component + taste checks: borders, fonts, hover shifts, skeletons) into
