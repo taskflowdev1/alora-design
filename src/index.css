@@ -65,3 +65,20 @@ body {
     transform: none;
   }
 }
+
+/* Site-only: the landing's moments (landing.tsx). One component in focus at a time: as a moment scrolls in it comes up
+   to full strength, and it dims again on its way out. Scroll-driven, so nothing runs while the page is still. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ad-moment {
+      animation: ad-moment-focus linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+@keyframes ad-moment-focus {
+  0% { opacity: 0.25; }
+  32%, 68% { opacity: 1; }
+  100% { opacity: 0.25; }
+}

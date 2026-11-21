@@ -143,18 +143,22 @@ const logo = await page.evaluate(() => {
 check(logo.svg && logo.text === "design" && logo.label === "Alora Design", `header shows the Alora logo (${JSON.stringify(logo)})`);
 check((await page.getAttribute("a:has-text('erp-ui skill')", "href")) === "https://github.com/JoshD94/ai-skills/tree/main/erp-ui", "hero links the erp-ui skill");
 
-// Landing: one bento of components in use; no tile grid, no corner demo, nothing wider than a phone
+// Landing: one component at a time. Each moment is a linked title over one component; the showpieces come first, then
+// the phone, AI and Backgrounds, and the ERP screen (the only table) is the last demo before the footer.
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({
-  bands: document.querySelectorAll("[data-bento]").length,
-  corners: document.body.innerText.includes("Corners that agree"),
-  tiles: document.querySelectorAll("main a[href^='/components/'], main a[href^='/gallery/']").length,
-  order: [...document.querySelectorAll("main [data-bento='1'], main [data-landing]")].map((e) => e.dataset.landing ?? "bento"),
+  moments: [...document.querySelectorAll("main [data-moment]")].map((m) => m.dataset.moment),
+  titled: [...document.querySelectorAll("main [data-moment]")].every((m) => m.querySelector(":scope > h2 a[href]")),
+  tables: [...document.querySelectorAll("main [data-moment] table")].map((t) => t.closest("[data-moment]").dataset.moment),
+  order: [...document.querySelectorAll("main [data-landing]")].map((e) => e.dataset.landing),
   orbs: document.querySelectorAll("[data-landing=ai] canvas").length,
   sand: document.querySelectorAll("[data-landing=backgrounds] [data-sand-field]").length,
 }));
-check(landing.bands === 6 && !landing.corners && landing.tiles === 0, `landing is the bento (${JSON.stringify(landing)})`);
-check(landing.order.join() === "bento,more,ai,backgrounds,footer" && landing.orbs > 0 && landing.sand === 1, `landing: components first (original bento, then the category bands), then AI, Backgrounds, the closing footer (${JSON.stringify(landing)})`);
+check(
+  landing.moments[0] === "metric" && landing.moments.at(-1) === "erp" && landing.moments.length >= 8 && landing.titled && landing.tables.every((m) => m === "erp"),
+  `landing: one titled component per moment, metric card first, the ERP table last and the only table (${JSON.stringify(landing)})`,
+);
+check(landing.order.join() === "moments,ai,backgrounds,erp,footer" && landing.orbs > 0 && landing.sand === 1, `landing: components, then AI, Backgrounds, the ERP demo, the closing footer (${JSON.stringify(landing)})`);
 // AI band: the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
 // attach | text | send: both buttons one size, one inset on every side, a single text line centred on the buttons, and
 // the radius is the button radius plus that inset (concentric). Three lines grow the box upward, buttons stay at the bottom.
@@ -198,8 +202,8 @@ check(
   agent.left && agent.chatsWidth >= 240 && agent.chatsWidth <= 280 && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.centred && agent.sameSize && agent.concentric && agent.grows,
   `AI band: chat sidebar left, thread right; composer one row, centred, concentric, grows up (${JSON.stringify(agent)})`,
 );
-await page.locator("[data-bento] [role=combobox][aria-label='Search commands']").fill("sync");
-check((await page.locator("[data-bento] [role=option]").count()) === 1, "inline command palette filters");
+await page.locator("[data-moment=palette] [role=combobox][aria-label='Search commands']").fill("sync");
+check((await page.locator("[data-moment=palette] [role=option]").count()) === 1, "inline command palette filters");
 const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();
 phone.on("pageerror", (e) => errors.push(e.message));
 await phone.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -557,8 +561,8 @@ await sleep(400);
 check(errors.length === beforeScroll, `no page errors on /components after a scroll-through${errors.length > beforeScroll ? `: ${errors.slice(beforeScroll, beforeScroll + 3).join(" | ")}` : ""}`);
 
 check(errors.length === 0, `no page errors${errors.length ? `: ${errors.slice(0, 3).join(" | ")}` : ""}`);
-// The shadcn-parity components: each detail page renders its title and stage without errors, and the landing shows
-// every one of them live exactly once in its category bands.
+// The shadcn-parity components: each detail page renders its title and stage without errors (the Components page
+// check above covers showing each one live exactly once).
 const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
 const before = errors.length;
 for (const name of MORE) {
@@ -567,15 +571,6 @@ for (const name of MORE) {
   check(!!r.h1 && r.stage && !/No component/.test(r.h1), `/components/${name} renders (${r.h1})`);
 }
 check(errors.length === before, `new component pages throw nothing (${errors.slice(before, before + 3).join(" | ")})`);
-await page.goto(BASE + "/", { waitUntil: "networkidle" });
-const landingMore = await page.evaluate((names) => {
-  const band = document.querySelector("[data-landing=more]");
-  // No tile for these on purpose (typography and the pane components read as noise there): their pages stay, the
-  // landing and overview skip them.
-  const hidden = ["typography", "resizable", "scroll-area"];
-  return { hidden: hidden.reduce((n, h) => n + (band?.querySelectorAll(`[data-spot="${h}"]`).length ?? 0), 0), missing: names.filter((n) => !hidden.includes(n) && band?.querySelectorAll(`[data-spot="${n}"]`).length !== 1), bands: [...(band?.querySelectorAll("[data-band]") ?? [])].map((b) => b.dataset.band) };
-}, MORE);
-check(landingMore.missing.length === 0 && landingMore.hidden === 0 && landingMore.bands.length >= 6, `landing shows every new component once, by category (${JSON.stringify(landingMore)})`);
 // The motion set: the dial steps by key and by typing, the password flags a common one at once and a short one only
 // after leaving the field, the step form shows what is missing instead of moving on, and a table row moves the chart.
 await page.goto(BASE + "/components/number-dial", { waitUntil: "networkidle" });
@@ -986,7 +981,9 @@ for (const w of [1440, 1720]) {
     await cpage.mouse.move(w / 2, 450);
     await sleep(300);
     const shut = await edges();
-    check(shut.bar > 0 && shut.over.length === 0 && Math.abs(shut.left - shut.right) <= 1, `classic scrollbar ${w} ${path}, flap closed: nothing past the gutter, margins equal (${JSON.stringify(shut)})`);
+    // macOS headless Chromium draws overlay scrollbars (bar 0) unless the system shows them always; the gutter and
+    // margin checks still hold there.
+    check((shut.bar > 0 || process.platform === "darwin") && shut.over.length === 0 && Math.abs(shut.left - shut.right) <= 1, `classic scrollbar ${w} ${path}, flap closed: nothing past the gutter, margins equal (${JSON.stringify(shut)})`);
     await cpage.locator("[data-customize-flap]").hover();
     await sleep(800);
     await settled(cpage);
@@ -1000,7 +997,7 @@ for (const w of [1440, 1720]) {
   }
 }
 await cpage.setViewportSize({ width: 1440, height: 900 });
-await cpage.goto(BASE + "/", { waitUntil: "networkidle" });
+await cpage.goto(BASE + "/components", { waitUntil: "networkidle" });
 const inner = await cpage.evaluate(() => {
   const track = document.querySelector("[aria-roledescription=carousel] > div");
   const box = document.querySelector("[data-spot=message-scroller] .overflow-y-auto");

@@ -26,7 +26,7 @@ Update this map in the same PR when you add, move or remove a top-level area, en
 | Tokens, theme | `src/lib/config.ts`, `src/styles/theme.css`, `src/lib/ad.ts`, kit in `src/lib/kit.ts` | `npm run greys`, `npm run unit` |
 | Shared helpers | `src/lib/ad.ts`, `src/lib/ad-hooks.ts` (ship as the `ad` item) | `npm run unit`, `npm run knip` |
 | UI rules | `src/lib/encyclopedia.ts` (page: `src/site/encyclopedia.tsx`), then `node scripts/gen-docs.mjs` | `npm run docs:check` |
-| Gallery, landing | `src/site/gallery.tsx`, `src/site/showcase/`, `src/site/mark.tsx`, `src/site/demos*.tsx`, `src/site/landing.tsx`, `src/site/bento/` | `npm run typecheck`, `./scripts/shots` |
+| Gallery, landing | `src/site/gallery.tsx`, `src/site/showcase/`, `src/site/mark.tsx`, `src/site/demos*.tsx`, `src/site/landing.tsx`, `src/site/moments/` | `npm run typecheck`, `./scripts/shots` |
 | Examples | `src/site/examples/` (one file per page), demo data in `src/site/data.ts` | `npm run typecheck` |
 | Site shell | `src/site/layout.tsx` (header, footer, Customize flap), `src/site/routes.tsx`, `src/site/export.tsx` | `npm run typecheck` |
 | Endpoints | `api/kit.ts`, `api/checklist.ts`, `api/r.ts`, `api/tokens.ts`, `vercel.json` | `./scripts/check-endpoints [url]` |
@@ -82,8 +82,9 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
   insets. Square mode zeroes every radius; circles stay round.
 - Greys: one ramp of six per theme; role tokens map to a step (`GREY_ROLES`). Never add a grey, an alpha on a grey
   token, `color-mix` on one, a palette grey or a raw hex; `scripts/greys.mjs --check` enforces it (`grey-ok` exempts a
-  line). In dark, menus, selects, popovers, hover cards, tooltips and toasts take the page grey (darker than the page
-  around them) and separate by shadow. The sidebar, save bar and bottom nav use `--ad-side`, dark in both themes.
+  line). In dark, menus, selects, popovers, hover cards and tooltips take the page grey (darker than the page
+  around them) and separate by shadow. The sidebar, save bar, bottom nav and toasts use `--ad-side*`, dark in both
+  themes. Never put the page grey as a panel inside a card: it reads as an off black.
 - Selected states: in a track a raised `bg-sel shadow-sel` pill; on a plain surface the `fill-strong` pill. One-of-N
   pickers slide one `SlidingPill`; a one-of-N picker is a Segmented, never a ButtonGroup with a painted button.
   Switch is neutral, never the accent.

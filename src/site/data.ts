@@ -171,7 +171,7 @@ export const SPARK = [12, 14, 13, 17, 16, 19, 18, 22, 21, 24, 23, 27];
 
 const day = (n: number, h = 9, m = 0) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n, h, m);
 /** Midnight `n` days from NOW (negative for the past). */
-export const dayFrom = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
+const dayFrom = (n: number) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + n);
 
 export interface Promotion {
   id: string;

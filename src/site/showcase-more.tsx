@@ -1,8 +1,8 @@
 /*
  * The shadcn-parity components in real use: charts, navigation, more inputs and display parts, the alert dialog and
  * drawer, resizable panes and the chat parts. Each tile composes a few of them the way an ERP would; every component
- * sits in a `Mark` exactly once. The Components page appends these tiles to their category bands; the landing shows
- * them as their own category bands (`MoreBento`).
+ * sits in a `Mark` exactly once. The Components page appends these tiles to their category bands; the landing borrows
+ * a few of them as single-component moments.
  */
 import * as React from "react";
 import {
@@ -22,7 +22,7 @@ import {
   Truck,
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
-import { findItem, type Group } from "@/lib/registry";
+import { type Group } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Status, type StatusTone } from "@/components/ui/status";
 import { Thumb } from "@/components/ui/thumb";
@@ -59,9 +59,7 @@ import { Trace } from "@/components/ui/trace";
 import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
 import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
-import { BackPage, Head, Mark, PlainMarks, S, Tile, frame, type TileDef } from "./mark";
-import { MOTION_TILES } from "./showcase-motion";
-import { useConfig } from "./config";
+import { BackPage, Head, Mark, S, Tile, frame, type TileDef } from "./mark";
 import { CUP_PHOTOS, DAILY, NOW, ORDERS, productPhoto, smartTime, type Order } from "./data";
 
 /* ------------------------------------------------------------ demo data (invented) */
@@ -113,7 +111,7 @@ const total = BY_CHANNEL.reduce((s, d) => s + d.value, 0);
 
 /* ------------------------------------------------------------ Charts */
 
-function SalesTrendTile({ className }: { className?: string }) {
+export function SalesTrendTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
@@ -316,7 +314,7 @@ function ReceiptEditorTile({ className }: { className?: string }) {
 /* ------------------------------------------------------------ Inputs */
 
 /** The till's one-time code, centred: the playable flow (OtpFlow) under the title. */
-function TillSignInTile({ className }: { className?: string }) {
+export function TillSignInTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={cn("items-center", className)}>
       <h3 className="text-title font-semibold">Open the Kemang till</h3>
@@ -436,7 +434,7 @@ function HelpTile({ className }: { className?: string }) {
   );
 }
 
-function ProductPhotosTile({ className }: { className?: string }) {
+export function ProductPhotosTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="truncate text-title font-semibold">Gelas kopi tanah liat</h3>
@@ -633,30 +631,3 @@ export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
     { items: ["questionnaire"], render: () => <BeforeRestockTile className={S[6]} /> },
   ],
 };
-
-/** The order the landing shows the new bands in. */
-const LANDING_GROUPS: Group[] = ["Charts", "Navigation", "Inputs", "Display", "Overlays", "Chat"];
-
-/** On the landing: the shadcn-parity components live, one band per category, the same tiles as the Components page. */
-export function MoreBento() {
-  const [config] = useConfig();
-  const tiles = (g: Group) => [...(MORE_TILES[g] ?? []), ...((MOTION_TILES as Partial<Record<Group, TileDef[]>>)[g] ?? [])];
-  const names = LANDING_GROUPS.flatMap((g) => tiles(g).flatMap((t) => t.items));
-  return (
-    <PlainMarks.Provider value={true}>
-      <section aria-label="More components" data-landing="more" data-more={names.filter((n) => findItem(n)).join(",")} className="mx-auto mt-20 grid w-full max-w-[1280px] gap-14 px-4 sm:px-6">
-        {LANDING_GROUPS.map((g) => (
-          <section key={g} aria-label={g} data-band={g} className="grid gap-4">
-            <h2 className="px-1 text-title font-semibold text-ink">{g}</h2>
-            <div className="grid grid-flow-row-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
-              {tiles(g).map((t) => (
-                <React.Fragment key={t.items.join()}>{t.render(config)}</React.Fragment>
-              ))}
-            </div>
-          </section>
-        ))}
-      </section>
-    </PlainMarks.Provider>
-  );
-}
-

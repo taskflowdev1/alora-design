@@ -147,8 +147,8 @@ export function ThemePreview({ system = true, iconOnly = false, className }: { s
   const area = React.useRef<HTMLDivElement>(null);
   return (
     <div ref={area} className={cn("grid gap-3", className)}>
-      {/* One box in the chosen theme's page colour (no card inside a frame): just the label and the number. */}
-      <TokenScope config={config} className="grid gap-1 rounded-card bg-page px-4 py-3 text-ink">
+      {/* One soft box in the chosen theme's fill (the page grey read as a hole inside the card): label and number. */}
+      <TokenScope config={config} className="grid gap-1 rounded-card bg-fill px-4 py-3 text-ink">
         <span className="text-body font-medium">Today</span>
         <span className="text-number font-semibold tabular-nums">{formatRp(12_480_000)}</span>
       </TokenScope>
@@ -508,7 +508,7 @@ export function PriceChange({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ the tiles */
 
-function StockCountTile({ className }: { className?: string }) {
+export function StockCountTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="min-w-0 truncate text-title font-semibold">Gelas kopi tanah liat at Dago</h3>
@@ -523,7 +523,7 @@ function StockCountTile({ className }: { className?: string }) {
   );
 }
 
-function AppearanceTile({ className }: { className?: string }) {
+export function AppearanceTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="text-title font-semibold">Appearance</h3>

@@ -17,7 +17,7 @@ Moved verbatim from `AGENTS.md` to keep the always-loaded file short.
   relatively and the kit rewrites `../mobile/` to `./`. Shared parts take `size="touch"` instead of a copy.
   `src/components/ai/` and `src/components/backgrounds/`: ported from an agent assistant and self-contained by design
   (keyframes in the file); don't extract shared hooks from them.
-- `src/site/`: landing (`landing.tsx`, `bento/`, `showcase-more.tsx`), Components (`gallery.tsx`, `showcase/`,
+- `src/site/`: landing (`landing.tsx`, `moments/` (the cards it shows), tiles borrowed from `showcase-more.tsx` and `showcase-motion.tsx`), Components (`gallery.tsx`, `showcase/`,
   `mark.tsx`, `demos*.tsx`), AI/Backgrounds (`collections.tsx`, `agent.tsx`), examples (`examples/`, one file per
   page), shared demo data and formatters (`data.ts`), mobile
   (`mobile-overview.tsx`, `phone.tsx`, `mobile-app*.tsx`, `mobile-screens-*.tsx`, `mobile-data.ts`), `encyclopedia.tsx`
