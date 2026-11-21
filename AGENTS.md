@@ -16,6 +16,7 @@ tracked); read it before deploying or running heavy jobs.
   outside advice. Merged or renamed ids go in `ALIASES`, dropped ones in `DROPPED`, never just deleted.
 
 ## Quick map
+Update this map in the same PR when you add, move or remove a top-level area, entrypoint, or check command.
 
 | Change | Where | Narrowest check |
 |---|---|---|
