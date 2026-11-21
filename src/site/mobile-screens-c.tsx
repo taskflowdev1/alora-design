@@ -374,9 +374,9 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState<Approval[]>(state === "empty" ? [] : APPROVALS);
   const [filter, setFilter] = React.useState("all");
-  // A decided card folds away over 220 ms, and the cards ignore taps meanwhile, so the second tap of a double tap can't
-  // land on the next card's button sliding up under the finger. Undo puts back only that card, in its place, so stacked
-  // decisions all undo.
+  // A decided card folds away over 220 ms, but its slot stays (empty) and the cards ignore taps for 400 ms, a double tap's
+  // reach: the second tap would otherwise land on the next card's button, which slid up under the finger. Undo puts back
+  // only that card, in its place, so stacked decisions all undo.
   const [leaving, setLeaving] = React.useState<string[]>([]);
   const timers = React.useRef(new Map<string, number>());
   React.useEffect(() => {
@@ -391,7 +391,7 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
       window.setTimeout(() => {
         setList((l) => l.filter((x) => x.id !== a.id));
         setLeaving((l) => l.filter((x) => x !== a.id));
-      }, 220),
+      }, 400),
     );
     nav.snack(`${ok ? "Approved" : "Rejected"}: ${a.title}`, () => {
       window.clearTimeout(timers.current.get(a.id));

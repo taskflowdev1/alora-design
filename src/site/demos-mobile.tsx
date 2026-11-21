@@ -3,6 +3,7 @@
 import * as React from "react";
 import { BarChart2, Bell, Check, CreditCard, Filter, Globe, Home, MapPin, MoreHorizontal, Package, Plus, Printer, RotateCcw, ShoppingBag, Truck, User, XCircle, Calendar as CalendarIcon, Clock } from "react-feather";
 import { formatDate, formatRp } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
@@ -484,6 +485,8 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
       const [rows, setRows] = React.useState(TO_PACK.slice(0, 8));
       const [last, setLast] = React.useState<{ o: Order; i: number } | null>(null);
       const [tab, setTab] = React.useState("Orders");
+      // The next row moves up under the finger, so a double tap on the check would pack two.
+      const pack = useDoubleTapGuard((o: Order, i: number) => (setRows((r) => r.filter((x) => x.id !== o.id)), setLast({ o, i })));
       return (
         <>
           <MobileScreen title="To pack">
@@ -495,7 +498,7 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
                   title={o.customer}
                   subtitle={o.items}
                   trailing={
-                    <MobileBarButton aria-label={`Mark ${o.id} packed`} onClick={() => (setRows((r) => r.filter((x) => x.id !== o.id)), setLast({ o, i }))}>
+                    <MobileBarButton aria-label={`Mark ${o.id} packed`} onClick={() => pack(o, i)}>
                       <Check />
                     </MobileBarButton>
                   }

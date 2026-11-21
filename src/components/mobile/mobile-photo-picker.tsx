@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Camera, Image as ImageIcon, Plus, RotateCw, X } from "react-feather";
 import { cn } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { MobileSheet } from "./mobile-sheet";
 
@@ -188,6 +189,8 @@ const RETRY_FOCUS = "focus-visible:bg-black/25"; // grey-ok: image chrome over p
  * so nothing below the strip moves as uploads start and finish.
  */
 export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, cover = true, onRetry, className }: MobilePhotoStripProps) {
+  // The next photo slides into the removed one's place, so a double tap would remove two.
+  const remove = useDoubleTapGuard(onRemove);
   return (
     <div className={cn("-mx-pad flex gap-gap overflow-x-auto px-pad [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>
       {photos.map((p, i) => (
@@ -218,7 +221,7 @@ export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, cover 
           <button
             type="button"
             aria-label={p.state === "uploading" ? `Cancel ${p.alt}` : `Remove ${p.alt}`}
-            onClick={() => onRemove(p.id)}
+            onClick={() => remove(p.id)}
             className="group/rm absolute right-0 top-0 grid size-touch cursor-pointer place-items-center outline-none ad-press active:scale-[0.92] data-pressed:scale-[0.92]"
           >
             <span data-shape="round" className="grid size-[24px] place-items-center rounded-full bg-surface text-ink shadow-thumb transition-colors duration-[150ms] group-focus-visible/rm:bg-fill-strong">

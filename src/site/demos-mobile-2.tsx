@@ -23,6 +23,7 @@ import {
   Menu,
 } from "react-feather";
 import { formatRp } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { Thumb } from "@/components/ui/thumb";
 import { InputOTP, type InputOTPStatus } from "@/components/ui/input-otp";
@@ -769,6 +770,8 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
         const t = window.setInterval(() => setUps((l) => l.map((u) => (u.state !== "uploading" ? u : { ...u, progress: Math.min(1, u.progress + 0.06), state: u.progress + 0.06 >= 1 ? "done" : "uploading" }))), 240);
         return () => window.clearInterval(t);
       }, [ups]);
+      // The next row moves up under the finger, so a double tap on Cancel would cancel two.
+      const cancel = useDoubleTapGuard((id: string) => setUps((l) => l.filter((x) => x.id !== id)));
       return (
         <MobileScreen title="Uploads" large={false} back={{ label: "Delivery", onClick: () => {} }} bottomInset="none">
           <div className="pt-2">
@@ -781,7 +784,7 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
                   progress={u.progress}
                   state={u.state}
                   media={<Thumb src={u.src} alt="" size={40} />}
-                  onCancel={() => setUps((l) => l.filter((x) => x.id !== u.id))}
+                  onCancel={() => cancel(u.id)}
                   onRetry={() => setUps((l) => l.map((x) => (x.id === u.id ? { ...x, progress: 0, state: "uploading" } : x)))}
                 />
               ))}

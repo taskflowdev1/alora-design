@@ -1,6 +1,7 @@
 import * as React from "react";
 import { File, UploadCloud, X } from "react-feather";
 import { cn, formatNumber } from "@/lib/ad";
+import { useDoubleTapGuard } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -51,6 +52,8 @@ function FileName({ name, className }: { name: string; className?: string }) {
 export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemove, title = "Drop files here", className }: DropzoneProps) {
   const [over, setOver] = React.useState(false);
   const input = React.useRef<HTMLInputElement>(null);
+  // The next file moves up into the removed one's row, so a double click would remove two.
+  const remove = useDoubleTapGuard(onRemove);
   return (
     <div className={cn("grid gap-2", className)}>
       {/* A label for the hidden input, so a click anywhere in the area opens the picker (Browse handles its own click). */}
@@ -98,7 +101,7 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
               </div>
               {onRemove ? (
                 <Tooltip content="Remove">
-                  <Button variant="ghost" size="sm" icon aria-label={`Remove ${f.name}`} onClick={() => onRemove(f.id)}>
+                  <Button variant="ghost" size="sm" icon aria-label={`Remove ${f.name}`} onClick={() => remove(f.id)}>
                     <X />
                   </Button>
                 </Tooltip>
