@@ -42,6 +42,8 @@ export interface ComposerProps {
   onSend?: (text: string) => void;
   onStop?: () => void;
   onAttach?: () => void;
+  /** Send works with no text, because files are attached. */
+  canSendEmpty?: boolean;
   /** Lines the text grows to before it scrolls. */
   maxLines?: number;
   disabled?: boolean;
@@ -54,7 +56,7 @@ export interface ComposerProps {
  * grows the box upward and the buttons stay at the bottom, level with the last line; past `maxLines` it scrolls.
  * The inset is the same on every side and the radius is the button radius plus that inset.
  */
-export function Composer({ placeholder = "Ask anything", working = false, value, onValueChange, onSend, onStop, onAttach, maxLines = 6, disabled, className }: ComposerProps) {
+export function Composer({ placeholder = "Ask anything", working = false, value, onValueChange, onSend, onStop, onAttach, canSendEmpty = false, maxLines = 6, disabled, className }: ComposerProps) {
   const [own, setOwn] = React.useState("");
   const text = value ?? own;
   const set = (v: string) => (value === undefined ? setOwn(v) : onValueChange?.(v));
@@ -65,7 +67,7 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [text]);
-  const empty = !text.trim();
+  const empty = !text.trim() && !canSendEmpty;
   const send = () => {
     if (empty || disabled) return;
     onSend?.(text);
@@ -80,7 +82,7 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
         e.preventDefault();
         send();
       }}
-      className={cn("flex items-end gap-1 bg-surface p-[var(--composer-pad)] shadow-card", className)}
+      className={cn("flex items-end gap-1 bg-surface p-[var(--composer-pad)] shadow-card max-sm:[--composer-line:23px]", className)}
     >
       <Tooltip content="Attach files">
         {/* A disabled button gets no pointer events, so the tooltip hangs on this wrapper. */}
@@ -103,7 +105,7 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
           e.preventDefault();
           send();
         }}
-        className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-muted max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
+        className="block min-h-control min-w-0 flex-1 resize-none bg-transparent px-1.5 py-[calc((var(--ad-control-h)_-_var(--composer-line))_/_2)] text-body leading-[var(--composer-line)] text-ink outline-none placeholder:text-ink-muted max-sm:text-[16px] max-h-[calc(var(--composer-line)_*_var(--composer-lines)_+_var(--ad-control-h)_-_var(--composer-line))]"
       />
       {working && empty ? (
         <Tooltip content="Stop">

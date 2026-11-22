@@ -372,7 +372,14 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | --- | --- | --- | --- |
 | [Thinking orbs](https://design.alorawork.com/ai/thinking-orbs) | `thinking-orbs` | `ThinkingOrbs` | `active=true`, `size=22`, `count=3`, `speed=1`, `orb=0.154`, `ring=0.32`, `tone="ink"`, `className` |
 | [Run status](https://design.alorawork.com/ai/run-status) | `run-status` | `RunStatus` | `text`, `active=true`, `size=22`, `shimmer=2.2`, `speed=1`, `tone="ink"`, `className` |
-| [Composer glow](https://design.alorawork.com/ai/composer-glow) | `composer-glow` | `Composer`, `ComposerGlow` | `placeholder="Ask anything"`, `working=false`, `value`, `onValueChange`, `onSend`, `onStop`, `onAttach`, `maxLines=6`, `disabled`, `className`, `children`, `breathe=true`, `halo=20`, `strength=0.52`, `pulse=3.6`, `ring=0.48`, `radius=COMPOSER_RADIUS` |
+| [Composer glow](https://design.alorawork.com/ai/composer-glow) | `composer-glow` | `Composer`, `ComposerGlow` | `placeholder="Ask anything"`, `working=false`, `value`, `onValueChange`, `onSend`, `onStop`, `onAttach`, `canSendEmpty=false`, `maxLines=6`, `disabled`, `className`, `children`, `breathe=true`, `halo=20`, `strength=0.52`, `pulse=3.6`, `ring=0.48`, `radius=COMPOSER_RADIUS` |
+| [Chat list](https://design.alorawork.com/ai/chat-list) | `chat-list` | `ChatList` | `chats`, `selectedId`, `onSelect`, `onNewChat`, `onPin`, `onRename`, `onArchive`, `onRestore`, `onDelete`, `archived`, `onExitArchived`, `collapsed`, `onCollapsedChange`, `footer`, `className` |
+| [New chat screen](https://design.alorawork.com/ai/empty-chat) | `empty-chat` | `EmptyChat` | `title="Where should we start?"`, `suggestions=[]`, `onPick`, `children`, `className` |
+| [Assistant reply](https://design.alorawork.com/ai/assistant-markdown) | `assistant-markdown` | `AssistantMarkdown` | `text`, `reveal`, `citeTitle`, `onCite`, `className` |
+| [Message sources](https://design.alorawork.com/ai/message-sources) | `message-sources` | `MessageSources` | `sources`, `openId`, `onOpenChange`, `className` |
+| [Proposal card](https://design.alorawork.com/ai/proposal-card) | `proposal-card` | `ProposalCard` | `title`, `changes`, `status`, `onApprove`, `onDecline`, `disabled`, `className` |
+| [Report row](https://design.alorawork.com/ai/report-row) | `report-row` | `ReportRow` | `name`, `meta`, `making=false`, `onPreview`, `onDownload`, `className` |
+| [Turn rail](https://design.alorawork.com/ai/turn-rail) | `turn-rail` | `TurnRail` | `turns`, `scrollRef`, `onJump`, `className` |
 
 ### Backgrounds
 
