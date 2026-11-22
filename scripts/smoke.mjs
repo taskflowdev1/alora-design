@@ -440,8 +440,17 @@ const index = await page.evaluate(() => ({
 check(index.spots >= 60 && index.missing.length === 0 && index.groups[0] === "Foundations" && index.tiles === 0, `components page: every component live exactly once, in category bento tiles (${JSON.stringify(index)})`);
 // Like a person: centre it (clear of the sticky header), hover it, then move up onto its chip and click.
 await page.locator("[data-spot=select]").evaluate((el) => el.scrollIntoView({ block: "center" }));
-await sleep(300);
-const selBox = await page.locator("[data-spot=select]").boundingBox();
+// The Showpieces band above is long and full of live pieces: wait until the spot stops moving (fonts, photos and
+// late measurements settle on a slow machine) before aiming at it.
+let selBox = null;
+for (let i = 0; i < 20; i++) {
+  await sleep(250);
+  const b = await page.locator("[data-spot=select]").boundingBox();
+  if (selBox && Math.abs(b.y - selBox.y) < 0.5) break;
+  selBox = b;
+  await page.locator("[data-spot=select]").evaluate((el) => el.scrollIntoView({ block: "center" }));
+}
+selBox = await page.locator("[data-spot=select]").boundingBox();
 await page.mouse.move(selBox.x + selBox.width / 2, selBox.y + selBox.height / 2);
 await sleep(300);
 const chipBox = await page.locator("[data-spot=select] > a").boundingBox();
@@ -449,7 +458,7 @@ await page.mouse.move(selBox.x + 12, selBox.y + 2, { steps: 4 });
 await page.mouse.move(chipBox.x + chipBox.width / 2, chipBox.y + chipBox.height / 2, { steps: 4 });
 await page.mouse.down();
 await page.mouse.up();
-await page.waitForURL("**/components/select*");
+await page.waitForURL("**/components/select*", { timeout: 8000 }).catch(() => {});
 check(await page.locator("[data-stage]").waitFor({ timeout: 4000 }).then(() => true, () => false), "a spot opens its component page");
 await page.goto(BASE + "/ai", { waitUntil: "networkidle" });
 await page.locator("[data-spot=thinking-orbs] > a").click();
