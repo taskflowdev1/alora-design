@@ -101,7 +101,8 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
   height; Tile (default), Hero for the one main number, Scale for a few short counts.
 - Gallery per-component overrides go on `<body>` (portalled menus live there); `#root` keeps the global tokens.
 - /components is a bento: every component appears exactly once in a `Mark` (smoke checks it against the registry); a new
-  component needs a place in a tile. `showcase: false` keeps an item off the bento. AI/Backgrounds item = one file + one
+  component needs a place in a tile, and a new tile a place in `BANDS` (`showcase/index.tsx`), which is the page's layout
+  and separate from registry groups. `showcase: false` keeps an item off the bento. AI/Backgrounds item = one file + one
   registry entry; keyframes live in the file; each pauses off screen and honours reduced motion.
 - Menu is custom (not Radix DropdownMenu) for a debounced safe triangle (`menu.tsx`). Toasts read `data-toast-avoid`.
 - Scrollbars: nothing sits under one; page widths come from `clientWidth` / `100cqw`, never `innerWidth` / `100vw`.

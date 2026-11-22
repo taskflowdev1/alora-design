@@ -8,7 +8,7 @@ import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { RubberBandStepper } from "@/components/ui/rubber-band-stepper";
 import { ShiftRingClock } from "@/components/ui/shift-ring-clock";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 const UNIT_PRICE = 85000;
@@ -68,10 +68,10 @@ export const DEMOS: Record<string, Demo> = {
   },
 };
 
-const tile = (name: string, title: string, node: React.ReactNode, className: string = S[4]): TileDef => ({
+const tile = (name: string, title: string, node: React.ReactNode): TileDef => ({
   items: [name],
-  render: () => (
-    <Tile inset="pad" className={className}>
+  render: (_, c) => (
+    <Tile inset="pad" className={c}>
       <h3 className="text-title font-semibold">{title}</h3>
       <Mark name={name} className="grid flex-1 grid-cols-1 place-items-center py-2">
         <Playable>{node}</Playable>

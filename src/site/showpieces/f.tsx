@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/ad";
 import { BeforeAfter } from "@/components/ui/before-after";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 /** The same frame twice: the flat, ungraded scan and the finished grade. */
@@ -35,12 +35,12 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["before-after"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Colour grade</h3>
         <Mark name="before-after">
           <Keep>
-            <Wipe />
+            <Wipe className="mx-auto max-w-[330px]" />
           </Keep>
         </Mark>
       </Tile>

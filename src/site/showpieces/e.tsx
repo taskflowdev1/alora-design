@@ -2,7 +2,7 @@
 // and its moment on the landing. Aggregated in ./index.ts.
 import { PeelLabel } from "@/components/ui/peel-label";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 export const DEMOS: Record<string, Demo> = {
@@ -16,8 +16,8 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["peel-label"],
-    render: () => (
-      <Tile inset="pad" className={S[5]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Stick the label</h3>
         <Mark name="peel-label">
           <div onClick={(e) => e.stopPropagation()}>

@@ -11,9 +11,9 @@ import { grouped, InlineEdit } from "@/components/ui/inline-edit";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import type { Option } from "@/components/ui/select";
-import { addDays, cn, formatRp, startOfDay } from "@/lib/ad";
+import { addDays, formatRp, startOfDay } from "@/lib/ad";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 const stay = (e: React.MouseEvent) => e.stopPropagation();
@@ -253,11 +253,11 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["filter-search"],
-    render: () => (
-      <Tile inset="pad" className={cn(S[6])}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <Mark name="filter-search">
           <div onClick={stay}>
-            <FilterSearchPiece listHeight={180} />
+            <FilterSearchPiece listHeight={198} />
           </div>
         </Mark>
       </Tile>

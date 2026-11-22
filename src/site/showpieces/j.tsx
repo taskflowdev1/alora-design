@@ -10,7 +10,7 @@ import { MarginWaterfall, type WaterfallPeriod } from "@/components/ui/margin-wa
 import { YearHeatmap, type HeatDay } from "@/components/ui/year-heatmap";
 import { addDays, cn, prefersReducedMotion } from "@/lib/ad";
 import type { Demo } from "../demos";
-import { Mark, S, type TileDef } from "../mark";
+import { Mark, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 /* ---------- Scenes ---------- */
@@ -211,9 +211,9 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["line-items"],
-    render: () => (
-      <div className={cn("min-w-0", S[7])}>
-        <Mark name="line-items">
+    render: (_, c) => (
+      <div className={cn("grid min-w-0", c)}>
+        <Mark name="line-items" className="grid grid-cols-1">
           <Play>
             <Line />
           </Play>
@@ -223,9 +223,9 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["year-heatmap"],
-    render: () => (
-      <div className={cn("min-w-0", S[8])}>
-        <Mark name="year-heatmap">
+    render: (_, c) => (
+      <div className={cn("grid min-w-0", c)}>
+        <Mark name="year-heatmap" className="grid grid-cols-1">
           <Play>
             <Heat />
           </Play>
@@ -235,9 +235,9 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["margin-waterfall"],
-    render: () => (
-      <div className={cn("min-w-0", S[4])}>
-        <Mark name="margin-waterfall">
+    render: (_, c) => (
+      <div className={cn("grid min-w-0", c)}>
+        <Mark name="margin-waterfall" className="grid grid-cols-1">
           <Play>
             <Waterfall />
           </Play>

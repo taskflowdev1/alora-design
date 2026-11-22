@@ -123,43 +123,6 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Corner shape](https://design.alorawork.com/components/corner-shape) | in `theme` | — | Set by the theme (see Settings) |
 | [Scrollbar](https://design.alorawork.com/components/scrollbar) | in `theme` | — | Set by the theme (see Settings) |
 
-### Showpieces
-
-| Component | Install name | Exports | Props (`=default`) |
-| --- | --- | --- | --- |
-| [Slide to pay](https://design.alorawork.com/components/slide-to-pay) | `slide-to-pay` | `SlideToPay` | `amount=1250000`, `onConfirm`, `resetAfter=2600`, `disabled` |
-| [Balance privacy](https://design.alorawork.com/components/balance-privacy-wave) | `balance-privacy-wave` | `BalancePrivacyWave` | `label="Balance"`, `amount=48240000`, `details=DEFAULT_DETAILS`, `hidden`, `defaultHidden=false`, `onHiddenChange` |
-| [Rolling odometer total](https://design.alorawork.com/components/odometer-total) | `odometer-total` | `OdometerTotal` | `label="Sales today"`, `unit="Rp"`, `value`, `defaultValue=48240000`, `fitTo`, `steps=[89000, 1250000, 12500000, -245000]`, `onValueChange` |
-| [Target gauge needle](https://design.alorawork.com/components/target-gauge) | `target-gauge` | `TargetGauge` | `label="Today’s target"`, `value`, `defaultValue=31400000`, `target=48000000`, `sales=[1250000, 420000, 2750000, 890000, 3100000]`, `format=formatRp`, `onValueChange` |
-| [Ghost period compare](https://design.alorawork.com/components/ghost-compare) | `ghost-compare` | `GhostCompare` | `label="Sales this week"`, `current=[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]`, `previous=[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]`, `labels=WEEKDAYS_3`, `today=6`, `hint="Hold for last week"`, `unit="Rp"`, `onCompareChange` |
-| [Split-flap KPI board](https://design.alorawork.com/components/split-flap-board) | `split-flap-board` | `SplitFlapBoard` | `rows=DEFAULT_ROWS`, `cells=5`, `actionLabel="Next hour"`, `onValuesChange` |
-| [Goal rings](https://design.alorawork.com/components/goal-rings) | `goal-rings` | `GoalRings` | `rings=DEFAULT_RINGS`, `actionLabel="Close the day"`, `onRingChange` |
-| [Dot matrix number](https://design.alorawork.com/components/dot-matrix-number) | `dot-matrix-number` | `DotMatrixNumber` | `label="Orders today"`, `value`, `defaultValue=1284`, `places=4`, `step=1`, `actionLabel="New order"`, `onValueChange` |
-| [Stock battery](https://design.alorawork.com/components/stock-battery) | `stock-battery` | `StockBattery` | `product="Gelas kopi tanah liat"`, `value`, `defaultValue=46`, `capacity=120`, `reorderAt=24`, `cells=10`, `sellStep=6`, `onValueChange`, `onRestock` |
-| [Detent rotary knob](https://design.alorawork.com/components/detent-knob) | `detent-knob` | `DetentKnob` | `value`, `defaultValue=20`, `onValueChange`, `min=0`, `max=60`, `step=5`, `format=(v) => `${v}%``, `label="Discount"`, `product="Gelas kopi tanah liat"`, `price=85000` |
-| [Hold to confirm](https://design.alorawork.com/components/hold-to-confirm) | `hold-to-confirm` | `HoldToConfirm` | `label="Hold to pay"`, `doneLabel="Paid"`, `detail="Rp 1.250.000"`, `duration=1200`, `resetAfter=2800`, `onConfirm` |
-| [Rubber band stepper](https://design.alorawork.com/components/rubber-band-stepper) | `rubber-band-stepper` | `RubberBandStepper` | `value`, `defaultValue=12`, `onValueChange`, `min=0`, `max=999`, `step=1`, `label="Quantity"` |
-| [Shift ring clock](https://design.alorawork.com/components/shift-ring-clock) | `shift-ring-clock` | `ShiftRingClock` | `value`, `defaultValue={ start: 22 * 60, end: 6 * 60 }`, `onValueChange`, `step=15`, `minLength=60`, `maxLength=23 * 60` |
-| [Morphing status island](https://design.alorawork.com/components/status-island) | `status-island` | `StatusIsland` | `status`, `progress=0`, `onStatusChange`, `idleLabel="Sync 7 shops"`, `syncLabel="Syncing"`, `channels=["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]`, `progressLabel="248 products"`, `doneLabel="248 products synced"` |
-| [Save button morph](https://design.alorawork.com/components/save-morph) | `save-morph` | `SaveMorph` | `label="Save changes"`, `doneLabel="Saved"`, `failLabel="Try again"`, `onSave`, `dirty`, `size="default"` |
-| [Dust dissolve delete](https://design.alorawork.com/components/dust-delete) | `dust-delete` | `DustDelete` | `title="Gelas kopi tanah liat"`, `price="Rp 89.000"`, `image`, `deleteLabel="Delete"`, `undoLabel="Undo"`, `tone="surface"`, `onDelete`, `onUndo` |
-| [Undo fuse pill](https://design.alorawork.com/components/undo-fuse) | `undo-fuse` | `UndoFuse` | `label="Order INV-20841 archived"`, `undoneLabel="Order restored"`, `actionLabel="Undo"`, `duration=6000`, `paused=false`, `onUndo`, `onExpire`, `onClosed` |
-| [Flip countdown](https://design.alorawork.com/components/flip-countdown) | `flip-countdown` | `FlipCountdown` | `seconds=24`, `endsAt`, `loop=false`, `onComplete`, `ref` |
-| [SLA burning fuse](https://design.alorawork.com/components/sla-fuse) | `sla-fuse` | `SlaFuse` | `order="INV-20841"`, `item="Gelas kopi tanah liat × 2"`, `total=2700`, `remaining=2340`, `speed=1`, `paused=false`, `actionLabel="Ship order"`, `shippedLabel="Shipped"`, `reopenLabel="Reopen"`, `lateLabel="Late"`, `onShip`, `onReopen`, `onLate` |
-| [Peel shipping label](https://design.alorawork.com/components/peel-label) | `peel-label` | `PeelLabel` | `from="Rimba Kemang, Jakarta"`, `to="Sari Wulandari"`, `address="Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"`, `tracking="RK-2041-8836"`, `weight="1,2 kg"`, `onStick` |
-| [Before after wipe](https://design.alorawork.com/components/before-after) | `before-after` | `BeforeAfter` | `before`, `after`, `alt`, `beforeFilter`, `beforeLabel="Raw"`, `afterLabel="Edited"`, `defaultValue=0.5`, `onValueChange` |
-| [Product hotspots](https://design.alorawork.com/components/product-hotspots) | `product-hotspots` | `ProductHotspots` | `src`, `alt`, `spots`, `ratio=1`, `onOpenChange` |
-| [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
-| [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
-| [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
-| [Filter search](https://design.alorawork.com/components/filter-search) | `filter-search` | `FilterSearch` | `fields`, `tokens`, `onTokensChange`, `query`, `onQueryChange`, `placeholder="Search or filter"`, `listHeight=240`, `children`, `className`, `aria-label` |
-| [Bulk action bar](https://design.alorawork.com/components/bulk-action-bar) | `bulk-action-bar` | `BulkActionBar` | `count`, `label="selected"`, `actions`, `onClear`, `done`, `onUndo`, `undoFor=6000`, `onExpire`, `className` |
-| [Status changer](https://design.alorawork.com/components/status-select) | `status-select` | `StatusSelect` | `options=ORDER_STATUSES`, `value`, `defaultValue`, `onValueChange`, `readOnly`, `disabled`, `aria-label`, `className` |
-| [Approval flow](https://design.alorawork.com/components/approval-flow) | `approval-flow` | `ApprovalFlow` | `title="Gelas kopi tanah liat, 200 pcs"`, `code="PO-1042"`, `amount=17800000`, `people=PEOPLE`, `onDecision`, `onApprovedChange`, `className` |
-| [Invoice line items](https://design.alorawork.com/components/line-items) | `line-items` | `LineItems` | `defaultItems=[]`, `catalog=[]`, `taxRate=0.11`, `taxLabel="PPN 11%"`, `rows=4`, `onItemsChange`, `className` |
-| [Year heatmap](https://design.alorawork.com/components/year-heatmap) | `year-heatmap` | `YearHeatmap` | `days`, `label="Sales this year"`, `unit="Rp"`, `className`, `aria-label` |
-| [Margin waterfall](https://design.alorawork.com/components/margin-waterfall) | `margin-waterfall` | `MarginWaterfall` | `periods`, `defaultPeriod`, `revenueLabel="Revenue"`, `profitLabel="Profit"`, `unit="Rp"`, `onPeriodChange`, `className` |
-
 ### Actions
 
 | Component | Install name | Exports | Props (`=default`) |
@@ -169,6 +132,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Toolbar](https://design.alorawork.com/components/toolbar) | `toolbar` | `Toolbar`, `ToolbarSpacer`, `PageHeader` | `className`, `children`, `title` |
 | [Save bar](https://design.alorawork.com/components/save-bar) | `save-bar` | `SaveBar` | `open`, `onSave`, `onDiscard`, `saving`, `label="Unsaved changes"`, `inline`, `className` |
 | [Button group](https://design.alorawork.com/components/button-group) | `button-group` | `ButtonGroup` | none |
+| [Slide to pay](https://design.alorawork.com/components/slide-to-pay) | `slide-to-pay` | `SlideToPay` | `amount=1250000`, `onConfirm`, `resetAfter=2600`, `disabled` |
+| [Hold to confirm](https://design.alorawork.com/components/hold-to-confirm) | `hold-to-confirm` | `HoldToConfirm` | `label="Hold to pay"`, `doneLabel="Paid"`, `detail="Rp 1.250.000"`, `duration=1200`, `resetAfter=2800`, `onConfirm` |
+| [Save button morph](https://design.alorawork.com/components/save-morph) | `save-morph` | `SaveMorph` | `label="Save changes"`, `doneLabel="Saved"`, `failLabel="Try again"`, `onSave`, `dirty`, `size="default"` |
+| [Dust dissolve delete](https://design.alorawork.com/components/dust-delete) | `dust-delete` | `DustDelete` | `title="Gelas kopi tanah liat"`, `price="Rp 89.000"`, `image`, `deleteLabel="Delete"`, `undoLabel="Undo"`, `tone="surface"`, `onDelete`, `onUndo` |
+| [Undo fuse pill](https://design.alorawork.com/components/undo-fuse) | `undo-fuse` | `UndoFuse` | `label="Order INV-20841 archived"`, `undoneLabel="Order restored"`, `actionLabel="Undo"`, `duration=6000`, `paused=false`, `onUndo`, `onExpire`, `onClosed` |
+| [Bulk action bar](https://design.alorawork.com/components/bulk-action-bar) | `bulk-action-bar` | `BulkActionBar` | `count`, `label="selected"`, `actions`, `onClear`, `done`, `onUndo`, `undoFor=6000`, `onExpire`, `className` |
 
 ### Inputs
 
@@ -200,6 +169,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Password](https://design.alorawork.com/components/password-input) | `password-input` | `PasswordInput` | `value`, `onValueChange`, `minLength=8`, `suggest=true`, `error`, `submitted`, `wrapperClassName` |
 | [Theme switch](https://design.alorawork.com/components/theme-switch) | `theme-switch` | `ThemeSwitch` | `value`, `onValueChange`, `system=true`, `iconOnly`, `within`, `className` |
 | [Step form](https://design.alorawork.com/components/step-form) | `step-form` | `StepPanels`, `StepForm` | `step`, `children`, `className`, `steps`, `onStepChange`, `finishLabel="Finish"`, `onFinish` |
+| [Detent rotary knob](https://design.alorawork.com/components/detent-knob) | `detent-knob` | `DetentKnob` | `value`, `defaultValue=20`, `onValueChange`, `min=0`, `max=60`, `step=5`, `format=(v) => `${v}%``, `label="Discount"`, `product="Gelas kopi tanah liat"`, `price=85000` |
+| [Rubber band stepper](https://design.alorawork.com/components/rubber-band-stepper) | `rubber-band-stepper` | `RubberBandStepper` | `value`, `defaultValue=12`, `onValueChange`, `min=0`, `max=999`, `step=1`, `label="Quantity"` |
+| [Shift ring clock](https://design.alorawork.com/components/shift-ring-clock) | `shift-ring-clock` | `ShiftRingClock` | `value`, `defaultValue={ start: 22 * 60, end: 6 * 60 }`, `onValueChange`, `step=15`, `minLength=60`, `maxLength=23 * 60` |
+| [Filter search](https://design.alorawork.com/components/filter-search) | `filter-search` | `FilterSearch` | `fields`, `tokens`, `onTokensChange`, `query`, `onQueryChange`, `placeholder="Search or filter"`, `listHeight=240`, `children`, `className`, `aria-label` |
+| [Status changer](https://design.alorawork.com/components/status-select) | `status-select` | `StatusSelect` | `options=ORDER_STATUSES`, `value`, `defaultValue`, `onValueChange`, `readOnly`, `disabled`, `aria-label`, `className` |
+| [Invoice line items](https://design.alorawork.com/components/line-items) | `line-items` | `LineItems` | `defaultItems=[]`, `catalog=[]`, `taxRate=0.11`, `taxLabel="PPN 11%"`, `rows=4`, `onItemsChange`, `className` |
 
 ### Display
 
@@ -225,6 +200,21 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Carousel](https://design.alorawork.com/components/carousel) | `carousel` | `Carousel` | `children`, `perView=1`, `gap=12`, `peek=true`, `arrows=true`, `dots=true`, `className`, `aria-label` |
 | [Aspect ratio](https://design.alorawork.com/components/aspect-ratio) | `aspect-ratio` | `AspectRatio` | none |
 | [Typography](https://design.alorawork.com/components/typography) | `typography` | `H1`, `H2`, `H3`, `H4`, `P`, `Muted`, `Small`, `Num`, `InlineCode`, `List`, `Quote` | none |
+| [Balance privacy](https://design.alorawork.com/components/balance-privacy-wave) | `balance-privacy-wave` | `BalancePrivacyWave` | `label="Balance"`, `amount=48240000`, `details=DEFAULT_DETAILS`, `hidden`, `defaultHidden=false`, `onHiddenChange` |
+| [Rolling odometer total](https://design.alorawork.com/components/odometer-total) | `odometer-total` | `OdometerTotal` | `label="Sales today"`, `unit="Rp"`, `value`, `defaultValue=48240000`, `fitTo`, `steps=[89000, 1250000, 12500000, -245000]`, `onValueChange` |
+| [Split-flap KPI board](https://design.alorawork.com/components/split-flap-board) | `split-flap-board` | `SplitFlapBoard` | `rows=DEFAULT_ROWS`, `cells=5`, `actionLabel="Next hour"`, `onValuesChange` |
+| [Dot matrix number](https://design.alorawork.com/components/dot-matrix-number) | `dot-matrix-number` | `DotMatrixNumber` | `label="Orders today"`, `value`, `defaultValue=1284`, `places=4`, `step=1`, `actionLabel="New order"`, `onValueChange` |
+| [Stock battery](https://design.alorawork.com/components/stock-battery) | `stock-battery` | `StockBattery` | `product="Gelas kopi tanah liat"`, `value`, `defaultValue=46`, `capacity=120`, `reorderAt=24`, `cells=10`, `sellStep=6`, `onValueChange`, `onRestock` |
+| [Morphing status island](https://design.alorawork.com/components/status-island) | `status-island` | `StatusIsland` | `status`, `progress=0`, `onStatusChange`, `idleLabel="Sync 7 shops"`, `syncLabel="Syncing"`, `channels=["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]`, `progressLabel="248 products"`, `doneLabel="248 products synced"` |
+| [Flip countdown](https://design.alorawork.com/components/flip-countdown) | `flip-countdown` | `FlipCountdown` | `seconds=24`, `endsAt`, `loop=false`, `onComplete`, `ref` |
+| [SLA burning fuse](https://design.alorawork.com/components/sla-fuse) | `sla-fuse` | `SlaFuse` | `order="INV-20841"`, `item="Gelas kopi tanah liat × 2"`, `total=2700`, `remaining=2340`, `speed=1`, `paused=false`, `actionLabel="Ship order"`, `shippedLabel="Shipped"`, `reopenLabel="Reopen"`, `lateLabel="Late"`, `onShip`, `onReopen`, `onLate` |
+| [Peel shipping label](https://design.alorawork.com/components/peel-label) | `peel-label` | `PeelLabel` | `from="Rimba Kemang, Jakarta"`, `to="Sari Wulandari"`, `address="Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"`, `tracking="RK-2041-8836"`, `weight="1,2 kg"`, `onStick` |
+| [Before after wipe](https://design.alorawork.com/components/before-after) | `before-after` | `BeforeAfter` | `before`, `after`, `alt`, `beforeFilter`, `beforeLabel="Raw"`, `afterLabel="Edited"`, `defaultValue=0.5`, `onValueChange` |
+| [Product hotspots](https://design.alorawork.com/components/product-hotspots) | `product-hotspots` | `ProductHotspots` | `src`, `alt`, `spots`, `ratio=1`, `onOpenChange` |
+| [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
+| [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
+| [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Approval flow](https://design.alorawork.com/components/approval-flow) | `approval-flow` | `ApprovalFlow` | `title="Gelas kopi tanah liat, 200 pcs"`, `code="PO-1042"`, `amount=17800000`, `people=PEOPLE`, `onDecision`, `onApprovedChange`, `className` |
 
 ### Charts
 
@@ -237,6 +227,11 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Radar chart](https://design.alorawork.com/components/radar-chart) | `radar-chart` | `RadarChart` | `data`, `series`, `size=240`, `rings=4`, `fill=0.14`, `format=formatShort`, `className`, `aria-label` |
 | [Radial chart](https://design.alorawork.com/components/radial-chart) | `radial-chart` | `RadialChart` | `data`, `size=168`, `thickness=10`, `gap=6`, `sweep=270`, `center`, `className`, `aria-label` |
 | [Linked highlight](https://design.alorawork.com/components/brush) | `brush` | `useBrush` | none |
+| [Target gauge needle](https://design.alorawork.com/components/target-gauge) | `target-gauge` | `TargetGauge` | `label="Today’s target"`, `value`, `defaultValue=31400000`, `target=48000000`, `sales=[1250000, 420000, 2750000, 890000, 3100000]`, `format=formatRp`, `onValueChange` |
+| [Ghost period compare](https://design.alorawork.com/components/ghost-compare) | `ghost-compare` | `GhostCompare` | `label="Sales this week"`, `current=[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]`, `previous=[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]`, `labels=WEEKDAYS_3`, `today=6`, `hint="Hold for last week"`, `unit="Rp"`, `onCompareChange` |
+| [Goal rings](https://design.alorawork.com/components/goal-rings) | `goal-rings` | `GoalRings` | `rings=DEFAULT_RINGS`, `actionLabel="Close the day"`, `onRingChange` |
+| [Year heatmap](https://design.alorawork.com/components/year-heatmap) | `year-heatmap` | `YearHeatmap` | `days`, `label="Sales this year"`, `unit="Rp"`, `className`, `aria-label` |
+| [Margin waterfall](https://design.alorawork.com/components/margin-waterfall) | `margin-waterfall` | `MarginWaterfall` | `periods`, `defaultPeriod`, `revenueLabel="Revenue"`, `profitLabel="Profit"`, `unit="Rp"`, `onPeriodChange`, `className` |
 
 ### Navigation
 

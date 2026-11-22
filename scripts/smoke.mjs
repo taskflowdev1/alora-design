@@ -547,7 +547,7 @@ section("components-index", async ({ page }) => {
   check(index.spots >= 60 && index.missing.length === 0 && index.groups[0] === "Foundations" && index.tiles === 0, `components page: every component live exactly once, in category bento tiles (${JSON.stringify(index)})`);
   // Like a person: centre it (clear of the sticky header), hover it, then move up onto its chip and click.
   await page.locator("[data-spot=select]").evaluate((el) => el.scrollIntoView({ block: "center" }));
-  // The Showpieces band above is long and full of live pieces: wait until the spot stops moving (fonts, photos and
+  // The bands above are long and full of live pieces: wait until the spot stops moving (fonts, photos and
   // late measurements settle on a slow machine) before aiming at it.
   let selBox = null;
   for (let i = 0; i < 20; i++) {

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { BalancePrivacyWave } from "@/components/ui/balance-privacy-wave";
 import { SlideToPay } from "@/components/ui/slide-to-pay";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 // A click on these plays with them instead of opening the page behind the tile.
@@ -34,14 +34,21 @@ export const DEMOS: Record<string, Demo> = {
 
 export const TILES: TileDef[] = [
   {
-    items: ["balance-privacy-wave", "slide-to-pay"],
-    render: () => (
-      <Tile inset="pad" className={`${S[12]} lg:grid lg:grid-cols-2 lg:items-center lg:gap-8`}>
+    items: ["balance-privacy-wave"],
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <Mark name="balance-privacy-wave" className="[container-type:inline-size]">
           <div onClick={stay}>
             <BalancePrivacyWave />
           </div>
         </Mark>
+      </Tile>
+    ),
+  },
+  {
+    items: ["slide-to-pay"],
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <Mark name="slide-to-pay">
           <div onClick={stay}>
             <SlideToPay amount={416667} />

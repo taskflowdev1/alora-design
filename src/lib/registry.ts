@@ -23,7 +23,6 @@ export type Group =
   | "Chat"
   | "Foundations"
   | "Niche"
-  | "Showpieces"
   | "AI"
   | "Backgrounds"
   | MobileGroup;
@@ -336,7 +335,7 @@ export const ITEMS: Item[] = [
   ...SHOWPIECES_J,
 ];
 
-export const GROUPS: Group[] = ["Foundations", "Showpieces", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
+export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
 export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 

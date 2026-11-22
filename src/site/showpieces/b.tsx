@@ -1,6 +1,7 @@
 // Showpiece batch B: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
 // and its moment on the landing. Aggregated in ./index.ts.
 import type * as React from "react";
+import { cn } from "@/lib/ad";
 import { DotMatrixNumber } from "@/components/ui/dot-matrix-number";
 import { GhostCompare } from "@/components/ui/ghost-compare";
 import { GoalRings } from "@/components/ui/goal-rings";
@@ -9,7 +10,7 @@ import { SplitFlapBoard } from "@/components/ui/split-flap-board";
 import { StockBattery } from "@/components/ui/stock-battery";
 import { TargetGauge } from "@/components/ui/target-gauge";
 import type { Demo } from "../demos";
-import { Mark, S, type TileDef } from "../mark";
+import { Mark, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 export const DEMOS: Record<string, Demo> = {
@@ -52,23 +53,23 @@ export const DEMOS: Record<string, Demo> = {
   },
 };
 
-const tile = (name: string, span: string, body: React.ReactNode): TileDef => ({
+const tile = (name: string, body: React.ReactNode): TileDef => ({
   items: [name],
-  render: () => (
-    <Mark name={name} className={span}>
+  render: (_, c) => (
+    <Mark name={name} className={cn("grid grid-cols-1", c)}>
       {body}
     </Mark>
   ),
 });
 
 export const TILES: TileDef[] = [
-  tile("odometer-total", S[6], <OdometerTotal />),
-  tile("target-gauge", S[6], <TargetGauge />),
-  tile("ghost-compare", S[6], <GhostCompare />),
-  tile("split-flap-board", S[6], <SplitFlapBoard />),
-  tile("goal-rings", S[6], <GoalRings />),
-  tile("dot-matrix-number", S[6], <DotMatrixNumber />),
-  tile("stock-battery", S[12], <StockBattery className="mx-auto w-full max-w-[560px]" />),
+  tile("odometer-total", <OdometerTotal defaultValue={12480000} label="Sales today" />),
+  tile("target-gauge", <TargetGauge />),
+  tile("ghost-compare", <GhostCompare />),
+  tile("split-flap-board", <SplitFlapBoard />),
+  tile("goal-rings", <GoalRings />),
+  tile("dot-matrix-number", <DotMatrixNumber />),
+  tile("stock-battery", <StockBattery />),
 ];
 
 export const MOMENTS: ShowpieceMoment[] = [

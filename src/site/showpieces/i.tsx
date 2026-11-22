@@ -14,7 +14,7 @@ import { NotificationBell, type Notice } from "@/components/ui/notification-bell
 import { StatusSelect } from "@/components/ui/status-select";
 import { Thumb } from "@/components/ui/thumb";
 import type { Demo } from "../demos";
-import { Mark, S, type TileDef } from "../mark";
+import { Mark, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 /** Keeps a press on a playable piece from also opening its page. */
@@ -25,15 +25,15 @@ const Play = ({ children }: { children: React.ReactNode }) => (
 );
 
 /** A reset sits outside the piece, in a slot whose height is always kept, so nothing moves when it appears. */
-const Again = ({ show, onClick }: { show: boolean; onClick: () => void }) => (
-  <div className="flex h-control items-center justify-center">
-    {show ? (
-      <Button size="sm" variant="ghost" onClick={onClick} className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]">
-        Start over
-      </Button>
-    ) : null}
-  </div>
-);
+/** Start over. `inset` (a bento tile): it floats on the card's footer, so the card keeps the row's full height. */
+const Again = ({ show, onClick, inset }: { show: boolean; onClick: () => void; inset?: boolean }) => {
+  const button = show ? (
+    <Button size="sm" variant="ghost" onClick={onClick} className={cn("animate-[ad-fade-in_220ms_var(--ad-ease)_both]", inset && "absolute bottom-3 left-1/2 z-10 -translate-x-1/2")}>
+      Start over
+    </Button>
+  ) : null;
+  return inset ? button : <div className="flex h-control items-center justify-center">{button}</div>;
+};
 
 const ORDERS = [
   { id: "RMB-24817", name: "Gelas kopi tanah liat", photo: "/photos/cup-terracotta.webp", total: 1250000, status: "packed" },
@@ -51,7 +51,7 @@ const WAVE = 55;
 
 /* ------------------------------------------------------------ Bulk action bar */
 
-function BulkOrders({ className }: { className?: string }) {
+function BulkOrders({ className, inset }: { className?: string; inset?: boolean }) {
   const [status, setStatus] = React.useState<Record<string, string>>(START_STATUS);
   const [ticked, setTicked] = React.useState<ReadonlySet<string>>(new Set());
   const [done, setDone] = React.useState<{ ids: string[]; before: Record<string, string> } | null>(null);
@@ -112,7 +112,7 @@ function BulkOrders({ className }: { className?: string }) {
   };
 
   return (
-    <div className={cn("grid w-full gap-3", className)}>
+    <div className={cn("relative grid w-full gap-3", className)}>
       <Card inset="nest" className="relative grid overflow-hidden">
         <div className="flex h-item items-center gap-2.5 px-2 text-small text-ink-muted">
           <Checkbox
@@ -166,7 +166,7 @@ function BulkOrders({ className }: { className?: string }) {
           onExpire={() => setDone(null)}
         />
       </Card>
-      <Again show={moved} onClick={reset} />
+      <Again inset={inset} show={moved && !(inset && ticked.size)} onClick={reset} />
     </div>
   );
 }
@@ -195,15 +195,15 @@ function StatusRows({ className }: { className?: string }) {
 
 /* ------------------------------------------------------------ Approval flow */
 
-function ApprovalScene({ className }: { className?: string }) {
+function ApprovalScene({ className, inset }: { className?: string; inset?: boolean }) {
   const [run, setRun] = React.useState(0);
   const [approved, setApproved] = React.useState(false);
   return (
-    <div className={cn("grid w-full gap-3", className)}>
+    <div className={cn("relative grid w-full gap-3", className)}>
       <Card>
         <ApprovalFlow key={run} onApprovedChange={setApproved} />
       </Card>
-      <Again show={approved} onClick={() => setRun((r) => r + 1)} />
+      <Again inset={inset} show={approved} onClick={() => setRun((r) => r + 1)} />
     </div>
   );
 }
@@ -325,18 +325,18 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["bulk-action-bar"],
-    render: () => (
-      <Mark name="bulk-action-bar" className={S[6]}>
+    render: (_, c) => (
+      <Mark name="bulk-action-bar" className={cn("grid", c)}>
         <Play>
-          <BulkOrders />
+          <BulkOrders inset />
         </Play>
       </Mark>
     ),
   },
   {
     items: ["status-select"],
-    render: () => (
-      <Mark name="status-select" className={S[4]}>
+    render: (_, c) => (
+      <Mark name="status-select" className={cn("grid", c)}>
         <Play>
           <StatusRows />
         </Play>
@@ -345,10 +345,10 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["approval-flow"],
-    render: () => (
-      <Mark name="approval-flow" className={S[6]}>
+    render: (_, c) => (
+      <Mark name="approval-flow" className={cn("grid", c)}>
         <Play>
-          <ApprovalScene />
+          <ApprovalScene inset />
         </Play>
       </Mark>
     ),
