@@ -19,8 +19,6 @@ const doc = (sym) => ts.displayPartsToString(sym.getDocumentationComment(checker
 const cell = (s) => String(s).replace(/\|/g, "\\|").replace(/\n/g, " ");
 const typeText = (t) => checker.typeToString(t, undefined, ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType).replace(/ \| undefined$/, "").replace(/'/g, '"');
 
-/* ------------------------------------------------------------ settings */
-
 const configSrc = read("src/lib/config.ts");
 const urlKey = Object.fromEntries([...configSrc.matchAll(/c\.(\w+)(?:\.\w+\(\))? !== d\.\w+\) out\.push\(\["(\w+)"/g)].map((m) => [m[1], m[2]]));
 const shortKeys = (name) => Object.fromEntries([...(configSrc.match(new RegExp(`const ${name}[^=]*= \\{([^}]*)\\}`))?.[1] ?? "").matchAll(/(\w+): "(\w+)"/g)].map((m) => [m[2], m[1]]));
@@ -49,8 +47,6 @@ function settingsTable() {
   }
   return rows.join("\n");
 }
-
-/* ------------------------------------------------------------ components */
 
 /** Exported components of a file: capitalised functions with at most one (props) parameter. */
 function componentsOf(file) {
@@ -173,16 +169,12 @@ function componentsDoc() {
   return out.join("\n").trimEnd() + "\n";
 }
 
-/* ------------------------------------------------------------ write or check */
-
 const splice = (text, tag, body) => {
   const re = new RegExp(`(<!-- ${tag}:start -->)[\\s\\S]*?(<!-- ${tag}:end -->)`);
   if (!re.test(text)) throw new Error(`README.md is missing the <!-- ${tag}:start --> / <!-- ${tag}:end --> markers`);
   return text.replace(re, `$1\n${body}\n$2`);
 };
-/* ------------------------------------------------------------ grey ramp */
 
-// The grey ramp (config.ts): every step per theme at the default (neutral) greys, then the role tokens and their step.
 function greysTable() {
   const light = greyRamp("neutral", false);
   const dark = greyRamp("neutral", true);

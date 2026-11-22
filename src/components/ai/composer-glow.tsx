@@ -114,7 +114,6 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
           </Button>
         </Tooltip>
       ) : (
-        // Send stays disabled while the box is empty; the tooltip says why.
         <Tooltip content={empty && !disabled ? "Type a message first" : "Send"}>
           <span className="inline-flex">
             <Button type="submit" variant="primary" icon aria-label="Send" disabled={empty || disabled}>

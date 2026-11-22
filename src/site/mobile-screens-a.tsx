@@ -55,8 +55,6 @@ import { DAILY, HOURLY, NOW, ORDERS, PAID_ORDERS, PRODUCTS, productPhoto, smartT
 import { CAMERA_ROLL, CUSTOMERS, NOTIFS, type Notif } from "./mobile-data";
 import { COURIERS, CourierPicker, OrderThumb, ScreenEmpty, SectionTitle, rowTime, short, smartDay, useNav, type ScreenProps } from "./mobile-app-kit";
 
-/* ------------------------------------------------------------ Home */
-
 export function HomeScreen({ state }: ScreenProps) {
   const nav = useNav();
   const toPack = useOrders().orders.filter((o) => o.status === "Paid").length;
@@ -144,8 +142,6 @@ function AttentionCard({ icon: I, media, title, meta, onClick }: { icon?: React.
   );
 }
 
-/* ------------------------------------------------------------ Notifications */
-
 const NOTIF_ICON: Record<Notif["kind"], React.ComponentType> = { order: ShoppingBag, stock: Package, payout: CreditCard, review: Star, team: Users, return: RotateCcw };
 
 export function NotificationsScreen({ back, state }: ScreenProps) {
@@ -208,8 +204,6 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
   );
 }
 
-/* ------------------------------------------------------------ Search */
-
 export function SearchScreen({ back, params, state }: ScreenProps) {
   const nav = useNav();
   const [q, setQ] = React.useState(state === "empty" ? "keramik biru" : (params.q ?? ""));
@@ -256,8 +250,6 @@ export function SearchScreen({ back, params, state }: ScreenProps) {
     </MobileScreen>
   );
 }
-
-/* ------------------------------------------------------------ Reports */
 
 const SHOP_FILTERS = [
   { value: "all", label: "All shops" },
@@ -355,8 +347,6 @@ export function ReportsScreen({ back, state }: ScreenProps) {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Orders */
 
 type Stage = "pack" | "ship" | "done";
 const STAGE_OF = (o: Order): Stage | null => (o.status === "Paid" ? "pack" : o.status === "Packed" ? "ship" : o.status === "Shipped" ? "done" : null);
@@ -463,8 +453,6 @@ const OrderRow = React.memo(function OrderRow({ o, stage, act, onOpen }: { o: Or
     </SwipeRow>
   );
 });
-
-/* ------------------------------------------------------------ Order */
 
 export function OrderScreen({ params, back }: ScreenProps) {
   const nav = useNav();
@@ -601,8 +589,6 @@ export function OrderScreen({ params, back }: ScreenProps) {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Proof of delivery */
 
 type Upload = Photo & { progress: number; state: "uploading" | "done" | "failed" };
 

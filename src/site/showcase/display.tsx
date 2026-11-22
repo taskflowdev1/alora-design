@@ -19,8 +19,6 @@ import { Head, Mark, Tile, stack } from "../mark";
 import { tone } from "./actions";
 import { say } from "./shared";
 
-/* ------------------------------------------------------------ Display */
-
 export function TableTile({ className }: { className?: string }) {
   const [chip, setChip] = React.useState("all");
   const [sel, setSel] = React.useState<string | null>(ORDERS[1].id);

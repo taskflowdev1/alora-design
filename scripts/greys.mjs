@@ -36,8 +36,6 @@ function files(root) {
   return out.map((p) => ({ rel: relative(root, p), text: readFileSync(p, "utf8") }));
 }
 
-/* ------------------------------------------------------------ colour maths */
-
 const hexRgb = (h) => {
   let x = h.replace("#", "");
   if (x.length === 3 || x.length === 4) x = [...x].map((c) => c + c).join("");
@@ -57,8 +55,6 @@ const parseColor = (v) => {
   return null;
 };
 const over = ([r, g, b, a], [R, G, B]) => [r * a + R * (1 - a), g * a + G * (1 - a), b * a + B * (1 - a), 1];
-
-/* ------------------------------------------------------------ patterns */
 
 const PREFIX = "(?:bg|text|fill|stroke|border|ring|outline|from|via|to|decoration|caret|accent|divide|placeholder)";
 const PALETTE = new RegExp(`(?<![\\w-])${PREFIX}-(?:black|white|gray|grey|neutral|zinc|slate|stone)(?:-\\d+)?(?:/[\\d.]+)?(?![\\w-])`, "g");
@@ -82,8 +78,6 @@ function greyTokens(lib, t) {
 }
 
 const isNeutral = (lib, rgb) => lib.hexToOklch(toHex(rgb)).c < 0.03;
-
-/* ------------------------------------------------------------ check */
 
 async function check() {
   const lib = await loadLib(["config", "color"], { root: ROOT });
@@ -144,8 +138,6 @@ async function check() {
   }
   console.log("greys ok: one ramp per theme, every grey on it");
 }
-
-/* ------------------------------------------------------------ inventory */
 
 async function inventory() {
   const lib = await loadLib(["config", "color"], { root: ROOT });
@@ -209,8 +201,6 @@ async function inventory() {
   out.shadows = Object.fromEntries(["light", "dark"].map((th) => [th, Object.fromEntries(Object.entries(t[th]).filter(([k]) => /shadow|overlay/.test(k)))]));
   console.log(JSON.stringify(out, null, 2));
 }
-
-/* ------------------------------------------------------------ sheet */
 
 function sheet(beforeFile, afterFile, outFile) {
   const before = JSON.parse(readFileSync(beforeFile, "utf8"));

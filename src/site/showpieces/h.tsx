@@ -32,8 +32,6 @@ function StartOver({ show, onClick }: { show: boolean; onClick: () => void }) {
   );
 }
 
-/* ------------------------------------------------------------ date range */
-
 const TODAY = new Date(2026, 10, 20);
 const RANGE_PRESETS: RangePreset[] = [
   { key: "today", label: "Today", range: (t) => ({ from: startOfDay(t), to: startOfDay(t) }) },
@@ -51,8 +49,6 @@ function DateRangeMoment() {
   );
 }
 
-/* ------------------------------------------------------------ multi-select */
-
 const CHANNELS: Option[] = ["Shopee", "Tokopedia", "TikTok Shop", "Lazada", "Blibli", "Website", "WhatsApp"].map((c) => ({ value: c, label: c }));
 
 function MultiSelectMoment() {
@@ -64,8 +60,6 @@ function MultiSelectMoment() {
     </Card>
   );
 }
-
-/* ------------------------------------------------------------ currency */
 
 const CREDIT_START = 1250000;
 
@@ -81,8 +75,6 @@ function CurrencyMoment() {
     </div>
   );
 }
-
-/* ------------------------------------------------------------ inline edit */
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -122,8 +114,6 @@ function InlineEditMoment() {
     </Card>
   );
 }
-
-/* ------------------------------------------------------------ filter search */
 
 type Order = { id: string; customer: string; status: string; channel: string; total: number };
 const ORDERS: Order[] = [
@@ -199,8 +189,6 @@ function FilterSearchPiece({ listHeight = 228 }: { listHeight?: number }) {
   );
 }
 
-/* ------------------------------------------------------------ combobox */
-
 const CUSTOMERS: Option[] = ["Ayu Lestari", "Budi Santoso", "Hendra Wijaya", "Maya Putri", "Rizky Pratama", "Sari Wulandari", "Toko Sinar Jaya"].map((c) => ({ value: c, label: c }));
 
 function ComboboxMoment() {
@@ -236,8 +224,6 @@ function ComboboxMoment() {
     </div>
   );
 }
-
-/* ------------------------------------------------------------ registry surfaces */
 
 export const DEMOS: Record<string, Demo> = {
   "filter-search": {

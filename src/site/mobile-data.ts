@@ -7,8 +7,6 @@ const at = (days: number, h: number, m = 0) => new Date(NOW.getFullYear(), NOW.g
 /** The phone's camera roll for the photo picker: a few angles of every product. */
 export const CAMERA_ROLL = PRODUCTS.flatMap((p) => productPhotos(p.sku).slice(0, 2).map((src, a) => ({ id: `${p.sku}-${a}`, src, alt: `${p.name}, photo ${a + 1}` }))).slice(0, 17);
 
-/* ------------------------------------------------------------ customers */
-
 const NAMES = [
   "Agus Salim", "Ani Wijaya", "Ayu Lestari", "Bagus Wicaksono", "Bambang Pratama", "Budi Santoso", "Cahya Ningrum", "Citra Maharani", "Dedi Kurniawan", "Dian Puspita",
   "Eka Saputra", "Fajar Nugroho", "Fitri Handayani", "Galih Saputro", "Gita Permata", "Hadi Susanto", "Hana Rahmawati", "Indra Gunawan", "Intan Purnama", "Johan Setiawan",
@@ -36,8 +34,6 @@ export const CUSTOMERS: Customer[] = NAMES.map((name, i) => ({
   spent: (1 + ((i * 7) % 23)) * (120000 + ((i * 53) % 9) * 21000),
   last: at(-((i * 5) % 40), 9 + (i % 10), (i * 13) % 60),
 }));
-
-/* ------------------------------------------------------------ marketplace chats */
 
 interface ChatLine {
   id: string;
@@ -91,8 +87,6 @@ export const CHATS: Chat[] = [
   { id: "ch6", name: "Hendra Gunawan", market: "shopee", shop: "Rimba Official", time: "Sat", unread: 0, lines: [{ id: "1", text: "Can I change the colour of the vase?", time: "14 Nov, 10:15" }] },
 ];
 
-/* ------------------------------------------------------------ notifications */
-
 export interface Notif {
   id: string;
   kind: "order" | "stock" | "payout" | "review" | "team" | "return";
@@ -113,8 +107,6 @@ export const NOTIFS: Notif[] = [
   { id: "n7", kind: "stock", title: "Tatakan gelas jati is out of stock", time: "Yesterday" },
 ];
 
-/* ------------------------------------------------------------ approvals */
-
 export interface Approval {
   id: string;
   kind: "expense" | "leave";
@@ -133,7 +125,7 @@ export const APPROVALS: Approval[] = [
   { id: "ap5", kind: "leave", who: "Intan Permata", title: "Half day", dates: "27 Nov", time: "Yesterday, 12:15" },
 ];
 
-/* ------------------------------------------------------------ team schedule (week of 16 Nov) */
+/* Team schedule: the week of 16 Nov. */
 
 interface Shift {
   id: string;

@@ -109,7 +109,6 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
         const next = stretch(drag.dx);
         vel = (next - pull) / dt;
         pull = next;
-        // The further the pull, the faster it counts.
         const force = Math.abs(pull) / REACH;
         if (force > DEAD_ZONE) {
           const k = (force - DEAD_ZONE) / (1 - DEAD_ZONE);

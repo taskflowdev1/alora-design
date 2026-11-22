@@ -105,8 +105,6 @@ export function ScreenEmpty(props: React.ComponentProps<typeof EmptyState>) {
   return <EmptyState {...props} className={cn("grow py-16", props.className)} />;
 }
 
-/* ------------------------------------------------------------ demo rows */
-
 export const OrderThumb = ({ o }: { o: Order }) => <Thumb src={itemPhoto(o.items)} alt={o.items} size={40} />;
 
 /** An order in a list: its photo, the customer, the time first (truncation never eats it) and the items, the total. */

@@ -15,8 +15,6 @@ import { Timeline } from "@/components/ui/timeline";
 import { TEAM_ACTIVITY, TEAM_DETAIL } from "../data";
 import { PrimaryAction, useLoading } from "./shared";
 
-/* ------------------------------------------------------------ team */
-
 export function Team() {
   const loading = useLoading();
   const [roles, setRoles] = React.useState(Object.fromEntries(TEAM_DETAIL.map((t) => [t.email, t.role])));

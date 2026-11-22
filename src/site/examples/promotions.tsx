@@ -23,8 +23,6 @@ import { useMediaQuery } from "@/lib/ad-hooks";
 import { NOW, PROMOTIONS, type Promotion } from "../data";
 import { PrimaryAction } from "./shared";
 
-/* ------------------------------------------------------------ promotions */
-
 /** A promotion: what and when, where it runs, then how much of its budget is spent (a bar, never a ring). */
 function PromotionCard({ p }: { p: Promotion }) {
   return (

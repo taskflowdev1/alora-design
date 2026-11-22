@@ -134,7 +134,6 @@ export function MobileMultiSelectSheet({ open, onOpenChange, title, options, val
         </div>
       }
     >
-      {/* The picked chips: one row that scrolls sideways; each chip drops its option. */}
       <div className="grid transition-[grid-template-rows] duration-[200ms] ease-ad motion-reduce:transition-none" style={{ gridTemplateRows: chosen.length ? "1fr" : "0fr" }}>
         <div className="min-h-0 overflow-hidden">
           <div aria-label="Chosen" className="-mx-pad flex gap-gap overflow-x-auto px-pad pb-2 [scrollbar-width:none]">

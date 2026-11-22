@@ -154,7 +154,6 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
     [paint],
   );
 
-  // An outside change (or a key) moves the ruler to the new value.
   React.useLayoutEffect(() => {
     if (drag.current || value === shown.current) return paint(false);
     shown.current = value;

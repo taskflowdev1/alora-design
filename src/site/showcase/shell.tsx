@@ -8,8 +8,6 @@ import { ORDERS } from "../data";
 import { Mark, Tile } from "../mark";
 import { tone } from "./actions";
 
-/* ------------------------------------------------------------ Layout */
-
 export function DesktopShellTile({ className }: { className?: string }) {
   const [at, setAt] = React.useState("Orders");
   const nav: [typeof Home, string, number?][] = [

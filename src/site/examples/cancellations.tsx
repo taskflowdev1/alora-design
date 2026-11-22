@@ -25,8 +25,6 @@ import { SplitButton } from "@/components/ui/split-button";
 import { CANCEL_REASONS, CANCELLATIONS, NOW, smartTime, type Cancellation } from "../data";
 import { Metrics, NoTranslate, PANE_CLASS, Rp, useLoading, usePaneRoom } from "./shared";
 
-/* ------------------------------------------------------------ cancellations */
-
 const DEFAULT_RANGE: DateRange = { from: new Date(2026, 10, 10), to: NOW };
 const STATUSES: Cancellation["status"][] = ["Waiting refund", "Refunded", "Disputed"];
 

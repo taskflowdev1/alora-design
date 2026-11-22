@@ -31,8 +31,6 @@ const smooth = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t);
 };
 
-/* ------------------------------------------------------------ the card, drawn to a canvas */
-
 function drawSvg(ctx: CanvasRenderingContext2D, svg: SVGSVGElement) {
   const r = svg.getBoundingClientRect();
   const box = svg.viewBox.baseVal;
@@ -105,8 +103,6 @@ function drawTree(ctx: CanvasRenderingContext2D, el: Element) {
     else if (n.nodeType === Node.ELEMENT_NODE) drawTree(ctx, n as Element);
   }
 }
-
-/* ------------------------------------------------------------ the dust */
 
 interface Dust {
   n: number;

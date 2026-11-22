@@ -34,8 +34,6 @@ export const skeletonText = (onFill?: boolean) => cn("ad-skel", onFill ? "after:
 export const fieldChipClass =
   "inline-flex h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] items-center gap-1 rounded-item bg-surface pl-bubble-sm pr-1 text-body text-ink shadow-sel";
 
-/* ---------------------------------------------------------------- numbers */
-
 /** The one locale for figures: "12.400.000", "48,2". Change it here and every component follows. */
 export const LOCALE = "id-ID";
 
@@ -70,8 +68,6 @@ export function formatCompact(n: number, { space = "nbsp", digits = "auto" }: Co
   if (a >= 1e4) return f(n / 1e3, "rb");
   return digits === 1 ? formatNumber(n) : formatNumber(Math.round(n));
 }
-
-/* ---------------------------------------------------------------- dates */
 
 export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 export const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -114,8 +110,6 @@ export function formatSmartDate(d: Date, now = new Date()) {
   if (diff === 1) return "Tomorrow";
   return formatDate(d);
 }
-
-/* ---------------------------------------------------------------- environment */
 
 /** Phone safe areas. A frame (a phone mock-up) can set --ad-safe-* to stand in for the device's insets. */
 export const SAFE_TOP = "var(--ad-safe-top, env(safe-area-inset-top, 0px))";

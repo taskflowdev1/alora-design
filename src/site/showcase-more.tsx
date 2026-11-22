@@ -61,7 +61,7 @@ import { CodeBlock } from "@/components/ui/code-block";
 import { BackPage, Head, Mark, Tile, frame, type TileDef } from "./mark";
 import { CUP_PHOTOS, DAILY, NOW, ORDERS, productPhoto, smartTime, type Order } from "./data";
 
-/* ------------------------------------------------------------ demo data (invented) */
+/* Demo data below is invented. */
 
 /** Sales per day, this fortnight and the one before, in rupiah. */
 export const SALES_14: Datum[] = DAILY.slice(-14).map((d, i) => ({ label: d.label, now: Math.round(d.value * 1e6), before: Math.round(DAILY[i + 2].value * 0.88 * 1e6) }));
@@ -107,8 +107,6 @@ export const TARGETS = [
 
 const say = (m: string) => () => toast(m, "neutral");
 const total = BY_CHANNEL.reduce((s, d) => s + d.value, 0);
-
-/* ------------------------------------------------------------ Charts */
 
 export function SalesTrendTile({ className }: { className?: string }) {
   return (
@@ -187,8 +185,6 @@ function TargetsTile({ className }: { className?: string }) {
     </Tile>
   );
 }
-
-/* ------------------------------------------------------------ Navigation */
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "#", active: false },
@@ -310,8 +306,6 @@ function ReceiptEditorTile({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ Inputs */
-
 /** The till's one-time code, centred: the playable flow (OtpFlow) under the title. */
 function TillSignInTile({ className }: { className?: string }) {
   return (
@@ -387,8 +381,6 @@ function PickupDateTile({ className }: { className?: string }) {
     </Tile>
   );
 }
-
-/* ------------------------------------------------------------ Display */
 
 const STATUS_TONE: Record<string, StatusTone> = { Unpaid: "attention", Cancelled: "muted" };
 
@@ -485,8 +477,6 @@ function SuppliersTile({ className }: { className?: string }) {
     </Tile>
   );
 }
-
-/* ------------------------------------------------------------ Overlays */
 
 function ConfirmTile({ className }: { className?: string }) {
   return (
@@ -595,7 +585,7 @@ function BeforeRestockTile({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ the tiles (placed by showcase/index.tsx) */
+/* Tiles below are placed by showcase/index.tsx. */
 
 export const MORE_TILES: TileDef[] = [
   { items: ["chart", "line-chart"], render: (_, c) => <SalesTrendTile className={c} /> },

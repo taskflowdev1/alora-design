@@ -20,8 +20,6 @@ import { Thumb } from "@/components/ui/thumb";
 import { NOW, ORDERS, PRODUCTS, SHOPS, itemPhoto } from "../data";
 import { Head, Mark, Tile } from "../mark";
 
-/* ------------------------------------------------------------ Inputs */
-
 export function NewOrderTile({ className }: { className?: string }) {
   const [sku, setSku] = React.useState<string | null>(PRODUCTS[0].sku);
   const [date, setDate] = React.useState<Date | null>(NOW);

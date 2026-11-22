@@ -18,8 +18,6 @@ import { Loading } from "@/components/ui/skeleton";
 import { TEAM } from "../data";
 import { useLoading } from "./shared";
 
-/* ------------------------------------------------------------ settings */
-
 type Form = {
   name: string;
   legal: string;

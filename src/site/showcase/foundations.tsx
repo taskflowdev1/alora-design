@@ -7,8 +7,6 @@ import { useEdgeFadeX } from "../layout";
 import { ORDERS, smartTime } from "../data";
 import { Mark, Tile } from "../mark";
 
-/* ------------------------------------------------------------ Foundations */
-
 export function CornerTile({ config, className }: { config: Config; className?: string }) {
   const r = Math.max(config.radius, 1) * 2;
   const comp = shapedSupported() ? squircleCompensation(config.smoothing) : 1;

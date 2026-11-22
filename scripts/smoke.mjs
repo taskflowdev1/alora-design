@@ -123,7 +123,7 @@ const MOBILE = ["mobile-tab-bar", "mobile-nav-bar", "mobile-action-bar", "mobile
 // Mobile v2: the rest of the set, and every screen of the example app (with its forced states) at /mobile/app/<screen>.
 const MOBILE_2 = ["mobile-filter-chips", "mobile-top-tabs", "mobile-choice-rows", "mobile-person-row", "mobile-index-list", "mobile-picker-sheet", "mobile-multi-select", "mobile-date-range", "mobile-context-menu", "mobile-modal", "mobile-alert", "mobile-text-field", "mobile-keypad", "mobile-slider", "mobile-photo-picker", "mobile-scanner", "mobile-signature", "mobile-otp", "mobile-stat-tiles", "mobile-kpi-carousel", "mobile-scrub-chart", "mobile-timeline", "mobile-steps", "mobile-receipt", "mobile-badge", "mobile-banner", "mobile-upload-row", "mobile-onboarding", "mobile-chat"];
 MOBILE.push(...MOBILE_2);
-// The installed-app (PWA) parts. Each is a scene on /mobile, not a tile in the screens overview.
+// Each PWA part is a scene on /mobile, not a tile in the screens overview.
 const MOBILE_PWA = ["mobile-install-prompt", "mobile-passkey", "mobile-push-ask", "mobile-app-header", "mobile-app-badge", "mobile-sync-status", "mobile-update-toast", "mobile-page-stack", "mobile-share", "mobile-camera", "mobile-wake-lock", "mobile-state-button"];
 const APP_SCREENS = ["home", "notifications", "search", "reports", "orders", "order", "delivery", "products", "product", "product-edit", "stock-count", "inbox", "chat", "assistant", "more", "customers", "customer", "pos", "pos-pay", "pos-receipt", "approvals", "schedule", "settings", "account", "login", "otp", "onboarding"];
 const APP_STATES = ["home?state=offline", "notifications?state=empty", "search?state=empty", "reports?state=error", "approvals?state=empty"];
@@ -605,7 +605,6 @@ section("footer-tablet", async ({ page, open }) => {
 });
 
 section("examples-nav", async ({ page }) => {
-  // Every example nav item opens a real page
   await page.goto(BASE + "/examples/dashboard");
   for (const label of ["Products", "Promotions", "Cancellations", "Team"]) {
     await page.click(`nav a:has-text('${label}')`);
@@ -616,14 +615,12 @@ section("examples-nav", async ({ page }) => {
 });
 
 section("palette-config", async ({ page }) => {
-  // Command palette opens with Ctrl+K
   await page.goto(BASE + "/components");
   await page.keyboard.press("Control+k");
   await sleep(200);
   check(await page.locator("[role=listbox] >> text=Fee row").isVisible(), "Ctrl+K opens the command palette");
   await page.keyboard.press("Escape");
 
-  // Config travels in the URL and restyles tokens
   await page.goto(`${BASE}/?r=20&c=r&a=d9622b&t=l`);
   const vars = await page.evaluate(() => {
     const s = getComputedStyle(document.documentElement);
@@ -634,13 +631,11 @@ section("palette-config", async ({ page }) => {
 });
 
 section("select-menu", async ({ page }) => {
-  // Select opens and picks
   await page.goto(`${BASE}/components/select`);
   await page.click("[data-stage] [aria-haspopup=listbox]");
   await page.click("[role=option]:has-text('Dago')");
   check(await page.locator("[data-stage] [aria-haspopup=listbox]:has-text('Dago')").isVisible(), "select picks an option");
 
-  // Menu: submenu opens on click and on keyboard
   await page.goto(`${BASE}/components/menu`);
   await page.click("main button:has-text('Actions')");
   await page.click("[role=menuitem]:has-text('Move to')");
@@ -663,13 +658,11 @@ section("select-menu", async ({ page }) => {
 });
 
 section("orders-settings", async ({ page }) => {
-  // Orders: row click opens the pane, pager moves
   await page.goto(`${BASE}/examples/orders`);
   await page.click("tbody tr >> nth=0");
   check(await page.locator("[role=dialog] >> text=You receive").isVisible(), "row click opens the side pane");
   check(await page.locator("text=1–50 of").isVisible(), "table bar shows count");
 
-  // Settings: editing shows the save bar
   await page.goto(`${BASE}/examples/settings`);
   await page.fill("input[aria-label='Shop name']", "Rimba Home");
   check(await page.locator("text=Unsaved changes").isVisible(), "save bar appears on edit");
@@ -690,11 +683,9 @@ section("page-semantics", async ({ page }) => {
   await page.goto(BASE + "/examples/orders");
   check((await page.locator("a a").count()) === 0, "no nested links on /examples/orders");
 
-  // Each page names itself in the tab.
   await page.goto(BASE + "/components/button");
   check((await page.title()) === "Button · Alora Design", `document title on /components/button (${await page.title()})`);
 
-  // Pagination arrows say where they go.
   await page.goto(BASE + "/components/pagination");
   const pagerLabels = await page.evaluate(() => [...document.querySelectorAll('[data-stage] nav[aria-label="Pages"] button[aria-label]')].map((b) => b.getAttribute("aria-label")));
   check(pagerLabels.includes("Previous page, 3") && pagerLabels.includes("Next page, 5"), `pagination arrows name their page (${JSON.stringify(pagerLabels)})`);
@@ -713,8 +704,7 @@ section("scroll-through", async ({ page, errors }) => {
 });
 
 section("component-pages", async ({ page, errors }) => {
-  // The shadcn-parity components: each detail page renders its title and stage without errors (the Components page
-  // check above covers showing each one live exactly once).
+  // Detail pages only: the Components page check above covers showing each one live exactly once.
   const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
   const before = errors.length;
   for (const name of MORE) {

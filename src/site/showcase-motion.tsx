@@ -31,8 +31,6 @@ import { Mark, Tile, type TileDef } from "./mark";
 import { SALES_14 } from "./showcase-more";
 import { productPhoto } from "./data";
 
-/* ------------------------------------------------------------ number dial */
-
 export const DIAL_PRESETS = {
   quantity: { min: 0, max: 200, majorEvery: 10, unit: "pcs", start: 24, label: "Counted on the shelf" },
   days: { min: 0, max: 90, majorEvery: 10, unit: "days", start: 14, label: "Payment terms" },
@@ -107,8 +105,6 @@ export function DialInUse({ preset = "quantity", sound = false, blur = false, cl
   );
 }
 
-/* ------------------------------------------------------------ password */
-
 export function PasswordDemo({ suggest = true, minLength = 8, className }: { suggest?: boolean; minLength?: number; className?: string }) {
   const [pw, setPw] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
@@ -136,8 +132,6 @@ export function PasswordDemo({ suggest = true, minLength = 8, className }: { sug
   );
 }
 
-/* ------------------------------------------------------------ theme switch */
-
 /** A small screen in its own theme: the switch re-themes only this preview, spreading from the option you picked. */
 export function ThemePreview({ system = true, iconOnly = false, className }: { system?: boolean; iconOnly?: boolean; className?: string }) {
   const [global] = useConfig();
@@ -156,8 +150,6 @@ export function ThemePreview({ system = true, iconOnly = false, className }: { s
     </div>
   );
 }
-
-/* ------------------------------------------------------------ step form */
 
 export function PurchaseOrderForm({ className }: { className?: string }) {
   const [step, setStep] = React.useState(0);
@@ -232,8 +224,6 @@ export function PurchaseOrderForm({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ linked highlight */
-
 const WEEK_SERIES = [
   { key: "now", label: "This week" },
   { key: "before", label: "Last week" },
@@ -276,8 +266,6 @@ export function LinkedSales({ className }: { className?: string }) {
     </div>
   );
 }
-
-/* ------------------------------------------------------------ chat */
 
 interface Script {
   prompt: string;
@@ -505,8 +493,6 @@ export function PriceChange({ className }: { className?: string }) {
     />
   );
 }
-
-/* ------------------------------------------------------------ the tiles */
 
 export function StockCountTile({ className }: { className?: string }) {
   return (

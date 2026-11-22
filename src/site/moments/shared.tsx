@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useSearchParams } from "react-router";
 
-/* ------------------------------------------------------------ shared bits */
-
 function useHeldLoading() {
   const [params] = useSearchParams();
   return params.get("loading") === "1";

@@ -65,7 +65,6 @@ export function SaveMorph({ label = "Save changes", doneLabel = "Saved", failLab
     [],
   );
 
-  // The form changed after a save: the button is ready to save again.
   React.useLayoutEffect(() => {
     if (phase === "done" && dirty) setPhase("idle");
   }, [phase, dirty]);

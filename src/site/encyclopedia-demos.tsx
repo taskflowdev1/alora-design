@@ -65,8 +65,6 @@ function useReplay() {
   return [n, () => setN((x) => x + 1)] as const;
 }
 
-/* ------------------------------------------------------------ motion */
-
 function PressScale() {
   return <Pair a={<Button className="active:scale-100">Save</Button>} b={<Button>Save</Button>} />;
 }
@@ -362,8 +360,6 @@ function Ticker({ tabular }: { tabular: boolean }) {
 function TabularNums() {
   return <Pair labels={["Proportional", "Tabular"]} a={<Ticker tabular={false} />} b={<Ticker tabular />} />;
 }
-
-/* ------------------------------------------------------------ interaction and type */
 
 function TooltipRow() {
   const items = [

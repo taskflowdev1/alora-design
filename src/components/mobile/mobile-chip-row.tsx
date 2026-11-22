@@ -25,7 +25,7 @@ export interface MobileFilterChipsProps<T extends string> {
 export function MobileFilterChips<T extends string>({ value, onValueChange, options, className, ...aria }: MobileFilterChipsProps<T>) {
   const track = React.useRef<HTMLDivElement>(null);
   useEdgeFade(track, { axis: "x", size: 24 });
-  // Bring the chosen chip into view (centre it when it can be), without moving the page.
+  // Scrolls the track only, never the page.
   useCenterSelected(track, '[aria-pressed="true"]', value);
   return (
     <div

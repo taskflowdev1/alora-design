@@ -76,7 +76,7 @@ export function MobileSnackbar({ open, onOpenChange, message, action, duration =
           const d = drag.current;
           drag.current = null;
           if (!el.current) return;
-          // Dragged far enough, or flicked down: it leaves from where the finger left it, still going down.
+          // It leaves from where the finger left it, still going down.
           const v = d && performance.now() - d.t < 90 ? d.v : 0;
           if (d && (d.at > 28 || v > 500)) {
             el.current.style.setProperty("--ad-drag", `${d.at}px`);

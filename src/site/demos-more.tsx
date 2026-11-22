@@ -74,7 +74,6 @@ function TraceDemo() {
 }
 
 export const MORE_DEMOS: Record<string, Demo> = {
-  /* ---------------------------------------------------------- charts */
   chart: {
     stage: "page",
     render: () => (
@@ -188,7 +187,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: (p) => `<RadialChart data={[{ key: "kemang", label: "Kemang", value: 82400000, max: 100000000 }${p.rings === "1" ? "" : ", …"}]}${p.sweep === "360" ? " sweep={360}" : ""} />`,
   },
 
-  /* ---------------------------------------------------------- navigation */
   breadcrumb: {
     controls: [{ key: "long", type: "toggle", label: "Long path", default: false }],
     render: (p) => (
@@ -273,7 +271,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: (p) => `<Pagination page={page} pageCount={26} onPageChange={setPage}${p.count ? " total={1284}" : ""}${p.numbers ? "" : " numbers={false}"} />`,
   },
 
-  /* ---------------------------------------------------------- inputs and actions */
   textarea: {
     controls: [{ key: "invalid", type: "toggle", label: "Invalid", default: false }],
     render: (p) => <Textarea aria-label="Note" rows={4} defaultValue="Pack the mugs in pairs, with paper between them." invalid={!!p.invalid} className="w-80" />,
@@ -402,7 +399,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: () => `// Related actions. For one choice out of several (CSV / XLSX / PDF), use Segmented: its pill slides.\n<ButtonGroup aria-label="Order">\n  <Button size="sm"><Printer />Print</Button>\n  <Button size="sm"><Copy />Duplicate</Button>\n  <Button size="sm" icon aria-label="Download"><Download /></Button>\n</ButtonGroup>`,
   },
 
-  /* ---------------------------------------------------------- display */
   "data-table": {
     stage: "page",
     controls: [
@@ -522,7 +518,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
       `import { H1, H2, H3, P, Muted, Small, Num, InlineCode, List, Quote } from "@/components/ui/typography";\n\n<H1>Heading</H1>\n<H2>Title</H2>\n<H3>Section</H3>\n<P>Body</P>\n<Muted>Muted</Muted>\n<Small>Small</Small>\n<Num>1.284</Num>\n<InlineCode>InlineCode</InlineCode>`,
   },
 
-  /* ---------------------------------------------------------- overlays */
   "alert-dialog": {
     render: () => (
       <AlertDialog
@@ -537,7 +532,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: () => `<AlertDialog\n  trigger={<Button>Cancel 3 orders</Button>}\n  title="Cancel 3 orders?"\n  action="Cancel orders"\n  onAction={cancel}\n>\n  Buyers get their money back today.\n</AlertDialog>`,
   },
 
-  /* ---------------------------------------------------------- layout */
   resizable: {
     stage: "page",
     controls: [{ key: "direction", type: "select", label: "Direction", options: ["horizontal", "vertical"], default: "horizontal" }],
@@ -569,7 +563,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: () => `<ScrollArea className="h-64">\n  {rows}\n</ScrollArea>`,
   },
 
-  /* ---------------------------------------------------------- chat */
   message: {
     controls: [{ key: "bubble", type: "select", label: "Bubble", options: ["soft", "ink", "quote"], default: "soft" }],
     render: (p) => (

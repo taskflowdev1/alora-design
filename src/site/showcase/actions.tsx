@@ -16,8 +16,6 @@ import { ORDERS, SHOPS, type Order } from "../data";
 import { Head, Mark, Tile } from "../mark";
 import { say } from "./shared";
 
-/* ------------------------------------------------------------ Actions */
-
 export const tone = (o: Order) => (o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default");
 
 export function OrdersActionsTile({ className }: { className?: string }) {
