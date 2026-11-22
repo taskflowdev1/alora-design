@@ -21,7 +21,7 @@ Update this map in the same PR when you add, move or remove a top-level area, en
 | Change | Where | Narrowest check |
 |---|---|---|
 | A component | `src/components/ui/<name>.tsx`, registry entry in `src/lib/registry.ts` | `npm run unit`, then `npm run docs` |
-| Phone set | `src/components/mobile/`, `src/site/mobile-*.tsx`, `src/site/phone.tsx` | `npm run unit` |
+| Phone set, Mobile tab | `src/components/mobile/`, `src/site/mobile-*.tsx` (tab: `mobile-page.tsx`, PWA scenes: `mobile-pwa.tsx`), `src/site/phone.tsx` | `npm run unit` |
 | AI, backgrounds | `src/components/ai/`, `src/components/backgrounds/`, `src/site/collections.tsx` | `npm run typecheck` |
 | Tokens, theme | `src/lib/config.ts`, `src/styles/theme.css`, `src/lib/ad.ts`, kit in `src/lib/kit.ts` | `npm run greys`, `npm run unit` |
 | Shared helpers | `src/lib/ad.ts`, `src/lib/ad-hooks.ts` (ship as the `ad` item) | `npm run unit`, `npm run knip` |
@@ -94,8 +94,8 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
   a notch), on every focusable part.
 - Phone: a floating button for the create action on list screens, a pinned action bar on forms and details.
   `PhoneFrame` (390 × 844) is the containing block for fixed bars and the portal target for sheets.
-- Routes: `/components` (`/gallery` redirects) and `/mobile` (same `GalleryIndex`, Desktop | Mobile switch; plus
-  `/mobile/screens`, `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. The
+- Routes: `/components` (desktop; `/gallery` redirects), `/mobile` (its own tab: PWA scenes, then the app's screens; plus
+  `/mobile/<name>`, `/mobile/screens`, `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. The
   sticky header is one box on every page; below lg its tabs scroll sideways in a second row. Ctrl/Cmd+K opens the palette.
 - Pills, chips, segments and tabs share one padding scale: `px-bubble` / `px-bubble-sm`. Metric cards are all one
   height; Tile (default), Hero for the one main number, Scale for a few short counts.

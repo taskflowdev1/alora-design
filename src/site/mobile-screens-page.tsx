@@ -3,7 +3,6 @@ import { Maximize2 } from "react-feather";
 import { MobileApp, SCREENS } from "./mobile-app";
 import { LazyPhone } from "./lazy-phone";
 import { SLink } from "./config";
-import { PlatformSwitch } from "./gallery";
 
 /** Every screen, then each forced state (empty, offline, error) as its own tile. Lettered P1… in order. */
 const SCREEN_TILES = SCREENS.flatMap((s) => [
@@ -16,7 +15,6 @@ export function MobileScreensPage() {
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-heading font-semibold">Screens</h1>
-        <PlatformSwitch />
       </div>
       <div className="grid grid-cols-1 gap-4 min-[520px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
         {SCREEN_TILES.map((t) => (

@@ -9,7 +9,7 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 import { Toaster } from "@/components/ui/toast";
 import { CommandPalette, useCommandShortcut } from "@/components/ui/command-palette";
 import { Shortcut } from "@/components/ui/kbd";
-import { GROUPS, ITEMS, findItem, itemPath, type Group } from "@/lib/registry";
+import { GROUPS, ITEMS, MOBILE_GROUPS, findItem, itemPath, type Group } from "@/lib/registry";
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { ConfigTokens, SLink, useConfig, useLiveConfig } from "./config";
 import { ALL_FIELDS, ConfigGroups, ConfigPanel, resetPatch } from "./config-panel";
@@ -18,6 +18,7 @@ import { Wordmark } from "./logo";
 /** The nav tabs, in order. Components first: the site starts with them. */
 export const TABS = [
   { to: "/components", label: "Components" },
+  { to: "/mobile", label: "Mobile" },
   { to: "/ai", label: "AI" },
   { to: "/backgrounds", label: "Backgrounds" },
   { to: "/examples", label: "Examples" },
@@ -25,12 +26,12 @@ export const TABS = [
   { to: "/export", label: "Export" },
 ];
 
-/** A header tab. Components stays lit on /mobile too: Desktop and Mobile are the two halves of one Components tab. */
+/** A header tab, lit on its page and everything under it. */
 function NavItem({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
   const { pathname } = useLocation();
-  const active = pathname === to || pathname.startsWith(`${to}/`) || (to === "/components" && (pathname === "/mobile" || pathname.startsWith("/mobile/")));
+  const active = pathname === to || pathname.startsWith(`${to}/`);
   return (
     <Link
       to={q ? `${to}?${q}` : to}
@@ -134,7 +135,7 @@ function HeaderSearch() {
           { id: "components", label: "Components", icon: Grid, onSelect: () => go("/components") },
           { id: "ai", label: "AI", icon: Cpu, onSelect: () => go("/ai") },
           { id: "backgrounds", label: "Backgrounds", icon: Image, onSelect: () => go("/backgrounds") },
-          { id: "mobile", label: "Mobile components", keywords: "phone touch", icon: Smartphone, onSelect: () => go("/mobile") },
+          { id: "mobile", label: "Mobile", keywords: "phone touch pwa install", icon: Smartphone, onSelect: () => go("/mobile") },
           { id: "mobile-screens", label: "Mobile screens", keywords: "phone app", icon: Smartphone, onSelect: () => go("/mobile/screens") },
           { id: "examples", label: "Examples", icon: Layout, onSelect: () => go("/examples/dashboard") },
           { id: "encyclopedia", label: "Encyclopedia", keywords: "rules checklist guidelines", icon: BookOpen, onSelect: () => go("/encyclopedia") },
@@ -145,8 +146,8 @@ function HeaderSearch() {
         label: "Examples",
         items: EXAMPLE_PAGES.map(([page, label]) => ({ id: `example-${page}`, label: `Examples › ${label}`, keywords: page, icon: Layout, onSelect: () => go(`/examples/${page}`) })),
       },
-      ...[...GROUPS, "AI", "Backgrounds"].map((g) => ({
-        label: g,
+      ...[...GROUPS, ...MOBILE_GROUPS, "AI", "Backgrounds"].map((g) => ({
+        label: (MOBILE_GROUPS as string[]).includes(g) ? `Mobile › ${g}` : g,
         items: ITEMS.filter((i) => i.group === (g as Group)).map((i) => ({ id: i.name, label: i.title, keywords: i.name, icon: Box, onSelect: () => go(itemPath(i)) })),
       })),
     ],
@@ -583,7 +584,7 @@ function CustomizeFlap({ pageRef }: { pageRef: React.RefObject<HTMLDivElement | 
 
 const PAGE_NAMES: Record<string, string> = {
   components: "Components",
-  mobile: "Mobile components",
+  mobile: "Mobile",
   ai: "AI",
   backgrounds: "Backgrounds",
   examples: "Examples",

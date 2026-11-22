@@ -9,6 +9,7 @@ const ENCYCLOPEDIA = "src/site/encyclopedia.tsx";
 const EXPORT = "src/site/export.tsx";
 const MOBILE_APP = "src/site/mobile-app-page.tsx";
 const MOBILE_SCREENS = "src/site/mobile-screens-page.tsx";
+const MOBILE_PAGE = "src/site/mobile-page.tsx";
 
 export const SECTIONS = {
   routes: { always: true },
@@ -33,16 +34,18 @@ export const SECTIONS = {
   "component-pages": { entries: [GALLERY] },
   "motion-set": { entries: [GALLERY] },
   "chart-switch-pill": { entries: [GALLERY] },
-  "mobile-index": { entries: [GALLERY, MOBILE_SCREENS] },
+  "mobile-index": { entries: [GALLERY, MOBILE_PAGE, MOBILE_SCREENS] },
+  "mobile-pwa": { entries: [GALLERY, MOBILE_PAGE] },
   "mobile-gestures": { entries: [GALLERY, MOBILE_APP] },
   "mobile-flows": { entries: [GALLERY, MOBILE_APP] },
-  "mobile-sweep": { entries: [GALLERY, MOBILE_APP, MOBILE_SCREENS] },
+  "mobile-sweep": { entries: [GALLERY, MOBILE_PAGE, MOBILE_APP, MOBILE_SCREENS] },
   "classic-scrollbars": { entries: [LANDING, GALLERY, COLLECTIONS, EXAMPLES, ENCYCLOPEDIA] },
 };
 
 /** The route module that renders a path. smoke.mjs checks every page a section really visits against its `entries`. */
 export const routeEntry = (path) => {
   if (path === "/") return LANDING;
+  if (path === "/mobile") return MOBILE_PAGE;
   if (path === "/mobile/screens") return MOBILE_SCREENS;
   if (/^\/mobile\/app(\/|$)/.test(path)) return MOBILE_APP;
   if (/^\/(components|gallery|mobile)(\/|$)/.test(path)) return GALLERY;

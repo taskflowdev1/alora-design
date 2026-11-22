@@ -170,3 +170,17 @@ export function useDoubleTapGuard<A extends unknown[]>(handler: ((...args: A) =>
     [ms],
   );
 }
+
+/** True when the app runs from the home screen (no browser bar, so it must carry its own back button). */
+export function useStandalone() {
+  const q = "(display-mode: standalone)";
+  const read = () => typeof matchMedia === "function" && (matchMedia(q).matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
+  const [on, setOn] = React.useState(read);
+  React.useEffect(() => {
+    const m = matchMedia(q);
+    const set = () => setOn(read());
+    m.addEventListener("change", set);
+    return () => m.removeEventListener("change", set);
+  }, []);
+  return on;
+}

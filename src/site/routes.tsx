@@ -9,6 +9,7 @@ import { CollectionIndex, CollectionItem } from "./collections";
 import { Examples } from "./examples";
 import { ExportPage } from "./export";
 import { MobileAppPage } from "./mobile-app-page";
+import { MobilePage } from "./mobile-page";
 import { MobileScreensPage } from "./mobile-screens-page";
 
 function ToDashboard() {
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <Landing /> },
       { path: "/components", element: <GalleryIndex /> },
       { path: "/components/:name", element: <GalleryItem /> },
-      { path: "/mobile", element: <GalleryIndex /> },
+      { path: "/mobile", element: <MobilePage /> },
       { path: "/mobile/screens", element: <MobileScreensPage /> },
       { path: "/mobile/:name", element: <GalleryItem /> },
       { path: "/ai", element: <CollectionIndex section="ai" /> },

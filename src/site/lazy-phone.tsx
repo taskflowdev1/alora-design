@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/ad";
 import { PhoneFrame, PHONE } from "./phone";
 
-export function LazyPhone({ children, inert, className }: { children: React.ReactNode; inert?: boolean; className?: string }) {
+export function LazyPhone({ children, inert, keyboard, className }: { children: React.ReactNode; inert?: boolean; keyboard?: boolean; className?: string }) {
   const box = React.useRef<HTMLDivElement>(null);
   const [on, setOn] = React.useState(false);
   React.useEffect(() => {
@@ -16,7 +16,7 @@ export function LazyPhone({ children, inert, className }: { children: React.Reac
   return (
     <div ref={box} className={cn("min-w-0", className)} inert={inert || undefined}>
       {on ? (
-        <PhoneFrame>{children}</PhoneFrame>
+        <PhoneFrame keyboard={keyboard}>{children}</PhoneFrame>
       ) : (
         // Same box as the phone: a frame-shaped placeholder at the width the phone will take.
         <div aria-hidden className="mx-auto w-full animate-ad-pulse bg-surface shadow-dialog [corner-shape:superellipse(1.6)]" style={{ maxWidth: PHONE.w, aspectRatio: `${PHONE.w} / ${PHONE.h}`, borderRadius: 40 }} />
