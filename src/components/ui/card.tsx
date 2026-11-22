@@ -135,8 +135,8 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
           className="block whitespace-nowrap font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums"
           style={{ fontSize: `min(72px, 15cqi, calc(100cqi / ${heroEm(longest, unit).toFixed(2)}))` }}
         >
-          {/* The unit is small and muted, centred on the digits (on the baseline it sank; raised to the top it read as a footnote). */}
-          {unit ? <span className="mr-[0.22em] align-[0.7em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
+          {/* The unit sits on the number.s baseline, small and muted, so it reads "Rp 48.240.000" (a raised unit read as a footnote). */}
+          {unit ? <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
           <Pulse loading={loading}>{text}</Pulse>
         </span>
       </div>

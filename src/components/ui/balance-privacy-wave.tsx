@@ -17,17 +17,18 @@ const MASK = "0";
  * Every character is a slot of its digit's width holding two layers: the digit and a round dot. Hiding lifts and
  * blurs each digit away as its dot springs in, slot by slot from the left; showing runs from the right, the dot
  * leaving first. Separators fade, so a hidden balance reads as groups of dots. The slot keeps its width, so nothing
- * moves.
+ * moves. The dot's layer has the digit's font and line, so the dot sits on the same baseline as the "Rp" before it.
  */
 const CSS = `
-.ad-wave-s { display: inline-grid; }
-.ad-wave-s > * { grid-area: 1 / 1; }
+.ad-wave-s { display: inline-block; position: relative; }
+.ad-wave-dw { position: absolute; inset: 0; text-align: center; }
 .ad-wave-d {
+  display: inline-block;
   transition: opacity ${MS}ms var(--ad-ease), filter ${MS}ms var(--ad-ease), transform ${MS}ms var(--ad-ease);
   transition-delay: calc(var(--d) + ${LAG}ms);
 }
 .ad-wave-dot {
-  place-self: center; width: 0.26em; height: 0.26em; border-radius: 999px; corner-shape: round; background: currentColor;
+  display: inline-block; vertical-align: baseline; width: 0.25em; height: 0.25em; border-radius: 999px; corner-shape: round; background: currentColor;
   opacity: 0; transform: scale(0.2);
   transition: opacity 160ms var(--ad-ease), transform ${MS}ms var(--ad-ease);
   transition-delay: var(--d);
@@ -86,7 +87,9 @@ function Figure({ text, masked, delay }: { text: string; masked: boolean; delay:
         return (
           <span key={i} className="ad-wave-s" style={style}>
             <span className="ad-wave-d">{masked ? MASK : c}</span>
-            <span className="ad-wave-dot" />
+            <span className="ad-wave-dw">
+              <span className="ad-wave-dot" />
+            </span>
           </span>
         );
       })}
@@ -152,7 +155,7 @@ export function BalancePrivacyWave({
       </div>
       {/* The hero number of the metric card: the unit small and muted on the number's baseline. */}
       <p className="whitespace-nowrap text-[length:clamp(36px,13.5cqw,60px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
-        <span className="mr-[0.22em] align-[0.7em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
+        <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
         <span className="sr-only">{isHidden ? "Hidden" : main}</span>
         <Figure text={main} masked={masked} delay={mainDelay} />
       </p>

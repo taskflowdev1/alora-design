@@ -188,7 +188,7 @@ export function GhostCompare({
           </span>
         </span>
         <span className="block whitespace-nowrap font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums" style={{ fontSize: "min(52px, 11.5cqi)" }}>
-          {unit ? <span className="mr-[0.22em] align-[0.7em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
+          {unit ? <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
           {formatNumber(totalNow)}
         </span>
       </span>
