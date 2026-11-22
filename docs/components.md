@@ -245,6 +245,7 @@ Files: `src/components/ui/input-otp.tsx`.
 | `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
 | `size` | `"default" \| "touch"` | `"default"` | "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. |
+| `placeholder` | `string` |  | Faint digits in the empty boxes (a demo's known code, or a format like "000000"); each goes as its box fills. |
 | `className` | `string` |  |  |
 | `id` | `string` |  |  |
 | `ref` | `Ref<HTMLInputElement>` |  |  |
@@ -675,7 +676,7 @@ Files: `src/components/ui/number-dial.tsx`.
 | `instant` | `boolean` |  | Swap digits without rolling (a change from the keyboard: key repeat would keep it rolling nonstop). |
 | `className` | `string` |  |  |
 
-`NumberDial`: Pick a whole number by dragging a ruler. The whole width drags (1:1 under the pointer), a flick glides and slows to a stop, it always settles on a whole value, and the number above is the biggest thing on the card, rolling only the digit that changed. Keyboard: arrows step, Page Up/Down jump a major tick, Home/End, and typing digits sets it.
+`NumberDial`: Pick a whole number by dragging a ruler. The whole width drags (1:1 under the pointer), a flick glides and slows to a stop, it always settles on a whole value, and the number above is the biggest thing on the card, rolling only the digit that changed. Keyboard: arrows step, Page Up/Down jump a major tick, Home/End, and typing digits sets it. Click the number to type one: the ruler glides there and the digits roll on the way.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1244,6 +1245,7 @@ Files: `src/components/ui/carousel.tsx`. Installs too: `button`, `tooltip`.
 | `children` (required) | `ReactNode[]` |  |  |
 | `perView` | `number` | `1` | Slides fully visible at once from sm up, plus a 24 px peek of the next (phones show one and a wider peek). |
 | `gap` | `number` | `12` | Gap between slides in px. |
+| `peek` | `boolean` | `true` | Let the next slide peek in (24 px from sm up). Off: whole slides only, flush with both edges. |
 | `arrows` | `boolean` | `true` | Show the previous/next buttons. |
 | `dots` | `boolean` | `true` | Show the dots. |
 | `className` | `string` |  |  |

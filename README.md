@@ -140,7 +140,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Input](https://design.alorawork.com/components/input) | `input` | `Input`, `useFieldControl` | `icon`, `end`, `invalid`, `wrapperClassName` |
 | [Textarea](https://design.alorawork.com/components/textarea) | `textarea` | `Textarea` | `invalid` |
 | [Input group](https://design.alorawork.com/components/input-group) | `input-group` | `InputGroup` | `start`, `end`, `invalid`, `className`, `children` |
-| [One-time code](https://design.alorawork.com/components/input-otp) | `input-otp` | `InputOTP` | `value`, `onValueChange`, `length=6`, `group=3`, `onComplete`, `status="idle"`, `celebrate="join"`, `invalid`, `disabled`, `size="default"`, `className`, `id`, `ref`, `aria-label`, `aria-describedby` |
+| [One-time code](https://design.alorawork.com/components/input-otp) | `input-otp` | `InputOTP` | `value`, `onValueChange`, `length=6`, `group=3`, `onComplete`, `status="idle"`, `celebrate="join"`, `invalid`, `disabled`, `size="default"`, `placeholder`, `className`, `id`, `ref`, `aria-label`, `aria-describedby` |
 | [Label](https://design.alorawork.com/components/label) | `label` | `Label` | `required` |
 | [Search](https://design.alorawork.com/components/search) | `search` | `Search` | `value`, `onValueChange`, `invalid`, `wrapperClassName` |
 | [Field](https://design.alorawork.com/components/field) | `field` | `Field` | `label`, `error`, `layout="stack"`, `className`, `children`, `htmlFor` |
@@ -185,7 +185,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Item](https://design.alorawork.com/components/item) | `item` | `Item`, `ItemList` | `media`, `title`, `description`, `end`, `variant="plain"`, `asChild` |
 | [Accordion](https://design.alorawork.com/components/accordion) | `accordion` | `Accordion` | `items`, `type="single"`, `defaultValue`, `cards`, `className` |
 | [Collapsible](https://design.alorawork.com/components/collapsible) | `collapsible` | `Collapsible` | `title`, `meta` |
-| [Carousel](https://design.alorawork.com/components/carousel) | `carousel` | `Carousel` | `children`, `perView=1`, `gap=12`, `arrows=true`, `dots=true`, `className`, `aria-label` |
+| [Carousel](https://design.alorawork.com/components/carousel) | `carousel` | `Carousel` | `children`, `perView=1`, `gap=12`, `peek=true`, `arrows=true`, `dots=true`, `className`, `aria-label` |
 | [Aspect ratio](https://design.alorawork.com/components/aspect-ratio) | `aspect-ratio` | `AspectRatio` | none |
 | [Typography](https://design.alorawork.com/components/typography) | `typography` | `H1`, `H2`, `H3`, `H4`, `P`, `Muted`, `Small`, `Num`, `InlineCode`, `List`, `Quote` | none |
 

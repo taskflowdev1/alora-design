@@ -314,7 +314,7 @@ function ReceiptEditorTile({ className }: { className?: string }) {
 /* ------------------------------------------------------------ Inputs */
 
 /** The till's one-time code, centred: the playable flow (OtpFlow) under the title. */
-export function TillSignInTile({ className }: { className?: string }) {
+function TillSignInTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={cn("items-center", className)}>
       <h3 className="text-title font-semibold">Open the Kemang till</h3>
@@ -434,7 +434,7 @@ function HelpTile({ className }: { className?: string }) {
   );
 }
 
-export function ProductPhotosTile({ className }: { className?: string }) {
+function ProductPhotosTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="truncate text-title font-semibold">Gelas kopi tanah liat</h3>

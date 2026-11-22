@@ -523,7 +523,7 @@ export function StockCountTile({ className }: { className?: string }) {
   );
 }
 
-export function AppearanceTile({ className }: { className?: string }) {
+function AppearanceTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="text-title font-semibold">Appearance</h3>

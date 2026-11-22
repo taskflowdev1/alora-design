@@ -3,10 +3,6 @@ import { useSearchParams } from "react-router";
 
 /* ------------------------------------------------------------ shared bits */
 
-export type Market = "shopee" | "tiktok" | "offline";
-export const marketOf = (shop: string): Market => (shop === "Shopee" ? "shopee" : shop === "TikTok Shop" ? "tiktok" : "offline");
-export const shopName = (shop: string) => (shop === "Shopee" ? "Rimba Official" : shop === "TikTok Shop" ? "Rimba Live" : shop);
-
 function useHeldLoading() {
   const [params] = useSearchParams();
   return params.get("loading") === "1";
@@ -25,6 +21,3 @@ export function useBusy(ms = 420): [boolean, () => void] {
   }, [ms]);
   return [held || busy, kick];
 }
-
-/** Payout check per order: what the platform paid against what we expected. Mostly none. */
-export const diffOf = (i: number) => [0, 0, -4000, 0, 0, 1500, 0, 0, -12000, 0, 0, 0][i % 12];

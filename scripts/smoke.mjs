@@ -143,29 +143,49 @@ const logo = await page.evaluate(() => {
 check(logo.svg && logo.text === "design" && logo.label === "Alora Design", `header shows the Alora logo (${JSON.stringify(logo)})`);
 check((await page.getAttribute("a:has-text('erp-ui skill')", "href")) === "https://github.com/JoshD94/ai-skills/tree/main/erp-ui", "hero links the erp-ui skill");
 
-// Landing: one component at a time. Each moment is a linked title over one component; the showpieces come first, then
-// the phone, AI and Backgrounds, and the ERP screen (the only table) is the last demo before the footer.
+// Landing: one component at a time. Each moment is a linked title over one component; the showpieces, then the AI
+// parts in one exchange and a background. No tables (row data lives on the Components and Examples pages).
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({
   moments: [...document.querySelectorAll("main [data-moment]")].map((m) => m.dataset.moment),
   titled: [...document.querySelectorAll("main [data-moment]")].every((m) => m.querySelector(":scope > h2 a[href]")),
-  tables: [...document.querySelectorAll("main [data-moment] table")].map((t) => t.closest("[data-moment]").dataset.moment),
+  tables: document.querySelectorAll("main table").length,
   order: [...document.querySelectorAll("main [data-landing]")].map((e) => e.dataset.landing),
-  orbs: document.querySelectorAll("[data-landing=ai] canvas").length,
   sand: document.querySelectorAll("[data-landing=backgrounds] [data-sand-field]").length,
+  thread: !!document.querySelector("[data-landing=ai] [data-agent-thread] [data-composer]"),
 }));
 check(
-  landing.moments[0] === "metric" && landing.moments.at(-1) === "erp" && landing.moments.length >= 8 && landing.titled && landing.tables.every((m) => m === "erp"),
-  `landing: one titled component per moment, metric card first, the ERP table last and the only table (${JSON.stringify(landing)})`,
+  landing.moments[0] === "metric" && landing.moments.length >= 6 && landing.titled && landing.tables === 0,
+  `landing: one titled component per moment, metric card first, no tables (${JSON.stringify(landing)})`,
 );
-check(landing.order.join() === "moments,ai,backgrounds,erp,footer" && landing.orbs > 0 && landing.sand === 1, `landing: components, then AI, Backgrounds, the ERP demo, the closing footer (${JSON.stringify(landing)})`);
-// AI band: the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
+check(landing.order.join() === "moments,ai,backgrounds,footer" && landing.thread && landing.sand === 1, `landing: components, then the AI exchange, Backgrounds, the closing footer (${JSON.stringify(landing)})`);
+// The OTP opens on 123456 (shown faintly in the boxes); the dial's number takes typing and glides there; the palette
+// keeps its height while it filters.
+await page.locator("[data-moment=otp] input").first().click();
+await page.keyboard.type("123456");
+await sleep(1600);
+const otpOpen = await page.locator("[data-moment=otp] [aria-live]").textContent();
+check(/Till open/.test(otpOpen ?? ""), `landing OTP: 123456 opens the till (${otpOpen})`);
+await page.locator("[data-moment=dial] button[aria-label$='type a number']").click();
+await page.keyboard.type("48");
+await page.keyboard.press("Enter");
+await sleep(1200);
+check((await page.locator("[data-moment=dial] [role=slider]").getAttribute("aria-valuenow")) === "48", "landing dial: typing 48 glides the ruler to 48");
+const palH = async () => (await page.locator("[data-moment=palette] > div").boundingBox())?.height;
+const palBefore = await palH();
+await page.locator("[data-moment=palette] [role=combobox][aria-label='Search commands']").fill("zzzz");
+check((await palH()) === palBefore, `landing palette: filtering keeps its height (${palBefore})`);
+await page.locator("[data-moment=palette] [role=combobox][aria-label='Search commands']").fill("sync");
+check((await page.locator("[data-moment=palette] [role=option]").count()) === 1, "inline command palette filters");
+await page.locator("[data-moment=palette] [role=combobox][aria-label='Search commands']").fill("");
+await page.goto(BASE + "/ai", { waitUntil: "networkidle" });
+// AI app (on /ai): the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
 // attach | text | send: both buttons one size, one inset on every side, a single text line centred on the buttons, and
 // the radius is the button radius plus that inset (concentric). Three lines grow the box upward, buttons stay at the bottom.
 const agent = await page.evaluate(async () => {
-  const c = document.querySelector("[data-landing=ai] [data-chats]").getBoundingClientRect();
-  const t = document.querySelector("[data-landing=ai] [data-thread]").getBoundingClientRect();
-  const box = document.querySelector("[data-landing=ai] [data-composer]");
+  const c = document.querySelector("[data-agent-app] [data-chats]").getBoundingClientRect();
+  const t = document.querySelector("[data-agent-app] [data-thread]").getBoundingClientRect();
+  const box = document.querySelector("[data-agent-app] [data-composer]");
   const ta = box.querySelector("textarea");
   const geo = () => {
     const b = box.getBoundingClientRect();
@@ -202,8 +222,6 @@ check(
   agent.left && agent.chatsWidth >= 240 && agent.chatsWidth <= 280 && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.centred && agent.sameSize && agent.concentric && agent.grows,
   `AI band: chat sidebar left, thread right; composer one row, centred, concentric, grows up (${JSON.stringify(agent)})`,
 );
-await page.locator("[data-moment=palette] [role=combobox][aria-label='Search commands']").fill("sync");
-check((await page.locator("[data-moment=palette] [role=option]").count()) === 1, "inline command palette filters");
 const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })).newPage();
 phone.on("pageerror", (e) => errors.push(e.message));
 await phone.goto(BASE + "/", { waitUntil: "networkidle" });

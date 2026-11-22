@@ -2,18 +2,19 @@ import * as React from "react";
 import { ArrowRight, GitHub } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Carousel } from "@/components/ui/carousel";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { SandField } from "@/components/backgrounds/sand-field";
 import { SLink } from "./config";
 import { Wordmark } from "./logo";
 import { PlainMarks } from "./mark";
-import { OrdersCard } from "./moments/orders";
-import { PaletteCard, SalesCard, ShellCard } from "./moments/sales-palette-shell";
-import { ShipmentCard } from "./moments/shipment";
-import { ProductPhotosTile, SalesTrendTile, TillSignInTile } from "./showcase-more";
-import { AppearanceTile, StockCountTile } from "./showcase-motion";
-import { LazyPhone } from "./lazy-phone";
-import { MobileApp } from "./mobile-app";
-import { AgentApp, NewChat } from "./agent";
+import { PaletteCard, SalesCard } from "./moments/sales-palette";
+import { SalesTrendTile } from "./showcase-more";
+import { StockCountTile } from "./showcase-motion";
+import { OtpFlow } from "./otp-flow";
+import { AgentThread, NewChat } from "./agent";
+import { DAFOE_PHOTOS } from "./data";
 import { Credit, TABS } from "./layout";
 
 function Hero() {
@@ -84,9 +85,24 @@ function Closing() {
   );
 }
 
+/** Photos one row at a time: whole slides only, rounded to sit concentric inside the card, the dots and arrows under them. */
+function PhotoCarousel() {
+  return (
+    <Card inset="nest" className="grid gap-nest">
+      <Carousel aria-label="Willem Dafoe" perView={3} gap={8} peek={false} className="gap-nest">
+        {DAFOE_PHOTOS.map((p) => (
+          <AspectRatio key={p.src} ratio={4 / 5} className="overflow-hidden rounded-control bg-fill">
+            <img src={p.src} alt={p.alt} loading="lazy" draggable={false} className="size-full object-cover" />
+          </AspectRatio>
+        ))}
+      </Carousel>
+    </Card>
+  );
+}
+
 /**
- * The landing: the showpiece components one at a time, each on its own screen; then the phone, AI and backgrounds;
- * the ERP screen (table, filters, pagination, the sidebar) comes last, as one demo.
+ * The landing: one showpiece component per screen, each polished on its own; then the AI parts in one exchange and a
+ * background. Tables, lists and the rest live on the Components and Examples pages.
  */
 export function Landing() {
   return (
@@ -98,39 +114,28 @@ export function Landing() {
             <SalesCard chartHeight={148} />
           </Moment>
           <Moment id="otp" title="One-time code" to="/components/input-otp" className="max-w-[440px]">
-            <TillSignInTile />
+            <Card className="grid">
+              <OtpFlow />
+            </Card>
           </Moment>
           <Moment id="palette" title="Command palette" to="/components/command-palette" className="max-w-[560px]">
-            <PaletteCard className="bg-surface" />
+            {/* A fixed height: filtering shortens the list inside it, never the card, so nothing below moves. */}
+            <PaletteCard className="h-[372px] bg-surface" />
           </Moment>
           <Moment id="dial" title="Number dial" to="/components/number-dial" className="max-w-[640px]">
             <StockCountTile />
           </Moment>
-          <Moment id="theme" title="Theme switch" to="/components/theme-switch" className="max-w-[440px]">
-            <AppearanceTile />
-          </Moment>
-          <Moment id="tracker" title="Step progress" to="/components/steps" className="max-w-[560px]">
-            <ShipmentCard />
-          </Moment>
-          <Moment id="chart" title="Line chart" to="/components/line-chart" className="max-w-[880px]">
+          <Moment id="chart" title="Line chart" to="/components/line-chart" className="max-w-[640px]">
             <SalesTrendTile />
           </Moment>
-          <Moment id="carousel" title="Carousel" to="/components/carousel" className="max-w-[880px]">
-            <ProductPhotosTile />
-          </Moment>
-          <Moment id="phone" title="Mobile" to="/mobile" className="max-w-[880px]">
-            {/* The phone stands on a stage, as on /mobile: its dark screen on the dark page would vanish. */}
-            <div className="grid justify-items-center rounded-sheet bg-surface px-4 py-8 shadow-card sm:py-10">
-              <LazyPhone className="w-full max-w-[350px]">
-                <MobileApp screen="orders" />
-              </LazyPhone>
-            </div>
+          <Moment id="carousel" title="Carousel" to="/components/carousel" className="max-w-[720px]">
+            <PhotoCarousel />
           </Moment>
         </div>
       </PlainMarks.Provider>
       <div data-landing="ai">
-        <Moment id="ai" title="AI" to="/ai">
-          <AgentApp />
+        <Moment id="ai" title="AI" to="/ai" className="max-w-[640px]">
+          <AgentThread />
         </Moment>
       </div>
       <div data-landing="backgrounds">
@@ -139,12 +144,6 @@ export function Landing() {
             <SandField className="rounded-[inherit] bg-surface" />
             <NewChat />
           </div>
-        </Moment>
-      </div>
-      <div data-landing="erp">
-        <Moment id="erp" title="ERP" to="/examples/orders" className="gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <ShellCard className="hidden lg:flex" />
-          <OrdersCard />
         </Moment>
       </div>
       <Closing />

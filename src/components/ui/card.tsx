@@ -88,7 +88,7 @@ function Pulse({ loading, onFill, onInk, children }: { loading?: boolean; onFill
 
 // Rough width in em at the hero's weight and tracking: tabular digits, narrow separators, the small unit before them.
 const heroEm = (text: string, unit?: string) =>
-  [...text].reduce((w, c) => w + (/\d/.test(c) ? 0.6 : /[.,:'\s]/.test(c) ? 0.27 : 0.68), 0) + (unit ? unit.length * 0.24 + 0.14 : 0);
+  [...text].reduce((w, c) => w + (/\d/.test(c) ? 0.6 : /[.,:'\s]/.test(c) ? 0.27 : 0.68), 0) + (unit ? unit.length * 0.23 + 0.16 : 0);
 
 // Secondary text on an ink-filled (primary) card: the page's muted grey would sit at about 2:1 there, so it takes the
 // pale ramp step on the far side instead.
@@ -135,7 +135,8 @@ export function MetricCard({ label, value, unit, delta, primary, interactive, va
           className="block whitespace-nowrap font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums"
           style={{ fontSize: `min(72px, 15cqi, calc(100cqi / ${heroEm(longest, unit).toFixed(2)}))` }}
         >
-          {unit ? <span className="mr-[0.14em] inline-block translate-y-[0.12em] align-top text-[length:0.36em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
+          {/* The unit sits on the number's baseline, small and muted, so it reads "Rp 48.240.000" (a raised unit read as a footnote). */}
+          {unit ? <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
           <Pulse loading={loading}>{text}</Pulse>
         </span>
       </div>

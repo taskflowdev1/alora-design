@@ -30,3 +30,14 @@ Photos used by the gallery's demos, resized and cropped to squares. All are CC0 
 - `products/sp-3.webp`: [Salt and peppers mix in wooden spoons (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Salt_and_peppers_mix_in_wooden_spoons_(Unsplash).jpg), CC0
 - `products/np-1.webp`: [Sieve MET sf14-1-461s1.jpg](https://commons.wikimedia.org/wiki/File:Sieve_MET_sf14-1-461s1.jpg), CC0
 - `products/np-2.webp`: [Amish-made toy basket.jpg](https://commons.wikimedia.org/wiki/File:Amish-made_toy_basket.jpg), CC0
+
+## Willem Dafoe (landing carousel)
+
+Cropped to 4:5 and resized from Wikimedia Commons. CC BY-SA 4.0: these crops are shared under the same licence, credited below. A demo gallery, not an endorsement.
+
+- `dafoe/dafoe-1.webp`: Jay Dixit, [Willem Dafoe at the 2024 Toronto International Film Festival 02.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_the_2024_Toronto_International_Film_Festival_02.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-2.webp`: Jay Dixit, [Willem Dafoe at the 2024 Toronto International Film Festival 01.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_the_2024_Toronto_International_Film_Festival_01.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-3.webp`: Harald Krichel, [Willem Dafoe-63668.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe-63668.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-4.webp`: Segolene Liger, [Actor Willem Dafoe at the 2025 Locarno Film Festival.jpg](https://commons.wikimedia.org/wiki/File:Actor_Willem_Dafoe_at_the_2025_Locarno_Film_Festival.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-5.webp`: Ariela Ortiz-Barrantes, [Willem Dafoe at 2024 Venice International Film Festival.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_2024_Venice_International_Film_Festival.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-6.webp`: Harald Krichel, [Willem Dafoe-63667.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe-63667.jpg), CC BY-SA 4.0

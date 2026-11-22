@@ -2,7 +2,7 @@
 // with its live run line, and a chat list. Site-only (not shipped); the pieces themselves (Composer included) are in
 // src/components/ai.
 import * as React from "react";
-import { Clock, Edit, Inbox, TrendingUp } from "react-feather";
+import { Clock, Database, Edit, FileText, Inbox, Tag, TrendingUp } from "react-feather";
 import { SlidingPill } from "@/components/ui/sliding-pill";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,10 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Composer, ComposerGlow, type ComposerGlowProps } from "@/components/ai/composer-glow";
 import { RunStatus } from "@/components/ai/run-status";
 import { ThinkingOrbs } from "@/components/ai/thinking-orbs";
+import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
+import { Trace } from "@/components/ui/trace";
+import { PriceChange } from "./showcase-motion";
+import { productPhoto } from "./data";
 
 const SUGGESTIONS = [
   { icon: Clock, text: "Which orders are late this week?" },
@@ -73,6 +77,38 @@ function Mine({ children }: { children: React.ReactNode }) {
 
 /** The conversation column: centred and capped so lines stay readable in a wide thread. */
 const COLUMN = "mx-auto w-full max-w-[720px]";
+
+/**
+ * One exchange with the assistant, built from the chat parts: the user's files (a PDF and a photo), the steps it took,
+ * its answer and a change to approve, then the message box. No chat list and no title: the parts are the point.
+ */
+export function AgentThread({ className }: { className?: string }) {
+  return (
+    <Card data-agent-thread className={cn("grid gap-5", className)}>
+      <div className="grid justify-items-end gap-2">
+        <Mine>Here’s the invoice from Keramik Plered and the shelf photo.</Mine>
+        <AttachmentGroup className="max-w-full">
+          <Attachment name="invoice-plered.pdf" kind="doc" meta="PDF · 240 KB" />
+          <Attachment name="rak-dago.jpg" kind="image" src={productPhoto("RMB-GL-014")} meta="JPG · 1,2 MB" />
+        </AttachmentGroup>
+      </div>
+      <div className="grid gap-3 text-body leading-relaxed text-ink">
+        <Trace
+          steps={[
+            { id: "pdf", title: "Read invoice-plered.pdf", time: "0,6 s", icon: FileText },
+            { id: "po", title: "Matched it to PO-0418", time: "0,3 s", icon: Database },
+            { id: "price", title: "Compared Shopee and Tokopedia prices", time: "0,9 s", icon: Tag },
+          ]}
+        />
+        <p>The invoice matches PO-0418: 24 clay mugs at Rp 31.000. They sell for more on Tokopedia, so Shopee is underpriced.</p>
+        <PriceChange />
+      </div>
+      <ComposerGlow halo={12}>
+        <Composer placeholder="Reply" />
+      </ComposerGlow>
+    </Card>
+  );
+}
 
 /**
  * A thread: earlier turns, the answer so far, the live run line, then the working message box pinned to the bottom.

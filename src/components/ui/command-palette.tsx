@@ -171,7 +171,17 @@ function CommandPanel({
         />
       </label>
       <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56dvh)]")}>
-        {flat.length === 0 ? <div className="flex h-16 items-center justify-center text-body text-ink-muted">{empty}</div> : null}
+        {flat.length === 0 ? (
+          // Inline (a fixed-height panel) the empty state fills the list, centred, with the house empty-state icon.
+          inline ? (
+            <div className="flex h-full min-h-16 flex-col items-center justify-center gap-3 text-body text-ink-muted">
+              <SearchIcon size={40} strokeWidth={1.5} aria-hidden />
+              {empty}
+            </div>
+          ) : (
+            <div className="flex h-16 items-center justify-center text-body text-ink-muted">{empty}</div>
+          )
+        ) : null}
         {filtered.map((g) => (
           <div key={g.label} role="group" aria-label={g.label} className="grid gap-px pb-1">
             <div className="flex h-7 items-center px-2.5 text-small text-ink-muted">{g.label}</div>

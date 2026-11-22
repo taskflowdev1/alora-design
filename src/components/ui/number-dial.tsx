@@ -70,6 +70,10 @@ export function RollingNumber({ value, format = formatNumber, blur, instant, cla
   );
 }
 
+/** The big number, as a value to click and as the field it turns into: one box, so nothing moves between them. */
+const numberBox =
+  "rounded-control px-nest text-[calc(var(--ad-text-number)*1.6)] font-semibold leading-[1.15] tabular-nums text-ink transition-colors duration-[150ms] ease-ad";
+
 export interface NumberDialProps {
   value: number;
   onValueChange: (value: number) => void;
@@ -93,6 +97,7 @@ export interface NumberDialProps {
  * Pick a whole number by dragging a ruler. The whole width drags (1:1 under the pointer), a flick glides and slows to
  * a stop, it always settles on a whole value, and the number above is the biggest thing on the card, rolling only the
  * digit that changed. Keyboard: arrows step, Page Up/Down jump a major tick, Home/End, and typing digits sets it.
+ * Click the number to type one: the ruler glides there and the digits roll on the way.
  */
 export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEvery = 10, spacing = 9, unit, blur, onTick, className, ...aria }: NumberDialProps) {
   const strip = React.useRef<HTMLDivElement>(null);
@@ -169,6 +174,18 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
     paint();
   };
 
+  // Typing a value: the number turns into a field in place; Enter or leaving it sends the ruler gliding there, the
+  // digits rolling through every value it passes. Esc puts it back.
+  const [draft, setDraft] = React.useState<string | null>(null);
+  const commit = () => {
+    if (draft == null) return;
+    setDraft(null);
+    const n = Number(draft);
+    if (draft === "" || !Number.isFinite(n)) return;
+    setKeyed(false);
+    settle(clamp(Math.round(n)), 0, true);
+  };
+
   const ticks = [];
   for (let n = min; n <= max; n++) {
     const major = (n - min) % majorEvery === 0;
@@ -183,7 +200,32 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   return (
     <div className={cn("grid select-none gap-2", className)}>
       <div className="flex items-baseline justify-center gap-1.5">
-        <RollingNumber value={value} format={String} blur={blur} instant={keyed} className="text-[calc(var(--ad-text-number)*1.6)] font-semibold leading-none text-ink" />
+        {draft == null ? (
+          <button
+            type="button"
+            aria-label={`${aria["aria-label"] ?? "Value"}: type a number`}
+            onClick={() => setDraft(String(value))}
+            className={cn(numberBox, "cursor-text hover:bg-fill focus-visible:bg-fill")}
+          >
+            <RollingNumber value={value} format={String} blur={blur} instant={keyed} />
+          </button>
+        ) : (
+          <input
+            autoFocus
+            inputMode="numeric"
+            aria-label={aria["aria-label"] ?? "Value"}
+            value={draft}
+            onFocus={(e) => e.currentTarget.select()}
+            onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, String(max).length))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commit();
+              else if (e.key === "Escape") setDraft(null);
+            }}
+            onBlur={commit}
+            className={cn(numberBox, "bg-fill text-center outline-none")}
+            style={{ width: `calc(${Math.max(draft.length, 1)}ch + 2 * var(--ad-nest))` }}
+          />
+        )}
         {unit ? <span className="text-body text-ink-muted">{unit}</span> : null}
       </div>
       <div

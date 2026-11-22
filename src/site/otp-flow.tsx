@@ -8,16 +8,18 @@ import { Mark } from "./mark";
 
 const TRIES = 3;
 const WAIT = 30;
-const newCode = (n: number) => String(Math.floor(10 ** (n - 1) + Math.random() * 9 * 10 ** (n - 1)));
+/** The right code is always 1, 2, 3…: shown faintly in the boxes, so anyone can play it. */
+const codeOf = (n: number) => "1234567890".slice(0, n);
 
 type Phase = "idle" | "checking" | "wrong" | "open" | "locked";
 /** A static state for the component page's State control. */
 export type OtpForce = "live" | "checking" | "wrong" | "open";
 
 /**
- * The playable one-time code flow (site only): a WhatsApp message with the code fills the boxes on tap (or type it),
- * checking waves across the boxes, a wrong code shakes red and clears, three wrong tries lock it until a new code,
- * the right one locks the boxes and a green check says so. Centred: boxes, one status line, one quiet action.
+ * The playable one-time code flow (site only): the right code (123456) shows faintly in the empty boxes; type it.
+ * Checking waves across the boxes, a wrong code shakes red and clears, three wrong tries lock it until a new code,
+ * the right one locks the boxes and a green check says so. Centred: the label, the boxes, and one line under them
+ * that is the status when there is one and the quiet action otherwise.
  */
 export function OtpFlow({
   length = 6,
@@ -36,7 +38,7 @@ export function OtpFlow({
   celebrate?: InputOTPCelebrate;
   className?: string;
 }) {
-  const [sent, setSent] = React.useState(() => (length === 6 ? "482193" : "4821"));
+  const sent = codeOf(length);
   const [code, setCode] = React.useState("");
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [notice, setNotice] = React.useState<Phase | null>(null);
@@ -54,22 +56,21 @@ export function OtpFlow({
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const reset = React.useCallback(
-    (n = length) => {
+    () => {
       window.clearTimeout(timer.current);
-      setSent(newCode(n));
       setCode("");
       setPhase("idle");
       setNotice(null);
       setTries(TRIES);
       setWait(WAIT);
     },
-    [length],
+    [],
   );
   // A new length is a new code.
   const first = React.useRef(true);
   React.useEffect(() => {
     if (first.current) return void (first.current = false);
-    reset(length);
+    reset();
   }, [length, reset]);
 
   const check = (v: string) => {
@@ -131,6 +132,7 @@ export function OtpFlow({
           aria-describedby={`${msgId}-msg`}
           length={length}
           group={length === 6 ? 3 : 0}
+          placeholder={sent}
           value={shown.code}
           status={status}
           celebrate={celebrate}
@@ -143,7 +145,8 @@ export function OtpFlow({
           onComplete={(v) => live && check(v)}
         />
       </Spot>
-      <div id={`${msgId}-msg`} aria-live="polite" className="flex h-item items-center justify-center gap-1.5 text-body">
+      {/* One line under the boxes: the status when there is one, the quiet action otherwise. Its height is reserved. */}
+      <div id={`${msgId}-msg`} aria-live="polite" className="flex h-control items-center justify-center gap-2 text-body">
         {shown.notice === "checking" ? <span className="text-ink-muted">Checking</span> : null}
         {shown.notice === "wrong" ? (
           <span key={shown.tries} className="flex animate-[ad-in_220ms_var(--ad-ease)] items-center gap-1.5 text-danger">
@@ -151,52 +154,32 @@ export function OtpFlow({
             Wrong code · {shown.tries} {shown.tries === 1 ? "try" : "tries"} left
           </span>
         ) : null}
-        {shown.notice === "locked" ? (
-          <span className="flex animate-[ad-in_220ms_var(--ad-ease)] items-center gap-1.5 text-danger">
-            <AlertCircle size={16} />
-            Too many tries. Send a new code.
-          </span>
+        {shown.notice === "open" ? (
+          <>
+            <Opened delay={otpLanded(celebrate)} icon={celebrate !== "seal"} text={done} />
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => live && reset()}
+              className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
+              style={{ animationDelay: `${otpLanded(celebrate) + 200}ms` }}
+            >
+              Start over
+            </Button>
+          </>
         ) : null}
-        {shown.notice === "open" ? <Opened delay={otpLanded(celebrate)} icon={celebrate !== "seal"} text={done} /> : null}
+        {shown.notice === "locked" || !shown.notice ? (
+          <Button
+            size="sm"
+            variant={shown.phase === "locked" ? "secondary" : "ghost"}
+            disabled={!canResend && live}
+            onClick={() => live && reset()}
+            className="tabular-nums"
+          >
+            {shown.phase === "locked" ? "Too many tries · Send a new code" : canResend || !live ? "Send a new code" : `Send a new code in 0:${String(wait).padStart(2, "0")}`}
+          </Button>
+        ) : null}
       </div>
-      {shown.phase === "open" ? (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => live && reset()}
-          className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
-          style={{ animationDelay: `${otpLanded(celebrate) + 200}ms` }}
-        >
-          Start over
-        </Button>
-      ) : (
-        <Button
-          size="sm"
-          variant={shown.phase === "locked" ? "secondary" : "ghost"}
-          disabled={!canResend && live}
-          onClick={() => live && reset()}
-          className="tabular-nums"
-        >
-          {canResend || !live ? "Send a new code" : `Send a new code in 0:${String(wait).padStart(2, "0")}`}
-        </Button>
-      )}
-      {live ? (
-        <button
-          type="button"
-          aria-label={`Fill the code from WhatsApp, ${sent}`}
-          disabled={shown.phase !== "idle"}
-          onClick={() => (setCode(sent), setNotice(null), check(sent))}
-          className="mt-2 grid w-full max-w-80 cursor-pointer gap-0.5 rounded-control bg-fill px-3 py-2.5 text-left transition-[background-color,opacity] duration-[220ms] ease-ad hover:bg-fill-strong focus-visible:bg-fill-strong disabled:cursor-default disabled:opacity-45"
-        >
-          <span className="flex justify-between text-small text-ink-muted">
-            <span>WhatsApp</span>
-            <span>now</span>
-          </span>
-          <span className="text-body text-ink">
-            Your Alora code is <span className="font-semibold tabular-nums">{length === 6 ? `${sent.slice(0, 3)} ${sent.slice(3)}` : sent}</span>
-          </span>
-        </button>
-      ) : null}
     </div>
   );
 }

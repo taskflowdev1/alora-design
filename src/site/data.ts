@@ -28,6 +28,16 @@ export const CUP_PHOTOS = [
   { src: "/photos/cup-white.webp", alt: "Coffee with cream in a white cup" },
 ];
 
+/** The landing carousel: Willem Dafoe at festivals, 2024 and 2025 (CC BY-SA 4.0, credits in public/photos/CREDITS.md). */
+export const DAFOE_PHOTOS = [
+  { src: "/photos/dafoe/dafoe-1.webp", alt: "Willem Dafoe grinning at TIFF 2024" },
+  { src: "/photos/dafoe/dafoe-2.webp", alt: "Willem Dafoe on the TIFF 2024 carpet" },
+  { src: "/photos/dafoe/dafoe-3.webp", alt: "Willem Dafoe smiling on a red carpet, 2024" },
+  { src: "/photos/dafoe/dafoe-4.webp", alt: "Willem Dafoe laughing at Locarno 2025" },
+  { src: "/photos/dafoe/dafoe-5.webp", alt: "Willem Dafoe with a sly smile at Venice 2024" },
+  { src: "/photos/dafoe/dafoe-6.webp", alt: "Willem Dafoe beaming on a red carpet, 2024" },
+];
+
 export const PRODUCTS = [
   { sku: "RMB-GL-014", name: "Gelas kopi tanah liat", price: 89000, stock: 2 },
   { sku: "RMB-PR-022", name: "Piring rotan bundar", price: 145000, stock: 3 },

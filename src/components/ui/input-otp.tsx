@@ -28,6 +28,8 @@ export interface InputOTPProps {
   disabled?: boolean;
   /** "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. */
   size?: "default" | "touch";
+  /** Faint digits in the empty boxes (a demo's known code, or a format like "000000"); each goes as its box fills. */
+  placeholder?: string;
   className?: string;
   id?: string;
   ref?: React.Ref<HTMLInputElement>;
@@ -69,6 +71,7 @@ export function InputOTP({
   invalid,
   disabled,
   size = "default",
+  placeholder,
   className,
   id,
   ref,
@@ -155,6 +158,8 @@ export function InputOTP({
               <span key={chars[i] + i} className={cn(s === "idle" && "animate-[ad-otp-digit_120ms_var(--ad-ease)]")}>
                 {chars[i]}
               </span>
+            ) : placeholder?.[i] && !(typing && i === value.length && i === at) ? (
+              <span className="font-normal text-fill-strong">{placeholder[i]}</span>
             ) : null}
             {typing && i === value.length && i === at ? <span className="absolute h-5 w-px animate-[ad-pulse_1s_steps(1)_infinite] bg-ink" /> : null}
           </span>

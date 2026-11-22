@@ -10,6 +10,8 @@ export interface CarouselProps {
   perView?: number;
   /** Gap between slides in px. */
   gap?: number;
+  /** Let the next slide peek in (24 px from sm up). Off: whole slides only, flush with both edges. */
+  peek?: boolean;
   /** Show the previous/next buttons. */
   arrows?: boolean;
   /** Show the dots. */
@@ -38,7 +40,7 @@ const band = (x: number) => Math.sign(x) * (1 - 1 / ((Math.abs(x) * 0.55) / EDGE
  * without crossing the edge. Prev/next are ghost buttons beside the dots under it, never over the
  * content; the current dot is a solid ink pill.
  */
-export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots = true, className, ...aria }: CarouselProps) {
+export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows = true, dots = true, className, ...aria }: CarouselProps) {
   const track = React.useRef<HTMLDivElement>(null);
   const [index, setIndex] = React.useState(0);
   const [pages, setPages] = React.useState(children.length);
@@ -81,7 +83,10 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
       const step = first ? first.offsetWidth + gap : el.clientWidth;
       const shown = Math.max(1, Math.round((el.clientWidth + gap) / step));
       setPages(Math.max(1, children.length - shown + 1));
-      setIndex(Math.min(children.length - 1, Math.round(el.scrollLeft / step)));
+      // The last page counts once the track is scrolled to its end (a peek can leave it short of a whole step).
+      const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2;
+      const pagesNow = Math.max(1, children.length - shown + 1);
+      setIndex(atEnd ? pagesNow - 1 : Math.min(pagesNow - 1, Math.round(el.scrollLeft / step)));
       // A slide straddles an edge (the peek of the next one, or any slide mid-scroll).
       const a = el.scrollLeft;
       const b = a + el.clientWidth;
@@ -186,7 +191,12 @@ export function Carousel({ children, perView = 1, gap = 12, arrows = true, dots 
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${children.length}`}
-            className="min-w-0 shrink-0 snap-start basis-[calc(88%-var(--gap))] [translate:var(--ad-pull,0px)_0] sm:basis-[calc((100%-24px-var(--gap)*var(--per))/var(--per))] [&_img]:pointer-events-none"
+            className={cn(
+              "min-w-0 shrink-0 snap-start [translate:var(--ad-pull,0px)_0] [&_img]:pointer-events-none",
+              peek
+                ? "basis-[calc(88%-var(--gap))] sm:basis-[calc((100%-24px-var(--gap)*var(--per))/var(--per))]"
+                : "basis-full sm:basis-[calc((100%-var(--gap)*(var(--per)-1))/var(--per))]",
+            )}
           >
             {c}
           </div>

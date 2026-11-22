@@ -137,7 +137,9 @@ html {
   top: 50%;
   height: 0.8em;
   translate: 0 -50%;
-  border-radius: min(var(--ad-radius-small), 0.3em);
+  /* Rounded to the bar's own height: the small radius on body text, about a fifth of the line on big numbers (a hero
+     figure's bar at the small radius read as a hard block). Square mode still zeroes it. */
+  border-radius: min(max(var(--ad-radius-small), 0.2em), 0.3em, var(--ad-radius-card));
   animation: ad-pulse 1.6s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
