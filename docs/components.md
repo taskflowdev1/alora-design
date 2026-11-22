@@ -184,6 +184,148 @@ Files: `src/components/ui/stock-battery.tsx`. Installs too: `button`, `card`, `t
 
 Also takes the native props of the element it renders.
 
+### Detent rotary knob
+
+<a id="detent-knob"></a>Page: https://design.alorawork.com/components/detent-knob
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/detent-knob.json"
+```
+
+Files: `src/components/ui/detent-knob.tsx`.
+
+`DetentKnob`: A weighted dial that clicks between notches, keeps spinning after a flick and settles on the nearest value.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `number` |  |  |
+| `defaultValue` | `number` | `20` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `min` | `number` | `0` |  |
+| `max` | `number` | `60` |  |
+| `step` | `number` | `5` | The distance between two notches. |
+| `format` | `((value: number) => string)` | `(v) => `${v}%`` | The value at the knob's centre and at the two ends of its scale. |
+| `label` | `string` | `"Discount"` | The accessible name of the dial. |
+| `product` | `string` | `"Gelas kopi tanah liat"` | The item the value applies to, on the row under the dial. Leave out with `price` to hide the row. |
+| `price` | `number` | `85000` | The full price: the row shows it reduced by the value, read as a percentage. |
+
+Also takes the native props of the element it renders.
+
+### Hold to confirm
+
+<a id="hold-to-confirm"></a>Page: https://design.alorawork.com/components/hold-to-confirm
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/hold-to-confirm.json"
+```
+
+Files: `src/components/ui/hold-to-confirm.tsx`.
+
+`HoldToConfirm`: A button for an action worth a second thought. Pressing fills it outward from the finger, letting go drains it back, and holding to the end leaves it filled, with the verb turned to the past tense.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Hold to pay"` | What holding does, in the resting button. |
+| `doneLabel` | `string` | `"Paid"` | The same words once it has happened. |
+| `detail` | `string` | `"Rp 1.250.000"` | The figure it applies to, kept in place through the whole hold. |
+| `duration` | `number` | `1200` | How long to hold, in ms. |
+| `resetAfter` | `number` | `2800` | Ms before a finished button drains back to rest; 0 keeps it finished. |
+| `onConfirm` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Rubber band stepper
+
+<a id="rubber-band-stepper"></a>Page: https://design.alorawork.com/components/rubber-band-stepper
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/rubber-band-stepper.json"
+```
+
+Files: `src/components/ui/rubber-band-stepper.tsx`.
+
+`RubberBandStepper`: A stepper you can also pull. Dragging the number sideways stretches the pill, the further the pull the faster it counts, and letting go snaps it back. The buttons and the arrow keys step it one at a time.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `number` |  |  |
+| `defaultValue` | `number` | `12` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `min` | `number` | `0` |  |
+| `max` | `number` | `999` |  |
+| `step` | `number` | `1` |  |
+| `label` | `string` | `"Quantity"` | The accessible name of the number. |
+
+Also takes the native props of the element it renders.
+
+### Lever toggle
+
+<a id="lever-toggle"></a>Page: https://design.alorawork.com/components/lever-toggle
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/lever-toggle.json"
+```
+
+Files: `src/components/ui/lever-toggle.tsx`.
+
+`LeverToggle`: A chunky lever: it throws across with momentum, hesitates at the midpoint and lands with a small recoil.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `checked` | `boolean` |  |  |
+| `defaultChecked` | `boolean` | `false` |  |
+| `onCheckedChange` | `((checked: boolean) => void)` |  |  |
+| `offLabel` | `string` | `"Closed"` | The word on the left, for off. |
+| `onLabel` | `string` | `"Open"` | The word on the right, for on. |
+
+Also takes the native props of the element it renders.
+
+### Shift ring clock
+
+<a id="shift-ring-clock"></a>Page: https://design.alorawork.com/components/shift-ring-clock
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/shift-ring-clock.json"
+```
+
+Files: `src/components/ui/shift-ring-clock.tsx`.
+
+`ShiftRingClock`: A 24-hour dial for setting a shift. Drag either end, or the arc itself to move the whole shift; it wraps past midnight, an end pushed into the other carries it along, and the hours roll at the centre.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `ShiftValue` |  |  |
+| `defaultValue` | `ShiftValue` | `{ start: 22 * 60, end: 6 * 60 }` |  |
+| `onValueChange` | `((value: ShiftValue) => void)` |  |  |
+| `step` | `number` | `15` | Minutes between snap points. |
+| `minLength` | `number` | `60` | The shortest shift, in minutes. |
+| `maxLength` | `number` | `23 * 60` | The longest shift, in minutes. |
+
+Also takes the native props of the element it renders.
+
+### Date text morph
+
+<a id="date-text-morph"></a>Page: https://design.alorawork.com/components/date-text-morph
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/date-text-morph.json"
+```
+
+Files: `src/components/ui/date-text-morph.tsx`.
+
+`DateTextMorph`: A date you can click to read the other way. The letters the two forms share travel to their new places, and only the rest fade, so "in 2 days" turns into "Fri, 28 Nov" instead of being swapped for it. Size it with `className`.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `date` | `Date` |  | The date shown. Defaults to two days from now. |
+| `now` | `Date` |  | What "today" is, for the relative wording. |
+| `mode` | `"relative" \| "absolute"` |  | Which form shows: "relative" ("in 2 days") or "absolute" ("Fri, 28 Nov"). |
+| `defaultMode` | `"relative" \| "absolute"` | `"relative"` |  |
+| `onModeChange` | `((mode: "relative" \| "absolute") => void)` |  |  |
+| `align` | `"start" \| "center"` | `"start"` | Where the text sits in the width reserved for its longer form. |
+
+Also takes the native props of the element it renders.
+
 ### Chat to order
 
 <a id="chat-to-order"></a>Page: https://design.alorawork.com/components/chat-to-order
