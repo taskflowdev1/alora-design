@@ -140,6 +140,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Thermal receipt printer](https://design.alorawork.com/components/receipt-printer) | `receipt-printer` | `ReceiptPrinter` | `shop="Rimba Kemang"`, `place="Jl. Kemang Raya 12, Jakarta Selatan"`, `when="21 Nov 2026, 14.32"`, `items=ITEMS`, `payment="QRIS"`, `code="RK-20261121-0418"`, `autoPrint=true`, `onPrinted`, `onTear` |
 | [Instant photo develop](https://design.alorawork.com/components/instant-photo) | `instant-photo` | `InstantPhoto` | `photos`, `onDeveloped` |
 | [Before after wipe](https://design.alorawork.com/components/before-after) | `before-after` | `BeforeAfter` | `before`, `after`, `alt`, `beforeFilter`, `beforeLabel="Raw"`, `afterLabel="Edited"`, `defaultValue=0.5`, `onValueChange` |
+| [Product hotspots](https://design.alorawork.com/components/product-hotspots) | `product-hotspots` | `ProductHotspots` | `src`, `alt`, `spots`, `ratio=1`, `onOpenChange` |
+| [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
+| [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
+| [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Prize spin wheel](https://design.alorawork.com/components/spin-wheel) | `spin-wheel` | `SpinWheel` | `prizes=DEFAULT_PRIZES`, `winner`, `spinLabel="Spin"`, `onResult` |
+| [Loyalty stamp card](https://design.alorawork.com/components/stamp-card) | `stamp-card` | `StampCard` | `shop="Rimba Kemang"`, `total=10`, `defaultCount=7`, `reward="Gratis 1 Gelas kopi tanah liat"`, `code="RIMBA-GRATIS"`, `actionLabel="Add purchase"`, `onStamp`, `onComplete` |
 
 ### Actions
 
