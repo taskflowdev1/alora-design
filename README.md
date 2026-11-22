@@ -278,6 +278,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Notification bell](https://design.alorawork.com/components/notification-bell) | `notification-bell` | `NotificationBell` | `notices`, `onMarkAllRead`, `className` |
 | [Kanban card](https://design.alorawork.com/components/kanban-card) | `kanban-card` | `KanbanCard`, `KanbanColumn` | `title`, `id`, `media`, `tags=[]`, `people=[]`, `due`, `attention`, `onClick`, `className`, `count`, `children` |
 | [Calendar month](https://design.alorawork.com/components/calendar-month) | `calendar-month` | `CalendarMonth` | `month`, `onMonthChange`, `events`, `today=new Date()`, `max=2`, `onEventClick`, `className` |
+| [Holo card](https://design.alorawork.com/components/holo-card) | `holo-card` | `HoloCard` | `holder="RIZKY HARTONO"`, `last4="4410"`, `expiry="08/29"`, `tone="holo"`, `interactive=true` |
 
 ### Mobile
 
