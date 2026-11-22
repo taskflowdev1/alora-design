@@ -130,3 +130,27 @@ test("registry deps match the imports", () => {
   }
   assert.deepEqual(problems, []);
 });
+
+// The serverless functions (api/*.ts) run what they import as plain Node ESM: every runtime relative import on that
+// path needs its ".js" extension, or production /r, /api/kit and /tokens.* fail while the site itself builds fine.
+test("api imports relative files with .js, all the way down", async () => {
+  const { readdirSync } = await import("node:fs");
+  const { dirname, relative } = await import("node:path");
+  const seen = new Set();
+  const bad = [];
+  const walk = (file) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    const src = readFileSync(file, "utf8");
+    for (const m of src.matchAll(/^(import|export)(?!\s+type\b)[^;\n]*?\sfrom\s+"(\.{1,2}\/[^"]+)"/gm)) {
+      const spec = m[2];
+      if (spec.endsWith(".json")) continue;
+      if (!spec.endsWith(".js")) bad.push(`${relative(REPO, file)}: ${spec}`);
+      const ts = resolve(dirname(file), spec.replace(/\.js$/, ""));
+      for (const cand of [`${ts}.ts`, `${ts}.tsx`, join(ts, "index.ts")]) if (existsSync(cand)) walk(cand);
+    }
+  };
+  for (const f of readdirSync(join(REPO, "api")).filter((f) => f.endsWith(".ts"))) walk(join(REPO, "api", f));
+  assert.ok(seen.size > 5, `walked ${seen.size} files`);
+  assert.deepEqual(bad, []);
+});
