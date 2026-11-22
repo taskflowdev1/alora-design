@@ -158,7 +158,6 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Approval flow](https://design.alorawork.com/components/approval-flow) | `approval-flow` | `ApprovalFlow` | `title="Gelas kopi tanah liat, 200 pcs"`, `code="PO-1042"`, `amount=17800000`, `people=PEOPLE`, `onDecision`, `onApprovedChange`, `className` |
 | [Activity feed](https://design.alorawork.com/components/activity-feed) | `activity-feed` | `ActivityFeed` | `events`, `height=320`, `className` |
 | [Invoice line items](https://design.alorawork.com/components/line-items) | `line-items` | `LineItems` | `defaultItems=[]`, `catalog=[]`, `taxRate=0.11`, `taxLabel="PPN 11%"`, `rows=4`, `onItemsChange`, `className` |
-| [CSV import mapping](https://design.alorawork.com/components/import-mapping) | `import-mapping` | `ImportMapping` | `fileName="produk.csv"`, `rowCount`, `columns`, `fields`, `noun="products"`, `onImport`, `onDoneChange`, `className` |
 | [Year heatmap](https://design.alorawork.com/components/year-heatmap) | `year-heatmap` | `YearHeatmap` | `days`, `label="Sales this year"`, `unit="Rp"`, `className`, `aria-label` |
 | [Margin waterfall](https://design.alorawork.com/components/margin-waterfall) | `margin-waterfall` | `MarginWaterfall` | `periods`, `defaultPeriod`, `revenueLabel="Revenue"`, `profitLabel="Profit"`, `unit="Rp"`, `onPeriodChange`, `className` |
 

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CopyField } from "@/components/ui/copy-chip";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
-import { ImportMapping, type MapColumn, type MapField } from "@/components/ui/import-mapping";
 import { LineItems, type LineItem, type LineProduct } from "@/components/ui/line-items";
 import { MarginWaterfall, type WaterfallPeriod } from "@/components/ui/margin-waterfall";
 import { YearHeatmap, type HeatDay } from "@/components/ui/year-heatmap";
@@ -28,20 +27,6 @@ const CATALOG: LineProduct[] = [
   { name: "Vas keramik glasir hijau", price: 210000 },
   { name: "Keranjang pandan besar", price: 239000 },
   { name: "Nampan anyaman bambu", price: 175000 },
-];
-
-const COLUMNS: MapColumn[] = [
-  { id: "name", name: "Nama barang", sample: "Gelas kopi tanah liat", guess: "title" },
-  { id: "price", name: "Harga", sample: "89.000", guess: "cost" },
-  { id: "stock", name: "Stok", sample: "128", guess: "stock" },
-  { id: "note", name: "Catatan gudang", sample: "Rak B3" },
-];
-const FIELDS: MapField[] = [
-  { id: "title", label: "Product name", required: true },
-  { id: "sell", label: "Selling price", required: true },
-  { id: "cost", label: "Cost price" },
-  { id: "stock", label: "Stock" },
-  { id: "sku", label: "SKU" },
 ];
 
 /** A steady pseudo-random day: the same year on every load, so the page never changes between visits. */
@@ -176,34 +161,6 @@ function UploadFlow() {
   );
 }
 
-/* ---------- Import flow ---------- */
-
-function ImportFlow() {
-  const [round, setRound] = React.useState(0);
-  const [done, setDone] = React.useState(false);
-  return (
-    <div className="grid w-full justify-items-center gap-3">
-      <ImportMapping key={round} className="w-full" fileName="produk-rimba-kemang.csv" rowCount={214} columns={COLUMNS} fields={FIELDS} onDoneChange={setDone} />
-      {/* Outside the piece, and its height is kept so nothing moves when it appears. */}
-      <div className="flex h-control items-center">
-        {done ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
-            onClick={() => {
-              setDone(false);
-              setRound((r) => r + 1);
-            }}
-          >
-            Start over
-          </Button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
 const CopyScene = () => (
   <Card className="grid w-full gap-2" inset="nest">
     <CopyField label="Virtual account BCA" value="880812345678" />
@@ -231,15 +188,6 @@ export const DEMOS: Record<string, Demo> = {
     ),
     usage: () =>
       `<LineItems\n  defaultItems={[{ id: "a", name: "Gelas kopi tanah liat", qty: 12, price: 89000 }]}\n  catalog={[{ name: "Vas keramik glasir hijau", price: 210000 }]}\n  taxRate={0.11}\n  taxLabel="PPN 11%"\n  onItemsChange={save}\n/>`,
-  },
-  "import-mapping": {
-    render: () => (
-      <div className="w-full max-w-[560px]">
-        <ImportFlow />
-      </div>
-    ),
-    usage: () =>
-      `<ImportMapping\n  fileName="produk-rimba-kemang.csv"\n  rowCount={214}\n  columns={[{ id: "name", name: "Nama barang", sample: "Gelas kopi tanah liat", guess: "title" }]}\n  fields={[{ id: "title", label: "Product name", required: true }]}\n  onImport={async (mapping, report) => { await upload(mapping, report); }}\n/>`,
   },
   "year-heatmap": {
     render: () => (
@@ -274,18 +222,6 @@ export const TILES: TileDef[] = [
     ),
   },
   {
-    items: ["import-mapping"],
-    render: () => (
-      <div className={cn("min-w-0", S[5])}>
-        <Mark name="import-mapping">
-          <Play>
-            <ImportFlow />
-          </Play>
-        </Mark>
-      </div>
-    ),
-  },
-  {
     items: ["year-heatmap"],
     render: () => (
       <div className={cn("min-w-0", S[8])}>
@@ -314,7 +250,6 @@ export const TILES: TileDef[] = [
 export const MOMENTS: ShowpieceMoment[] = [
   { id: "file-upload", title: "File upload", to: "/components/dropzone", width: "max-w-[480px]", render: () => <UploadFlow /> },
   { id: "line-items", title: "Invoice line items", to: "/components/line-items", width: "max-w-[640px]", render: () => <Line /> },
-  { id: "import-mapping", title: "CSV import mapping", to: "/components/import-mapping", width: "max-w-[560px]", render: () => <ImportFlow /> },
   { id: "copy-field", title: "Copy field", to: "/components/copy-chip", width: "max-w-[400px]", render: () => <CopyScene /> },
   { id: "year-heatmap", title: "Year heatmap", to: "/components/year-heatmap", width: "max-w-[820px]", render: () => <Heat /> },
   { id: "margin-waterfall", title: "Margin waterfall", to: "/components/margin-waterfall", width: "max-w-[640px]", render: () => <Waterfall /> },

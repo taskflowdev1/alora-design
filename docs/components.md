@@ -743,29 +743,6 @@ Files: `src/components/ui/line-items.tsx`. Installs too: `button`, `card`, `numb
 | `onItemsChange` | `((items: LineItem[]) => void)` |  |  |
 | `className` | `string` |  |  |
 
-### CSV import mapping
-
-<a id="import-mapping"></a>Page: https://design.alorawork.com/components/import-mapping
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/import-mapping.json"
-```
-
-Files: `src/components/ui/import-mapping.tsx`. Installs too: `card`, `number-dial`, `select`.
-
-`ImportMapping`: Column mapping for a spreadsheet import. Auto-match draws each pairing in turn, a wrong one is changed with its select (a field feeds from one column, so taking it frees the other), and a column nobody wants just stays out. Import runs its progress inside the button and lands as the result in the same place.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `fileName` | `string` | `"produk.csv"` |  |
-| `rowCount` (required) | `number` |  | Rows in the sheet. |
-| `columns` (required) | `MapColumn[]` |  |  |
-| `fields` (required) | `MapField[]` |  |  |
-| `noun` | `string` | `"products"` | What is being imported, plural: "products". |
-| `onImport` | `((mapping: Record<string, string>, report: (rows: number) => void) => Promise<void>)` |  | Runs the import and reports rows done through `report`. Leave out for a simulated run. A rejection returns the piece to its mapped state so it can be tried again. |
-| `onDoneChange` | `((done: boolean) => void)` |  | Fires once the import has landed, and with false if it is reset by a new key. |
-| `className` | `string` |  |  |
-
 ### Year heatmap
 
 <a id="year-heatmap"></a>Page: https://design.alorawork.com/components/year-heatmap
