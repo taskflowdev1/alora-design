@@ -127,6 +127,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Product hotspots](https://design.alorawork.com/components/product-hotspots) | `product-hotspots` | `ProductHotspots` | `src`, `alt`, `spots`, `ratio=1`, `onOpenChange` |
+| [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
+| [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
+| [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Prize spin wheel](https://design.alorawork.com/components/spin-wheel) | `spin-wheel` | `SpinWheel` | `prizes=DEFAULT_PRIZES`, `winner`, `spinLabel="Spin"`, `onResult` |
+| [Loyalty stamp card](https://design.alorawork.com/components/stamp-card) | `stamp-card` | `StampCard` | `shop="Rimba Kemang"`, `total=10`, `defaultCount=7`, `reward="Gratis 1 Gelas kopi tanah liat"`, `code="RIMBA-GRATIS"`, `actionLabel="Add purchase"`, `onStamp`, `onComplete` |
 
 ### Actions
 

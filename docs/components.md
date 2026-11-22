@@ -20,6 +20,138 @@ A foundation, set by the theme: no component to install.
 
 ## Showpieces
 
+### Product hotspots
+
+<a id="product-hotspots"></a>Page: https://design.alorawork.com/components/product-hotspots
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/product-hotspots.json"
+```
+
+Files: `src/components/ui/product-hotspots.tsx`.
+
+`ProductHotspots`: A shoppable photo: pulsing dots that open into small price tags, each growing out of its own dot. One tag at a time; a tap elsewhere or Escape closes it, and the arrow keys walk the dots.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `src` (required) | `string` |  |  |
+| `alt` (required) | `string` |  |  |
+| `spots` (required) | `Hotspot[]` |  |  |
+| `ratio` | `number` | `1` | The photo's width over its height. |
+| `onOpenChange` | `((spot: Hotspot \| null) => void)` |  | Fires with the spot that opened, or null when the tag closes. |
+
+Also takes the native props of the element it renders.
+
+### Photo stack shuffle
+
+<a id="photo-stack"></a>Page: https://design.alorawork.com/components/photo-stack
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/photo-stack.json"
+```
+
+Files: `src/components/ui/photo-stack.tsx`.
+
+`PhotoStack`: A pile of product prints. Swipe the top one and it flies off with a tilt, then tucks under the pile while the next rises. A click, Enter or Space throws it too; the arrow keys step through at once.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `photos` (required) | `StackPhoto[]` |  |  |
+| `onChange` | `((photo: StackPhoto, index: number) => void)` |  | Fires with the photo that came to the top. |
+
+Also takes the native props of the element it renders.
+
+### Scratch voucher
+
+<a id="scratch-voucher"></a>Page: https://design.alorawork.com/components/scratch-voucher
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/scratch-voucher.json"
+```
+
+Files: `src/components/ui/scratch-voucher.tsx`. Installs too: `button`, `copy-chip`.
+
+`ScratchVoucher`: A voucher with a scratch-off panel. Scratch with a mouse or finger and foil crumbs fly; once most of it is gone the rest flakes away by itself, leaving the code ready to copy. Enter or Space takes it all off at once.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `validity` | `string` | `"Until 31 Dec"` | Printed at the top right of the ticket, e.g. how long it's valid. |
+| `offer` | `string` | `"25% off"` | The prize under the foil. |
+| `code` | `string` | `"RIMBA-7K2Q"` |  |
+| `label` | `string` | `"Scratch here"` | Printed on the foil. |
+| `onReveal` | `((code: string) => void)` |  | Fires once when the foil has come off. |
+
+Also takes the native props of the element it renders.
+
+### Foil achievement badge
+
+<a id="foil-badge"></a>Page: https://design.alorawork.com/components/foil-badge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/foil-badge.json"
+```
+
+Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
+
+`FoilBadge`: A sales milestone struck as a foil seal. Locked it is matte; claimed, it lifts, comes down hard and the foil appears at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the arrow keys.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `string` | `"Rp 100 jt"` | The milestone, big in the middle. |
+| `label` | `string` | `"Sales in November"` |  |
+| `claimLabel` | `string` | `"Claim badge"` | The action that claims it. |
+| `defaultUnlocked` | `boolean` | `false` |  |
+| `onUnlockedChange` | `((unlocked: boolean) => void)` |  | Fires when the badge is stamped in, and with false when it's reset. |
+
+Also takes the native props of the element it renders.
+
+### Prize spin wheel
+
+<a id="spin-wheel"></a>Page: https://design.alorawork.com/components/spin-wheel
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/spin-wheel.json"
+```
+
+Files: `src/components/ui/spin-wheel.tsx`.
+
+`SpinWheel`: A prize wheel with real weight. Flick it (or press the hub): its speed comes from your hand, the pointer chatters over the pegs and it slows to a stop inside a wedge, which takes the accent. A slow push just turns it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `prizes` | `WheelPrize[]` | `DEFAULT_PRIZES` |  |
+| `winner` | `string` |  | A prize id decided elsewhere (say, on the server). Left out, the wheel lands wherever the flick takes it. |
+| `spinLabel` | `string` | `"Spin"` |  |
+| `onResult` | `((prize: WheelPrize) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Loyalty stamp card
+
+<a id="stamp-card"></a>Page: https://design.alorawork.com/components/stamp-card
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/stamp-card.json"
+```
+
+Files: `src/components/ui/stamp-card.tsx`. Installs too: `button`.
+
+`StampCard`: A coffee-shop loyalty card. Each purchase brings a rubber stamp down into the next slot with a thud the card feels; the last one turns the whole card over to show the reward. Press the card or the button.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `total` | `number` | `10` | How many stamps fill the card. |
+| `defaultCount` | `number` | `7` | Stamps already on the card. |
+| `reward` | `string` | `"Gratis 1 Gelas kopi tanah liat"` | On the back of the card. |
+| `code` | `string` | `"RIMBA-GRATIS"` |  |
+| `actionLabel` | `string` | `"Add purchase"` |  |
+| `onStamp` | `((count: number) => void)` |  | Fires with the new count after each stamp. |
+| `onComplete` | `(() => void)` |  | Fires when the last slot is stamped. |
+
+Also takes the native props of the element it renders.
+
 ## Actions
 
 ### Button
