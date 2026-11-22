@@ -3,6 +3,7 @@
 //   node scripts/smoke.mjs                     every section (the full gate)
 //   SMOKE_SECTIONS=a,b node scripts/smoke.mjs  only those sections (scripts/verify --changed picks them)
 //   SMOKE_WORKERS=1 node scripts/smoke.mjs     one at a time, to debug an ordering problem
+import { AsyncLocalStorage } from "node:async_hooks";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { freemem } from "node:os";
@@ -65,7 +66,9 @@ const settled = (pg, selector = "[data-page], [data-customize-panel]") =>
 // Two painted frames: a transition started by the last state change is now visible to getAnimations().
 const frames = (pg) => pg.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 const failures = [];
-const check = (ok, msg) => (ok ? console.log(`ok   ${msg}`) : (failures.push(msg), console.log(`FAIL ${msg}`)));
+// Which section a check belongs to, so a section re-run after a host network blip can drop its first attempt's failures.
+const inSection = new AsyncLocalStorage();
+const check = (ok, msg) => (ok ? console.log(`ok   ${msg}`) : (failures.push({ msg, section: inSection.getStore() }), console.log(`FAIL ${msg}`)));
 const near = (a, b) => Math.abs(a - b) <= 0.5;
 const chunks = (xs, n) => Array.from({ length: n }, (_, i) => xs.filter((_, j) => j % n === i));
 const browser = await chromium.launch();
@@ -1205,7 +1208,9 @@ const queue = sections.filter((s) => !ONLY || ONLY.has(s.name)).sort((a, b) => r
 const timings = [];
 // A section that visits a route its map entry does not name would be wrongly skipped by verify --changed.
 const unmapped = new Set();
-const runSection = async ({ name, run }) => {
+/** The host's network changing under the browser (other jobs adding Docker networks), not a fault in the site. */
+const BLIP = /ERR_NETWORK_CHANGED|Failed to fetch dynamically imported module/;
+const runSection = async ({ name, run }, attempt = 1) => {
   const started = Date.now();
   const contexts = [];
   /** A page in its own context, closed when the section ends. */
@@ -1224,15 +1229,23 @@ const runSection = async ({ name, run }) => {
   const page = await open({ viewport: { width: 1440, height: 900 } });
   const local = [];
   page.on("pageerror", (e) => local.push(e.message));
+  let crash = null;
   try {
-    await run({ page, errors: local, open });
+    await inSection.run(name, () => run({ page, errors: local, open }));
   } catch (e) {
-    check(false, `section ${name} crashed (${String(e?.message ?? e).split("\n")[0]})`);
+    crash = String(e?.message ?? e).split("\n")[0];
   } finally {
     await Promise.all(contexts.map((c) => c.close().catch(() => {})));
-    allErrors.push(...local);
     timings.push([name, Date.now() - started]);
   }
+  // A blip gets the section one clean re-run; a real failure or a second blip counts.
+  if (attempt === 1 && (BLIP.test(crash ?? "") || local.some((m) => BLIP.test(m)))) {
+    console.log(`retry ${name}: host network blip (${crash ?? local.find((m) => BLIP.test(m))})`);
+    for (let i = failures.length - 1; i >= 0; i--) if (failures[i].section === name) failures.splice(i, 1);
+    return runSection({ name, run }, 2);
+  }
+  if (crash) inSection.run(name, () => check(false, `section ${name} crashed (${crash})`));
+  allErrors.push(...local);
 };
 await Promise.all(
   Array.from({ length: WORKERS }, async () => {
