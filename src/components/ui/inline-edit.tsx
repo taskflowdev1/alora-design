@@ -1,13 +1,14 @@
 import * as React from "react";
-import { Check, Edit2 } from "react-feather";
+import { Edit2 } from "react-feather";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/ad";
 
 export interface InlineEditProps {
   /** The stored value, unformatted ("99000"). */
   value: string;
-  /** Gets the parsed value. Called only when it changed and `validate` passed. */
-  onSave: (value: string) => void;
+  /** Gets the parsed value. Called only when it changed and `validate` passed. Return a promise for a quiet saving
+   *  state; if it rejects, the cell reopens with the typed value and the error's message. */
+  onSave: (value: string) => void | Promise<unknown>;
   /** Shown before and after the value in both states, never part of the editable text ("Rp", "pcs"). */
   prefix?: string;
   suffix?: string;
@@ -30,6 +31,38 @@ export const grouped = {
 };
 
 const same = (v: string) => v;
+
+const ROLL_CSS = `
+@keyframes ad-ie-up-out { to { opacity: 0; transform: translateY(-70%); filter: blur(2px); } }
+@keyframes ad-ie-up-in { from { opacity: 0; transform: translateY(70%); filter: blur(2px); } }
+@keyframes ad-ie-down-out { to { opacity: 0; transform: translateY(70%); filter: blur(2px); } }
+@keyframes ad-ie-down-in { from { opacity: 0; transform: translateY(-70%); filter: blur(2px); } }`;
+
+type Roll = { id: number; from: string; to: string; dir: "up" | "down" };
+
+/** The old value leaving and the new one arriving on the same line; only the characters that changed move. */
+function RollLine({ roll, right, onDone }: { roll: Roll; right: boolean; onDone: () => void }) {
+  const { from, to, dir } = roll;
+  const most = Math.min(from.length, to.length);
+  let head = 0;
+  while (head < most && from[head] === to[head]) head++;
+  let tail = 0;
+  while (tail < most - head && from[from.length - 1 - tail] === to[to.length - 1 - tail]) tail++;
+  return (
+    <span aria-hidden className={cn("absolute top-0 whitespace-pre text-ink", right ? "right-0" : "left-0")}>
+      {to.slice(0, head)}
+      <span className="relative inline-grid overflow-clip">
+        <span style={{ animation: `ad-ie-${dir}-in 240ms var(--ad-ease) both` }} onAnimationEnd={onDone}>
+          {to.slice(head, to.length - tail) || "\u200b"}
+        </span>
+        <span className="absolute left-0 top-0" style={{ animation: `ad-ie-${dir}-out 200ms var(--ad-ease) forwards` }}>
+          {from.slice(head, from.length - tail)}
+        </span>
+      </span>
+      {tail ? to.slice(-tail) : ""}
+    </span>
+  );
+}
 
 /** Where in `text` (a text node inside `el`) the point falls, or null when it misses the text. */
 function caretAt(el: HTMLElement, x: number, y: number): number | null {
@@ -56,8 +89,9 @@ function caretAt(el: HTMLElement, x: number, y: number): number | null {
  * A table cell you edit in place, the spreadsheet way. Click puts the caret where you clicked; the editing box is the
  * resting box (same size, same text position, same right edge), so nothing in the row moves. The prefix stays fixed
  * and `format` regroups the digits as you type. Enter saves, Tab saves and edits the next cell (Shift+Tab the one
- * before), Esc reverts, leaving the cell saves. A refused value shows a soft danger fill and its message; a saved
- * one shows a quiet check where the pencil sits.
+ * before), Esc reverts, the old value sliding back; leaving the cell saves. A saved value rolls in where the old one
+ * was, pulsing quietly while a slow save runs, then one small dot where the pencil sits. A refused value shows a soft
+ * danger fill and its message.
  */
 export function InlineEdit({
   value,
@@ -77,6 +111,10 @@ export function InlineEdit({
   const [draft, setDraft] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [saved, setSaved] = React.useState(false);
+  // A value on its way to the server shows at once, and the old one comes back only if the save fails.
+  const [pending, setPending] = React.useState<string | null>(null);
+  const [roll, setRoll] = React.useState<Roll | null>(null);
+  const saveId = React.useRef(0);
   const input = React.useRef<HTMLInputElement>(null);
   const rest = React.useRef<HTMLButtonElement>(null);
   const caret = React.useRef<number | null>(null);
@@ -103,10 +141,11 @@ export function InlineEdit({
   }, [saved]);
 
   const start = (at: number | null) => {
-    const text = format(value);
+    const text = format(pending ?? value);
     caret.current = at == null ? text.length : Math.min(at, text.length);
     editing.current = true;
     setSaved(false);
+    setRoll(null);
     setDraft(text);
   };
   const stop = (focusCell: boolean) => {
@@ -124,12 +163,39 @@ export function InlineEdit({
       setError(err);
       return false;
     }
-    if (next !== value) {
-      onSave(next);
-      setSaved(true);
+    const current = pending ?? value;
+    if (next !== current) {
+      const id = ++saveId.current;
+      setRoll({ id, from: format(current), to: format(next), dir: "up" });
+      const result = onSave(next);
+      if (result && typeof result.then === "function") {
+        setPending(next);
+        result.then(
+          () => {
+            if (saveId.current !== id) return;
+            setPending(null);
+            setSaved(true);
+          },
+          (e: unknown) => {
+            if (saveId.current !== id) return;
+            const text = format(next);
+            setPending(null);
+            setRoll(null);
+            caret.current = text.length;
+            editing.current = true;
+            setDraft(text);
+            setError(e instanceof Error && e.message ? e.message : "Couldn't save");
+          },
+        );
+      } else setSaved(true);
     }
     stop(focusCell);
     return true;
+  };
+  const cancel = () => {
+    const back = format(pending ?? value);
+    if (draft != null && draft !== back) setRoll({ id: ++saveId.current, from: draft, to: back, dir: "down" });
+    stop(true);
   };
   const change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
@@ -158,7 +224,7 @@ export function InlineEdit({
     right && "flex-row-reverse",
     className,
   );
-  const text = editingNow ? draft : format(value);
+  const text = editingNow ? draft : format(pending ?? value);
   const affix = (s: string, side: "pre" | "post") => (
     <span className={cn("shrink-0 whitespace-pre transition-colors", editingNow ? "text-ink-muted" : "text-ink")}>
       {side === "pre" ? `${s}\u00a0` : `\u00a0${s}`}
@@ -166,14 +232,18 @@ export function InlineEdit({
   );
   const body = (
     <>
+      <style href="ad-inline-edit" precedence="default">
+        {ROLL_CSS}
+      </style>
       <span className={cn("flex min-w-0 flex-1 items-baseline whitespace-nowrap", right && "justify-end")}>
         {prefix ? affix(prefix, "pre") : null}
         {/* The hidden value sizes the slot and the input lies over it, out of flow: an input's own intrinsic width
             (about 20 characters) would otherwise widen the slot and push its left-aligned text away from the right edge. */}
-        <span className="relative min-w-0">
-          <span data-value className={cn("block overflow-hidden text-ink", editingNow && "invisible")}>
+        <span className={cn("relative min-w-0", pending != null && !editingNow && "animate-ad-pulse")}>
+          <span data-value className={cn("block overflow-hidden text-ink", (editingNow || roll) && "invisible")}>
             {text || "\u200b"}
           </span>
+          {roll && !editingNow ? <RollLine key={roll.id} roll={roll} right={right} onDone={() => setRoll(null)} /> : null}
           {editingNow ? (
             <input
               ref={input}
@@ -194,7 +264,7 @@ export function InlineEdit({
                   commit(true);
                 } else if (e.key === "Escape") {
                   e.preventDefault();
-                  stop(true);
+                  cancel();
                 } else if (e.key === "Tab") {
                   e.preventDefault();
                   const root = e.currentTarget.closest<HTMLElement>("[data-inline-edit]");
@@ -209,20 +279,19 @@ export function InlineEdit({
         </span>
         {suffix ? affix(suffix, "post") : null}
       </span>
-      {/* One reserved slot: pencil on hover, a check for a moment after a save, empty while editing. */}
+      {/* One reserved slot: pencil on hover, one small dot for a moment after a save, empty while editing. */}
       <span className="relative grid size-[14px] shrink-0 place-items-center" aria-hidden>
         <Edit2
           size={14}
           className={cn(
             "absolute text-ink-muted opacity-0 transition-opacity",
-            !editingNow && !saved && "group-hover:opacity-100 group-focus-visible:opacity-100",
+            !editingNow && !saved && pending == null && "group-hover:opacity-100 group-focus-visible:opacity-100",
           )}
         />
-        <Check
-          size={14}
+        <span
           className={cn(
-            "absolute text-success transition-[opacity,scale,filter] duration-[160ms] ease-ad motion-reduce:transition-opacity",
-            saved && !editingNow ? "scale-100 opacity-100 blur-[0px]" : "scale-75 opacity-0 blur-[2px] motion-reduce:scale-100 motion-reduce:blur-[0px]",
+            "absolute size-1.5 rounded-full bg-success transition-opacity duration-[220ms] ease-ad",
+            saved && !editingNow ? "opacity-100" : "opacity-0",
           )}
         />
       </span>

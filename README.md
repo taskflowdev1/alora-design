@@ -152,6 +152,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
 | [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
 | [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Filter search](https://design.alorawork.com/components/filter-search) | `filter-search` | `FilterSearch` | `fields`, `tokens`, `onTokensChange`, `query`, `onQueryChange`, `placeholder="Search or filter"`, `listHeight=240`, `children`, `className`, `aria-label` |
 | [Bulk action bar](https://design.alorawork.com/components/bulk-action-bar) | `bulk-action-bar` | `BulkActionBar` | `count`, `label="selected"`, `actions`, `onClear`, `done`, `onUndo`, `undoFor=6000`, `onExpire`, `className` |
 | [Status changer](https://design.alorawork.com/components/status-select) | `status-select` | `StatusSelect` | `options=ORDER_STATUSES`, `value`, `defaultValue`, `onValueChange`, `readOnly`, `disabled`, `aria-label`, `className` |
 | [Approval flow](https://design.alorawork.com/components/approval-flow) | `approval-flow` | `ApprovalFlow` | `title="Gelas kopi tanah liat, 200 pcs"`, `code="PO-1042"`, `amount=17800000`, `people=PEOPLE`, `onDecision`, `onApprovedChange`, `className` |
@@ -183,8 +184,8 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Search](https://design.alorawork.com/components/search) | `search` | `Search` | `value`, `onValueChange`, `invalid`, `wrapperClassName` |
 | [Field](https://design.alorawork.com/components/field) | `field` | `Field` | `label`, `error`, `layout="stack"`, `className`, `children`, `htmlFor` |
 | [Select](https://design.alorawork.com/components/select) | `select` | `OptionList`, `Select`, `usePressOpen`, `useListNav` | `id`, `options`, `active`, `setActive`, `isSelected`, `onPick`, `multiple`, `empty`, `className`, `value`, `onValueChange`, `placeholder="Select"`, `prefix`, `disabled`, `contentClassName`, `align="start"`, `aria-label`, `renderValue` |
-| [Multi-select](https://design.alorawork.com/components/multi-select) | `multi-select` | `MultiSelect` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `maxChips=2`, `className`, `aria-label` |
-| [Combobox](https://design.alorawork.com/components/combobox) | `combobox` | `Combobox` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `searchPlaceholder="Search"`, `empty="No match"`, `className`, `aria-label` |
+| [Multi-select](https://design.alorawork.com/components/multi-select) | `multi-select` | `MultiSelect` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `maxChips=2`, `inline`, `listHeight=216`, `className`, `aria-label` |
+| [Combobox](https://design.alorawork.com/components/combobox) | `combobox` | `Combobox` | `value`, `onValueChange`, `options`, `placeholder="Select"`, `searchPlaceholder="Search"`, `empty="No match"`, `onCreate`, `createLabel=(label) => `Create "${label}"``, `inline`, `listHeight=216`, `className`, `aria-label` |
 | [Calendar](https://design.alorawork.com/components/calendar) | `calendar` | `Calendar` | `value`, `onValueChange`, `today=new Date()`, `min`, `autoFocus`, `className` |
 | [Date picker](https://design.alorawork.com/components/date-picker) | `date-picker` | `DatePicker` | `value`, `onValueChange`, `placeholder="Pick a date"`, `smart=true`, `today=new Date()`, `className` |
 | [Period stepper](https://design.alorawork.com/components/period-stepper) | `period-stepper` | `PeriodStepper` | `value`, `period`, `onValueChange`, `max`, `className` |
@@ -289,10 +290,10 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
 | [Command palette](https://design.alorawork.com/components/command-palette) | `command-palette` | `CommandPalette`, `useCommandShortcut` | `open=false`, `onOpenChange`, `groups`, `placeholder`, `empty`, `inline`, `className` |
-| [Date range picker](https://design.alorawork.com/components/date-range-picker) | `date-range-picker` | `DateRangePicker` | `value`, `onValueChange`, `presets=DEFAULT_PRESETS`, `today=new Date()`, `className` |
+| [Date range picker](https://design.alorawork.com/components/date-range-picker) | `date-range-picker` | `DateRangePicker` | `value`, `onValueChange`, `presets=DEFAULT_PRESETS`, `today=new Date()`, `inline`, `className` |
 | [Time picker](https://design.alorawork.com/components/time-picker) | `time-picker` | `TimePicker` | `value`, `onValueChange`, `step=15`, `placeholder="Pick a time"`, `className` |
 | [Quantity stepper](https://design.alorawork.com/components/quantity-stepper) | `quantity-stepper` | `QuantityStepper` | `value`, `onValueChange`, `min=0`, `max=Infinity`, `step=1`, `size="default"`, `className`, `aria-label` |
-| [Currency input](https://design.alorawork.com/components/currency-input) | `currency-input` | `CurrencyInput` | `value`, `onValueChange`, `currency="Rp"`, `placeholder="0"`, `invalid`, `max=999_999_999_999`, `className`, `aria-label` |
+| [Currency input](https://design.alorawork.com/components/currency-input) | `currency-input` | `CurrencyInput` | `value`, `onValueChange`, `currency="Rp"`, `placeholder="0"`, `invalid`, `max=999_999_999_999`, `quick`, `limit`, `className`, `aria-label` |
 | [Difference](https://design.alorawork.com/components/diff) | `diff` | `Diff` | `value`, `unit`, `format=(n) => formatNumber(Math.round(n))`, `tolerance=0`, `zero="—"`, `className` |
 | [Fee row](https://design.alorawork.com/components/fee-row) | `fee-row` | `FeeRow`, `FeeTotal` | `payer`, `market="shopee"`, `label`, `amount`, `unit="Rp"`, `shipping`, `className` |
 | [Marketplace mark](https://design.alorawork.com/components/marketplace-mark) | `marketplace-mark` | `MarketMark` | `market`, `size=16`, `className` |

@@ -609,6 +609,31 @@ Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
 
 Also takes the native props of the element it renders.
 
+### Filter search
+
+<a id="filter-search"></a>Page: https://design.alorawork.com/components/filter-search
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/filter-search.json"
+```
+
+Files: `src/components/ui/filter-search.tsx`. Installs too: `select`.
+
+`FilterSearch`: Search with filter tokens, the way issue trackers do it. Type `status:` and the list offers its values; picking one turns the text into a chip in the field. Backspace on an empty field selects the last chip, a second press removes it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `fields` (required) | `FilterField[]` |  |  |
+| `tokens` (required) | `FilterToken[]` |  |  |
+| `onTokensChange` (required) | `(tokens: FilterToken[]) => void` |  |  |
+| `query` (required) | `string` |  |  |
+| `onQueryChange` (required) | `(query: string) => void` |  |  |
+| `placeholder` | `string` | `"Search or filter"` |  |
+| `listHeight` | `number` | `240` | Height of the list under the field, in px: suggestions and results share it, so nothing moves. |
+| `children` (required) | `ReactNode` |  | The results. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
 ### Bulk action bar
 
 <a id="bulk-action-bar"></a>Page: https://design.alorawork.com/components/bulk-action-bar
@@ -1132,7 +1157,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/multi-select.json"
 
 Files: `src/components/ui/multi-select.tsx`. Installs too: `select`.
 
-`MultiSelect`: Several choices in one control. Chips sit inside the trigger, concentric with it.
+`MultiSelect`: Several choices in one control. Chips sit inside the trigger, concentric with it; a pick travels from the list into the field.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1141,6 +1166,8 @@ Files: `src/components/ui/multi-select.tsx`. Installs too: `select`.
 | `options` (required) | `Option[]` |  |  |
 | `placeholder` | `string` | `"Select"` |  |
 | `maxChips` | `number` | `2` | Chips shown inside the trigger before collapsing into "+n". 0 shows "Status · 3" instead, so the trigger keeps one width while you pick (a toolbar filter). |
+| `inline` | `boolean` |  | Show the list in place under the field, at a fixed height, instead of in a dropdown. |
+| `listHeight` | `number` | `216` | Height of the inline list, in px. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -1154,7 +1181,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/combobox.json"
 
 Files: `src/components/ui/combobox.tsx`. Installs too: `select`.
 
-`Combobox`: A dropdown with a search field on top, for long lists.
+`Combobox`: A dropdown with a search field on top, for long lists. With `onCreate`, a name that isn't there can be added without leaving the field.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -1164,6 +1191,10 @@ Files: `src/components/ui/combobox.tsx`. Installs too: `select`.
 | `placeholder` | `string` | `"Select"` |  |
 | `searchPlaceholder` | `string` | `"Search"` |  |
 | `empty` | `string` | `"No match"` |  |
+| `onCreate` | `((label: string) => string \| Promise<string>)` |  | Offers to create what was typed when no option has that name. Add the option and return its value. |
+| `createLabel` | `((label: string) => string)` | `(label) => `Create "${label}"`` | The create row's text. |
+| `inline` | `boolean` |  | Show the field and list in place, at a fixed height, instead of in a dropdown. |
+| `listHeight` | `number` | `216` | Height of the inline list, in px. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -2898,7 +2929,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/date-range-picker.json"
 
 Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `select`, `sliding-pill`, `tooltip`.
 
-`DateRangePicker`: Presets on the left, one month on the right. Click a start day, then an end day; the range previews under the pointer. The trigger names the preset when one matches.
+`DateRangePicker`: Presets on the left, one month on the right. Click a start day, then an end day; one soft band follows the pointer from the start, and a preset morphs it to the new range. The trigger names the preset when one matches, and its text rolls to the new dates.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2906,6 +2937,7 @@ Files: `src/components/ui/date-range-picker.tsx`. Installs too: `button`, `selec
 | `onValueChange` (required) | `(range: DateRange, preset?: string \| undefined) => void` |  |  |
 | `presets` | `RangePreset[]` | `DEFAULT_PRESETS` |  |
 | `today` | `Date` | `new Date()` | Pin "today" (demos and tests). |
+| `inline` | `boolean` |  | Show the presets and month in place, with the range above them, instead of behind a trigger. |
 | `className` | `string` |  |  |
 
 ### Time picker
@@ -2961,7 +2993,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/currency-input.json"
 
 Files: `src/components/ui/currency-input.tsx`. Installs too: `input`.
 
-`CurrencyInput`: Types as "Rp 12.400.000": dots appear while typing and the caret stays on its digit.
+`CurrencyInput`: Types as "Rp 12.400.000": separators slide into place while typing and the caret stays on its digit.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -2971,6 +3003,8 @@ Files: `src/components/ui/currency-input.tsx`. Installs too: `input`.
 | `placeholder` | `string` | `"0"` |  |
 | `invalid` | `boolean` |  |  |
 | `max` | `number` | `999_999_999_999` | Above this the field shows as invalid (the typed number is kept, never clamped); say why in the Field error. |
+| `quick` | `number[]` |  | Amounts offered as chips under the field; a press adds one to the value and the digits roll. |
+| `limit` | `number` |  | A soft ceiling (a credit limit): a meter under the field shows what is left, and going over is a calm line, never an error. |
 | `className` | `string` |  |  |
 | `aria-label` | `string` |  |  |
 
@@ -3199,12 +3233,12 @@ npx shadcn@latest add "https://design.alorawork.com/r/inline-edit.json"
 
 Files: `src/components/ui/inline-edit.tsx`. Installs too: `tooltip`.
 
-`InlineEdit`: A table cell you edit in place, the spreadsheet way. Click puts the caret where you clicked; the editing box is the resting box (same size, same text position, same right edge), so nothing in the row moves. The prefix stays fixed and `format` regroups the digits as you type. Enter saves, Tab saves and edits the next cell (Shift+Tab the one before), Esc reverts, leaving the cell saves. A refused value shows a soft danger fill and its message; a saved one shows a quiet check where the pencil sits.
+`InlineEdit`: A table cell you edit in place, the spreadsheet way. Click puts the caret where you clicked; the editing box is the resting box (same size, same text position, same right edge), so nothing in the row moves. The prefix stays fixed and `format` regroups the digits as you type. Enter saves, Tab saves and edits the next cell (Shift+Tab the one before), Esc reverts, the old value sliding back; leaving the cell saves. A saved value rolls in where the old one was, pulsing quietly while a slow save runs, then one small dot where the pencil sits. A refused value shows a soft danger fill and its message.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `value` (required) | `string` |  | The stored value, unformatted ("99000"). |
-| `onSave` (required) | `(value: string) => void` |  | Gets the parsed value. Called only when it changed and `validate` passed. |
+| `onSave` (required) | `(value: string) => void \| Promise<unknown>` |  | Gets the parsed value. Called only when it changed and `validate` passed. Return a promise for a quiet saving state; if it rejects, the cell reopens with the typed value and the error's message. |
 | `prefix` | `string` |  | Shown before and after the value in both states, never part of the editable text ("Rp", "pcs"). |
 | `suffix` | `string` |  |  |
 | `format` | `((value: string) => string)` |  | Stored value to text ("99000" to "99.000"). Applied at rest and live while typing, caret kept on its digit. |
