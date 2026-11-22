@@ -33,11 +33,6 @@ Photos used by the gallery's demos, resized and cropped to squares. All are CC0 
 
 ## Willem Dafoe (landing carousel)
 
-Cropped to 4:5 and resized from Wikimedia Commons. CC BY-SA 4.0: these crops are shared under the same licence, credited below. A demo gallery, not an endorsement.
+Photographed by Conor Cunningham for Outlander Magazine (the Icons issue, 2026); the first is the cover. © Conor Cunningham / Outlander Magazine, all rights reserved: not covered by this repository's MIT licence and not for reuse. Shown as found in [this r/Fauxmoi post](https://www.reddit.com/r/Fauxmoi/comments/1xli2ab/willem_dafoe_photographed_by_conor_cunningham_for/), resized to 800 × 1000.
 
-- `dafoe/dafoe-1.webp`: Jay Dixit, [Willem Dafoe at the 2024 Toronto International Film Festival 02.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_the_2024_Toronto_International_Film_Festival_02.jpg), CC BY-SA 4.0
-- `dafoe/dafoe-2.webp`: Jay Dixit, [Willem Dafoe at the 2024 Toronto International Film Festival 01.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_the_2024_Toronto_International_Film_Festival_01.jpg), CC BY-SA 4.0
-- `dafoe/dafoe-3.webp`: Harald Krichel, [Willem Dafoe-63668.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe-63668.jpg), CC BY-SA 4.0
-- `dafoe/dafoe-4.webp`: Segolene Liger, [Actor Willem Dafoe at the 2025 Locarno Film Festival.jpg](https://commons.wikimedia.org/wiki/File:Actor_Willem_Dafoe_at_the_2025_Locarno_Film_Festival.jpg), CC BY-SA 4.0
-- `dafoe/dafoe-5.webp`: Ariela Ortiz-Barrantes, [Willem Dafoe at 2024 Venice International Film Festival.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe_at_2024_Venice_International_Film_Festival.jpg), CC BY-SA 4.0
-- `dafoe/dafoe-6.webp`: Harald Krichel, [Willem Dafoe-63667.jpg](https://commons.wikimedia.org/wiki/File:Willem_Dafoe-63667.jpg), CC BY-SA 4.0
+- `dafoe/dafoe-1.webp` … `dafoe/dafoe-8.webp`: the eight pictures of that post, the cover first.
