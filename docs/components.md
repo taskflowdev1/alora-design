@@ -703,24 +703,6 @@ Files: `src/components/ui/approval-flow.tsx`. Installs too: `avatar`, `button`, 
 | `onApprovedChange` | `((approved: boolean) => void)` |  | True once the last approver has approved. |
 | `className` | `string` |  |  |
 
-### Activity feed
-
-<a id="activity-feed"></a>Page: https://design.alorawork.com/components/activity-feed
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/activity-feed.json"
-```
-
-Files: `src/components/ui/activity-feed.tsx`.
-
-`ActivityFeed`: What just happened in the shop. New events slide in at the top and older ones settle down; relative times update. Scrolled down, the list stays exactly where it is and a "3 new" pill offers the way back up.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `events` (required) | `ActivityEvent[]` |  | Newest first. Add to the front and the row slides in; the list keeps its size. |
-| `height` | `number` | `320` | The list's fixed height in px. |
-| `className` | `string` |  |  |
-
 ### Invoice line items
 
 <a id="line-items"></a>Page: https://design.alorawork.com/components/line-items

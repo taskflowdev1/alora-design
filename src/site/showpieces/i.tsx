@@ -1,11 +1,9 @@
 // Showpiece batch I (ERP workflow): page demos and Components-page tiles for its new components (inside a Mark, exactly
 // once), and its landing moments. Aggregated in ./index.ts.
 import * as React from "react";
-import { CreditCard, MoreHorizontal, Package, RefreshCw, Truck } from "react-feather";
+import { MoreHorizontal } from "react-feather";
 import { cn, formatRp, prefersReducedMotion } from "@/lib/ad";
-import { ActivityFeed, type ActivityEvent } from "@/components/ui/activity-feed";
 import { ApprovalFlow } from "@/components/ui/approval-flow";
-import { Avatar } from "@/components/ui/avatar";
 import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -266,67 +264,6 @@ function KanbanScene({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ Activity feed */
-
-const Who = ({ name }: { name: string }) => <Avatar name={name} size="sm" />;
-const FEED: { title: React.ReactNode; media: React.ReactNode }[] = [
-  { title: <>Payment received, {formatRp(1250000)}</>, media: <CreditCard /> },
-  { title: "Sari adjusted Vas keramik by −4", media: <Who name="Sari" /> },
-  { title: "RMB-24820 picked up by JNE", media: <Truck /> },
-  { title: "Dewi approved PO-1042", media: <Who name="Dewi" /> },
-  { title: <>Payment received, {formatRp(478000)}</>, media: <CreditCard /> },
-  { title: "Rizky packed RMB-24818", media: <Who name="Rizky" /> },
-  { title: "Stock synced with Tokopedia", media: <RefreshCw /> },
-  { title: "Gelas kopi tanah liat is low", media: <Package /> },
-];
-const FEED_GAP = 3400;
-const FEED_MAX = 40;
-
-function seedFeed(): ActivityEvent[] {
-  const now = Date.now();
-  // The first row is about to turn a minute old, so the time visibly updates soon after the feed is on screen.
-  const ages = [52, 130, 260, 430, 780, 1500, 2600, 4200];
-  return ages.map((s, i) => ({ id: `seed-${i}`, at: now - s * 1000, ...FEED[(i + 2) % FEED.length] }));
-}
-
-function LiveFeed({ height = 320, className }: { height?: number; className?: string }) {
-  const [events, setEvents] = React.useState(seedFeed);
-  const box = React.useRef<HTMLDivElement>(null);
-  const next = React.useRef(0);
-  React.useEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    let timer = 0;
-    const stop = () => {
-      window.clearInterval(timer);
-      timer = 0;
-    };
-    const start = () => {
-      if (timer || document.hidden) return;
-      timer = window.setInterval(() => {
-        const n = next.current++;
-        setEvents((list) => [{ id: `live-${n}`, at: Date.now(), ...FEED[n % FEED.length] }, ...list].slice(0, FEED_MAX));
-      }, FEED_GAP);
-    };
-    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()));
-    io.observe(el);
-    const onVisible = () => (document.hidden ? stop() : start());
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      stop();
-      io.disconnect();
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, []);
-  return (
-    <div ref={box} className={cn("w-full", className)}>
-      <Card inset="nest">
-        <ActivityFeed events={events} height={height} />
-      </Card>
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------ Notification inbox */
 
 const NOTICES: Notice[] = [
@@ -383,11 +320,6 @@ export const DEMOS: Record<string, Demo> = {
     usage: () =>
       `<ApprovalFlow\n  title="Gelas kopi tanah liat, 200 pcs"\n  code="PO-1042"\n  amount={17800000}\n  people={[{ role: "Requested", name: "Rizky" }, { role: "Manager", name: "Sari" }, { role: "Finance", name: "Dewi" }]}\n  onDecision={save}\n/>`,
   },
-  "activity-feed": {
-    stage: "page",
-    render: () => <LiveFeed className="max-w-[480px]" />,
-    usage: () => `<ActivityFeed events={events} height={320} />\n// events: newest first, { id, at: Date.now(), title, media }`,
-  },
 };
 
 export const TILES: TileDef[] = [
@@ -421,16 +353,6 @@ export const TILES: TileDef[] = [
       </Mark>
     ),
   },
-  {
-    items: ["activity-feed"],
-    render: () => (
-      <Mark name="activity-feed" className={S[4]}>
-        <Play>
-          <LiveFeed height={252} />
-        </Play>
-      </Mark>
-    ),
-  },
 ];
 
 export const MOMENTS: ShowpieceMoment[] = [
@@ -438,6 +360,5 @@ export const MOMENTS: ShowpieceMoment[] = [
   { id: "status-select", title: "Status changer", to: "/components/status-select", width: "max-w-[460px]", render: () => <StatusRows /> },
   { id: "approval-flow", title: "Approval flow", to: "/components/approval-flow", width: "max-w-[520px]", render: () => <ApprovalScene /> },
   { id: "kanban-board", title: "Kanban board", to: "/components/kanban-card", width: "max-w-[760px]", render: () => <KanbanScene /> },
-  { id: "activity-feed", title: "Activity feed", to: "/components/activity-feed", width: "max-w-[480px]", render: () => <LiveFeed /> },
   { id: "notification-inbox", title: "Notification inbox", to: "/components/notification-bell", width: "max-w-[420px]", render: () => <InboxScene /> },
 ];

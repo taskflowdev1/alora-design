@@ -89,3 +89,10 @@ body {
 html {
   overflow-y: scroll;
 }
+
+/* The scrollbar above stays while a dialog locks scrolling, so the lock's stand-in padding for it would push the page
+   sideways by a scrollbar (Cmd+K moved the page). */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
