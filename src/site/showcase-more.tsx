@@ -22,7 +22,6 @@ import {
   Truck,
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
-import { type Group } from "@/lib/registry";
 import { Button } from "@/components/ui/button";
 import { Status, type StatusTone } from "@/components/ui/status";
 import { Thumb } from "@/components/ui/thumb";
@@ -59,7 +58,7 @@ import { Trace } from "@/components/ui/trace";
 import { Attachment, AttachmentGroup } from "@/components/ui/attachment";
 import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
-import { BackPage, Head, Mark, S, Tile, frame, type TileDef } from "./mark";
+import { BackPage, Head, Mark, Tile, frame, type TileDef } from "./mark";
 import { CUP_PHOTOS, DAILY, NOW, ORDERS, productPhoto, smartTime, type Order } from "./data";
 
 /* ------------------------------------------------------------ demo data (invented) */
@@ -382,7 +381,7 @@ function PickupDateTile({ className }: { className?: string }) {
   return (
     <Tile inset="pad" className={className}>
       <h3 className="text-title font-semibold">Courier pickup</h3>
-      <Mark name="calendar" className="mx-auto w-fit">
+      <Mark name="calendar" className="m-auto w-fit">
         <Calendar value={d} onValueChange={setD} today={NOW} min={NOW} />
       </Mark>
     </Tile>
@@ -596,38 +595,24 @@ function BeforeRestockTile({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ the tiles, by category */
+/* ------------------------------------------------------------ the tiles (placed by showcase/index.tsx) */
 
-export const MORE_TILES: Partial<Record<Group, TileDef[]>> = {
-  Charts: [
-    { items: ["chart", "line-chart"], render: () => <SalesTrendTile className={S[8]} /> },
-    { items: ["area-chart"], render: () => <OrdersByHourTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-    { items: ["pie-chart"], render: () => <ChannelTile className={S[4]} /> },
-    { items: ["radar-chart"], render: () => <ShopsComparedTile className={S[4]} /> },
-    { items: ["radial-chart"], render: () => <TargetsTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-  ],
-  Navigation: [
-    { items: ["navigation-menu", "breadcrumb", "pagination"], render: () => <StoreChromeTile className={S[7]} /> },
-    { items: ["menubar", "toggle", "textarea"], render: () => <ReceiptEditorTile className={cn(S[5], "md:col-span-2 lg:col-span-5")} /> },
-  ],
-  Inputs: [
-    { items: ["label", "input-otp"], render: () => <TillSignInTile className={S[4]} /> },
-    { items: ["input-group", "button-group"], render: () => <PayoutAccountTile className={S[4]} /> },
-    { items: ["calendar"], render: () => <PickupDateTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-  ],
-  Display: [
-    { items: ["data-table"], render: () => <OrdersTableTile className={S[8]} /> },
-    { items: ["accordion"], render: () => <HelpTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-    { items: ["carousel", "aspect-ratio"], render: () => <ProductPhotosTile className={S[6]} /> },
-    { items: ["item", "collapsible"], render: () => <SuppliersTile className={S[6]} /> },
-  ],
-  Overlays: [
-    { items: ["alert-dialog"], render: () => <ConfirmTile className={S[12]} /> },
-  ],
-  // Chat: the two threads share the first row (7 + 5, with Ask from MOTION_TILES), the two decision cards the second
-  // (6 + 6), so no card is stretched to a much taller neighbour.
-  Chat: [
-    { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: () => <AgentChatTile className={S[7]} /> },
-    { items: ["questionnaire"], render: () => <BeforeRestockTile className={S[6]} /> },
-  ],
-};
+export const MORE_TILES: TileDef[] = [
+  { items: ["chart", "line-chart"], render: (_, c) => <SalesTrendTile className={c} /> },
+  { items: ["area-chart"], render: (_, c) => <OrdersByHourTile className={c} /> },
+  { items: ["pie-chart"], render: (_, c) => <ChannelTile className={c} /> },
+  { items: ["radar-chart"], render: (_, c) => <ShopsComparedTile className={c} /> },
+  { items: ["radial-chart"], render: (_, c) => <TargetsTile className={c} /> },
+  { items: ["navigation-menu", "breadcrumb", "pagination"], render: (_, c) => <StoreChromeTile className={c} /> },
+  { items: ["menubar", "toggle", "textarea"], render: (_, c) => <ReceiptEditorTile className={c} /> },
+  { items: ["label", "input-otp"], render: (_, c) => <TillSignInTile className={c} /> },
+  { items: ["input-group", "button-group"], render: (_, c) => <PayoutAccountTile className={c} /> },
+  { items: ["calendar"], render: (_, c) => <PickupDateTile className={c} /> },
+  { items: ["data-table"], render: (_, c) => <OrdersTableTile className={c} /> },
+  { items: ["accordion"], render: (_, c) => <HelpTile className={c} /> },
+  { items: ["carousel", "aspect-ratio"], render: (_, c) => <ProductPhotosTile className={c} /> },
+  { items: ["item", "collapsible"], render: (_, c) => <SuppliersTile className={c} /> },
+  { items: ["alert-dialog"], render: (_, c) => <ConfirmTile className={c} /> },
+  { items: ["marker", "trace", "message", "attachment", "code-block", "message-scroller"], render: (_, c) => <AgentChatTile className={c} /> },
+  { items: ["questionnaire"], render: (_, c) => <BeforeRestockTile className={c} /> },
+];

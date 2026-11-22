@@ -27,7 +27,7 @@ import { PromptSuggestions } from "@/components/ui/prompt-suggestions";
 import { ProposedChange } from "@/components/ui/proposed-change";
 import { Reactions, type Reaction } from "@/components/ui/reactions";
 import { TokenScope, useConfig } from "./config";
-import { Mark, S, Tile, type TileDef } from "./mark";
+import { Mark, Tile, type TileDef } from "./mark";
 import { SALES_14 } from "./showcase-more";
 import { productPhoto } from "./data";
 
@@ -589,16 +589,12 @@ function PriceChangeTile({ className }: { className?: string }) {
   );
 }
 
-export const MOTION_TILES: Partial<Record<"Inputs" | "Charts" | "Chat", TileDef[]>> = {
-  Inputs: [
-    { items: ["step-form"], render: () => <PurchaseOrderTile className={S[7]} /> },
-    { items: ["password-input"], render: () => <NewStaffTile className={cn(S[5], "md:col-span-2 lg:col-span-5")} /> },
-    { items: ["number-dial"], render: () => <StockCountTile className={S[8]} /> },
-    { items: ["theme-switch"], render: () => <AppearanceTile className={cn(S[4], "md:col-span-2 lg:col-span-4")} /> },
-  ],
-  Charts: [{ items: ["brush"], render: () => <LinkedSalesTile className={S[12]} /> }],
-  Chat: [
-    { items: ["streaming-text", "citation", "reactions", "prompt-suggestions"], render: () => <AskTile className={cn(S[5], "md:col-span-2 lg:col-span-5")} /> },
-    { items: ["proposed-change"], render: () => <PriceChangeTile className={S[6]} /> },
-  ],
-};
+export const MOTION_TILES: TileDef[] = [
+  { items: ["step-form"], render: (_, c) => <PurchaseOrderTile className={c} /> },
+  { items: ["password-input"], render: (_, c) => <NewStaffTile className={c} /> },
+  { items: ["number-dial"], render: (_, c) => <StockCountTile className={c} /> },
+  { items: ["theme-switch"], render: (_, c) => <AppearanceTile className={c} /> },
+  { items: ["brush"], render: (_, c) => <LinkedSalesTile className={c} /> },
+  { items: ["streaming-text", "citation", "reactions", "prompt-suggestions"], render: (_, c) => <AskTile className={c} /> },
+  { items: ["proposed-change"], render: (_, c) => <PriceChangeTile className={c} /> },
+];

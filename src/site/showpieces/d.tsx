@@ -15,7 +15,7 @@ import { Thumb } from "@/components/ui/thumb";
 import { UndoFuse } from "@/components/ui/undo-fuse";
 import { itemPhoto } from "../data";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 const CUP = itemPhoto("Gelas kopi");
@@ -118,10 +118,10 @@ function FuseScene({ speed = 60, className }: { speed?: number; className?: stri
   );
 }
 
-function DustScene({ tone, className }: { tone?: "surface" | "fill"; className?: string }) {
+function DustScene({ tone, title, className }: { tone?: "surface" | "fill"; title?: string; className?: string }) {
   return (
     <div className={cn("grid w-full justify-items-center py-6", className)}>
-      <DustDelete image={CUP} tone={tone} />
+      <DustDelete image={CUP} title={title} tone={tone} />
     </div>
   );
 }
@@ -161,8 +161,8 @@ const stop = (e: React.MouseEvent) => e.stopPropagation();
 export const TILES: TileDef[] = [
   {
     items: ["status-island"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Sync status</h3>
         <Mark name="status-island" className="grid flex-1 place-items-center">
           <StatusIsland />
@@ -172,8 +172,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["save-morph"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Save</h3>
         <Mark name="save-morph" className="grid flex-1 place-items-center py-6">
           <SaveMorph size="lg" />
@@ -183,8 +183,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["undo-fuse"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Undo</h3>
         <Mark name="undo-fuse" className="grid flex-1 place-items-center py-6">
           <UndoScene />
@@ -194,12 +194,12 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["dust-delete"],
-    render: () => (
-      <Tile inset="pad" className={S[5]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Delete</h3>
         <Mark name="dust-delete" className="grid flex-1 place-items-center">
           <div className="contents" onClick={stop}>
-            <DustScene tone="fill" />
+            <DustScene tone="fill" title="Gelas kopi" />
           </div>
         </Mark>
       </Tile>
@@ -207,8 +207,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["flip-countdown"],
-    render: () => (
-      <Tile inset="pad" className={S[7]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Flash sale</h3>
         <Mark name="flip-countdown" className="grid flex-1 place-items-center">
           <FlipScene />
@@ -218,8 +218,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["sla-fuse"],
-    render: () => (
-      <div className={cn(S[12], "grid min-w-0")}>
+    render: (_, c) => (
+      <div className={cn(c, "grid min-w-0")}>
         <Mark name="sla-fuse" className="grid">
           <div className="contents" onClick={stop}>
             <SlaFuse speed={60} className="max-w-none" />

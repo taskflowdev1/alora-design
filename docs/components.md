@@ -18,755 +18,6 @@ A foundation, set by the theme: no component to install.
 
 A foundation, set by the theme: no component to install.
 
-## Showpieces
-
-### Slide to pay
-
-<a id="slide-to-pay"></a>Page: https://design.alorawork.com/components/slide-to-pay
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/slide-to-pay.json"
-```
-
-Files: `src/components/ui/slide-to-pay.tsx`.
-
-`SlideToPay`: A payment you confirm by dragging. The thumb wipes the amount from dim to bright; a release short of the end springs back with the speed it had, and the end of the track closes around the thumb into a check. Enter or Space pays from the keyboard, the arrow keys preview the slide.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `amount` | `number` | `1250000` | The amount in rupiah, wiped from dim to bright as the thumb travels. |
-| `onConfirm` | `(() => void \| Promise<unknown>)` |  | Runs when the slide commits. Return a promise to hold the end of the track until it settles; a rejection springs the thumb back. |
-| `resetAfter` | `number \| false` | `2600` | Milliseconds the finished state stays before the track opens again; `false` keeps it. |
-| `disabled` | `boolean` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Balance privacy
-
-<a id="balance-privacy-wave"></a>Page: https://design.alorawork.com/components/balance-privacy-wave
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/balance-privacy-wave.json"
-```
-
-Files: `src/components/ui/balance-privacy-wave.tsx`. Installs too: `button`.
-
-`BalancePrivacyWave`: A balance with a privacy eye. Hiding turns it into dots digit by digit in a soft wave from the left, each digit lifting away as its dot springs in; showing runs back from the right. Once hidden, the digits in the page are swapped for a mask, so hidden means hidden for copy and for screen readers too.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | `"Balance"` |  |
-| `amount` | `number` | `48240000` | The balance in rupiah. |
-| `details` | `BalanceDetail[]` | `DEFAULT_DETAILS` | Smaller figures under the balance; they hide with it. |
-| `hidden` | `boolean` |  | Controlled: whether the figures are hidden. |
-| `defaultHidden` | `boolean` | `false` |  |
-| `onHiddenChange` | `((hidden: boolean) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Rolling odometer total
-
-<a id="odometer-total"></a>Page: https://design.alorawork.com/components/odometer-total
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/odometer-total.json"
-```
-
-Files: `src/components/ui/odometer-total.tsx`. Installs too: `button`, `card`, `tooltip`.
-
-`OdometerTotal`: A total on an odometer: each digit spins the short way to its new value, and when the number gains a digit the separators slide over inside a box that never changes width.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `ReactNode` | `"Sales today"` |  |
-| `unit` | `string` | `"Rp"` | Shown small before the number. |
-| `value` | `number` |  | Controlled value; leave out to let the card keep its own. |
-| `defaultValue` | `number` | `48240000` |  |
-| `fitTo` | `number` |  | The largest value it should hold without growing. Defaults to one digit more than the starting value. |
-| `steps` | `number[]` | `[89000, 1250000, 12500000, -245000]` | The amounts the quick buttons add; a negative one takes off (a refund). Empty hides the row. |
-| `onValueChange` | `((value: number) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Target gauge needle
-
-<a id="target-gauge"></a>Page: https://design.alorawork.com/components/target-gauge
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/target-gauge.json"
-```
-
-Files: `src/components/ui/target-gauge.tsx`. Installs too: `button`, `card`, `tooltip`.
-
-`TargetGauge`: A needle gauge against a target. The needle sweeps to the value, passes it slightly, settles with a small tremble and kicks when a sale lands. Drag it and it pulls against its spring, then swings back to the real figure.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `ReactNode` | `"Today’s target"` |  |
-| `value` | `number` |  | Controlled value; leave out to let the gauge keep its own. |
-| `defaultValue` | `number` | `31400000` |  |
-| `target` | `number` | `48000000` |  |
-| `sales` | `number[]` | `[1250000, 420000, 2750000, 890000, 3100000]` | The sale amounts "New sale" walks through. |
-| `format` | `((value: number) => string)` | `formatRp` |  |
-| `onValueChange` | `((value: number) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Ghost period compare
-
-<a id="ghost-compare"></a>Page: https://design.alorawork.com/components/ghost-compare
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/ghost-compare.json"
-```
-
-Files: `src/components/ui/ghost-compare.tsx`.
-
-`GhostCompare`: This period's bars, with last period's waiting behind them. Hold the card (or tap it, or press Enter) and the old bars fade in as this week's narrow to make room, while the delta pill counts up with them. Letting go puts it back.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `ReactNode` | `"Sales this week"` |  |
-| `current` | `number[]` | `[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]` | This period, one number per bar. |
-| `previous` | `number[]` | `[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]` | Last period, same length. |
-| `labels` | `string[]` | `WEEKDAYS_3` | One label per bar. |
-| `today` | `number` | `6` | Index of the bar in the stronger shade (today). |
-| `hint` | `string` | `"Hold for last week"` | The pill at rest, before the comparison is showing. |
-| `unit` | `string` | `"Rp"` | Shown small before the total. |
-| `onCompareChange` | `((comparing: boolean) => void)` |  | Called when the comparison shows or hides. |
-
-Also takes the native props of the element it renders.
-
-### Split-flap KPI board
-
-<a id="split-flap-board"></a>Page: https://design.alorawork.com/components/split-flap-board
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/split-flap-board.json"
-```
-
-Files: `src/components/ui/split-flap-board.tsx`. Installs too: `button`, `tooltip`.
-
-`SplitFlapBoard`: A station board for KPIs: a number that changes clatters through its flaps to the new value, cell by cell. Press a row to bump it, or the button to move them all.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `rows` | `SplitFlapRow[]` | `DEFAULT_ROWS` |  |
-| `cells` | `number` | `5` | Cells per row. |
-| `actionLabel` | `string` | `"Next hour"` | Label of the button that moves every row. |
-| `onValuesChange` | `((values: Record<string, number>) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Goal rings
-
-<a id="goal-rings"></a>Page: https://design.alorawork.com/components/goal-rings
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/goal-rings.json"
-```
-
-Files: `src/components/ui/goal-rings.tsx`. Installs too: `button`, `card`, `tooltip`.
-
-`GoalRings`: Three concentric targets. They sweep closed when they come into view; a ring that passes its goal laps itself, its rounded head riding over the start with a soft shadow. Press a row to add to it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `rings` | `GoalRing[]` | `DEFAULT_RINGS` | Up to three, outermost first. |
-| `actionLabel` | `string` | `"Close the day"` | Label of the button that closes every ring. |
-| `onRingChange` | `((id: string, value: number) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Dot matrix number
-
-<a id="dot-matrix-number"></a>Page: https://design.alorawork.com/components/dot-matrix-number
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/dot-matrix-number.json"
-```
-
-Files: `src/components/ui/dot-matrix-number.tsx`. Installs too: `button`, `card`, `tooltip`.
-
-`DotMatrixNumber`: A big figure drawn in round LEDs. When the value changes, a ripple spreads from the digit that changed; press the board anywhere and the same ripple starts under your finger.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `ReactNode` | `"Orders today"` |  |
-| `value` | `number` |  | Controlled value; leave out to let the board keep its own. |
-| `defaultValue` | `number` | `1284` |  |
-| `places` | `number` | `4` | How many digits the board has room for. |
-| `step` | `number` | `1` | What the button adds, and its label. |
-| `actionLabel` | `string` | `"New order"` |  |
-| `onValueChange` | `((value: number) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Stock battery
-
-<a id="stock-battery"></a>Page: https://design.alorawork.com/components/stock-battery
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/stock-battery.json"
-```
-
-Files: `src/components/ui/stock-battery.tsx`. Installs too: `button`, `card`, `tooltip`.
-
-`StockBattery`: Remaining stock as a row of rounded cells that drain one at a time. When reorder is due the last cell breathes. Drag along the row or use the arrow keys to set the stock by hand.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `product` | `string` | `"Gelas kopi tanah liat"` |  |
-| `value` | `number` |  | Controlled stock; leave out to let the battery keep its own. |
-| `defaultValue` | `number` | `46` |  |
-| `capacity` | `number` | `120` | A full battery, in units. |
-| `reorderAt` | `number` | `24` | At or below this the last cell breathes and Restock becomes the main action. |
-| `cells` | `number` | `10` | How many cells the row is drawn with. |
-| `sellStep` | `number` | `6` | Units one press of Sell takes. |
-| `onValueChange` | `((value: number) => void)` |  |  |
-| `onRestock` | `(() => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Detent rotary knob
-
-<a id="detent-knob"></a>Page: https://design.alorawork.com/components/detent-knob
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/detent-knob.json"
-```
-
-Files: `src/components/ui/detent-knob.tsx`.
-
-`DetentKnob`: A weighted dial that clicks between notches, keeps spinning after a flick and settles on the nearest value.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `value` | `number` |  |  |
-| `defaultValue` | `number` | `20` |  |
-| `onValueChange` | `((value: number) => void)` |  |  |
-| `min` | `number` | `0` |  |
-| `max` | `number` | `60` |  |
-| `step` | `number` | `5` | The distance between two notches. |
-| `format` | `((value: number) => string)` | `(v) => `${v}%`` | The value at the knob's centre and at the two ends of its scale. |
-| `label` | `string` | `"Discount"` | The accessible name of the dial. |
-| `product` | `string` | `"Gelas kopi tanah liat"` | The item the value applies to, on the row under the dial. Leave out with `price` to hide the row. |
-| `price` | `number` | `85000` | The full price: the row shows it reduced by the value, read as a percentage. |
-
-Also takes the native props of the element it renders.
-
-### Hold to confirm
-
-<a id="hold-to-confirm"></a>Page: https://design.alorawork.com/components/hold-to-confirm
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/hold-to-confirm.json"
-```
-
-Files: `src/components/ui/hold-to-confirm.tsx`.
-
-`HoldToConfirm`: A button for an action worth a second thought. Pressing fills it outward from the finger, letting go drains it back, and holding to the end leaves it filled, with the verb turned to the past tense.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | `"Hold to pay"` | What holding does, in the resting button. |
-| `doneLabel` | `string` | `"Paid"` | The same words once it has happened. |
-| `detail` | `string` | `"Rp 1.250.000"` | The figure it applies to, kept in place through the whole hold. |
-| `duration` | `number` | `1200` | How long to hold, in ms. |
-| `resetAfter` | `number` | `2800` | Ms before a finished button drains back to rest; 0 keeps it finished. |
-| `onConfirm` | `(() => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Rubber band stepper
-
-<a id="rubber-band-stepper"></a>Page: https://design.alorawork.com/components/rubber-band-stepper
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/rubber-band-stepper.json"
-```
-
-Files: `src/components/ui/rubber-band-stepper.tsx`.
-
-`RubberBandStepper`: A stepper you can also pull. Dragging the number sideways stretches the pill, the further the pull the faster it counts, and letting go snaps it back. The buttons and the arrow keys step it one at a time.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `value` | `number` |  |  |
-| `defaultValue` | `number` | `12` |  |
-| `onValueChange` | `((value: number) => void)` |  |  |
-| `min` | `number` | `0` |  |
-| `max` | `number` | `999` |  |
-| `step` | `number` | `1` |  |
-| `label` | `string` | `"Quantity"` | The accessible name of the number. |
-
-Also takes the native props of the element it renders.
-
-### Shift ring clock
-
-<a id="shift-ring-clock"></a>Page: https://design.alorawork.com/components/shift-ring-clock
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/shift-ring-clock.json"
-```
-
-Files: `src/components/ui/shift-ring-clock.tsx`.
-
-`ShiftRingClock`: A 24-hour dial for setting a shift. Drag either end, or the arc itself to move the whole shift; it wraps past midnight, an end pushed into the other carries it along, and the hours roll at the centre.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `value` | `ShiftValue` |  |  |
-| `defaultValue` | `ShiftValue` | `{ start: 22 * 60, end: 6 * 60 }` |  |
-| `onValueChange` | `((value: ShiftValue) => void)` |  |  |
-| `step` | `number` | `15` | Minutes between snap points. |
-| `minLength` | `number` | `60` | The shortest shift, in minutes. |
-| `maxLength` | `number` | `23 * 60` | The longest shift, in minutes. |
-
-Also takes the native props of the element it renders.
-
-### Morphing status island
-
-<a id="status-island"></a>Page: https://design.alorawork.com/components/status-island
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/status-island.json"
-```
-
-Files: `src/components/ui/status-island.tsx`.
-
-`StatusIsland`: A black pill that springs between four states and reshapes around what each one shows. Its box never changes size, so nothing around it moves. Uncontrolled, a press starts the sequence and each further press skips ahead.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `status` | `IslandStatus` |  | Controlled state. Leave out and a press plays idle → syncing → progress → done by itself. |
-| `progress` | `number` | `0` | 0…1 while `status` is "progress" and controlled. |
-| `onStatusChange` | `((status: IslandStatus) => void)` |  | Called with the next state on a press, and on each step of the self-running sequence. |
-| `idleLabel` | `string` | `"Sync 7 shops"` |  |
-| `syncLabel` | `string` | `"Syncing"` |  |
-| `channels` | `string[]` | `["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]` | The names that roll past while syncing. |
-| `progressLabel` | `string` | `"248 products"` |  |
-| `doneLabel` | `string` | `"248 products synced"` |  |
-
-Also takes the native props of the element it renders.
-
-### Save button morph
-
-<a id="save-morph"></a>Page: https://design.alorawork.com/components/save-morph
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/save-morph.json"
-```
-
-Files: `src/components/ui/save-morph.tsx`.
-
-`SaveMorph`: A save button that keeps its width and shape through every state. The label rolls away, a small spinner runs in its place, and the answer rolls into the same spot.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | `"Save changes"` |  |
-| `doneLabel` | `string` | `"Saved"` |  |
-| `failLabel` | `string` | `"Try again"` |  |
-| `onSave` | `(() => void \| Promise<unknown>)` |  | The save. Return a promise and the spinner runs until it settles; a rejection comes back as `failLabel`. |
-| `dirty` | `boolean` |  | Whether the form has unsaved changes. When given, the done label stays until this turns true again; clear it before the save's promise resolves. Left out, the button returns to `label` on its own after a moment. |
-| `size` | `"default" \| "lg"` | `"default"` | The size of the button. |
-
-Also takes the native props of the element it renders.
-
-### Dust dissolve delete
-
-<a id="dust-delete"></a>Page: https://design.alorawork.com/components/dust-delete
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/dust-delete.json"
-```
-
-Files: `src/components/ui/dust-delete.tsx`. Installs too: `button`.
-
-`DustDelete`: A card that breaks into fine dust when deleted. The dust drifts away from the cursor, and Undo pulls every grain back to where it came from. The slot keeps its size, so nothing around it moves. Under reduced motion it simply fades.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `string` | `"Gelas kopi tanah liat"` |  |
-| `price` | `string` | `"Rp 89.000"` |  |
-| `image` | `string` |  | A photo URL; without one the card shows only its text. |
-| `deleteLabel` | `string` | `"Delete"` |  |
-| `undoLabel` | `string` | `"Undo"` |  |
-| `tone` | `"fill" \| "surface"` | `"surface"` | The card's fill: "surface" on a page, "fill" when it already sits on a card. |
-| `onDelete` | `(() => void)` |  |  |
-| `onUndo` | `(() => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Undo fuse pill
-
-<a id="undo-fuse"></a>Page: https://design.alorawork.com/components/undo-fuse
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/undo-fuse.json"
-```
-
-Files: `src/components/ui/undo-fuse.tsx`.
-
-`UndoFuse`: A pill offering Undo while its fill drains. Hover, focus, a held finger or scrolling it away all pause the drain; Undo rewinds the fill to full. Mount it when the action happens; give it a new `key` to offer again.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | `"Order INV-20841 archived"` |  |
-| `undoneLabel` | `string` | `"Order restored"` | Shown while the fill rewinds after Undo. |
-| `actionLabel` | `string` | `"Undo"` |  |
-| `duration` | `number` | `6000` | How long the offer stays open, in ms. |
-| `paused` | `boolean` | `false` | Hold the drain from outside, for example until the pill has scrolled into the middle of the page. |
-| `onUndo` | `(() => void)` |  |  |
-| `onExpire` | `(() => void)` |  | The time ran out: commit the action. |
-| `onClosed` | `(() => void)` |  | The pill has finished leaving, after an undo or after expiring. |
-
-Also takes the native props of the element it renders.
-
-### Flip countdown
-
-<a id="flip-countdown"></a>Page: https://design.alorawork.com/components/flip-countdown
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/flip-countdown.json"
-```
-
-Files: `src/components/ui/flip-countdown.tsx`.
-
-`FlipCountdown`: A promo timer on weighted split flaps. In the final ten seconds the digits pull closer together and the flaps turn faster. Set the width with `className`; the digits scale with it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `seconds` | `number` | `24` | Seconds on the clock when it starts. Ignored with `endsAt`. |
-| `endsAt` | `number \| Date` |  | A real deadline. Without one, the clock counts `seconds` and holds while off screen. |
-| `loop` | `boolean` | `false` | Start over after reaching zero. |
-| `onComplete` | `(() => void)` |  |  |
-| `ref` | `Ref<FlipCountdownHandle>` |  |  |
-
-Also takes the native props of the element it renders.
-
-### SLA burning fuse
-
-<a id="sla-fuse"></a>Page: https://design.alorawork.com/components/sla-fuse
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/sla-fuse.json"
-```
-
-Files: `src/components/ui/sla-fuse.tsx`. Installs too: `button`.
-
-`SlaFuse`: An order's deadline as a burning fuse. The cord shortens toward the end and the spark at its tip grows brighter as time runs out. Drag the fuse or use the arrow keys to scrub it; shipping puts the spark out where it stands.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `order` | `string` | `"INV-20841"` |  |
-| `item` | `string` | `"Gelas kopi tanah liat × 2"` |  |
-| `total` | `number` | `2700` | The whole window, in seconds: a full fuse. |
-| `remaining` | `number` | `2340` | Seconds left when it starts. |
-| `speed` | `number` | `1` | How many seconds of the deadline pass per real second; 1 is real time. |
-| `paused` | `boolean` | `false` | Hold the clock from outside; the spark keeps burning in place. |
-| `actionLabel` | `string` | `"Ship order"` |  |
-| `shippedLabel` | `string` | `"Shipped"` |  |
-| `reopenLabel` | `string` | `"Reopen"` | The button after shipping: lights the fuse again where it stopped. |
-| `lateLabel` | `string` | `"Late"` |  |
-| `onShip` | `(() => void)` |  |  |
-| `onReopen` | `(() => void)` |  |  |
-| `onLate` | `(() => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Peel shipping label
-
-<a id="peel-label"></a>Page: https://design.alorawork.com/components/peel-label
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/peel-label.json"
-```
-
-Files: `src/components/ui/peel-label.tsx`. Installs too: `button`.
-
-`PeelLabel`: A shipping label on its backing, on a carton. Drag the corner and the paper curls off under your finger; past about half way it comes free and sticks where you drop it. Enter on the corner peels and places it; arrow keys then nudge it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `from` | `string` | `"Rimba Kemang, Jakarta"` | The sender, printed small at the top. |
-| `to` | `string` | `"Sari Wulandari"` | The recipient, the biggest thing on the label. |
-| `address` | `string` | `"Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"` |  |
-| `tracking` | `string` | `"RK-2041-8836"` | The tracking number under the barcode. |
-| `weight` | `string` | `"1,2 kg"` |  |
-| `onStick` | `((at: { x: number; y: number; }) => void)` |  | Called when the label lands, with its centre as 0–1 of the box. |
-
-Also takes the native props of the element it renders.
-
-### Before after wipe
-
-<a id="before-after"></a>Page: https://design.alorawork.com/components/before-after
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/before-after.json"
-```
-
-Files: `src/components/ui/before-after.tsx`.
-
-`BeforeAfter`: A wipe between a raw and an edited picture of the same frame. Click anywhere and the wipe glides there; dragging and the arrow keys work too, and Enter centres it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `before` (required) | `string` |  | The raw shot. |
-| `after` (required) | `string` |  | The edited shot. |
-| `alt` (required) | `string` |  | What the picture shows. |
-| `beforeFilter` | `string` |  | CSS filter for the raw side, when both sides are the same file. |
-| `beforeLabel` | `string` | `"Raw"` |  |
-| `afterLabel` | `string` | `"Edited"` |  |
-| `defaultValue` | `number` | `0.5` | Where the wipe starts, 0 to 1. |
-| `onValueChange` | `((value: number) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Product hotspots
-
-<a id="product-hotspots"></a>Page: https://design.alorawork.com/components/product-hotspots
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/product-hotspots.json"
-```
-
-Files: `src/components/ui/product-hotspots.tsx`.
-
-`ProductHotspots`: A shoppable photo: pulsing dots that open into small price tags, each growing out of its own dot. One tag at a time; a tap elsewhere or Escape closes it, and the arrow keys walk the dots.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `src` (required) | `string` |  |  |
-| `alt` (required) | `string` |  |  |
-| `spots` (required) | `Hotspot[]` |  |  |
-| `ratio` | `number` | `1` | The photo's width over its height. |
-| `onOpenChange` | `((spot: Hotspot \| null) => void)` |  | Fires with the spot that opened, or null when the tag closes. |
-
-Also takes the native props of the element it renders.
-
-### Photo stack shuffle
-
-<a id="photo-stack"></a>Page: https://design.alorawork.com/components/photo-stack
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/photo-stack.json"
-```
-
-Files: `src/components/ui/photo-stack.tsx`.
-
-`PhotoStack`: A pile of product prints. Swipe the top one and it flies off with a tilt, then tucks under the pile while the next rises. A click, Enter or Space throws it too; the arrow keys step through at once.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `photos` (required) | `StackPhoto[]` |  |  |
-| `onChange` | `((photo: StackPhoto, index: number) => void)` |  | Fires with the photo that came to the top. |
-
-Also takes the native props of the element it renders.
-
-### Scratch voucher
-
-<a id="scratch-voucher"></a>Page: https://design.alorawork.com/components/scratch-voucher
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/scratch-voucher.json"
-```
-
-Files: `src/components/ui/scratch-voucher.tsx`. Installs too: `button`, `copy-chip`.
-
-`ScratchVoucher`: A voucher with a scratch-off panel. Scratch with a mouse or finger and foil crumbs fly; once most of it is gone the rest flakes away by itself, leaving the code ready to copy. Enter or Space takes it all off at once.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `shop` | `string` | `"Rimba Kemang"` |  |
-| `validity` | `string` | `"Until 31 Dec"` | Printed at the top right of the ticket, e.g. how long it's valid. |
-| `offer` | `string` | `"25% off"` | The prize under the foil. |
-| `code` | `string` | `"RIMBA-7K2Q"` |  |
-| `label` | `string` | `"Scratch here"` | Printed on the foil. |
-| `onReveal` | `((code: string) => void)` |  | Fires once when the foil has come off. |
-
-Also takes the native props of the element it renders.
-
-### Foil achievement badge
-
-<a id="foil-badge"></a>Page: https://design.alorawork.com/components/foil-badge
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/foil-badge.json"
-```
-
-Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
-
-`FoilBadge`: A sales milestone struck as a foil plaque with a crisp rim. Locked it is matte; claimed, it lifts, comes down hard and the foil appears at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the arrow keys.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `value` | `string` | `"Rp 100 jt"` | The milestone, big in the middle. |
-| `label` | `string` | `"Sales in November"` |  |
-| `claimLabel` | `string` | `"Claim badge"` | The action that claims it. |
-| `defaultUnlocked` | `boolean` | `false` |  |
-| `onUnlockedChange` | `((unlocked: boolean) => void)` |  | Fires when the badge is stamped in, and with false when it's reset. |
-
-Also takes the native props of the element it renders.
-
-### Filter search
-
-<a id="filter-search"></a>Page: https://design.alorawork.com/components/filter-search
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/filter-search.json"
-```
-
-Files: `src/components/ui/filter-search.tsx`. Installs too: `select`.
-
-`FilterSearch`: Search with filter tokens, the way issue trackers do it. Type `status:` and the list offers its values; picking one turns the text into a chip in the field. Backspace on an empty field selects the last chip, a second press removes it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `fields` (required) | `FilterField[]` |  |  |
-| `tokens` (required) | `FilterToken[]` |  |  |
-| `onTokensChange` (required) | `(tokens: FilterToken[]) => void` |  |  |
-| `query` (required) | `string` |  |  |
-| `onQueryChange` (required) | `(query: string) => void` |  |  |
-| `placeholder` | `string` | `"Search or filter"` |  |
-| `listHeight` | `number` | `240` | Height of the list under the field, in px: suggestions and results share it, so nothing moves. |
-| `children` (required) | `ReactNode` |  | The results. |
-| `className` | `string` |  |  |
-| `aria-label` | `string` |  |  |
-
-### Bulk action bar
-
-<a id="bulk-action-bar"></a>Page: https://design.alorawork.com/components/bulk-action-bar
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/bulk-action-bar.json"
-```
-
-Files: `src/components/ui/bulk-action-bar.tsx`. Installs too: `button`, `tooltip`.
-
-`BulkActionBar`: The floating bar over a list with ticked rows: it rises with the count rolling, carries the bulk actions, turns into the answer with Undo, and sinks. It sits absolutely at the bottom of its positioned parent, so the list never moves. In a `Card inset="nest"` its corners run concentric with the card's and the buttons' with its own.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `count` (required) | `number` |  | How many rows are ticked. The bar is up while this is above zero or `done` is set. |
-| `label` | `ReactNode` | `"selected"` | What was ticked, after the count: "selected" by default. |
-| `actions` | `ReactNode` |  | The bulk actions. Keep to one or two. |
-| `onClear` | `(() => void)` |  |  |
-| `done` | `ReactNode` |  | The answer after an action ("3 orders shipped"): it rolls into the bar in place of the count, beside Undo. |
-| `onUndo` | `(() => void)` |  |  |
-| `undoFor` | `number` | `6000` | How long the answer and its Undo stay, in ms. A hover or keyboard focus holds them. |
-| `onExpire` | `(() => void)` |  | The answer's time ran out: clear `done` and the bar sinks. |
-| `className` | `string` |  |  |
-
-### Status changer
-
-<a id="status-select"></a>Page: https://design.alorawork.com/components/status-select
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/status-select.json"
-```
-
-Files: `src/components/ui/status-select.tsx`. Installs too: `menu`.
-
-`StatusSelect`: An order's status as a pill that opens a short menu. Picking a status morphs the pill: its width glides to the new label, the label rolls, and only the small dot changes colour.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `options` | `StatusOption[]` | `ORDER_STATUSES` |  |
-| `value` | `string` |  |  |
-| `defaultValue` | `string` |  |  |
-| `onValueChange` | `((value: string) => void)` |  |  |
-| `readOnly` | `boolean` |  | Shows the status without a menu; it still morphs when the value changes (a table cell, a bulk update). |
-| `disabled` | `boolean` |  |  |
-| `aria-label` | `string` |  |  |
-| `className` | `string` |  |  |
-
-### Approval flow
-
-<a id="approval-flow"></a>Page: https://design.alorawork.com/components/approval-flow
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/approval-flow.json"
-```
-
-Files: `src/components/ui/approval-flow.tsx`. Installs too: `avatar`, `button`, `input`.
-
-`ApprovalFlow`: A purchase order on its way to approval. A line runs from the requester through each approver: Approve carries it to the next person, Reject asks for one reason in place and the line retracts to the requester, who can resubmit. The answer lands in the action row, so the card never changes size.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `ReactNode` | `"Gelas kopi tanah liat, 200 pcs"` |  |
-| `code` | `string` | `"PO-1042"` | The document's number. |
-| `amount` | `number` | `17800000` | The amount in rupiah, written after a small Rp. |
-| `people` | `ApprovalPerson[]` | `PEOPLE` | The requester first, then each approver in order. |
-| `onDecision` | `((decision: ApprovalDecision) => void)` |  |  |
-| `onApprovedChange` | `((approved: boolean) => void)` |  | True once the last approver has approved. |
-| `className` | `string` |  |  |
-
-### Invoice line items
-
-<a id="line-items"></a>Page: https://design.alorawork.com/components/line-items
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/line-items.json"
-```
-
-Files: `src/components/ui/line-items.tsx`. Installs too: `button`, `card`, `number-dial`, `quantity-stepper`, `select`.
-
-`LineItems`: An invoice's lines: product, quantity, price and total. A new row slides in, a changed quantity rolls its total with the subtotal, tax and grand total in step, and a removed row collapses. The list has a fixed height and the totals sit under it, so they never jump.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `defaultItems` | `LineItem[]` | `[]` |  |
-| `catalog` | `LineProduct[]` | `[]` | What "Add item" offers. A product already on the invoice leaves the list. |
-| `taxRate` | `number` | `0.11` | 0.11 is PPN 11%. |
-| `taxLabel` | `string` | `"PPN 11%"` |  |
-| `rows` | `number` | `4` | Rows the list holds before it scrolls inside itself; its height never changes. |
-| `onItemsChange` | `((items: LineItem[]) => void)` |  |  |
-| `className` | `string` |  |  |
-
-### Year heatmap
-
-<a id="year-heatmap"></a>Page: https://design.alorawork.com/components/year-heatmap
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/year-heatmap.json"
-```
-
-Files: `src/components/ui/year-heatmap.tsx`. Installs too: `card`, `number-dial`.
-
-`YearHeatmap`: A year of daily figures as rounded cells in accent shades, sweeping in the first time it is seen. Hover or arrow to a day and its date and amount change in the fixed readout above, so nothing floats or jumps. Arrows move by day and week, Home and End go to the first and last day, Escape returns to the year's total.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `days` (required) | `HeatDay[]` |  | One entry per day, oldest first. |
-| `label` | `string` | `"Sales this year"` | What the readout shows at rest, over the sum of all days. |
-| `unit` | `string` | `"Rp"` | Before the number. |
-| `className` | `string` |  |  |
-| `aria-label` | `string` |  |  |
-
-### Margin waterfall
-
-<a id="margin-waterfall"></a>Page: https://design.alorawork.com/components/margin-waterfall
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/margin-waterfall.json"
-```
-
-Files: `src/components/ui/margin-waterfall.tsx`. Installs too: `card`, `number-dial`, `segmented`.
-
-`MarginWaterfall`: From revenue down to profit: one bar for the money in, one step down for each cost, one bar for what is left. Hover or arrow to a step for its amount and share in the fixed readout; switching period morphs the bars and rolls the figures.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `periods` (required) | `WaterfallPeriod[]` |  | Every period must list the same steps in the same order, so the bars can morph between them. |
-| `defaultPeriod` | `string` |  |  |
-| `revenueLabel` | `string` | `"Revenue"` |  |
-| `profitLabel` | `string` | `"Profit"` |  |
-| `unit` | `string` | `"Rp"` |  |
-| `onPeriodChange` | `((id: string) => void)` |  |  |
-| `className` | `string` |  |  |
-
 ## Actions
 
 ### Button
@@ -906,6 +157,147 @@ Files: `src/components/ui/button-group.tsx`.
 `ButtonGroup`: Related buttons as one control: they share one soft track and sit one nest gap inside it, so the corners stay concentric (track radius = button radius + gap). No dividers between them. Put secondary or ghost Buttons inside.
 
 Also takes the native props of the element it renders.
+
+### Slide to pay
+
+<a id="slide-to-pay"></a>Page: https://design.alorawork.com/components/slide-to-pay
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/slide-to-pay.json"
+```
+
+Files: `src/components/ui/slide-to-pay.tsx`.
+
+`SlideToPay`: A payment you confirm by dragging. The thumb wipes the amount from dim to bright; a release short of the end springs back with the speed it had, and the end of the track closes around the thumb into a check. Enter or Space pays from the keyboard, the arrow keys preview the slide.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `amount` | `number` | `1250000` | The amount in rupiah, wiped from dim to bright as the thumb travels. |
+| `onConfirm` | `(() => void \| Promise<unknown>)` |  | Runs when the slide commits. Return a promise to hold the end of the track until it settles; a rejection springs the thumb back. |
+| `resetAfter` | `number \| false` | `2600` | Milliseconds the finished state stays before the track opens again; `false` keeps it. |
+| `disabled` | `boolean` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Hold to confirm
+
+<a id="hold-to-confirm"></a>Page: https://design.alorawork.com/components/hold-to-confirm
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/hold-to-confirm.json"
+```
+
+Files: `src/components/ui/hold-to-confirm.tsx`.
+
+`HoldToConfirm`: A button for an action worth a second thought. Pressing fills it outward from the finger, letting go drains it back, and holding to the end leaves it filled, with the verb turned to the past tense.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Hold to pay"` | What holding does, in the resting button. |
+| `doneLabel` | `string` | `"Paid"` | The same words once it has happened. |
+| `detail` | `string` | `"Rp 1.250.000"` | The figure it applies to, kept in place through the whole hold. |
+| `duration` | `number` | `1200` | How long to hold, in ms. |
+| `resetAfter` | `number` | `2800` | Ms before a finished button drains back to rest; 0 keeps it finished. |
+| `onConfirm` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Save button morph
+
+<a id="save-morph"></a>Page: https://design.alorawork.com/components/save-morph
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/save-morph.json"
+```
+
+Files: `src/components/ui/save-morph.tsx`.
+
+`SaveMorph`: A save button that keeps its width and shape through every state. The label rolls away, a small spinner runs in its place, and the answer rolls into the same spot.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Save changes"` |  |
+| `doneLabel` | `string` | `"Saved"` |  |
+| `failLabel` | `string` | `"Try again"` |  |
+| `onSave` | `(() => void \| Promise<unknown>)` |  | The save. Return a promise and the spinner runs until it settles; a rejection comes back as `failLabel`. |
+| `dirty` | `boolean` |  | Whether the form has unsaved changes. When given, the done label stays until this turns true again; clear it before the save's promise resolves. Left out, the button returns to `label` on its own after a moment. |
+| `size` | `"default" \| "lg"` | `"default"` | The size of the button. |
+
+Also takes the native props of the element it renders.
+
+### Dust dissolve delete
+
+<a id="dust-delete"></a>Page: https://design.alorawork.com/components/dust-delete
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/dust-delete.json"
+```
+
+Files: `src/components/ui/dust-delete.tsx`. Installs too: `button`.
+
+`DustDelete`: A card that breaks into fine dust when deleted. The dust drifts away from the cursor, and Undo pulls every grain back to where it came from. The slot keeps its size, so nothing around it moves. Under reduced motion it simply fades.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` | `"Gelas kopi tanah liat"` |  |
+| `price` | `string` | `"Rp 89.000"` |  |
+| `image` | `string` |  | A photo URL; without one the card shows only its text. |
+| `deleteLabel` | `string` | `"Delete"` |  |
+| `undoLabel` | `string` | `"Undo"` |  |
+| `tone` | `"fill" \| "surface"` | `"surface"` | The card's fill: "surface" on a page, "fill" when it already sits on a card. |
+| `onDelete` | `(() => void)` |  |  |
+| `onUndo` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Undo fuse pill
+
+<a id="undo-fuse"></a>Page: https://design.alorawork.com/components/undo-fuse
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/undo-fuse.json"
+```
+
+Files: `src/components/ui/undo-fuse.tsx`.
+
+`UndoFuse`: A pill offering Undo while its fill drains. Hover, focus, a held finger or scrolling it away all pause the drain; Undo rewinds the fill to full. Mount it when the action happens; give it a new `key` to offer again.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Order INV-20841 archived"` |  |
+| `undoneLabel` | `string` | `"Order restored"` | Shown while the fill rewinds after Undo. |
+| `actionLabel` | `string` | `"Undo"` |  |
+| `duration` | `number` | `6000` | How long the offer stays open, in ms. |
+| `paused` | `boolean` | `false` | Hold the drain from outside, for example until the pill has scrolled into the middle of the page. |
+| `onUndo` | `(() => void)` |  |  |
+| `onExpire` | `(() => void)` |  | The time ran out: commit the action. |
+| `onClosed` | `(() => void)` |  | The pill has finished leaving, after an undo or after expiring. |
+
+Also takes the native props of the element it renders.
+
+### Bulk action bar
+
+<a id="bulk-action-bar"></a>Page: https://design.alorawork.com/components/bulk-action-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/bulk-action-bar.json"
+```
+
+Files: `src/components/ui/bulk-action-bar.tsx`. Installs too: `button`, `tooltip`.
+
+`BulkActionBar`: The floating bar over a list with ticked rows: it rises with the count rolling, carries the bulk actions, turns into the answer with Undo, and sinks. It sits absolutely at the bottom of its positioned parent, so the list never moves. In a `Card inset="nest"` its corners run concentric with the card's and the buttons' with its own.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `count` (required) | `number` |  | How many rows are ticked. The bar is up while this is above zero or `done` is set. |
+| `label` | `ReactNode` | `"selected"` | What was ticked, after the count: "selected" by default. |
+| `actions` | `ReactNode` |  | The bulk actions. Keep to one or two. |
+| `onClear` | `(() => void)` |  |  |
+| `done` | `ReactNode` |  | The answer after an action ("3 orders shipped"): it rolls into the bar in place of the count, beside Undo. |
+| `onUndo` | `(() => void)` |  |  |
+| `undoFor` | `number` | `6000` | How long the answer and its Undo stay, in ms. A hover or keyboard focus holds them. |
+| `onExpire` | `(() => void)` |  | The answer's time ran out: clear `done` and the bar sinks. |
+| `className` | `string` |  |  |
 
 ## Inputs
 
@@ -1522,6 +914,150 @@ Files: `src/components/ui/step-form.tsx`. Installs too: `button`, `steps`.
 | `onFinish` (required) | `() => void` |  |  |
 | `className` | `string` |  |  |
 
+### Detent rotary knob
+
+<a id="detent-knob"></a>Page: https://design.alorawork.com/components/detent-knob
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/detent-knob.json"
+```
+
+Files: `src/components/ui/detent-knob.tsx`.
+
+`DetentKnob`: A weighted dial that clicks between notches, keeps spinning after a flick and settles on the nearest value.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `number` |  |  |
+| `defaultValue` | `number` | `20` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `min` | `number` | `0` |  |
+| `max` | `number` | `60` |  |
+| `step` | `number` | `5` | The distance between two notches. |
+| `format` | `((value: number) => string)` | `(v) => `${v}%`` | The value at the knob's centre and at the two ends of its scale. |
+| `label` | `string` | `"Discount"` | The accessible name of the dial. |
+| `product` | `string` | `"Gelas kopi tanah liat"` | The item the value applies to, on the row under the dial. Leave out with `price` to hide the row. |
+| `price` | `number` | `85000` | The full price: the row shows it reduced by the value, read as a percentage. |
+
+Also takes the native props of the element it renders.
+
+### Rubber band stepper
+
+<a id="rubber-band-stepper"></a>Page: https://design.alorawork.com/components/rubber-band-stepper
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/rubber-band-stepper.json"
+```
+
+Files: `src/components/ui/rubber-band-stepper.tsx`.
+
+`RubberBandStepper`: A stepper you can also pull. Dragging the number sideways stretches the pill, the further the pull the faster it counts, and letting go snaps it back. The buttons and the arrow keys step it one at a time.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `number` |  |  |
+| `defaultValue` | `number` | `12` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `min` | `number` | `0` |  |
+| `max` | `number` | `999` |  |
+| `step` | `number` | `1` |  |
+| `label` | `string` | `"Quantity"` | The accessible name of the number. |
+
+Also takes the native props of the element it renders.
+
+### Shift ring clock
+
+<a id="shift-ring-clock"></a>Page: https://design.alorawork.com/components/shift-ring-clock
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/shift-ring-clock.json"
+```
+
+Files: `src/components/ui/shift-ring-clock.tsx`.
+
+`ShiftRingClock`: A 24-hour dial for setting a shift. Drag either end, or the arc itself to move the whole shift; it wraps past midnight, an end pushed into the other carries it along, and the hours roll at the centre.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `ShiftValue` |  |  |
+| `defaultValue` | `ShiftValue` | `{ start: 22 * 60, end: 6 * 60 }` |  |
+| `onValueChange` | `((value: ShiftValue) => void)` |  |  |
+| `step` | `number` | `15` | Minutes between snap points. |
+| `minLength` | `number` | `60` | The shortest shift, in minutes. |
+| `maxLength` | `number` | `23 * 60` | The longest shift, in minutes. |
+
+Also takes the native props of the element it renders.
+
+### Filter search
+
+<a id="filter-search"></a>Page: https://design.alorawork.com/components/filter-search
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/filter-search.json"
+```
+
+Files: `src/components/ui/filter-search.tsx`. Installs too: `select`.
+
+`FilterSearch`: Search with filter tokens, the way issue trackers do it. Type `status:` and the list offers its values; picking one turns the text into a chip in the field. Backspace on an empty field selects the last chip, a second press removes it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `fields` (required) | `FilterField[]` |  |  |
+| `tokens` (required) | `FilterToken[]` |  |  |
+| `onTokensChange` (required) | `(tokens: FilterToken[]) => void` |  |  |
+| `query` (required) | `string` |  |  |
+| `onQueryChange` (required) | `(query: string) => void` |  |  |
+| `placeholder` | `string` | `"Search or filter"` |  |
+| `listHeight` | `number` | `240` | Height of the list under the field, in px: suggestions and results share it, so nothing moves. |
+| `children` (required) | `ReactNode` |  | The results. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Status changer
+
+<a id="status-select"></a>Page: https://design.alorawork.com/components/status-select
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/status-select.json"
+```
+
+Files: `src/components/ui/status-select.tsx`. Installs too: `menu`.
+
+`StatusSelect`: An order's status as a pill that opens a short menu. Picking a status morphs the pill: its width glides to the new label, the label rolls, and only the small dot changes colour.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `options` | `StatusOption[]` | `ORDER_STATUSES` |  |
+| `value` | `string` |  |  |
+| `defaultValue` | `string` |  |  |
+| `onValueChange` | `((value: string) => void)` |  |  |
+| `readOnly` | `boolean` |  | Shows the status without a menu; it still morphs when the value changes (a table cell, a bulk update). |
+| `disabled` | `boolean` |  |  |
+| `aria-label` | `string` |  |  |
+| `className` | `string` |  |  |
+
+### Invoice line items
+
+<a id="line-items"></a>Page: https://design.alorawork.com/components/line-items
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/line-items.json"
+```
+
+Files: `src/components/ui/line-items.tsx`. Installs too: `button`, `card`, `number-dial`, `quantity-stepper`, `select`.
+
+`LineItems`: An invoice's lines: product, quantity, price and total. A new row slides in, a changed quantity rolls its total with the subtotal, tax and grand total in step, and a removed row collapses. The list has a fixed height and the totals sit under it, so they never jump.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `defaultItems` | `LineItem[]` | `[]` |  |
+| `catalog` | `LineProduct[]` | `[]` | What "Add item" offers. A product already on the invoice leaves the list. |
+| `taxRate` | `number` | `0.11` | 0.11 is PPN 11%. |
+| `taxLabel` | `string` | `"PPN 11%"` |  |
+| `rows` | `number` | `4` | Rows the list holds before it scrolls inside itself; its height never changes. |
+| `onItemsChange` | `((items: LineItem[]) => void)` |  |  |
+| `className` | `string` |  |  |
+
 ## Display
 
 ### Card
@@ -2075,6 +1611,357 @@ Also takes the native props of the element it renders.
 
 Also takes the native props of the element it renders.
 
+### Balance privacy
+
+<a id="balance-privacy-wave"></a>Page: https://design.alorawork.com/components/balance-privacy-wave
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/balance-privacy-wave.json"
+```
+
+Files: `src/components/ui/balance-privacy-wave.tsx`. Installs too: `button`.
+
+`BalancePrivacyWave`: A balance with a privacy eye. Hiding turns it into dots digit by digit in a soft wave from the left, each digit lifting away as its dot springs in; showing runs back from the right. Once hidden, the digits in the page are swapped for a mask, so hidden means hidden for copy and for screen readers too.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Balance"` |  |
+| `amount` | `number` | `48240000` | The balance in rupiah. |
+| `details` | `BalanceDetail[]` | `DEFAULT_DETAILS` | Smaller figures under the balance; they hide with it. |
+| `hidden` | `boolean` |  | Controlled: whether the figures are hidden. |
+| `defaultHidden` | `boolean` | `false` |  |
+| `onHiddenChange` | `((hidden: boolean) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Rolling odometer total
+
+<a id="odometer-total"></a>Page: https://design.alorawork.com/components/odometer-total
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/odometer-total.json"
+```
+
+Files: `src/components/ui/odometer-total.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`OdometerTotal`: A total on an odometer: each digit spins the short way to its new value, and when the number gains a digit the separators slide over inside a box that never changes width.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Sales today"` |  |
+| `unit` | `string` | `"Rp"` | Shown small before the number. |
+| `value` | `number` |  | Controlled value; leave out to let the card keep its own. |
+| `defaultValue` | `number` | `48240000` |  |
+| `fitTo` | `number` |  | The largest value it should hold without growing. Defaults to one digit more than the starting value. |
+| `steps` | `number[]` | `[89000, 1250000, 12500000, -245000]` | The amounts the quick buttons add; a negative one takes off (a refund). Empty hides the row. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Split-flap KPI board
+
+<a id="split-flap-board"></a>Page: https://design.alorawork.com/components/split-flap-board
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/split-flap-board.json"
+```
+
+Files: `src/components/ui/split-flap-board.tsx`. Installs too: `button`, `tooltip`.
+
+`SplitFlapBoard`: A station board for KPIs: a number that changes clatters through its flaps to the new value, cell by cell. Press a row to bump it, or the button to move them all.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rows` | `SplitFlapRow[]` | `DEFAULT_ROWS` |  |
+| `cells` | `number` | `5` | Cells per row. |
+| `actionLabel` | `string` | `"Next hour"` | Label of the button that moves every row. |
+| `onValuesChange` | `((values: Record<string, number>) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Dot matrix number
+
+<a id="dot-matrix-number"></a>Page: https://design.alorawork.com/components/dot-matrix-number
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/dot-matrix-number.json"
+```
+
+Files: `src/components/ui/dot-matrix-number.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`DotMatrixNumber`: A big figure drawn in round LEDs. When the value changes, a ripple spreads from the digit that changed; press the board anywhere and the same ripple starts under your finger.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Orders today"` |  |
+| `value` | `number` |  | Controlled value; leave out to let the board keep its own. |
+| `defaultValue` | `number` | `1284` |  |
+| `places` | `number` | `4` | How many digits the board has room for. |
+| `step` | `number` | `1` | What the button adds, and its label. |
+| `actionLabel` | `string` | `"New order"` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Stock battery
+
+<a id="stock-battery"></a>Page: https://design.alorawork.com/components/stock-battery
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/stock-battery.json"
+```
+
+Files: `src/components/ui/stock-battery.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`StockBattery`: Remaining stock as a row of rounded cells that drain one at a time. When reorder is due the last cell breathes. Drag along the row or use the arrow keys to set the stock by hand.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `product` | `string` | `"Gelas kopi tanah liat"` |  |
+| `value` | `number` |  | Controlled stock; leave out to let the battery keep its own. |
+| `defaultValue` | `number` | `46` |  |
+| `capacity` | `number` | `120` | A full battery, in units. |
+| `reorderAt` | `number` | `24` | At or below this the last cell breathes and Restock becomes the main action. |
+| `cells` | `number` | `10` | How many cells the row is drawn with. |
+| `sellStep` | `number` | `6` | Units one press of Sell takes. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `onRestock` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Morphing status island
+
+<a id="status-island"></a>Page: https://design.alorawork.com/components/status-island
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/status-island.json"
+```
+
+Files: `src/components/ui/status-island.tsx`.
+
+`StatusIsland`: A black pill that springs between four states and reshapes around what each one shows. Its box never changes size, so nothing around it moves. Uncontrolled, a press starts the sequence and each further press skips ahead.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `status` | `IslandStatus` |  | Controlled state. Leave out and a press plays idle → syncing → progress → done by itself. |
+| `progress` | `number` | `0` | 0…1 while `status` is "progress" and controlled. |
+| `onStatusChange` | `((status: IslandStatus) => void)` |  | Called with the next state on a press, and on each step of the self-running sequence. |
+| `idleLabel` | `string` | `"Sync 7 shops"` |  |
+| `syncLabel` | `string` | `"Syncing"` |  |
+| `channels` | `string[]` | `["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]` | The names that roll past while syncing. |
+| `progressLabel` | `string` | `"248 products"` |  |
+| `doneLabel` | `string` | `"248 products synced"` |  |
+
+Also takes the native props of the element it renders.
+
+### Flip countdown
+
+<a id="flip-countdown"></a>Page: https://design.alorawork.com/components/flip-countdown
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/flip-countdown.json"
+```
+
+Files: `src/components/ui/flip-countdown.tsx`.
+
+`FlipCountdown`: A promo timer on weighted split flaps. In the final ten seconds the digits pull closer together and the flaps turn faster. Set the width with `className`; the digits scale with it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `seconds` | `number` | `24` | Seconds on the clock when it starts. Ignored with `endsAt`. |
+| `endsAt` | `number \| Date` |  | A real deadline. Without one, the clock counts `seconds` and holds while off screen. |
+| `loop` | `boolean` | `false` | Start over after reaching zero. |
+| `onComplete` | `(() => void)` |  |  |
+| `ref` | `Ref<FlipCountdownHandle>` |  |  |
+
+Also takes the native props of the element it renders.
+
+### SLA burning fuse
+
+<a id="sla-fuse"></a>Page: https://design.alorawork.com/components/sla-fuse
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/sla-fuse.json"
+```
+
+Files: `src/components/ui/sla-fuse.tsx`. Installs too: `button`.
+
+`SlaFuse`: An order's deadline as a burning fuse. The cord shortens toward the end and the spark at its tip grows brighter as time runs out. Drag the fuse or use the arrow keys to scrub it; shipping puts the spark out where it stands.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `order` | `string` | `"INV-20841"` |  |
+| `item` | `string` | `"Gelas kopi tanah liat × 2"` |  |
+| `total` | `number` | `2700` | The whole window, in seconds: a full fuse. |
+| `remaining` | `number` | `2340` | Seconds left when it starts. |
+| `speed` | `number` | `1` | How many seconds of the deadline pass per real second; 1 is real time. |
+| `paused` | `boolean` | `false` | Hold the clock from outside; the spark keeps burning in place. |
+| `actionLabel` | `string` | `"Ship order"` |  |
+| `shippedLabel` | `string` | `"Shipped"` |  |
+| `reopenLabel` | `string` | `"Reopen"` | The button after shipping: lights the fuse again where it stopped. |
+| `lateLabel` | `string` | `"Late"` |  |
+| `onShip` | `(() => void)` |  |  |
+| `onReopen` | `(() => void)` |  |  |
+| `onLate` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Peel shipping label
+
+<a id="peel-label"></a>Page: https://design.alorawork.com/components/peel-label
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/peel-label.json"
+```
+
+Files: `src/components/ui/peel-label.tsx`. Installs too: `button`.
+
+`PeelLabel`: A shipping label on its backing, on a carton. Drag the corner and the paper curls off under your finger; past about half way it comes free and sticks where you drop it. Enter on the corner peels and places it; arrow keys then nudge it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `from` | `string` | `"Rimba Kemang, Jakarta"` | The sender, printed small at the top. |
+| `to` | `string` | `"Sari Wulandari"` | The recipient, the biggest thing on the label. |
+| `address` | `string` | `"Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"` |  |
+| `tracking` | `string` | `"RK-2041-8836"` | The tracking number under the barcode. |
+| `weight` | `string` | `"1,2 kg"` |  |
+| `onStick` | `((at: { x: number; y: number; }) => void)` |  | Called when the label lands, with its centre as 0–1 of the box. |
+
+Also takes the native props of the element it renders.
+
+### Before after wipe
+
+<a id="before-after"></a>Page: https://design.alorawork.com/components/before-after
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/before-after.json"
+```
+
+Files: `src/components/ui/before-after.tsx`.
+
+`BeforeAfter`: A wipe between a raw and an edited picture of the same frame. Click anywhere and the wipe glides there; dragging and the arrow keys work too, and Enter centres it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `before` (required) | `string` |  | The raw shot. |
+| `after` (required) | `string` |  | The edited shot. |
+| `alt` (required) | `string` |  | What the picture shows. |
+| `beforeFilter` | `string` |  | CSS filter for the raw side, when both sides are the same file. |
+| `beforeLabel` | `string` | `"Raw"` |  |
+| `afterLabel` | `string` | `"Edited"` |  |
+| `defaultValue` | `number` | `0.5` | Where the wipe starts, 0 to 1. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Product hotspots
+
+<a id="product-hotspots"></a>Page: https://design.alorawork.com/components/product-hotspots
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/product-hotspots.json"
+```
+
+Files: `src/components/ui/product-hotspots.tsx`.
+
+`ProductHotspots`: A shoppable photo: pulsing dots that open into small price tags, each growing out of its own dot. One tag at a time; a tap elsewhere or Escape closes it, and the arrow keys walk the dots.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `src` (required) | `string` |  |  |
+| `alt` (required) | `string` |  |  |
+| `spots` (required) | `Hotspot[]` |  |  |
+| `ratio` | `number` | `1` | The photo's width over its height. |
+| `onOpenChange` | `((spot: Hotspot \| null) => void)` |  | Fires with the spot that opened, or null when the tag closes. |
+
+Also takes the native props of the element it renders.
+
+### Photo stack shuffle
+
+<a id="photo-stack"></a>Page: https://design.alorawork.com/components/photo-stack
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/photo-stack.json"
+```
+
+Files: `src/components/ui/photo-stack.tsx`.
+
+`PhotoStack`: A pile of product prints. Swipe the top one and it flies off with a tilt, then tucks under the pile while the next rises. A click, Enter or Space throws it too; the arrow keys step through at once.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `photos` (required) | `StackPhoto[]` |  |  |
+| `onChange` | `((photo: StackPhoto, index: number) => void)` |  | Fires with the photo that came to the top. |
+
+Also takes the native props of the element it renders.
+
+### Scratch voucher
+
+<a id="scratch-voucher"></a>Page: https://design.alorawork.com/components/scratch-voucher
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/scratch-voucher.json"
+```
+
+Files: `src/components/ui/scratch-voucher.tsx`. Installs too: `button`, `copy-chip`.
+
+`ScratchVoucher`: A voucher with a scratch-off panel. Scratch with a mouse or finger and foil crumbs fly; once most of it is gone the rest flakes away by itself, leaving the code ready to copy. Enter or Space takes it all off at once.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `validity` | `string` | `"Until 31 Dec"` | Printed at the top right of the ticket, e.g. how long it's valid. |
+| `offer` | `string` | `"25% off"` | The prize under the foil. |
+| `code` | `string` | `"RIMBA-7K2Q"` |  |
+| `label` | `string` | `"Scratch here"` | Printed on the foil. |
+| `onReveal` | `((code: string) => void)` |  | Fires once when the foil has come off. |
+
+Also takes the native props of the element it renders.
+
+### Foil achievement badge
+
+<a id="foil-badge"></a>Page: https://design.alorawork.com/components/foil-badge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/foil-badge.json"
+```
+
+Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
+
+`FoilBadge`: A sales milestone struck as a foil plaque with a crisp rim. Locked it is matte; claimed, it lifts, comes down hard and the foil appears at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the arrow keys.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` | `string` | `"Rp 100 jt"` | The milestone, big in the middle. |
+| `label` | `string` | `"Sales in November"` |  |
+| `claimLabel` | `string` | `"Claim badge"` | The action that claims it. |
+| `defaultUnlocked` | `boolean` | `false` |  |
+| `onUnlockedChange` | `((unlocked: boolean) => void)` |  | Fires when the badge is stamped in, and with false when it's reset. |
+
+Also takes the native props of the element it renders.
+
+### Approval flow
+
+<a id="approval-flow"></a>Page: https://design.alorawork.com/components/approval-flow
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/approval-flow.json"
+```
+
+Files: `src/components/ui/approval-flow.tsx`. Installs too: `avatar`, `button`, `input`.
+
+`ApprovalFlow`: A purchase order on its way to approval. A line runs from the requester through each approver: Approve carries it to the next person, Reject asks for one reason in place and the line retracts to the requester, who can resubmit. The answer lands in the action row, so the card never changes size.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `ReactNode` | `"Gelas kopi tanah liat, 200 pcs"` |  |
+| `code` | `string` | `"PO-1042"` | The document's number. |
+| `amount` | `number` | `17800000` | The amount in rupiah, written after a small Rp. |
+| `people` | `ApprovalPerson[]` | `PEOPLE` | The requester first, then each approver in order. |
+| `onDecision` | `((decision: ApprovalDecision) => void)` |  |  |
+| `onApprovedChange` | `((approved: boolean) => void)` |  | True once the last approver has approved. |
+| `className` | `string` |  |  |
+
 ## Charts
 
 ### Chart parts
@@ -2276,6 +2163,117 @@ npx shadcn@latest add "https://design.alorawork.com/r/brush.json"
 Files: `src/components/ui/brush.tsx`.
 
 `useBrush`: Brushing and linking: one hover state shared by a chart and a table, so pointing at a day on the chart lights up its row, a row moves the chart's crosshair, and a series (legend item, line, column header) emphasises its column and its line together. Fills only: no outlines. Keyboard focus on a row links the same way.
+
+### Target gauge needle
+
+<a id="target-gauge"></a>Page: https://design.alorawork.com/components/target-gauge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/target-gauge.json"
+```
+
+Files: `src/components/ui/target-gauge.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`TargetGauge`: A needle gauge against a target. The needle sweeps to the value, passes it slightly, settles with a small tremble and kicks when a sale lands. Drag it and it pulls against its spring, then swings back to the real figure.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Today’s target"` |  |
+| `value` | `number` |  | Controlled value; leave out to let the gauge keep its own. |
+| `defaultValue` | `number` | `31400000` |  |
+| `target` | `number` | `48000000` |  |
+| `sales` | `number[]` | `[1250000, 420000, 2750000, 890000, 3100000]` | The sale amounts "New sale" walks through. |
+| `format` | `((value: number) => string)` | `formatRp` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Ghost period compare
+
+<a id="ghost-compare"></a>Page: https://design.alorawork.com/components/ghost-compare
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/ghost-compare.json"
+```
+
+Files: `src/components/ui/ghost-compare.tsx`.
+
+`GhostCompare`: This period's bars, with last period's waiting behind them. Hold the card (or tap it, or press Enter) and the old bars fade in as this week's narrow to make room, while the delta pill counts up with them. Letting go puts it back.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Sales this week"` |  |
+| `current` | `number[]` | `[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]` | This period, one number per bar. |
+| `previous` | `number[]` | `[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]` | Last period, same length. |
+| `labels` | `string[]` | `WEEKDAYS_3` | One label per bar. |
+| `today` | `number` | `6` | Index of the bar in the stronger shade (today). |
+| `hint` | `string` | `"Hold for last week"` | The pill at rest, before the comparison is showing. |
+| `unit` | `string` | `"Rp"` | Shown small before the total. |
+| `onCompareChange` | `((comparing: boolean) => void)` |  | Called when the comparison shows or hides. |
+
+Also takes the native props of the element it renders.
+
+### Goal rings
+
+<a id="goal-rings"></a>Page: https://design.alorawork.com/components/goal-rings
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/goal-rings.json"
+```
+
+Files: `src/components/ui/goal-rings.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`GoalRings`: Three concentric targets. They sweep closed when they come into view; a ring that passes its goal laps itself, its rounded head riding over the start with a soft shadow. Press a row to add to it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rings` | `GoalRing[]` | `DEFAULT_RINGS` | Up to three, outermost first. |
+| `actionLabel` | `string` | `"Close the day"` | Label of the button that closes every ring. |
+| `onRingChange` | `((id: string, value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Year heatmap
+
+<a id="year-heatmap"></a>Page: https://design.alorawork.com/components/year-heatmap
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/year-heatmap.json"
+```
+
+Files: `src/components/ui/year-heatmap.tsx`. Installs too: `card`, `number-dial`.
+
+`YearHeatmap`: A year of daily figures as rounded cells in accent shades, sweeping in the first time it is seen. Hover or arrow to a day and its date and amount change in the fixed readout above, so nothing floats or jumps. Arrows move by day and week, Home and End go to the first and last day, Escape returns to the year's total.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `days` (required) | `HeatDay[]` |  | One entry per day, oldest first. |
+| `label` | `string` | `"Sales this year"` | What the readout shows at rest, over the sum of all days. |
+| `unit` | `string` | `"Rp"` | Before the number. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Margin waterfall
+
+<a id="margin-waterfall"></a>Page: https://design.alorawork.com/components/margin-waterfall
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/margin-waterfall.json"
+```
+
+Files: `src/components/ui/margin-waterfall.tsx`. Installs too: `card`, `number-dial`, `segmented`.
+
+`MarginWaterfall`: From revenue down to profit: one bar for the money in, one step down for each cost, one bar for what is left. Hover or arrow to a step for its amount and share in the fixed readout; switching period morphs the bars and rolls the figures.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `periods` (required) | `WaterfallPeriod[]` |  | Every period must list the same steps in the same order, so the bars can morph between them. |
+| `defaultPeriod` | `string` |  |  |
+| `revenueLabel` | `string` | `"Revenue"` |  |
+| `profitLabel` | `string` | `"Profit"` |  |
+| `unit` | `string` | `"Rp"` |  |
+| `onPeriodChange` | `((id: string) => void)` |  |  |
+| `className` | `string` |  |  |
 
 ## Navigation
 

@@ -6,7 +6,7 @@ import { PhotoStack, type StackPhoto } from "@/components/ui/photo-stack";
 import { ProductHotspots, type Hotspot } from "@/components/ui/product-hotspots";
 import { ScratchVoucher } from "@/components/ui/scratch-voucher";
 import type { Demo } from "../demos";
-import { Mark, S, Tile, type TileDef } from "../mark";
+import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
 const TABLE_PHOTO = "/photos/cup-table.webp";
@@ -73,12 +73,12 @@ export const DEMOS: Record<string, Demo> = {
 export const TILES: TileDef[] = [
   {
     items: ["product-hotspots"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Shop the table</h3>
         <Mark name="product-hotspots">
           <Play>
-            <ProductHotspots src={TABLE_PHOTO} alt={TABLE_ALT} spots={TABLE_SPOTS} />
+            <ProductHotspots src={TABLE_PHOTO} alt={TABLE_ALT} spots={TABLE_SPOTS} className="mx-auto w-full max-w-[330px]" />
           </Play>
         </Mark>
       </Tile>
@@ -86,12 +86,12 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["photo-stack"],
-    render: () => (
-      <Tile inset="pad" className={S[3]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">New arrivals</h3>
         <Mark name="photo-stack" className="grid justify-items-center">
           <Play>
-            <PhotoStack photos={STACK} className="max-w-[280px]" />
+            <PhotoStack photos={STACK} className="max-w-[248px]" />
           </Play>
         </Mark>
       </Tile>
@@ -99,8 +99,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["scratch-voucher"],
-    render: () => (
-      <Tile inset="pad" className={S[12]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Member voucher</h3>
         <Mark name="scratch-voucher" className="mx-auto w-full max-w-[440px]">
           <Play>
@@ -112,8 +112,8 @@ export const TILES: TileDef[] = [
   },
   {
     items: ["foil-badge"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
+    render: (_, c) => (
+      <Tile inset="pad" className={c}>
         <h3 className="text-title font-semibold">Milestones</h3>
         <Mark name="foil-badge" className="grid justify-items-center">
           <Play>

@@ -85,7 +85,8 @@ export const stack = "grid min-w-0 grid-cols-1 content-stretch gap-4 [&>*:last-c
 export interface TileDef {
   /** The components marked in it (for search and the coverage check). */
   items: string[];
-  render: (config: Config) => React.ReactNode;
+  /** `className` is its place on the grid, from the band that shows it (showcase/index.tsx). */
+  render: (config: Config, className: string) => React.ReactNode;
 }
 
 /** Spans per breakpoint: phone one column, tablet two, desktop twelve. */

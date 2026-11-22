@@ -23,7 +23,6 @@ export type Group =
   | "Chat"
   | "Foundations"
   | "Niche"
-  | "Showpieces"
   | "AI"
   | "Backgrounds"
   | MobileGroup;
@@ -481,7 +480,7 @@ import { Composer, ComposerGlow } from "@/components/ui/composer-glow";
   ...SHOWPIECES_J,
 ];
 
-export const GROUPS: Group[] = ["Foundations", "Showpieces", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
+export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
 export const MOBILE_GROUPS: MobileGroup[] = ["Installed app", "Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 
