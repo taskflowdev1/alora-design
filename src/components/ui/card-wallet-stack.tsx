@@ -31,10 +31,9 @@ const CSS = `
 .ad-wallet-face { isolation: isolate; color: var(--ad-side-ink); }
 .ad-wallet-face[data-tone="graphite"] { background: linear-gradient(140deg in oklab, var(--ad-side-fill-strong), var(--ad-side)); }
 .ad-wallet-face[data-tone="accent"] { background: linear-gradient(140deg in oklab, var(--ad-brand-6), var(--ad-brand-8)); }
-/* grey-ok: a printed card's colour is artwork */
-.ad-wallet-face[data-tone="clay"] { background: linear-gradient(140deg in oklab, oklch(0.53 0.09 45), oklch(0.39 0.07 35)); }
-/* grey-ok: a printed card's colour is artwork */
-.ad-wallet-face[data-tone="moss"] { background: linear-gradient(140deg in oklab, oklch(0.5 0.06 155), oklch(0.36 0.05 165)); }
+/* Two more finishes from the same accent ramp: no colour outside black, white and the accent. */
+.ad-wallet-face[data-tone="deep"] { background: linear-gradient(140deg in oklab, var(--ad-brand-8), var(--ad-brand-9, var(--ad-brand-8))); }
+.ad-wallet-face[data-tone="ink"] { background: linear-gradient(140deg in oklab, var(--ad-side-fill), var(--ad-side)); }
 /* grey-ok: a soft light across the card, and the keyboard focus fill on it */
 .ad-wallet-sheen { background: linear-gradient(115deg in oklab, rgb(255 255 255 / 0.1), transparent 46%); }
 .ad-wallet-focus { background: rgb(255 255 255 / 0.1); opacity: 0; } /* grey-ok */
@@ -51,13 +50,13 @@ export interface WalletCard {
   expiry: string;
   /** Spent this month, in rupiah; the pocket shows it while the card is out. */
   spent: number;
-  tone?: "graphite" | "accent" | "clay" | "moss";
+  tone?: "graphite" | "accent" | "deep" | "ink";
 }
 
 const DEFAULT_CARDS: WalletCard[] = [
   { id: "ops", name: "Operasional", last4: "4410", holder: "RIZKY HARTONO", expiry: "08/29", spent: 18420000, tone: "graphite" },
-  { id: "stok", name: "Belanja stok", last4: "0926", holder: "RUDI SANTOSO", expiry: "03/30", spent: 26750000, tone: "moss" },
-  { id: "iklan", name: "Iklan", last4: "7312", holder: "DEWI LESTARI", expiry: "11/28", spent: 4310000, tone: "clay" },
+  { id: "stok", name: "Belanja stok", last4: "0926", holder: "RUDI SANTOSO", expiry: "03/30", spent: 26750000, tone: "deep" },
+  { id: "iklan", name: "Iklan", last4: "7312", holder: "DEWI LESTARI", expiry: "11/28", spent: 4310000, tone: "ink" },
   { id: "kemang", name: "Rimba Kemang", last4: "5581", holder: "RIZKY HARTONO", expiry: "06/31", spent: 2875000, tone: "accent" },
 ];
 
