@@ -127,6 +127,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Detent rotary knob](https://design.alorawork.com/components/detent-knob) | `detent-knob` | `DetentKnob` | `value`, `defaultValue=20`, `onValueChange`, `min=0`, `max=60`, `step=5`, `format=(v) => `${v}%``, `label="Discount"`, `product="Gelas kopi tanah liat"`, `price=85000` |
+| [Hold to confirm](https://design.alorawork.com/components/hold-to-confirm) | `hold-to-confirm` | `HoldToConfirm` | `label="Hold to pay"`, `doneLabel="Paid"`, `detail="Rp 1.250.000"`, `duration=1200`, `resetAfter=2800`, `onConfirm` |
+| [Rubber band stepper](https://design.alorawork.com/components/rubber-band-stepper) | `rubber-band-stepper` | `RubberBandStepper` | `value`, `defaultValue=12`, `onValueChange`, `min=0`, `max=999`, `step=1`, `label="Quantity"` |
+| [Lever toggle](https://design.alorawork.com/components/lever-toggle) | `lever-toggle` | `LeverToggle` | `checked`, `defaultChecked=false`, `onCheckedChange`, `offLabel="Closed"`, `onLabel="Open"` |
+| [Shift ring clock](https://design.alorawork.com/components/shift-ring-clock) | `shift-ring-clock` | `ShiftRingClock` | `value`, `defaultValue={ start: 22 * 60, end: 6 * 60 }`, `onValueChange`, `step=15`, `minLength=60`, `maxLength=23 * 60` |
+| [Date text morph](https://design.alorawork.com/components/date-text-morph) | `date-text-morph` | `DateTextMorph` | `date`, `now`, `mode`, `defaultMode="relative"`, `onModeChange`, `align="start"` |
 
 ### Actions
 
