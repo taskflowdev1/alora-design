@@ -127,6 +127,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Chat to order](https://design.alorawork.com/components/chat-to-order) | `chat-to-order` | `ChatToOrder` | `message=MESSAGE`, `fields=FIELDS`, `time="10.24"`, `onComplete` |
+| [Invoice x-ray scan](https://design.alorawork.com/components/invoice-xray) | `invoice-xray` | `InvoiceXray` | `defaultValues=VALUES`, `lines=LINES`, `shop="Rimba Kemang"`, `onValuesChange`, `onScanned` |
+| [Answer becomes chart](https://design.alorawork.com/components/answer-chart) | `answer-chart` | `AnswerChart` | `intro="Rimba Kemang sold"`, `data=DATA`, `onValueChange` |
+| [Thermal receipt printer](https://design.alorawork.com/components/receipt-printer) | `receipt-printer` | `ReceiptPrinter` | `shop="Rimba Kemang"`, `place="Jl. Kemang Raya 12, Jakarta Selatan"`, `when="21 Nov 2026, 14.32"`, `items=ITEMS`, `payment="QRIS"`, `code="RK-20261121-0418"`, `autoPrint=true`, `onPrinted`, `onTear` |
+| [Instant photo develop](https://design.alorawork.com/components/instant-photo) | `instant-photo` | `InstantPhoto` | `photos`, `onDeveloped` |
+| [Before after wipe](https://design.alorawork.com/components/before-after) | `before-after` | `BeforeAfter` | `before`, `after`, `alt`, `beforeFilter`, `beforeLabel="Raw"`, `afterLabel="Edited"`, `defaultValue=0.5`, `onValueChange` |
 
 ### Actions
 
