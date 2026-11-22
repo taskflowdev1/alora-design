@@ -152,6 +152,10 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
 | [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
 | [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Bulk action bar](https://design.alorawork.com/components/bulk-action-bar) | `bulk-action-bar` | `BulkActionBar` | `count`, `label="selected"`, `actions`, `onClear`, `done`, `onUndo`, `undoFor=6000`, `onExpire`, `className` |
+| [Status changer](https://design.alorawork.com/components/status-select) | `status-select` | `StatusSelect` | `options=ORDER_STATUSES`, `value`, `defaultValue`, `onValueChange`, `readOnly`, `disabled`, `aria-label`, `className` |
+| [Approval flow](https://design.alorawork.com/components/approval-flow) | `approval-flow` | `ApprovalFlow` | `title="Gelas kopi tanah liat, 200 pcs"`, `code="PO-1042"`, `amount=17800000`, `people=PEOPLE`, `onDecision`, `onApprovedChange`, `className` |
+| [Activity feed](https://design.alorawork.com/components/activity-feed) | `activity-feed` | `ActivityFeed` | `events`, `height=320`, `className` |
 | [Invoice line items](https://design.alorawork.com/components/line-items) | `line-items` | `LineItems` | `defaultItems=[]`, `catalog=[]`, `taxRate=0.11`, `taxLabel="PPN 11%"`, `rows=4`, `onItemsChange`, `className` |
 | [CSV import mapping](https://design.alorawork.com/components/import-mapping) | `import-mapping` | `ImportMapping` | `fileName="produk.csv"`, `rowCount`, `columns`, `fields`, `noun="products"`, `onImport`, `onDoneChange`, `className` |
 | [Year heatmap](https://design.alorawork.com/components/year-heatmap) | `year-heatmap` | `YearHeatmap` | `days`, `label="Sales this year"`, `unit="Rp"`, `className`, `aria-label` |
@@ -309,8 +313,8 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [File dropzone](https://design.alorawork.com/components/dropzone) | `dropzone` | `Dropzone` | `onFiles`, `accept`, `multiple=true`, `files=[]`, `onRemove`, `onRetry`, `title="Drop files here"`, `className`, `listClassName` |
 | [Tag input](https://design.alorawork.com/components/tag-input) | `tag-input` | `TagInput` | `value`, `onValueChange`, `placeholder="Add a tag"`, `suggestions=[]`, `className`, `aria-label` |
 | [Avatar group](https://design.alorawork.com/components/avatar-group) | `avatar-group` | `AvatarGroup` | `people`, `max=4`, `size="md"`, `className` |
-| [Notification bell](https://design.alorawork.com/components/notification-bell) | `notification-bell` | `NotificationBell` | `notices`, `onMarkAllRead`, `className` |
-| [Kanban card](https://design.alorawork.com/components/kanban-card) | `kanban-card` | `KanbanCard`, `KanbanColumn` | `title`, `id`, `media`, `tags=[]`, `people=[]`, `due`, `attention`, `onClick`, `className`, `count`, `children` |
+| [Notification bell](https://design.alorawork.com/components/notification-bell) | `notification-bell` | `NotificationBell` | `notices`, `onMarkAllRead`, `className`, `listHeight`, `unreadFill`, `inline`, `defaultOpen=false`, `panelClassName` |
+| [Kanban card](https://design.alorawork.com/components/kanban-card) | `kanban-card` | `KanbanCard`, `KanbanColumn`, `KanbanBoard` | `title`, `id`, `media`, `tags=[]`, `people=[]`, `due`, `attention`, `action`, `onClick`, `className`, `count`, `children`, `columns`, `cards`, `defaultCards=[]`, `onCardsChange`, `onMove`, `moveMenu`, `height=320` |
 | [Calendar month](https://design.alorawork.com/components/calendar-month) | `calendar-month` | `CalendarMonth` | `month`, `onMonthChange`, `events`, `today=new Date()`, `max=2`, `onEventClick`, `className` |
 | [Holo card](https://design.alorawork.com/components/holo-card) | `holo-card` | `HoloCard` | `holder="RIZKY HARTONO"`, `last4="4410"`, `expiry="08/29"`, `tone="holo"`, `interactive=true` |
 

@@ -609,6 +609,93 @@ Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
 
 Also takes the native props of the element it renders.
 
+### Bulk action bar
+
+<a id="bulk-action-bar"></a>Page: https://design.alorawork.com/components/bulk-action-bar
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/bulk-action-bar.json"
+```
+
+Files: `src/components/ui/bulk-action-bar.tsx`. Installs too: `button`, `tooltip`.
+
+`BulkActionBar`: The floating bar over a list with ticked rows: it rises with the count rolling, carries the bulk actions, turns into the answer with Undo, and sinks. It sits absolutely at the bottom of its positioned parent, so the list never moves. In a `Card inset="nest"` its corners run concentric with the card's and the buttons' with its own.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `count` (required) | `number` |  | How many rows are ticked. The bar is up while this is above zero or `done` is set. |
+| `label` | `ReactNode` | `"selected"` | What was ticked, after the count: "selected" by default. |
+| `actions` | `ReactNode` |  | The bulk actions. Keep to one or two. |
+| `onClear` | `(() => void)` |  |  |
+| `done` | `ReactNode` |  | The answer after an action ("3 orders shipped"): it rolls into the bar in place of the count, beside Undo. |
+| `onUndo` | `(() => void)` |  |  |
+| `undoFor` | `number` | `6000` | How long the answer and its Undo stay, in ms. A hover or keyboard focus holds them. |
+| `onExpire` | `(() => void)` |  | The answer's time ran out: clear `done` and the bar sinks. |
+| `className` | `string` |  |  |
+
+### Status changer
+
+<a id="status-select"></a>Page: https://design.alorawork.com/components/status-select
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/status-select.json"
+```
+
+Files: `src/components/ui/status-select.tsx`. Installs too: `menu`.
+
+`StatusSelect`: An order's status as a pill that opens a short menu. Picking a status morphs the pill: its width glides to the new label, the label rolls, and only the small dot changes colour.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `options` | `StatusOption[]` | `ORDER_STATUSES` |  |
+| `value` | `string` |  |  |
+| `defaultValue` | `string` |  |  |
+| `onValueChange` | `((value: string) => void)` |  |  |
+| `readOnly` | `boolean` |  | Shows the status without a menu; it still morphs when the value changes (a table cell, a bulk update). |
+| `disabled` | `boolean` |  |  |
+| `aria-label` | `string` |  |  |
+| `className` | `string` |  |  |
+
+### Approval flow
+
+<a id="approval-flow"></a>Page: https://design.alorawork.com/components/approval-flow
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/approval-flow.json"
+```
+
+Files: `src/components/ui/approval-flow.tsx`. Installs too: `avatar`, `button`, `input`.
+
+`ApprovalFlow`: A purchase order on its way to approval. A line runs from the requester through each approver: Approve carries it to the next person, Reject asks for one reason in place and the line retracts to the requester, who can resubmit. The answer lands in the action row, so the card never changes size.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `ReactNode` | `"Gelas kopi tanah liat, 200 pcs"` |  |
+| `code` | `string` | `"PO-1042"` | The document's number. |
+| `amount` | `number` | `17800000` | The amount in rupiah, written after a small Rp. |
+| `people` | `ApprovalPerson[]` | `PEOPLE` | The requester first, then each approver in order. |
+| `onDecision` | `((decision: ApprovalDecision) => void)` |  |  |
+| `onApprovedChange` | `((approved: boolean) => void)` |  | True once the last approver has approved. |
+| `className` | `string` |  |  |
+
+### Activity feed
+
+<a id="activity-feed"></a>Page: https://design.alorawork.com/components/activity-feed
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/activity-feed.json"
+```
+
+Files: `src/components/ui/activity-feed.tsx`.
+
+`ActivityFeed`: What just happened in the shop. New events slide in at the top and older ones settle down; relative times update. Scrolled down, the list stays exactly where it is and a "3 new" pill offers the way back up.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `events` (required) | `ActivityEvent[]` |  | Newest first. Add to the front and the row slides in; the list keeps its size. |
+| `height` | `number` | `320` | The list's fixed height in px. |
+| `className` | `string` |  |  |
+
 ### Invoice line items
 
 <a id="line-items"></a>Page: https://design.alorawork.com/components/line-items
@@ -3355,13 +3442,18 @@ npx shadcn@latest add "https://design.alorawork.com/r/notification-bell.json"
 
 Files: `src/components/ui/notification-bell.tsx`. Installs too: `button`, `popover`, `tooltip`.
 
-`NotificationBell`: Bell with an unread count; the list opens under it. The count is neutral (ink), never a loud red.
+`NotificationBell`: Bell with an unread count; the list opens under it. The count is neutral (ink), never a loud red. The count rolls; Mark all read sweeps the unread rows top to bottom while it counts down, and at zero the badge closes into the bell.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `notices` (required) | `Notice[]` |  |  |
 | `onMarkAllRead` | `(() => void)` |  |  |
 | `className` | `string` |  |  |
+| `listHeight` | `number` |  | A fixed list height in px, so the panel never changes size. By default the list grows up to 320 px. |
+| `unreadFill` | `boolean` |  | Unread rows carry a soft fill, which Mark all read sweeps away top to bottom. |
+| `inline` | `boolean` |  | The panel opens in place (absolute, in the nearest positioned parent) instead of in a portal. |
+| `defaultOpen` | `boolean` | `false` | Inline only: start open. |
+| `panelClassName` | `string` |  | Inline only: where the panel sits. |
 
 ### Kanban card
 
@@ -3384,6 +3476,7 @@ Files: `src/components/ui/kanban-card.tsx`. Installs too: `avatar-group`, `badge
 | `people` | `{ name: string; src?: string \| undefined; }[]` | `[]` |  |
 | `due` | `string` |  |  |
 | `attention` | `boolean` |  | Highlights the one card that needs attention (a soft accent fill, no border). |
+| `action` | `ReactNode` |  | A small control in the card's top row, beside the id (a move menu). |
 | `onClick` | `(() => void)` |  |  |
 | `className` | `string` |  |  |
 
@@ -3392,8 +3485,21 @@ Files: `src/components/ui/kanban-card.tsx`. Installs too: `avatar-group`, `badge
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `title` (required) | `ReactNode` |  |  |
-| `count` | `number` |  |  |
+| `count` | `ReactNode` |  |  |
 | `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+`KanbanBoard`: A small board. A card moves with its menu or the arrow keys (dragging works too): it flies to the top of the other column while the cards around it close up and the column counts roll. The columns keep their height.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `columns` (required) | `KanbanBoardColumn[]` |  |  |
+| `cards` | `KanbanBoardCard[]` |  |  |
+| `defaultCards` | `KanbanBoardCard[]` | `[]` |  |
+| `onCardsChange` | `((cards: KanbanBoardCard[]) => void)` |  |  |
+| `onMove` | `((id: string, column: string) => void)` |  |  |
+| `moveMenu` | `((card: KanbanBoardCard, targets: KanbanBoardColumn[], move: (column: string) => void) => ReactNode)` |  | The card's move control. Give it your Menu: `targets` are the other columns, `move` sends the card there. |
+| `height` | `number` | `320` | The columns' fixed height in px. |
 | `className` | `string` |  |  |
 
 ### Calendar month
