@@ -28,7 +28,7 @@ const CSS = `
 }
 .ad-wave-dot {
   place-self: center; width: 0.26em; height: 0.26em; border-radius: 999px; corner-shape: round; background: currentColor;
-  margin-top: 0.3em; opacity: 0; transform: scale(0.2);
+  opacity: 0; transform: scale(0.2);
   transition: opacity 160ms var(--ad-ease), transform ${MS}ms var(--ad-ease);
   transition-delay: var(--d);
 }
@@ -152,7 +152,7 @@ export function BalancePrivacyWave({
       </div>
       {/* The hero number of the metric card: the unit small and muted on the number's baseline. */}
       <p className="whitespace-nowrap text-[length:clamp(36px,13.5cqw,60px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
-        <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
+        <span className="mr-[0.22em] align-[0.7em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
         <span className="sr-only">{isHidden ? "Hidden" : main}</span>
         <Figure text={main} masked={masked} delay={mainDelay} />
       </p>

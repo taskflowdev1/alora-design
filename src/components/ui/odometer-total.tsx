@@ -220,7 +220,7 @@ export function OdometerTotal({ label = "Sales today", unit = "Rp", value, defau
       <div className="@container grid min-w-0 gap-1">
         <span className="truncate text-body text-ink-muted">{label}</span>
         <div className="flex items-baseline font-semibold tracking-[-0.035em] text-ink tabular-nums" style={{ fontSize: `min(60px, calc(100cqi / ${em.toFixed(2)}))` }}>
-          {unit ? <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
+          {unit ? <span className="mr-[0.22em] align-[0.7em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">{unit}</span> : null}
           <Rolling value={shown} places={places} />
           <span className="sr-only" aria-live="polite">
             {unit === "Rp" ? formatRp(shown) : `${unit} ${formatNumber(shown)}`}
