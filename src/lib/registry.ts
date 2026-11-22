@@ -1,13 +1,13 @@
 // Every item on the site: drives the Components, AI and Backgrounds pages, the shadcn registry (/r/<name>.json),
 // /api/kit and the README tables (scripts/gen-docs.mjs). Pure data: the API imports it.
 
-import { ITEMS as SHOWPIECES_A } from "./showpieces/a";
-import { ITEMS as SHOWPIECES_B } from "./showpieces/b";
-import { ITEMS as SHOWPIECES_C } from "./showpieces/c";
-import { ITEMS as SHOWPIECES_D } from "./showpieces/d";
-import { ITEMS as SHOWPIECES_E } from "./showpieces/e";
-import { ITEMS as SHOWPIECES_F } from "./showpieces/f";
-import { ITEMS as SHOWPIECES_G } from "./showpieces/g";
+import { ITEMS as SHOWPIECES_A } from "./showpieces/a.js";
+import { ITEMS as SHOWPIECES_B } from "./showpieces/b.js";
+import { ITEMS as SHOWPIECES_C } from "./showpieces/c.js";
+import { ITEMS as SHOWPIECES_D } from "./showpieces/d.js";
+import { ITEMS as SHOWPIECES_E } from "./showpieces/e.js";
+import { ITEMS as SHOWPIECES_F } from "./showpieces/f.js";
+import { ITEMS as SHOWPIECES_G } from "./showpieces/g.js";
 
 export type Group =
   | "Actions"
