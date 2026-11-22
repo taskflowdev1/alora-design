@@ -30,7 +30,7 @@ Update this map in the same PR when you add, move or remove a top-level area, en
 | Examples | `src/site/examples/` (one file per page), demo data in `src/site/data.ts` | `npm run typecheck` |
 | Site shell | `src/site/layout.tsx` (header, footer, Customize flap), `src/site/routes.tsx`, `src/site/export.tsx` | `npm run typecheck` |
 | Endpoints | `api/kit.ts`, `api/checklist.ts`, `api/r.ts`, `api/tokens.ts`, `vercel.json` | `./scripts/check-endpoints [url]` |
-| Tooling | `scripts/` (`verify`, `unit.mjs`, `smoke.mjs`, `gen-docs.mjs`, `greys.mjs`, `shots`, `review`, `env.sh`) | `npm run lint` |
+| Tooling | `scripts/` (`verify`, `changed.mjs`, `lib/smoke-map.mjs`, `unit.mjs`, `smoke.mjs`, `gen-docs.mjs`, `greys.mjs`, `shots`, `review`, `env.sh`) | `npm run lint` |
 
 Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.md).
 
@@ -55,11 +55,13 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
 - Quick (seconds): `npm run typecheck`, `npm run lint`, `npm run unit`, `npm run docs:check`, `npm run knip` (dead
   exports), `npx vite build --outDir "$TMPDIR/site"`. After changing a component's props, the settings, the registry
   or a rule: `npm run docs`.
-- Full verify (`./scripts/verify`: typecheck, unit, lint, docs drift, greys, knip, build, headless Playwright smoke on a
-  free port) and shots are heavy: run them as a background job. A failure ends with one line, `GATE FAIL
-  alora-design-verify: <check> | log: <path> | rerun: ./scripts/verify --only <step>`; run that after a fix. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when
-  deps are missing, Playwright headless shell; caches under `$HOME`) and carry a `# jobq: portable` line, which lets
-  the maintainer's job runner run them from a fresh copy.
+- While iterating: `./scripts/verify --changed [base]` (default `origin/main`): all static checks, the build, and the smoke
+  sections that reach the changed files. Shared code, config, tooling or a deleted file widens to full; docs alone skip
+  the build and browser. Before a large release or merging shared code: `./scripts/verify` (full, every section, no caches).
+  Run both and shots as background jobs. A new smoke section needs an entry in `scripts/lib/smoke-map.mjs`.
+- A failure ends with `GATE FAIL alora-design-verify: <check> | log: <path> | rerun: ./scripts/verify --only <step>`.
+  `SMOKE_WORKERS=1` runs smoke serially. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when deps are missing,
+  Playwright headless shell; caches under `$HOME`) and carry `# jobq: portable`, so the job runner can use a fresh copy.
 - Shots: `./scripts/shots` (per component + taste checks: borders, fonts, hover shifts, skeletons) into
   `output/shots/`. Review sheets: `./scripts/review output/<round>/shots.mjs [ONLY]` (format in
   `scripts/review.example.mjs`; `BEFORE_REF`, default `origin/main`). `output/` is not tracked. Build into `$TMPDIR`,

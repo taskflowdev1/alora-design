@@ -1,21 +1,31 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
 # The one gate: typecheck, unit, lint, docs drift (README + docs/components.md), grey ramp, dead exports, build, headless
-# smoke on a free port. Cheapest first; stops at the first failure. Heavy: run it as a background job (see AGENTS.md).
-#   ./scripts/verify                 every step
-#   ./scripts/verify --only <step>   one step (smoke builds first)
+# smoke on a free port. Static checks first, side by side; stops at the first failing stage. Heavy: run it as a background job (see AGENTS.md).
+#   ./scripts/verify                   full: every step and every smoke section. Required before a large release.
+#   ./scripts/verify --changed [base]  localized: every static check and the build, then only the smoke sections that
+#                                      reach files changed since base (default origin/main). Shared code or config
+#                                      widens to full; documentation alone skips the build and browser.
+#   ./scripts/verify --only <step>     one step (smoke builds first)
+# No step reads a cache, so a pass always means the check ran on this code.
 # A failure ends with one line: GATE FAIL alora-design-verify: <step> | log: <path> | rerun: <command>
 set -uo pipefail
 cd "$(dirname "$0")/.."
 steps=(typecheck unit lint docs greys knip build smoke)
-usage() { echo "usage: $0 [--only <step>], steps: ${steps[*]}" >&2; exit 2; }
+usage() { echo "usage: $0 [--changed [base] | --only <step>], steps: ${steps[*]}" >&2; exit 2; }
 only=
+changed=0
+base=
 case "${1:-}" in
   "") ;;
   --only)
     only=${2:-} known=0
     for step in "${steps[@]}"; do [ "$step" != "$only" ] || known=1; done
     [ "$known" = 1 ] && [ $# -eq 2 ] || usage ;;
+  --changed)
+    changed=1 base=${2:-}
+    [ $# -le 2 ] || usage
+    case "$base" in -*) usage ;; esac ;;
   *) usage ;;
 esac
 if [ -n "$only" ]; then
@@ -43,8 +53,25 @@ if [ "$setup" -ne 0 ]; then
 fi
 NEEDS_BROWSER=0 . scripts/env.sh
 set +e # env.sh turns it on; each step's status is read below.
-export SITE_DIST="${TMPDIR:-/tmp}/alora-design-verify-site"
+export SITE_DIST="${TMPDIR:-/tmp}/alora-design-verify-site-$$"
 trap 'rm -rf "$SITE_DIST"' EXIT
+
+unset SMOKE_SECTIONS
+label=full
+if [ "$changed" = 1 ]; then
+  if ! scope=$(node scripts/changed.mjs ${base:+"$base"}); then
+    echo "GATE FAIL alora-design-verify: changed-file scope | log: stderr above | rerun: ./scripts/verify"
+    exit 1
+  fi
+  IFS=$'\t' read -r kind sections reason <<< "$scope"
+  echo "== scope: $kind ($reason)"
+  case $kind in
+    full) ;;
+    docs) steps=(typecheck unit lint docs greys knip); label="localized, documentation only" ;;
+    sections) export SMOKE_SECTIONS="$sections"; label="localized, $reason" ;;
+    *) echo "GATE FAIL alora-design-verify: changed-file scope ($scope) | log: none | rerun: ./scripts/verify"; exit 1 ;;
+  esac
+fi
 
 run() {
   case $1 in
@@ -58,11 +85,8 @@ run() {
     smoke) node scripts/smoke.mjs ;;
   esac
 }
-for step in "${steps[@]}"; do
-  echo "== $step"
-  run "$step" 2>&1 | tee "$logs/$step.log"
-  [ "${PIPESTATUS[0]}" -eq 0 ] && continue
-  name=$step
+fail() {
+  local step=$1 name=$1 first more
   if [ "$step" = smoke ]; then
     # The first failed check, without its measurements.
     first=$(grep -m1 '^FAIL ' "$logs/smoke.log" | sed -E 's/^FAIL //; s/ \(.*//' | cut -c1-70)
@@ -72,5 +96,34 @@ for step in "${steps[@]}"; do
   fi
   echo "GATE FAIL alora-design-verify: $name | log: $(where "$logs/$step.log") | rerun: ./scripts/verify --only $step"
   exit 1
+}
+wanted() { local s; for s in "${steps[@]}"; do [ "$s" != "$1" ] || return 0; done; return 1; }
+# The static checks run side by side (about 1.9 GiB together, no more than the browser step). Their logs print in order,
+# and the first failure in that order ends the run before the build.
+for group in "typecheck unit lint docs greys knip" build smoke; do
+  members=()
+  for step in $group; do wanted "$step" && members+=("$step"); done
+  [ "${#members[@]}" -gt 0 ] || continue
+  if [ "${#members[@]}" -eq 1 ]; then
+    step=${members[0]}
+    echo "== $step"
+    run "$step" 2>&1 | tee "$logs/$step.log"
+    [ "${PIPESTATUS[0]}" -eq 0 ] || fail "$step"
+    continue
+  fi
+  pids=()
+  for step in "${members[@]}"; do
+    run "$step" > "$logs/$step.log" 2>&1 &
+    pids+=($!)
+  done
+  failed=
+  for i in "${!members[@]}"; do
+    wait "${pids[$i]}"
+    status=$?
+    echo "== ${members[$i]}"
+    cat "$logs/${members[$i]}.log"
+    [ "$status" -eq 0 ] || [ -n "$failed" ] || failed=${members[$i]}
+  done
+  [ -z "$failed" ] || fail "$failed"
 done
-echo "VERIFY PASS"
+if [ "$label" = full ]; then echo "VERIFY PASS"; else echo "VERIFY PASS ($label; not a release gate)"; fi

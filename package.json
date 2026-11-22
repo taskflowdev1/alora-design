@@ -28,7 +28,8 @@
     "greys": "node scripts/greys.mjs --check",
     "knip": "knip",
     "smoke": "node scripts/smoke.mjs",
-    "verify": "./scripts/verify"
+    "verify": "./scripts/verify",
+    "verify:changed": "./scripts/verify --changed"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.9",
