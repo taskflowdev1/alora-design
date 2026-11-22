@@ -28,8 +28,8 @@ export type Group =
   | "Backgrounds"
   | MobileGroup;
 /** The Mobile half of the library (src/components/mobile and touch sizes of shared parts). */
-export type MobileGroup = "Bars" | "Lists" | "Sheets" | "Touch inputs" | "Data" | "Feedback" | "Flows";
-/** The site section an item lives in. Components and Mobile share the Components tab (Desktop | Mobile switch). */
+export type MobileGroup = "Installed app" | "Bars" | "Lists" | "Sheets" | "Touch inputs" | "Data" | "Feedback" | "Flows";
+/** The site section an item lives in. Each has its own header tab. */
 export type Section = "components" | "mobile" | "ai" | "backgrounds";
 
 /** A control on a collection item's page; its value is passed to the component as the prop `key`. */
@@ -244,6 +244,19 @@ export const ITEMS: Item[] = [
   { name: "mobile-upload-row", title: "Upload progress", group: "Feedback", dir: "mobile", files: ["mobile-upload-row.tsx"] },
   { name: "mobile-onboarding", title: "Onboarding pager", group: "Flows", dir: "mobile", files: ["mobile-pager.tsx"], registryDeps: ["button"] },
   { name: "mobile-chat", title: "Chat and composer", group: "Flows", dir: "mobile", files: ["mobile-chat.tsx"] },
+  // Installed app (PWA): what a web app needs once it lives on the home screen.
+  { name: "mobile-install-prompt", title: "Install prompt", group: "Installed app", dir: "mobile", files: ["mobile-install-prompt.tsx"], registryDeps: ["mobile-sheet", "mobile-state-button"] },
+  { name: "mobile-passkey", title: "Passkey sign-in", group: "Installed app", dir: "mobile", files: ["mobile-passkey.tsx"], registryDeps: ["avatar", "button", "mobile-sheet", "mobile-state-button"] },
+  { name: "mobile-push-ask", title: "Notification ask", group: "Installed app", dir: "mobile", files: ["mobile-push-ask.tsx"], registryDeps: ["button"] },
+  { name: "mobile-app-header", title: "App header", group: "Installed app", dir: "mobile", files: ["mobile-app-header.tsx"] },
+  { name: "mobile-app-badge", title: "App badge", group: "Installed app", dir: "mobile", files: ["mobile-app-badge.tsx"], registryDeps: ["mobile-badge"] },
+  { name: "mobile-sync-status", title: "Offline queue", group: "Installed app", dir: "mobile", files: ["mobile-sync-status.tsx"], registryDeps: ["button", "mobile-list", "mobile-sheet"] },
+  { name: "mobile-update-toast", title: "Update toast", group: "Installed app", dir: "mobile", files: ["mobile-update-toast.tsx"], registryDeps: ["mobile-state-button"] },
+  { name: "mobile-page-stack", title: "Swipe-back stack", group: "Installed app", dir: "mobile", files: ["mobile-page-stack.tsx"] },
+  { name: "mobile-share", title: "Share sheet", group: "Installed app", dir: "mobile", files: ["mobile-share.tsx"], registryDeps: ["mobile-list", "mobile-sheet", "mobile-state-button"] },
+  { name: "mobile-camera", title: "Camera scan", group: "Installed app", dir: "mobile", files: ["mobile-camera.tsx"], companions: ["mobile-scanner"] },
+  { name: "mobile-wake-lock", title: "Keep screen on", group: "Installed app", dir: "mobile", files: ["mobile-wake-lock.tsx"], registryDeps: ["mobile-choice-rows"] },
+  { name: "mobile-state-button", title: "State button", group: "Installed app", dir: "mobile", files: ["mobile-state-button.tsx"], registryDeps: ["button"] },
 
   // AI: loaders and agent chrome. Add one = a file in src/components/ai + an entry here (see README).
   {
@@ -338,7 +351,7 @@ export const ITEMS: Item[] = [
 
 export const GROUPS: Group[] = ["Foundations", "Showpieces", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
-export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
+export const MOBILE_GROUPS: MobileGroup[] = ["Installed app", "Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 
 const SECTIONS: { id: Section; title: string; path: string; groups: Group[] }[] = [
   { id: "components", title: "Components", path: "/components", groups: GROUPS },

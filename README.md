@@ -365,6 +365,18 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Upload progress](https://design.alorawork.com/mobile/mobile-upload-row) | `mobile-upload-row` | `MobileUploadRow` | `name`, `size`, `progress`, `state`, `media`, `onCancel`, `onRetry`, `className` |
 | [Onboarding pager](https://design.alorawork.com/mobile/mobile-onboarding) | `mobile-onboarding` | `MobileOnboardingPager` | `pages`, `onDone`, `doneLabel="Get started"`, `className` |
 | [Chat and composer](https://design.alorawork.com/mobile/mobile-chat) | `mobile-chat` | `MobileChatThread`, `MobileComposer` | `messages`, `typing`, `className`, `value`, `onValueChange`, `onSend`, `onAttach`, `placeholder="Message"`, `suggestions`, `busy` |
+| [Install prompt](https://design.alorawork.com/mobile/mobile-install-prompt) | `mobile-install-prompt` | `MobileInstallSheet`, `useInstallPrompt` | `open`, `onOpenChange`, `name`, `icon`, `platform`, `onInstall`, `onOpenApp` |
+| [Passkey sign-in](https://design.alorawork.com/mobile/mobile-passkey) | `mobile-passkey` | `MobilePasskeySheet` | `open`, `onOpenChange`, `name`, `avatar`, `onAuthenticate`, `onDone`, `onUseCode` |
+| [Notification ask](https://design.alorawork.com/mobile/mobile-push-ask) | `mobile-push-ask` | `MobilePushAsk`, `usePushPermission` | `status`, `title="Get new orders on this phone"`, `onAllow`, `onLater`, `onFix`, `className` |
+| [App header](https://design.alorawork.com/mobile/mobile-app-header) | `mobile-app-header` | `MobileAppHeader` | `title`, `onPick`, `back`, `standalone`, `trailing`, `className` |
+| [App badge](https://design.alorawork.com/mobile/mobile-app-badge) | `mobile-app-badge` | `MobileAppIcon`, `useAppBadge` | `children`, `label`, `count=0`, `size=60`, `className` |
+| [Offline queue](https://design.alorawork.com/mobile/mobile-sync-status) | `mobile-sync-status` | `MobileSyncPill`, `MobileSyncSheet`, `useSyncQueue` | `online`, `items`, `onClick`, `className`, `open`, `onOpenChange`, `onRetry` |
+| [Update toast](https://design.alorawork.com/mobile/mobile-update-toast) | `mobile-update-toast` | `MobileUpdateToast`, `useAppUpdate` | `open`, `onReload`, `onLater`, `busy=false`, `message="New version ready"`, `above="tab-bar"`, `className` |
+| [Swipe-back stack](https://design.alorawork.com/mobile/mobile-page-stack) | `mobile-page-stack` | `MobilePageStack` | `pages`, `onBack`, `className` |
+| [Share sheet](https://design.alorawork.com/mobile/mobile-share) | `mobile-share` | `MobileShareSheet` | `open`, `onOpenChange`, `data` |
+| [Camera scan](https://design.alorawork.com/mobile/mobile-camera) | `mobile-camera` | `useCameraScan` | none |
+| [Keep screen on](https://design.alorawork.com/mobile/mobile-wake-lock) | `mobile-wake-lock` | `MobileWakeLockRow`, `useWakeLock` | `checked`, `onCheckedChange`, `title="Keep screen on"` |
+| [State button](https://design.alorawork.com/mobile/mobile-state-button) | `mobile-state-button` | `MobileStateButton` | `state="idle"`, `children`, `busyLabel`, `doneLabel`, `variant` |
 
 ### AI
 

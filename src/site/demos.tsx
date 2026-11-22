@@ -69,6 +69,7 @@ import { radii, squircleCompensation, type Config } from "@/lib/config";
 import { shapedSupported } from "./config";
 import { MOBILE_DEMOS } from "./demos-mobile";
 import { MOBILE_DEMOS_2 } from "./demos-mobile-2";
+import { MOBILE_DEMOS_PWA } from "./demos-mobile-pwa";
 import { NICHE_DEMOS } from "./demos-niche";
 import { MORE_DEMOS } from "./demos-more";
 import { MOTION_DEMOS } from "./demos-motion";
@@ -142,6 +143,7 @@ export const DEMOS: Record<string, Demo> = {
   ...MOTION_DEMOS,
   ...MOBILE_DEMOS,
   ...MOBILE_DEMOS_2,
+  ...MOBILE_DEMOS_PWA,
   "corner-shape": {
     stage: "surface",
     render: (_p, config) => (

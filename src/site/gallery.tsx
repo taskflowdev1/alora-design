@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Navigate, NavLink, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
-import { Monitor, Search as SearchIcon, Sliders, Smartphone } from "react-feather";
+import { Search as SearchIcon, Sliders } from "react-feather";
 import { cn } from "@/lib/ad";
 import { inlineTokens, serializeConfig, type Config } from "@/lib/config";
 import { GROUPS, ITEMS, MOBILE_GROUPS, SITE, findItem, itemPath, sectionOf, type Group, type Item } from "@/lib/registry";
@@ -17,9 +17,7 @@ import { applyTokens, SLink, TokenScope, shapedSupported, useConfig, useHref } f
 import { COMPONENT_FIELDS, ConfigPanel } from "./config-panel";
 import { DEMOS, type Demo, type Props } from "./demos";
 import { ComponentBento } from "./showcase";
-import { Segmented } from "@/components/ui/segmented";
 import { PhoneFrame } from "./phone";
-import { MobileOverview } from "./mobile-overview";
 import { useEdgeFade } from "./layout";
 import { useOpenOnEmptyClick } from "./mark";
 
@@ -36,34 +34,8 @@ export function useSource(item?: Item) {
   return source;
 }
 
-type Platform = "desktop" | "mobile";
-const platformOf = (pathname: string): Platform => (pathname.startsWith("/mobile") ? "mobile" : "desktop");
-
-/**
- * Desktop | Mobile: the top-level split of the component library. One switch (not two sidebar groups) because the
- * mobile set would sink under 170 desktop items in one list, and you pick a platform before you pick a component.
- */
-export function PlatformSwitch({ className, icons = true }: { className?: string; icons?: boolean }) {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const [config] = useConfig();
-  const q = serializeConfig(config);
-  return (
-    <Segmented<Platform>
-      aria-label="Platform"
-      value={platformOf(pathname)}
-      onValueChange={(v) => navigate(`${v === "mobile" ? "/mobile" : "/components"}${q ? `?${q}` : ""}`)}
-      className={className}
-      options={[
-        { value: "desktop", label: icons ? <><Monitor />Desktop</> : "Desktop" },
-        { value: "mobile", label: icons ? <><Smartphone />Mobile</> : "Mobile" },
-      ]}
-    />
-  );
-}
-
-/** Detail pages: every item of these groups, the current one highlighted. Components and Mobile pages start with the switch. */
-function GallerySidebar({ groups, platform }: { groups: Group[]; platform?: boolean }) {
+/** Detail pages: every item of these groups, the current one highlighted. */
+function GallerySidebar({ groups }: { groups: Group[] }) {
   const [config] = useConfig();
   const q = serializeConfig(config);
   const ref = React.useRef<HTMLElement>(null);
@@ -83,7 +55,6 @@ function GallerySidebar({ groups, platform }: { groups: Group[]; platform?: bool
     // (viewport minus header, row padding and the footer line) that at the page's end it still clears the header.
     <aside ref={ref} className="ad-fade-y sticky top-20 hidden max-h-[calc(100dvh-224px)] w-52 shrink-0 self-start overflow-auto overscroll-contain pb-4 lg:block">
       <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
-      {platform ? <PlatformSwitch icons={false} className="mb-4 flex w-full [&>button]:flex-1" /> : null}
       {groups.map((g) => (
         <div key={g} className="mb-4 grid gap-px">
           <div className="flex h-7 items-center px-2.5 text-small text-ink-muted">{g}</div>
@@ -107,7 +78,7 @@ function GallerySidebar({ groups, platform }: { groups: Group[]; platform?: bool
   );
 }
 
-function PhonePicker({ current, groups, platform }: { current?: string; groups: Group[]; platform?: boolean }) {
+function PhonePicker({ current, groups }: { current?: string; groups: Group[] }) {
   const [config] = useConfig();
   const navigate = useNavigate();
   const items = ITEMS.filter((i) => groups.includes(i.group) && !i.alias);
@@ -118,7 +89,6 @@ function PhonePicker({ current, groups, platform }: { current?: string; groups: 
   };
   return (
     <div className="mb-4 grid gap-gap lg:hidden">
-      {platform ? <PlatformSwitch className="flex w-full [&>button]:flex-1" /> : null}
       <Select
         aria-label="Component"
         value={current ?? null}
@@ -132,12 +102,12 @@ function PhonePicker({ current, groups, platform }: { current?: string; groups: 
 }
 
 /** A detail page: the section's item list on the left (a picker on phones), the page on the right. */
-export function GalleryLayout({ children, current, groups = GROUPS, platform }: { children: React.ReactNode; current?: string; groups?: Group[]; platform?: boolean }) {
+export function GalleryLayout({ children, current, groups = GROUPS }: { children: React.ReactNode; current?: string; groups?: Group[] }) {
   return (
     <div className="mx-auto flex w-full max-w-[1280px] gap-8 px-4 pt-2 sm:px-6">
-      <GallerySidebar groups={groups} platform={platform} />
+      <GallerySidebar groups={groups} />
       <main className="min-w-0 flex-1 pb-24">
-        <PhonePicker current={current} groups={groups} platform={platform} />
+        <PhonePicker current={current} groups={groups} />
         {children}
       </main>
     </div>
@@ -308,24 +278,17 @@ export function SpotGroups({
   );
 }
 
-/**
- * The Components page, both halves: Desktop (every component live, composed into a bento by category, showcase/)
- * and Mobile (the example app and composed phone screens, mobile-overview.tsx). One element for both routes, so the
- * Desktop | Mobile switch slides between them.
- */
+/** The Components page: every desktop component live, composed into a bento by category (showcase/). */
 export function GalleryIndex() {
   const [q, setQ] = React.useState("");
-  const { pathname } = useLocation();
-  const mobile = platformOf(pathname) === "mobile";
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-heading font-semibold">Components</h1>
-        <PlatformSwitch />
         <span className="flex-1" />
-        {mobile ? null : <Search value={q} onValueChange={setQ} placeholder="Filter this page" aria-label="Filter this page" />}
+        <Search value={q} onValueChange={setQ} placeholder="Filter this page" aria-label="Filter this page" />
       </div>
-      {mobile ? <MobileOverview /> : <ComponentBento query={q} />}
+      <ComponentBento query={q} />
     </main>
   );
 }
@@ -418,7 +381,7 @@ export function GalleryItem() {
 
   if (!item || !demo) {
     return (
-      <GalleryLayout platform>
+      <GalleryLayout>
         <EmptyState icon={SearchIcon} title="No component by that name" />
       </GalleryLayout>
     );
@@ -426,7 +389,7 @@ export function GalleryItem() {
 
   const stage = demo.stage ?? "surface";
   return (
-    <GalleryLayout current={name} platform groups={mobile ? MOBILE_GROUPS : GROUPS}>
+    <GalleryLayout current={name} groups={mobile ? MOBILE_GROUPS : GROUPS}>
       <div className="mb-5 flex min-h-control flex-wrap items-center gap-3">
         <h1 className="mr-auto text-heading font-semibold">{item.title}</h1>
       </div>

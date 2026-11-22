@@ -113,13 +113,15 @@ const sections = [];
 /** Register a section. A name can have several parts (a long sweep split across workers). */
 const section = (name, run) => sections.push({ name, run });
 
-// Mobile: the Desktop | Mobile split, every mobile page at a 390 px phone viewport (renders, no sideways scroll,
+// Mobile: its own header tab, every mobile page at a 390 px phone viewport (renders, no sideways scroll,
 // every touch target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh,
 // snackbar above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
 const MOBILE = ["mobile-tab-bar", "mobile-nav-bar", "mobile-action-bar", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-empty-state", "mobile-sheet", "mobile-action-sheet", "mobile-date-picker", "mobile-segmented", "mobile-search-bar", "mobile-stepper", "mobile-snackbar"];
 // Mobile v2: the rest of the set, and every screen of the example app (with its forced states) at /mobile/app/<screen>.
 const MOBILE_2 = ["mobile-filter-chips", "mobile-top-tabs", "mobile-choice-rows", "mobile-person-row", "mobile-index-list", "mobile-picker-sheet", "mobile-multi-select", "mobile-date-range", "mobile-context-menu", "mobile-modal", "mobile-alert", "mobile-text-field", "mobile-keypad", "mobile-slider", "mobile-photo-picker", "mobile-scanner", "mobile-signature", "mobile-otp", "mobile-stat-tiles", "mobile-kpi-carousel", "mobile-scrub-chart", "mobile-timeline", "mobile-steps", "mobile-receipt", "mobile-badge", "mobile-banner", "mobile-upload-row", "mobile-onboarding", "mobile-chat"];
 MOBILE.push(...MOBILE_2);
+// The installed-app (PWA) parts. Each is a scene on /mobile, not a tile in the screens overview.
+const MOBILE_PWA = ["mobile-install-prompt", "mobile-passkey", "mobile-push-ask", "mobile-app-header", "mobile-app-badge", "mobile-sync-status", "mobile-update-toast", "mobile-page-stack", "mobile-share", "mobile-camera", "mobile-wake-lock", "mobile-state-button"];
 const APP_SCREENS = ["home", "notifications", "search", "reports", "orders", "order", "delivery", "products", "product", "product-edit", "stock-count", "inbox", "chat", "assistant", "more", "customers", "customer", "pos", "pos-pay", "pos-receipt", "approvals", "schedule", "settings", "account", "login", "otp", "onboarding"];
 const APP_STATES = ["home?state=offline", "notifications?state=empty", "search?state=empty", "reports?state=error", "approvals?state=empty"];
 // Gestures, on the detail pages at desktop width (phone frame at full scale).
@@ -507,7 +509,7 @@ section("nav-tabs", async ({ page }) => {
     const nav = document.querySelector("header nav[aria-label=Sections]");
     return { labels: [...nav.querySelectorAll("a")].map((a) => a.textContent), active: nav.querySelector("[aria-current=page]")?.textContent };
   });
-  check(tabs.labels.join() === "Components,AI,Backgrounds,Examples,Encyclopedia,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
+  check(tabs.labels.join() === "Components,Mobile,AI,Backgrounds,Examples,Encyclopedia,Export" && tabs.active === "Components", `header tabs (${JSON.stringify(tabs)})`);
 });
 
 section("encyclopedia", async ({ page }) => {
@@ -835,17 +837,21 @@ section("chart-switch-pill", async ({ page }) => {
 });
 
 section("mobile-index", async ({ page }) => {
-  // Mobile: the Desktop | Mobile split, every mobile page at a 390 px phone viewport (renders, no sideways scroll,
-  // every touch target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh,
-  // snackbar above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
+  // Mobile: its own header tab, every mobile page at a 390 px phone viewport (renders, no sideways scroll, every touch
+  // target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh, snackbar
+  // above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
+  await page.goto(BASE + "/components");
+  check(!(await page.locator('[role=radiogroup][aria-label="Platform"]').count()), "/components has no Desktop | Mobile switch");
   await page.goto(BASE + "/mobile");
   const mobIndex = await page.evaluate(() => ({
     tab: document.querySelector('header a[aria-current="page"]')?.textContent,
-    sw: document.querySelector('[role=radiogroup][aria-label="Platform"] [aria-checked="true"]')?.textContent,
+    pieces: [...document.querySelectorAll("[data-pwa-piece]")].map((s) => s.dataset.pwaPiece),
     tiles: document.querySelectorAll("[data-mobile-screen-tile]").length,
     parts: [...new Set([...document.querySelectorAll("[data-mobile-part]")].map((a) => a.dataset.mobilePart))],
   }));
-  check(mobIndex.tab === "Components" && /Mobile/.test(mobIndex.sw ?? ""), `/mobile: Components tab lit, switch on Mobile (${JSON.stringify({ tab: mobIndex.tab, sw: mobIndex.sw })})`);
+  check(mobIndex.tab === "Mobile", `/mobile: Mobile tab lit (${mobIndex.tab})`);
+  const unshown = MOBILE_PWA.filter((n) => n !== "mobile-state-button" && !mobIndex.pieces.includes(n));
+  check(!unshown.length, `/mobile shows every installed-app part in a phone (missing: ${unshown.join(", ") || "none"})`);
   // mobile-upload-row has its own page but no overview screen uses it (delivery photos upload in the photo strip).
   const tiled = MOBILE.filter((n) => n !== "mobile-upload-row");
   check(mobIndex.tiles === 21 && tiled.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${tiled.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
@@ -856,14 +862,31 @@ section("mobile-index", async ({ page }) => {
     tab: document.querySelector('header a[aria-current="page"]')?.textContent,
   }));
   const wantTiles = [...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)];
-  check(gallery.tiles.length === wantTiles.length && wantTiles.every((h) => gallery.tiles.some((t) => t?.split("&")[0].startsWith(h))) && gallery.tab === "Components", `/mobile/screens: a live phone per screen and state, each linking to its full-screen route (${gallery.tiles.length}/${wantTiles.length})`);
-  await page.locator('[role=radiogroup][aria-label="Platform"] [role=radio]').first().click();
-  await page.waitForURL(/\/components$/);
-  check(true, "platform switch goes back to Desktop");
+  check(gallery.tiles.length === wantTiles.length && wantTiles.every((h) => gallery.tiles.some((t) => t?.split("&")[0].startsWith(h))) && gallery.tab === "Mobile", `/mobile/screens: a live phone per screen and state, each linking to its full-screen route (${gallery.tiles.length}/${wantTiles.length})`);
   for (const [from, to] of [["/components/mobile-sheet", "/mobile/mobile-sheet"]]) {
     await page.goto(BASE + from);
     check(new URL(page.url()).pathname === to, `${from} redirects to ${to} (${new URL(page.url()).pathname})`);
   }
+});
+
+section("mobile-pwa", async ({ page }) => {
+  // The installed-app parts do their job: the install button keeps its size, the offline queue drains once online.
+  await page.goto(BASE + "/mobile/mobile-install-prompt");
+  const install = page.locator("[data-phone-screen] [role=dialog] button", { hasText: "Install" }).last();
+  await install.waitFor();
+  const w0 = (await install.boundingBox()).width;
+  await install.click();
+  await sleep(250);
+  const w1 = (await install.boundingBox()).width;
+  await page.locator("[data-phone-screen] [role=dialog] button", { hasText: "Open" }).waitFor({ timeout: 4000 });
+  check(Math.abs(w0 - w1) < 0.5, `install button keeps its width while working (${w0} → ${w1})`);
+  await page.goto(BASE + "/mobile/mobile-sync-status");
+  const pill = page.locator('[data-phone-screen] button[aria-label^="Sync:"]');
+  await pill.waitFor();
+  check(/2 waiting/.test(await pill.getAttribute("aria-label")), `offline: two changes wait on the phone (${await pill.getAttribute("aria-label")})`);
+  await page.locator('[role=switch]').first().click();
+  await page.waitForFunction(() => /Synced/.test(document.querySelector('[data-phone-screen] button[aria-label^="Sync:"]')?.getAttribute("aria-label") ?? ""), null, { timeout: 6000 });
+  check(true, "online: the queue drains to Synced");
 });
 
 section("mobile-gestures", async ({ page }) => {
@@ -1033,7 +1056,7 @@ section("mobile-flows", async ({ page }) => {
 });
 
 // Every mobile page at 390 px, split across workers. Each part has its own phone context.
-const MOBILE_PATHS = ["/mobile", "/mobile/app", "/mobile/screens", ...MOBILE.map((n) => `/mobile/${n}`), ...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)];
+const MOBILE_PATHS = ["/mobile", "/mobile/app", "/mobile/screens", ...MOBILE.map((n) => `/mobile/${n}`), ...MOBILE_PWA.map((n) => `/mobile/${n}`), ...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)];
 for (const paths of chunks(MOBILE_PATHS, 4)) {
   section("mobile-sweep", async ({ open }) => {
     const ph = await open({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });

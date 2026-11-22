@@ -4614,6 +4614,262 @@ Files: `src/components/mobile/mobile-chat.tsx`.
 | `suggestions` | `string[]` |  | Quick replies above the field; a tap sends one. |
 | `busy` | `boolean` |  | While a reply streams in: send is off. |
 
+### Install prompt
+
+<a id="mobile-install-prompt"></a>Page: https://design.alorawork.com/mobile/mobile-install-prompt
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-install-prompt.json"
+```
+
+Files: `src/components/mobile/mobile-install-prompt.tsx`. Installs too: `mobile-sheet`, `mobile-state-button`.
+
+`MobileInstallSheet`: Ask to install at a moment that earned it (after a first order, not on load). Android gets one button that does the install in place; iPhone gets the three steps, lit one after another, because Safari has no install prompt.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `name` (required) | `string` |  | The app's name, as it will read under its icon. |
+| `icon` (required) | `ReactNode` |  | The app icon, about 56 px. |
+| `platform` (required) | `InstallPlatform` |  | "android": one Install button. "ios": the three Safari steps. |
+| `onInstall` | `(() => Promise<InstallOutcome>)` |  | Android: run the browser's install (`install` from useInstallPrompt). |
+| `onOpenApp` | `(() => void)` |  | Installed: open the app. |
+
+`useInstallPrompt`: Everything an install button needs. Chromium fires `beforeinstallprompt`: it is held here and replayed from your tap. iOS has no such event, so `platform` is "ios" and you show the Add to Home Screen steps. `installed` is true in the home screen app and after an accepted install.
+
+### Passkey sign-in
+
+<a id="mobile-passkey"></a>Page: https://design.alorawork.com/mobile/mobile-passkey
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-passkey.json"
+```
+
+Files: `src/components/mobile/mobile-passkey.tsx`. Installs too: `avatar`, `button`, `mobile-sheet`, `mobile-state-button`.
+
+`MobilePasskeySheet`: Sign in with Face ID or a fingerprint: who, one button, and a ring that closes around their picture while the phone checks. A failure opens the ring back up and keeps the same button; a one-time code is always one tap away.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `name` (required) | `string` |  | Who is signing in. |
+| `avatar` | `string` |  |  |
+| `onAuthenticate` (required) | `() => Promise<void>` |  | Run `navigator.credentials.get({ publicKey })` and verify it. Reject when it fails or is cancelled. |
+| `onDone` (required) | `() => void` |  | Signed in: the ring has closed. |
+| `onUseCode` (required) | `() => void` |  | The way in without a passkey. Always offered. |
+
+### Notification ask
+
+<a id="mobile-push-ask"></a>Page: https://design.alorawork.com/mobile/mobile-push-ask
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-push-ask.json"
+```
+
+Files: `src/components/mobile/mobile-push-ask.tsx`. Installs too: `button`.
+
+`MobilePushAsk`: The ask before the ask. A browser's prompt can be refused once and then never shown again, so this card goes first, at a moment the value is obvious. Only a yes here opens the real prompt. It closes in the flow, so the list moves up once.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `status` (required) | `PushStatus` |  | ask: the soft ask. blocked: how to turn it back on. needs-install: install first. Anything else renders closed. |
+| `title` | `string` | `"Get new orders on this phone"` | What they get, in their words. |
+| `onAllow` | `(() => void)` |  | Turn on. Run the real browser prompt from this tap. |
+| `onLater` | `(() => void)` |  | Not now: hide it and ask again after a later success, never on the next load. |
+| `onFix` | `(() => void)` |  | blocked: open your how-to. needs-install: open the install sheet. |
+| `className` | `string` |  |  |
+
+`usePushPermission`: Where notifications stand on this device. `ask()` shows the browser's prompt, so call it straight from a tap (iOS refuses anything else). On iPhone push exists only in the installed app, which reads as "needs-install".
+
+### App header
+
+<a id="mobile-app-header"></a>Page: https://design.alorawork.com/mobile/mobile-app-header
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-app-header.json"
+```
+
+Files: `src/components/mobile/mobile-app-header.tsx`.
+
+`MobileAppHeader`: The header of an installed app: clears the notch, the shop picker is the title, and it brings its own back button.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `string` |  | The current shop or workspace. The header is its picker. |
+| `onPick` | `(() => void)` |  |  |
+| `back` | `(() => void)` |  | Back to the previous screen. Shown only in the home screen app, where the browser has no back button of its own. |
+| `standalone` | `boolean` |  | Overrides detection (previews). |
+| `trailing` | `ReactNode` |  | Right side: a sync pill, one or two bar buttons. |
+| `className` | `string` |  |  |
+
+### App badge
+
+<a id="mobile-app-badge"></a>Page: https://design.alorawork.com/mobile/mobile-app-badge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-app-badge.json"
+```
+
+Files: `src/components/mobile/mobile-app-badge.tsx`. Installs too: `mobile-badge`.
+
+`MobileAppIcon`: The app as it sits on the home screen: a continuous-corner icon, its count and its name.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  | The artwork, drawn edge to edge. |
+| `label` | `string` |  | The name under the icon. |
+| `count` | `number` | `0` |  |
+| `size` | `number` | `60` | Width and height in px. |
+| `className` | `string` |  |  |
+
+`useAppBadge`: Keeps the count on the installed app's icon (Badging API). 0 clears it. Browsers without it ignore this, and iOS shows the count only once notifications are allowed.
+
+### Offline queue
+
+<a id="mobile-sync-status"></a>Page: https://design.alorawork.com/mobile/mobile-sync-status
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-sync-status.json"
+```
+
+Files: `src/components/mobile/mobile-sync-status.tsx`. Installs too: `button`, `mobile-list`, `mobile-sheet`.
+
+`MobileSyncPill`: Sync state in the header: a dot and a few words, always in the same place. The dot's ring fills as the queue drains.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `online` (required) | `boolean` |  |  |
+| `items` (required) | `SyncItem[]` |  |  |
+| `onClick` | `(() => void)` |  |  |
+| `className` | `string` |  |  |
+
+`MobileSyncSheet`: What is still on this phone, in order, each with its state.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `items` (required) | `SyncItem[]` |  |  |
+| `onRetry` | `(() => void)` |  |  |
+
+`useSyncQueue`: The offline queue. `add` keeps a change on the phone; while online the queue sends one at a time through `send`, in the order they were made. A failed send stays in the list for `retry`, and the ones behind it carry on.
+
+### Update toast
+
+<a id="mobile-update-toast"></a>Page: https://design.alorawork.com/mobile/mobile-update-toast
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-update-toast.json"
+```
+
+Files: `src/components/mobile/mobile-update-toast.tsx`. Installs too: `mobile-state-button`.
+
+`MobileUpdateToast`: "A new version is ready", above the tab bar. It never reloads by itself, because someone may be halfway through an order. Reload works in place; Later leaves until the next launch.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onReload` (required) | `() => void` |  | Reload into the new version. The button stays busy until the page goes. |
+| `onLater` (required) | `() => void` |  | Later: it stays out of the way until the next launch. |
+| `busy` | `boolean` | `false` |  |
+| `message` | `ReactNode` | `"New version ready"` |  |
+| `above` | `"none" \| "tab-bar" \| "action-bar"` | `"tab-bar"` | What it must stay above. |
+| `className` | `string` |  |  |
+
+`useAppUpdate`: Watches the service worker for a new version. `ready` turns true once one is installed and waiting; `reload()` tells it to take over (your worker handles `{ type: "SKIP_WAITING" }`) and reloads when it has. It also checks for a new version each time the app comes back to the foreground, since a home screen app can stay open for days.
+
+### Swipe-back stack
+
+<a id="mobile-page-stack"></a>Page: https://design.alorawork.com/mobile/mobile-page-stack
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-page-stack.json"
+```
+
+Files: `src/components/mobile/mobile-page-stack.tsx`.
+
+`MobilePageStack`: Pages that slide, with the iOS edge swipe. A home screen app has no browser back gesture, so the left edge drags the top page away under the finger with the page below easing in. Past 40 % or on a flick it goes back; otherwise it returns. Touch only: with a mouse the back button does this job.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `pages` (required) | `MobileStackPage[]` |  | Bottom to top. Add a page to push it, remove the last to pop it. |
+| `onBack` (required) | `() => void` |  | The edge swipe finished: remove the top page. |
+| `className` | `string` |  |  |
+
+### Share sheet
+
+<a id="mobile-share"></a>Page: https://design.alorawork.com/mobile/mobile-share
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-share.json"
+```
+
+Files: `src/components/mobile/mobile-share.tsx`. Installs too: `mobile-list`, `mobile-sheet`, `mobile-state-button`.
+
+`MobileShareSheet`: The fallback for browsers without Web Share: WhatsApp, email, and the link with a Copy button that confirms in place.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` (required) | `boolean` |  |  |
+| `onOpenChange` (required) | `(open: boolean) => void` |  |  |
+| `data` (required) | `ShareData` |  |  |
+
+### Camera scan
+
+<a id="mobile-camera"></a>Page: https://design.alorawork.com/mobile/mobile-camera
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-camera.json"
+```
+
+Files: `src/components/mobile/mobile-camera.tsx`.
+
+`useCameraScan`: The back camera for scanning: `start()` from a tap, `video` goes in MobileScanner's `camera` slot. Reads codes with BarcodeDetector where the browser has it; elsewhere the picture still shows and typing the code stays available (bring a decoder such as ZXing through `decode`). Stops the camera on `stop()`, when hidden and on unmount.
+
+### Keep screen on
+
+<a id="mobile-wake-lock"></a>Page: https://design.alorawork.com/mobile/mobile-wake-lock
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-wake-lock.json"
+```
+
+Files: `src/components/mobile/mobile-wake-lock.tsx`. Installs too: `mobile-choice-rows`.
+
+`MobileWakeLockRow`: The switch for it, as a settings row. Hide it where `supported` is false.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `checked` (required) | `boolean` |  |  |
+| `onCheckedChange` (required) | `(on: boolean) => void` |  |  |
+| `title` | `string` | `"Keep screen on"` |  |
+
+`useWakeLock`: Keeps the screen on during long hands-busy work (stock counts, picking, a till). The browser drops the lock whenever the app leaves the screen, so it is taken again on return. `supported` is false where the API is missing.
+
+### State button
+
+<a id="mobile-state-button"></a>Page: https://design.alorawork.com/mobile/mobile-state-button
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/mobile-state-button.json"
+```
+
+Files: `src/components/mobile/mobile-state-button.tsx`. Installs too: `button`.
+
+`MobileStateButton`: A 44 px button that does its work in place: it keeps its width and shape through idle, busy and done (all three labels share one cell, so the widest sets the size). Busy runs a soft sweep behind the label, done draws a check. Taps are ignored until it is idle again.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `state` | `MobileButtonState` | `"idle"` |  |
+| `children` (required) | `ReactNode` |  | The label at rest. |
+| `busyLabel` | `ReactNode` |  | While working ("Installing"). Defaults to the label. |
+| `doneLabel` | `ReactNode` |  | When finished ("Installed"). |
+| `variant` | `ButtonVariant` |  | Accent only for the primary or key action ("Add", "Save"). |
+
+Also takes the native props of the element it renders.
+
 ## AI
 
 ### Thinking orbs
