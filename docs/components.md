@@ -184,6 +184,139 @@ Files: `src/components/ui/stock-battery.tsx`. Installs too: `button`, `card`, `t
 
 Also takes the native props of the element it renders.
 
+### Chat to order
+
+<a id="chat-to-order"></a>Page: https://design.alorawork.com/components/chat-to-order
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/chat-to-order.json"
+```
+
+Files: `src/components/ui/chat-to-order.tsx`. Installs too: `button`.
+
+`ChatToOrder`: A pasted chat message and an empty order. Read message sends each marked phrase across to its field, one by one; a single phrase can be sent by itself, and a filled field sent back by pressing it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `message` | `ChatOrderPart[]` | `MESSAGE` | The message, with the words that fill each field marked. |
+| `fields` | `ChatOrderField[]` | `FIELDS` | The order's fields, top to bottom. |
+| `time` | `string` | `"10.24"` | The time on the message. |
+| `onComplete` | `((values: Record<string, string>) => void)` |  | Every field is filled. |
+
+Also takes the native props of the element it renders.
+
+### Invoice x-ray scan
+
+<a id="invoice-xray"></a>Page: https://design.alorawork.com/components/invoice-xray
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/invoice-xray.json"
+```
+
+Files: `src/components/ui/invoice-xray.tsx`. Installs too: `button`.
+
+`InvoiceXray`: A paper invoice under a beam of light. Scan runs it down the page, or drag the grip; as it passes the vendor, number, date and total, each lifts off the paper into an editable chip. Bring the beam back up and they settle back.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `defaultValues` | `InvoiceValues` | `VALUES` | The fields the scan reads off the paper. They stay editable after it. |
+| `lines` | `InvoiceLine[]` | `LINES` | The printed line items. |
+| `shop` | `string` | `"Rimba Kemang"` | Who the invoice is billed to. |
+| `onValuesChange` | `((values: InvoiceValues) => void)` |  | Any field was edited. |
+| `onScanned` | `((values: InvoiceValues) => void)` |  | The beam reached the bottom of the page. |
+
+Also takes the native props of the element it renders.
+
+### Answer becomes chart
+
+<a id="answer-chart"></a>Page: https://design.alorawork.com/components/answer-chart
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/answer-chart.json"
+```
+
+Files: `src/components/ui/answer-chart.tsx`. Installs too: `button`.
+
+`AnswerChart`: An AI answer whose numbers fall out of the sentence, land on a baseline and grow into bars. The chart stays live: drag a bar, or step it with the arrow keys, and its number in the sentence follows.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `intro` | `string` | `"Rimba Kemang sold"` | The start of the sentence, before the first number. |
+| `data` | `AnswerChartDatum[]` | `DATA` | One number per bar, in the order of the sentence. |
+| `onValueChange` | `((id: string, value: number) => void)` |  | A bar was dragged or stepped to a new value. |
+
+Also takes the native props of the element it renders.
+
+### Thermal receipt printer
+
+<a id="receipt-printer"></a>Page: https://design.alorawork.com/components/receipt-printer
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/receipt-printer.json"
+```
+
+Files: `src/components/ui/receipt-printer.tsx`. Installs too: `button`.
+
+`ReceiptPrinter`: A thermal printer. The receipt feeds out in small motor steps, its end curling under its own weight. Pull it down until it rips, flick it, or use the button; then print another.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `place` | `string` | `"Jl. Kemang Raya 12, Jakarta Selatan"` | The line under the shop name. |
+| `when` | `string` | `"21 Nov 2026, 14.32"` | Printed as given. |
+| `items` | `ReceiptItem[]` | `ITEMS` |  |
+| `payment` | `string` | `"QRIS"` | How it was paid, beside the total. |
+| `code` | `string` | `"RK-20261121-0418"` | Printed under the barcode, and what the barcode is drawn from. |
+| `autoPrint` | `boolean` | `true` | Print once the first time it scrolls into view. |
+| `onPrinted` | `(() => void)` |  |  |
+| `onTear` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Instant photo develop
+
+<a id="instant-photo"></a>Page: https://design.alorawork.com/components/instant-photo
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/instant-photo.json"
+```
+
+Files: `src/components/ui/instant-photo.tsx`. Installs too: `tooltip`.
+
+`InstantPhoto`: An instant camera. The shutter slides a blank print out, and it develops from pale grey to full colour on its own; shake it (drag it around, tap it, or press the arrow keys) and it develops faster.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `photos` (required) | `InstantPhotoShot[]` |  | The shots it takes, in turn. Square crops read best. |
+| `onDeveloped` | `((shot: InstantPhotoShot) => void)` |  | A print finished developing. |
+
+Also takes the native props of the element it renders.
+
+### Before after wipe
+
+<a id="before-after"></a>Page: https://design.alorawork.com/components/before-after
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/before-after.json"
+```
+
+Files: `src/components/ui/before-after.tsx`.
+
+`BeforeAfter`: A draggable wipe between a raw and an edited product shot, with a slight parallax between them. Drag anywhere on the picture, click to send the wipe there, use the arrow keys, or double-click to centre it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `before` (required) | `string` |  | The raw shot. |
+| `after` (required) | `string` |  | The edited shot. |
+| `alt` (required) | `string` |  | What the picture shows. |
+| `beforeFilter` | `string` |  | CSS filter for the raw side, when both sides are the same file. |
+| `beforeLabel` | `string` | `"Raw"` |  |
+| `afterLabel` | `string` | `"Edited"` |  |
+| `defaultValue` | `number` | `0.5` | Where the wipe starts, 0 to 1. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
 ## Actions
 
 ### Button
