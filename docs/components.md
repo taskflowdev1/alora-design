@@ -20,6 +20,138 @@ A foundation, set by the theme: no component to install.
 
 ## Showpieces
 
+### Parcel journey line
+
+<a id="parcel-journey"></a>Page: https://design.alorawork.com/components/parcel-journey
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/parcel-journey.json"
+```
+
+Files: `src/components/ui/parcel-journey.tsx`. Installs too: `button`.
+
+`ParcelJourney`: A parcel riding its route across the map, pausing at each scan. Press or drag anywhere on the map to scrub the whole trip (it settles on the nearest hub); arrow keys, Home and End step through the scans.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `stops` | `ParcelStop[]` | `DEFAULT_STOPS` | The hubs in order, each with its scan. Their `at` points sit on the map, x 0–640 and y 28–192. |
+| `tracking` | `string` | `"RK-2041-8836"` | The tracking number, as printed. |
+| `autoPlay` | `boolean` | `true` | Ride the route once when it first scrolls into view. |
+| `onArrive` | `(() => void)` |  | Called when the parcel reaches the last stop. |
+
+Also takes the native props of the element it renders.
+
+### Peel shipping label
+
+<a id="peel-label"></a>Page: https://design.alorawork.com/components/peel-label
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/peel-label.json"
+```
+
+Files: `src/components/ui/peel-label.tsx`. Installs too: `button`.
+
+`PeelLabel`: A shipping label on its backing, on a carton. Drag the corner and the paper curls off under your finger; past about half way it comes free and sticks where you drop it. Enter on the corner peels and places it; arrow keys then nudge it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `from` | `string` | `"Rimba Kemang, Jakarta"` | The sender, printed small at the top. |
+| `to` | `string` | `"Sari Wulandari"` | The recipient, the biggest thing on the label. |
+| `address` | `string` | `"Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"` |  |
+| `tracking` | `string` | `"RK-2041-8836"` | The tracking number under the barcode. |
+| `weight` | `string` | `"1,2 kg"` |  |
+| `onStick` | `((at: { x: number; y: number; }) => void)` |  | Called when the label lands, with its centre as 0–1 of the box. |
+
+Also takes the native props of the element it renders.
+
+### Route untangle
+
+<a id="route-untangle"></a>Page: https://design.alorawork.com/components/route-untangle
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/route-untangle.json"
+```
+
+Files: `src/components/ui/route-untangle.tsx`. Installs too: `button`.
+
+`RouteUntangle`: A knot of delivery roads that untangles into a clean loop, one uncrossed pair at a time, while the distance rolls down. Drag a stop (or focus it and use the arrow keys) to make a new problem, then untangle again.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `stops` | `{ x: number; y: number; }[]` | `DEFAULT_STOPS` | The stops on a 560 × 290 map; the first is the depot. |
+| `kmPerUnit` | `number` | `0.034` | Kilometres per map unit, for the figures. |
+| `onUntangle` | `((savedKm: number) => void)` |  | Called when the loop has been untangled, with the kilometres saved. |
+
+Also takes the native props of the element it renders.
+
+### Box packing fit
+
+<a id="box-packing"></a>Page: https://design.alorawork.com/components/box-packing
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/box-packing.json"
+```
+
+Files: `src/components/ui/box-packing.tsx`. Installs too: `button`.
+
+`BoxPacking`: An open carton in isometric. Tap a product and it drops in, lands with one small bounce and nests against the others; the fill level picks the carton, which grows or shrinks around them.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` | `PackItem[]` | `DEFAULT_ITEMS` | The products, each with its size in 10 cm cells. |
+| `cartons` | `PackCarton[]` | `DEFAULT_CARTONS` | Smallest first. The first one everything fits in is picked. |
+| `defaultValue` | `string[]` | `["teko", "gelas", "mangkuk"]` | Ids in the box at the start. |
+| `onChange` | `((ids: string[], carton: PackCarton) => void)` |  | Called when the contents change, with the carton picked for them. |
+
+Also takes the native props of the element it renders.
+
+### Paid rubber stamp
+
+<a id="paid-stamp"></a>Page: https://design.alorawork.com/components/paid-stamp
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/paid-stamp.json"
+```
+
+Files: `src/components/ui/paid-stamp.tsx`. Installs too: `button`.
+
+`PaidStamp`: An invoice and a rubber stamp. Press anywhere on the paper and the stamp slams down there: the sheet jolts, the ink goes on rough and bleeds a little into the page. Stamp again and it prints fainter, like a pad running dry.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `customer` | `string` | `"Toko Bu Sari"` |  |
+| `invoice` | `string` | `"INV/2026/11/0482"` |  |
+| `lines` | `PaidStampLine[]` | `DEFAULT_LINES` |  |
+| `word` | `string` | `"LUNAS"` | The word on the rubber. |
+| `date` | `string` | `"21 NOV 2026"` | The date on the rubber, as printed. |
+| `onStamp` | `(() => void)` |  | Called on each stamp. |
+
+Also takes the native props of the element it renders.
+
+### Envelope send
+
+<a id="envelope-send"></a>Page: https://design.alorawork.com/components/envelope-send
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/envelope-send.json"
+```
+
+Files: `src/components/ui/envelope-send.tsx`. Installs too: `button`.
+
+`EnvelopeSend`: An invoice that sends itself: it folds in thirds, slips into an envelope, the flap closes on a seal and the envelope flies off, and the next invoice in the series comes up. Under reduced motion it goes straight to sent.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `shop` | `string` | `"Rimba Kemang"` |  |
+| `customer` | `string` | `"Toko Bu Sari"` |  |
+| `invoice` | `string` | `"INV/2026/11/0482"` |  |
+| `lines` | `EnvelopeLine[]` | `DEFAULT_LINES` |  |
+| `initial` | `string` | `"R"` | The initial on the seal. |
+| `onSend` | `(() => void)` |  | Called the moment the envelope has flown. |
+
+Also takes the native props of the element it renders.
+
 ## Actions
 
 ### Button

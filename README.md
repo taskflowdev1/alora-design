@@ -127,6 +127,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Parcel journey line](https://design.alorawork.com/components/parcel-journey) | `parcel-journey` | `ParcelJourney` | `stops=DEFAULT_STOPS`, `tracking="RK-2041-8836"`, `autoPlay=true`, `onArrive` |
+| [Peel shipping label](https://design.alorawork.com/components/peel-label) | `peel-label` | `PeelLabel` | `from="Rimba Kemang, Jakarta"`, `to="Sari Wulandari"`, `address="Jl. Kaliurang Km 5 No. 14, Sleman, Yogyakarta 55281"`, `tracking="RK-2041-8836"`, `weight="1,2 kg"`, `onStick` |
+| [Route untangle](https://design.alorawork.com/components/route-untangle) | `route-untangle` | `RouteUntangle` | `stops=DEFAULT_STOPS`, `kmPerUnit=0.034`, `onUntangle` |
+| [Box packing fit](https://design.alorawork.com/components/box-packing) | `box-packing` | `BoxPacking` | `items=DEFAULT_ITEMS`, `cartons=DEFAULT_CARTONS`, `defaultValue=["teko", "gelas", "mangkuk"]`, `onChange` |
+| [Paid rubber stamp](https://design.alorawork.com/components/paid-stamp) | `paid-stamp` | `PaidStamp` | `shop="Rimba Kemang"`, `customer="Toko Bu Sari"`, `invoice="INV/2026/11/0482"`, `lines=DEFAULT_LINES`, `word="LUNAS"`, `date="21 NOV 2026"`, `onStamp` |
+| [Envelope send](https://design.alorawork.com/components/envelope-send) | `envelope-send` | `EnvelopeSend` | `shop="Rimba Kemang"`, `customer="Toko Bu Sari"`, `invoice="INV/2026/11/0482"`, `lines=DEFAULT_LINES`, `initial="R"`, `onSend` |
 
 ### Actions
 
