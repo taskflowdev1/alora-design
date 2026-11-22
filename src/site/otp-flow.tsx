@@ -3,6 +3,7 @@ import { AlertCircle } from "react-feather";
 import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { InputOTP, otpLanded, type InputOTPCelebrate, type InputOTPStatus } from "@/components/ui/input-otp";
+import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Mark } from "./mark";
 
@@ -18,16 +19,18 @@ export type OtpForce = "live" | "checking" | "wrong" | "open";
 /**
  * The playable one-time code flow (site only): the right code (123456) shows faintly in the empty boxes; type it.
  * Checking waves across the boxes, a wrong code shakes red and clears, three wrong tries lock it until a new code,
- * the right one locks the boxes and a green check says so. Centred: the label, the boxes, and one line under them
- * that is the status when there is one and the quiet action otherwise.
+ * the right one closes the gaps and the digits roll away into the result ("Welcome back, Rizky"), in the same bar.
+ * Centred: the label, the boxes, and one line under them for the status or the resend action. Start over sits
+ * outside the piece (under the card when `framed`).
  */
 export function OtpFlow({
   length = 6,
   force = "live",
   label = "Code from WhatsApp",
-  done = "Till open",
+  done = "Welcome back, Rizky",
   marks,
-  celebrate = "join",
+  celebrate = "morph",
+  framed,
   className,
 }: {
   length?: number;
@@ -36,6 +39,8 @@ export function OtpFlow({
   done?: string;
   marks?: boolean;
   celebrate?: InputOTPCelebrate;
+  /** Put the piece on a card; Start over then sits under the card, not in it. */
+  framed?: boolean;
   className?: string;
 }) {
   const sent = codeOf(length);
@@ -119,8 +124,8 @@ export function OtpFlow({
   const live = force === "live";
   const canResend = shown.phase === "locked" || (wait === 0 && shown.phase !== "open");
 
-  return (
-    <div className={cn("flex flex-col items-center gap-3 text-center", className)}>
+  const main = (
+    <div className="flex flex-col items-center gap-3 text-center">
       <Spot on={marks} name="label">
         <Label htmlFor={`${msgId}-code`}>{label}</Label>
       </Spot>
@@ -136,6 +141,13 @@ export function OtpFlow({
           value={shown.code}
           status={status}
           celebrate={celebrate}
+          result={
+            <>
+              {/* The one green mark. */}
+              <span className="size-1.5 shrink-0 rounded-full bg-success" />
+              {done}
+            </>
+          }
           disabled={shown.phase === "locked"}
           onValueChange={(v) => {
             if (!live) return;
@@ -154,20 +166,7 @@ export function OtpFlow({
             Wrong code · {shown.tries} {shown.tries === 1 ? "try" : "tries"} left
           </span>
         ) : null}
-        {shown.notice === "open" ? (
-          <>
-            <Opened delay={otpLanded(celebrate)} icon={celebrate !== "seal"} text={done} />
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => live && reset()}
-              className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
-              style={{ animationDelay: `${otpLanded(celebrate) + 200}ms` }}
-            >
-              Start over
-            </Button>
-          </>
-        ) : null}
+        {shown.notice === "open" ? <span className="sr-only">{done}</span> : null}
         {shown.notice === "locked" || !shown.notice ? (
           <Button
             size="sm"
@@ -182,38 +181,28 @@ export function OtpFlow({
       </div>
     </div>
   );
-}
-
-/** "Till open" follows the boxes: a check circle draws itself, then the words slide in beside it. */
-function Opened({ delay, icon, text }: { delay: number; icon: boolean; text: string }) {
-  const draw = (at: number) => ({ animation: `ad-otp-draw 320ms var(--ad-ease) ${delay + at}ms forwards` });
   return (
-    <span className="flex items-center gap-1.5 font-medium text-ink">
-      {icon ? (
-        <svg
-          className="text-success"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          <circle cx="12" cy="12" r="9.5" pathLength={1} strokeDasharray={1} strokeDashoffset={1} transform="rotate(-90 12 12)" style={draw(0)} />
-          <path d="M8 12.5l2.75 2.75L16.25 9.5" pathLength={1} strokeDasharray={1} strokeDashoffset={1} style={draw(220)} />
-        </svg>
-      ) : null}
-      <span className="animate-[ad-otp-rise_260ms_var(--ad-ease)_both]" style={{ animationDelay: `${delay + (icon ? 120 : 0)}ms` }}>
-        {text}
-      </span>
-    </span>
+    <div className={cn("grid w-full justify-items-center gap-3", className)}>
+      {framed ? <Card className="grid w-full">{main}</Card> : main}
+      {/* Outside the piece, and its height is kept so nothing moves when it appears. */}
+      <div className="flex h-control items-center">
+        {shown.phase === "open" ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => live && reset()}
+            className="animate-[ad-fade-in_220ms_var(--ad-ease)_both]"
+            style={{ animationDelay: `${otpLanded(celebrate, length) + 300}ms` }}
+          >
+            Start over
+          </Button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
-/** On the landing, the parts carry their component marks; on the component page they don't. */
+
 const Spot = ({ on, name, children }: { on?: boolean; name: string; children: React.ReactNode }) =>
   on ? (
     <Mark name={name} className="w-fit max-w-full">

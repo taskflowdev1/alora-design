@@ -247,6 +247,7 @@ Files: `src/components/ui/input-otp.tsx`.
 | `invalid` | `boolean` |  | Same as status="invalid". |
 | `disabled` | `boolean` |  |  |
 | `size` | `"default" \| "touch"` | `"default"` | "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. |
+| `result` | `ReactNode` |  | morph only: what the code turns into once it's accepted ("Welcome back, Rizky"). The gaps close, the digits roll up and out one after another, and this rolls into the same bar: the answer lands where the question was. |
 | `placeholder` | `string` |  | Faint digits in the empty boxes (a demo's known code, or a format like "000000"); each goes as its box fills. |
 | `className` | `string` |  |  |
 | `id` | `string` |  |  |

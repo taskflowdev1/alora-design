@@ -82,3 +82,10 @@ body {
   32%, 68% { opacity: 1; }
   100% { opacity: 0.25; }
 }
+
+/* Site-only: the page always has its scrollbar track (classic scrollbars only; overlay ones take no room), so pages
+   that fit the window (Examples) keep the header exactly where pages that scroll have it instead of shifting by half
+   a scrollbar. */
+html {
+  overflow-y: scroll;
+}

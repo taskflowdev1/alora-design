@@ -58,7 +58,7 @@ Page.goto = async function (url, options) {
 for (const [path, text] of [
   ["/", "just some random ui styling"],
   ["/", "Orders"],
-  ["/", "Where should we start?"],
+  ["/", "Metric card"],
   ["/components", "Components"],
   ["/components/menu", "Menu"],
   ["/components/command-palette", "Command palette"],
@@ -163,7 +163,7 @@ await page.locator("[data-moment=otp] input").first().click();
 await page.keyboard.type("123456");
 await sleep(1600);
 const otpOpen = await page.locator("[data-moment=otp] [aria-live]").textContent();
-check(/Till open/.test(otpOpen ?? ""), `landing OTP: 123456 opens the till (${otpOpen})`);
+check(/Welcome back/.test(otpOpen ?? ""), `landing OTP: 123456 signs in (${otpOpen})`);
 await page.locator("[data-moment=dial] button[aria-label$='type a number']").click();
 await page.keyboard.type("48");
 await page.keyboard.press("Enter");
@@ -1012,7 +1012,15 @@ for (const w of [1440, 1720]) {
     check(after.over.length === 0 && Math.abs(after.left - after.right) <= 1, `classic scrollbar ${w} ${path}, after closing: margins equal (${JSON.stringify(after)})`);
   }
 }
+// The header doesn't move between a page that scrolls and one that fits the window (the gutter is reserved).
 await cpage.setViewportSize({ width: 1440, height: 900 });
+const logoX = new Set();
+for (const path of ["/", "/examples/dashboard", "/encyclopedia", "/examples/orders"]) {
+  await cpage.goto(BASE + path, { waitUntil: "networkidle" });
+  await cpage.waitForSelector("header a");
+  logoX.add(await cpage.evaluate(() => Math.round(document.querySelector("header a").getBoundingClientRect().x * 10) / 10));
+}
+check(logoX.size === 1, `classic scrollbar: the header logo stays put between pages (${[...logoX].join(" vs ")})`);
 await cpage.goto(BASE + "/components", { waitUntil: "networkidle" });
 const inner = await cpage.evaluate(() => {
   const track = document.querySelector("[aria-roledescription=carousel] > div");

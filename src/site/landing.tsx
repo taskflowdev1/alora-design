@@ -120,9 +120,7 @@ export function Landing() {
             </div>
           </Moment>
           <Moment id="otp" title="One-time code" to="/components/input-otp" className="max-w-[440px]">
-            <Card className="grid">
-              <OtpFlow />
-            </Card>
+            <OtpFlow framed />
           </Moment>
           <Moment id="palette" title="Command palette" to="/components/command-palette" className="max-w-[560px]">
             {/* A fixed height: filtering shortens the list inside it, never the card, so nothing below moves. */}

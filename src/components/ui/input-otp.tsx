@@ -3,7 +3,7 @@ import { cn, prefersReducedMotion } from "@/lib/ad";
 
 export type InputOTPStatus = "idle" | "checking" | "invalid" | "success";
 /** How the boxes show a correct code. */
-export type InputOTPCelebrate = "join" | "quiet" | "seal";
+export type InputOTPCelebrate = "join" | "quiet" | "seal" | "morph";
 
 export interface InputOTPProps {
   value: string;
@@ -28,6 +28,11 @@ export interface InputOTPProps {
   disabled?: boolean;
   /** "touch": 56 px boxes, 24 px digits and a 16 px input, for phones. */
   size?: "default" | "touch";
+  /**
+   * morph only: what the code turns into once it's accepted ("Welcome back, Rizky"). The gaps close, the digits roll up
+   * and out one after another, and this rolls into the same bar: the answer lands where the question was.
+   */
+  result?: React.ReactNode;
   /** Faint digits in the empty boxes (a demo's known code, or a format like "000000"); each goes as its box fills. */
   placeholder?: string;
   className?: string;
@@ -47,12 +52,18 @@ const css = `
 }
 @keyframes ad-otp-draw { to { stroke-dashoffset: 0; } }
 @keyframes ad-otp-rise { from { opacity: 0; transform: translateX(-4px); } }
-@keyframes ad-otp-hide { to { opacity: 0; } }`;
+@keyframes ad-otp-hide { to { opacity: 0; } }
+@keyframes ad-otp-roll-out { to { opacity: 0; transform: translateY(-70%); filter: blur(2px); } }
+@keyframes ad-otp-roll-in { from { opacity: 0; transform: translateY(70%); filter: blur(2px); } }`;
 
 /** When the gaps start closing on a correct code (ms). */
 const JOIN_AT = 120;
 /** When a correct code has finished landing (ms), so a status line can follow it. */
-export const otpLanded = (celebrate: InputOTPCelebrate) => (celebrate === "quiet" ? 0 : celebrate === "join" ? JOIN_AT + 280 : JOIN_AT + 780);
+export const otpLanded = (celebrate: InputOTPCelebrate, length = 6) =>
+  celebrate === "quiet" ? 0 : celebrate === "join" ? JOIN_AT + 280 : celebrate === "morph" ? MORPH_AT + length * MORPH_STEP + 320 : JOIN_AT + 780;
+/** Morph: when the digits start rolling out (after the gaps have closed), and the stagger between them (ms). */
+const MORPH_AT = JOIN_AT + 300;
+const MORPH_STEP = 40;
 const ease = "var(--ad-ease)";
 
 /**
@@ -71,6 +82,7 @@ export function InputOTP({
   invalid,
   disabled,
   size = "default",
+  result,
   placeholder,
   className,
   id,
@@ -155,7 +167,11 @@ export function InputOTP({
             )}
           >
             {chars[i] ? (
-              <span key={chars[i] + i} className={cn(s === "idle" && "animate-[ad-otp-digit_120ms_var(--ad-ease)]")}>
+              <span
+                key={chars[i] + i}
+                className={cn(s === "idle" && "animate-[ad-otp-digit_120ms_var(--ad-ease)]")}
+                style={ok && celebrate === "morph" ? { animation: `ad-otp-roll-out 240ms ${ease} ${MORPH_AT + i * MORPH_STEP}ms forwards` } : undefined}
+              >
                 {chars[i]}
               </span>
             ) : placeholder?.[i] && !(typing && i === value.length && i === at) ? (
@@ -165,6 +181,15 @@ export function InputOTP({
           </span>
         </React.Fragment>
       ))}
+      {ok && celebrate === "morph" && result != null ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap px-3 text-title font-semibold text-ink"
+          style={{ animation: `ad-otp-roll-in 320ms ${ease} ${MORPH_AT + length * MORPH_STEP + 40}ms both` }}
+        >
+          {result}
+        </span>
+      ) : null}
       {ok && celebrate === "seal" ? (
         <span
           aria-hidden
