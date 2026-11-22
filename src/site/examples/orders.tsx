@@ -93,7 +93,7 @@ export function Orders() {
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
 
   return (
-    <div className="flex h-[calc(100dvh-64px-16px-16px)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
+    <div className="flex h-[var(--ex-page-h)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
       <PageHeader title="Orders" />
       <Toolbar>
         <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />

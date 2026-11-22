@@ -22,13 +22,13 @@ Update this map in the same PR when you add, move or remove a top-level area, en
 |---|---|---|
 | A component | `src/components/ui/<name>.tsx`, registry entry in `src/lib/registry.ts` | `npm run unit`, then `npm run docs` |
 | Phone set, Mobile tab | `src/components/mobile/`, `src/site/mobile-*.tsx` (tab: `mobile-page.tsx`, PWA scenes: `mobile-pwa.tsx`), `src/site/phone.tsx` | `npm run unit` |
-| AI, backgrounds | `src/components/ai/`, `src/components/backgrounds/`, `src/site/collections.tsx` | `npm run typecheck` |
+| AI, backgrounds | `src/components/ai/`, `src/components/backgrounds/`, `src/site/collections.tsx`, the assistant in `src/site/agent*.tsx` | `npm run typecheck` |
 | Tokens, theme | `src/lib/config.ts`, `src/styles/theme.css`, `src/lib/ad.ts`, kit in `src/lib/kit.ts` | `npm run greys`, `npm run unit` |
 | Shared helpers | `src/lib/ad.ts`, `src/lib/ad-hooks.ts` (ship as the `ad` item) | `npm run unit`, `npm run knip` |
 | UI rules | `src/lib/encyclopedia.ts` (page: `src/site/encyclopedia.tsx`), then `node scripts/gen-docs.mjs` | `npm run docs:check` |
 | Gallery, landing | `src/site/gallery.tsx`, `src/site/showcase/`, `src/site/mark.tsx`, `src/site/demos*.tsx`, `src/site/landing.tsx`, `src/site/moments/` | `npm run typecheck`, `./scripts/shots` |
 | Examples | `src/site/examples/` (one file per page), demo data in `src/site/data.ts` | `npm run typecheck` |
-| Site shell | `src/site/layout.tsx` (header, footer, Customize flap), `src/site/routes.tsx`, `src/site/export.tsx` | `npm run typecheck` |
+| Site shell | `src/site/layout.tsx` (header, footer, Customize flap), `src/site/app-frame.tsx` (rounded app window), `src/site/routes.tsx`, `src/site/export.tsx` | `npm run typecheck` |
 | Endpoints | `api/kit.ts`, `api/checklist.ts`, `api/r.ts`, `api/tokens.ts`, `vercel.json` | `./scripts/check-endpoints [url]` |
 | Tooling | `scripts/` (`verify`, `changed.mjs`, `lib/smoke-map.mjs`, `unit.mjs`, `smoke.mjs`, `gen-docs.mjs`, `greys.mjs`, `shots`, `review`, `env.sh`) | `npm run lint` |
 

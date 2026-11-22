@@ -64,6 +64,8 @@ export interface Item {
   stage?: "inline" | "composer" | "field";
   /** false: kept off the landing and the Components overview (no tile shows it in real use); its page and install stay. */
   showcase?: false;
+  /** AI only: the usage snippet, for pieces whose props are data rather than sliders. */
+  usage?: string;
 }
 
 const RADIX = "radix-ui";
@@ -315,6 +317,136 @@ export const ITEMS: Item[] = [
       { key: "ring", label: "Ring", type: "range", min: 0, max: 1, step: 0.05, default: 0.48 },
       { key: "working", label: "Working", type: "toggle", default: false },
     ],
+  },
+  {
+    name: "chat-list",
+    title: "Chat list",
+    group: "AI",
+    dir: "ai",
+    files: ["chat-list.tsx"],
+    registryDeps: ["button", "menu", "sliding-pill", "thinking-orbs", "tooltip"],
+    export: "ChatList",
+    kind: "Assistant",
+    stage: "inline",
+    params: [{ key: "collapsed", label: "Collapsed", type: "toggle", default: false }],
+    usage: `import { ChatList } from "@/components/ui/chat-list";
+
+<ChatList
+  chats={[{ id: "late", title: "Late orders this week", when: "14:12", group: "Today" }]}
+  selectedId={id}
+  onSelect={setId}
+  onNewChat={startChat}
+  onPin={pin}
+  onRename={rename}
+  onArchive={archive}
+  onDelete={remove}
+/>`,
+  },
+  {
+    name: "empty-chat",
+    title: "New chat screen",
+    group: "AI",
+    dir: "ai",
+    files: ["empty-chat.tsx"],
+    export: "EmptyChat",
+    kind: "Assistant",
+    stage: "inline",
+    companions: ["composer-glow"],
+    usage: `import { EmptyChat } from "@/components/ui/empty-chat";
+import { Composer, ComposerGlow } from "@/components/ui/composer-glow";
+
+<EmptyChat suggestions={[{ text: "Which orders are late this week?" }]} onPick={send}>
+  <ComposerGlow className="w-full">
+    <Composer onSend={send} />
+  </ComposerGlow>
+</EmptyChat>`,
+  },
+  {
+    name: "assistant-markdown",
+    title: "Assistant reply",
+    group: "AI",
+    dir: "ai",
+    files: ["assistant-markdown.tsx"],
+    registryDeps: ["tooltip"],
+    export: "AssistantMarkdown",
+    kind: "Assistant",
+    stage: "inline",
+    params: [{ key: "stream", label: "Streaming", type: "toggle", default: false }],
+    usage: `import { AssistantMarkdown } from "@/components/ui/assistant-markdown";
+
+<AssistantMarkdown
+  text="**7 orders** are late [1]."
+  reveal={streaming ? wordsSoFar : undefined}
+  citeTitle={(n) => sources[n - 1]?.title}
+  onCite={(n) => openSource(sources[n - 1]?.id)}
+/>`,
+  },
+  {
+    name: "message-sources",
+    title: "Message sources",
+    group: "AI",
+    dir: "ai",
+    files: ["message-sources.tsx"],
+    registryDeps: ["button", "tooltip"],
+    export: "MessageSources",
+    kind: "Assistant",
+    stage: "inline",
+    usage: `import { MessageSources } from "@/components/ui/message-sources";
+
+<MessageSources
+  sources={[
+    { id: "orders", title: "7 late orders", kind: "order", fields: [{ label: "Kemang", value: "5 orders" }] },
+  ]}
+/>`,
+  },
+  {
+    name: "proposal-card",
+    title: "Proposal card",
+    group: "AI",
+    dir: "ai",
+    files: ["proposal-card.tsx"],
+    registryDeps: ["button"],
+    export: "ProposalCard",
+    kind: "Assistant",
+    stage: "inline",
+    params: [{ key: "status", label: "State", type: "select", options: ["live", "pending", "applying", "applied", "declined"], default: "live" }],
+    usage: `import { ProposalCard } from "@/components/ui/proposal-card";
+
+<ProposalCard
+  title="Move 6 Gelas kopi tanah liat from Dago to Kemang"
+  changes={[{ label: "Kemang stock", before: "2", after: "8" }]}
+  onApprove={() => applyTransfer()}
+  onDecline={dismiss}
+/>`,
+  },
+  {
+    name: "report-row",
+    title: "Report row",
+    group: "AI",
+    dir: "ai",
+    files: ["report-row.tsx"],
+    registryDeps: ["button", "tooltip"],
+    export: "ReportRow",
+    kind: "Assistant",
+    stage: "inline",
+    params: [{ key: "making", label: "Making", type: "toggle", default: false }],
+    usage: `import { ReportRow } from "@/components/ui/report-row";
+
+<ReportRow name="Payout, November.pdf" meta="2 pages · 84 KB" making={making} onPreview={open} onDownload={save} />`,
+  },
+  {
+    name: "turn-rail",
+    title: "Turn rail",
+    group: "AI",
+    dir: "ai",
+    files: ["turn-rail.tsx"],
+    export: "TurnRail",
+    kind: "Assistant",
+    stage: "inline",
+    usage: `import { TurnRail } from "@/components/ui/turn-rail";
+
+// Each question in the thread carries data-turn={id}; the parent is position: relative.
+<TurnRail turns={[{ id: "t1", question: "Which orders are late?" }, { id: "t2", question: "Why?" }]} scrollRef={threadRef} />`,
   },
 
   // Backgrounds: interactive surfaces behind agent screens. Add one = a file in src/components/backgrounds + an entry here.

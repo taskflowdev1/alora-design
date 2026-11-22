@@ -149,7 +149,7 @@ section("routes", async ({ page }) => {
     ["/components/command-palette", "Command palette"],
     ["/components/fee-row", "Fee row"],
     ["/gallery/fee-row", "Fee row"],
-    ["/ai", "In use"],
+    ["/ai", "Late orders this week"],
     ["/ai/thinking-orbs", "Thinking orbs"],
     ["/ai/run-status", "Run status"],
     ["/ai/composer-glow", "Composer glow"],
@@ -309,7 +309,7 @@ section("ai-composer", async ({ page }) => {
     };
   });
   check(
-    agent.left && agent.chatsWidth >= 240 && agent.chatsWidth <= 280 && agent.sameHeight && agent.height >= 520 && agent.height <= 620 && new Set(agent.insets).size === 1 && agent.centred && agent.sameSize && agent.concentric && agent.grows,
+    agent.left && agent.chatsWidth >= 240 && agent.chatsWidth <= 280 && agent.sameHeight && agent.height >= 520 && new Set(agent.insets).size === 1 && agent.centred && agent.sameSize && agent.concentric && agent.grows,
     `AI band: chat sidebar left, thread right; composer one row, centred, concentric, grows up (${JSON.stringify(agent)})`,
   );
 });

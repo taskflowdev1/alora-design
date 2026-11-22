@@ -18,6 +18,7 @@ import { ConfigPanel } from "./config-panel";
 import { GalleryLayout, ItemTabs, SpotGroups, TileSpot, installCommand, useBodyTokens, useSource } from "./gallery";
 import { Composer } from "@/components/ai/composer-glow";
 import { AgentApp, NewChat } from "./agent";
+import { AI_DEMOS } from "./agent-demos";
 
 type Values = Record<string, number | string | boolean>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,6 +54,8 @@ function paramValues(item: Item, params?: URLSearchParams): Values {
 function CollectionPreview({ item, values, tall }: { item: Item; values: Values; tall?: boolean }) {
   const C = componentOf(item);
   if (!C) return null;
+  const Demo = AI_DEMOS[item.name];
+  if (Demo) return <Demo {...values} />;
   if (item.stage === "composer")
     return (
       <div className="w-full max-w-[520px] px-2 py-4">
@@ -75,6 +78,7 @@ function CollectionPreview({ item, values, tall }: { item: Item; values: Values;
 }
 
 function usageOf(item: Item, values: Values) {
+  if (item.usage) return item.usage;
   const attrs = (item.params ?? [])
     .filter((p) => p.type === "text" || values[p.key] !== p.default)
     .map((p) => {
@@ -119,12 +123,46 @@ function ParamControl({ p, value, onChange }: { p: Param; value: number | string
   );
 }
 
-/** AI page tiles: loaders small, the composer wide, so the row packs to twelve columns like the landing bento. */
-const AI_SPAN: Record<string, string> = { "thinking-orbs": "lg:col-span-3", "run-status": "lg:col-span-3", "composer-glow": "sm:col-span-2 lg:col-span-6" };
+/** AI page tiles, packed to twelve columns: loaders small, the wide pieces half a row. */
+const AI_SPAN: Record<string, string> = {
+  "thinking-orbs": "lg:col-span-3",
+  "run-status": "lg:col-span-3",
+  "composer-glow": "sm:col-span-2 lg:col-span-6",
+  "chat-list": "lg:col-span-4 lg:row-span-2",
+  "proposal-card": "lg:col-span-4",
+  "assistant-markdown": "lg:col-span-4",
+  "message-sources": "lg:col-span-4",
+  "report-row": "lg:col-span-4",
+  "turn-rail": "lg:col-span-4",
+  "empty-chat": "sm:col-span-2 lg:col-span-8",
+};
+
+/** The AI page: the whole assistant first, then each of its pieces live; each opens its own page. */
+function AiIndex({ items }: { items: Item[] }) {
+  return (
+    <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 sm:px-6">
+      <h1 className="sr-only">{SECTION_TITLE.ai}</h1>
+      <AgentApp />
+      <section aria-labelledby="ai-pieces" className="mt-10 grid gap-3">
+        <h2 id="ai-pieces" className="text-title font-semibold text-ink">
+          Pieces
+        </h2>
+        <div data-group="AI" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
+          {items.map((i) => (
+            <TileSpot key={i.name} item={i} className={cn("min-h-[144px] sm:min-h-[168px] lg:min-h-[188px]", AI_SPAN[i.name] ?? "lg:col-span-4")}>
+              <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />
+            </TileSpot>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
 
 /** The AI or Backgrounds page: every item live, under its small kind heading; each opens its sliders. */
 export function CollectionIndex({ section }: { section: CollectionSection }) {
   const items = itemsOf(section);
+  if (section === "ai") return <AiIndex items={items} />;
   const kinds = [...new Set(items.map((i) => i.kind ?? SECTION_TITLE[section]))];
   // A few items share one row with no subheadings; the kind headings appear once a section grows.
   const groups = items.length <= 4 ? [{ title: "", items }] : kinds.map((k) => ({ title: k, items: items.filter((i) => (i.kind ?? SECTION_TITLE[section]) === k) }));
@@ -133,28 +171,12 @@ export function CollectionIndex({ section }: { section: CollectionSection }) {
       <div className="mb-6 flex min-h-control items-center">
         <h1 className="text-heading font-semibold">{SECTION_TITLE[section]}</h1>
       </div>
-      {section === "ai" ? (
-        <div data-group="AI" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
-          {items.map((i) => (
-            <TileSpot key={i.name} item={i} className={cn("min-h-[144px] sm:min-h-[168px] lg:min-h-[188px]", AI_SPAN[i.name] ?? "lg:col-span-4")}>
-              <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />
-            </TileSpot>
-          ))}
-        </div>
-      ) : (
-        <SpotGroups
-          groups={groups}
-          span={(i) => (i.stage === "field" ? 12 : 4)}
-          flush={(i) => i.stage === "field"}
-          render={(i) => <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />}
-        />
-      )}
-      {section === "ai" ? (
-        <section aria-label="In use" className="mt-10 grid gap-3">
-          <h2 className="text-title font-semibold text-ink">In use</h2>
-          <AgentApp />
-        </section>
-      ) : null}
+      <SpotGroups
+        groups={groups}
+        span={(i) => (i.stage === "field" ? 12 : 4)}
+        flush={(i) => i.stage === "field"}
+        render={(i) => <CollectionPreview item={i} values={{ ...paramValues(i), ...i.preview }} />}
+      />
     </main>
   );
 }

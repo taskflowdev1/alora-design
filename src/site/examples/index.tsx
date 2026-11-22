@@ -9,6 +9,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { toast } from "@/components/ui/toast";
 import { MobileTab, MobileTabBar } from "@/components/mobile/mobile-tab-bar";
 import { NotificationBell } from "@/components/ui/notification-bell";
+import { AppFrame } from "../app-frame";
 import { SLink, useConfig } from "../config";
 import { useEdgeFade } from "../layout";
 import { NOTICES, SHOPS } from "../data";
@@ -152,6 +153,9 @@ function PhoneNavBar({ page }: { page: Page }) {
   );
 }
 
+/** The height a full-height page (Orders) gets inside the frame: the window, less the header, the frame and its padding. */
+const PAGE_HEIGHT = { "--ex-page-h": "calc(100dvh - 64px - 16px - var(--frame-inset) * 2 - var(--ad-pad) * 2)" } as React.CSSProperties;
+
 export function Examples() {
   const { page = "dashboard" } = useParams();
   const p = (PAGES.includes(page as Page) ? page : "dashboard") as Page;
@@ -161,28 +165,29 @@ export function Examples() {
     if (app.current) app.current.scrollTop = 0;
   }, [p]);
   return (
-    <div className="mx-auto flex h-[calc(100dvh-64px)] w-full max-w-[1280px] gap-3 px-4 pb-4 sm:px-6 max-lg:h-auto max-lg:min-h-[calc(100dvh-108px)]">
-      <AppSidebar page={p} />
-      <div ref={app} data-app className="ad-fade-y min-w-0 flex-1 overflow-auto rounded-card max-lg:pb-24">
-        {/* key: a fresh page (its own state and scroll) per switch; it swaps in one frame, no fade from blank. */}
-        <div key={p} className="px-0 py-1 sm:px-4 sm:py-2">
-          {p === "dashboard" ? (
-            <Dashboard />
-          ) : p === "orders" ? (
-            <Orders />
-          ) : p === "products" ? (
-            <Products />
-          ) : p === "promotions" ? (
-            <Promotions />
-          ) : p === "cancellations" ? (
-            <Cancellations />
-          ) : p === "team" ? (
-            <Team />
-          ) : (
-            <Settings />
-          )}
+    <div className="mx-auto w-full max-w-[1280px] px-4 pb-4 sm:px-6 lg:h-[calc(100dvh-64px)] max-lg:min-h-[calc(100dvh-108px)]">
+      <AppFrame className="lg:h-full" sidebar={<AppSidebar page={p} />}>
+        <div ref={app} data-app style={PAGE_HEIGHT} className="ad-fade-y min-h-0 min-w-0 flex-1 overflow-auto max-lg:pb-24">
+          {/* key: a fresh page (its own state and scroll) per switch; it swaps in one frame, no fade from blank. */}
+          <div key={p} className="px-0 py-1 lg:p-pad">
+            {p === "dashboard" ? (
+              <Dashboard />
+            ) : p === "orders" ? (
+              <Orders />
+            ) : p === "products" ? (
+              <Products />
+            ) : p === "promotions" ? (
+              <Promotions />
+            ) : p === "cancellations" ? (
+              <Cancellations />
+            ) : p === "team" ? (
+              <Team />
+            ) : (
+              <Settings />
+            )}
+          </div>
         </div>
-      </div>
+      </AppFrame>
       <PhoneNavBar page={p} />
     </div>
   );

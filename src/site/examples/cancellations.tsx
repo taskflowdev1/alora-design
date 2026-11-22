@@ -122,7 +122,7 @@ export function Cancellations() {
       </div>
       {/* The summary that filters the table sits above it, as on the dashboard, so its effect is in view. Stacked at
           every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
-      <div className="grid items-start gap-4">
+      <div className="grid grid-cols-1 items-start gap-4">
         <Card inset="nest">
           <CardHeader title="By reason" className="px-2 pt-2" action={reason ? <Button variant="ghost" size="sm" onClick={() => setReason(null)}>All reasons</Button> : undefined} />
           <BarList

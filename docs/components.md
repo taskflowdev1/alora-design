@@ -4971,6 +4971,7 @@ Sliders on its page:
 | `onSend` | `((text: string) => void)` |  | Enter or the send button; the box clears itself when uncontrolled. Shift+Enter is a new line. |
 | `onStop` | `(() => void)` |  |  |
 | `onAttach` | `(() => void)` |  |  |
+| `canSendEmpty` | `boolean` | `false` | Send works with no text, because files are attached. |
 | `maxLines` | `number` | `6` | Lines the text grows to before it scrolls. |
 | `disabled` | `boolean` |  |  |
 | `className` | `string` |  |  |
@@ -4987,6 +4988,181 @@ Sliders on its page:
 | `pulse` | `number` | `3.6` | One idle pulse, in seconds; working runs at 0.6 of it. |
 | `ring` | `number` | `0.48` | How bright the top of the ring is, 0 to 1. |
 | `radius` | `string` | `COMPOSER_RADIUS` | Corner radius of the box inside; defaults to the Composer's. |
+| `className` | `string` |  |  |
+
+### Chat list
+
+<a id="chat-list"></a>Page: https://design.alorawork.com/ai/chat-list
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/chat-list.json"
+```
+
+Files: `src/components/ai/chat-list.tsx`. Installs too: `button`, `menu`, `sliding-pill`, `thinking-orbs`, `tooltip`.
+
+Sliders on its page:
+
+| Control | Prop | Default | Range or values |
+| --- | --- | --- | --- |
+| Collapsed | `collapsed` | `false` | toggle |
+
+`ChatList`: An assistant's chat sidebar, a dark island like the app Sidebar: search, new chat, running chats on top, then pinned and dated groups. Each row has a menu (pin, rename, archive, delete), and the whole list folds to a rail of icons.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `chats` (required) | `ChatListItem[]` |  |  |
+| `selectedId` (required) | `string \| null` |  |  |
+| `onSelect` (required) | `(id: string) => void` |  |  |
+| `onNewChat` (required) | `() => void` |  |  |
+| `onPin` | `((id: string) => void)` |  |  |
+| `onRename` | `((id: string, title: string) => void)` |  |  |
+| `onArchive` | `((id: string) => void)` |  |  |
+| `onRestore` | `((id: string) => void)` |  | Shown in the archived view instead of Archive. |
+| `onDelete` | `((id: string) => void)` |  |  |
+| `archived` | `boolean` |  | The list shows archived chats, with a way back. |
+| `onExitArchived` | `(() => void)` |  |  |
+| `collapsed` | `boolean` |  | Folded to a rail of icons. |
+| `onCollapsedChange` | `((collapsed: boolean) => void)` |  |  |
+| `footer` | `ReactNode` |  | Below the list: settings, an account. |
+| `className` | `string` |  |  |
+
+### New chat screen
+
+<a id="empty-chat"></a>Page: https://design.alorawork.com/ai/empty-chat
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/empty-chat.json"
+```
+
+Files: `src/components/ai/empty-chat.tsx`.
+
+`EmptyChat`: The new-chat screen: a question, the message box, and a few places to start. Sits over a background.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` | `"Where should we start?"` |  |
+| `suggestions` | `ChatSuggestion[]` | `[]` | Starting points under the message box. |
+| `onPick` | `((text: string) => void)` |  |  |
+| `children` | `ReactNode` |  | The message box. |
+| `className` | `string` |  |  |
+
+### Assistant reply
+
+<a id="assistant-markdown"></a>Page: https://design.alorawork.com/ai/assistant-markdown
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/assistant-markdown.json"
+```
+
+Files: `src/components/ai/assistant-markdown.tsx`. Installs too: `tooltip`.
+
+Sliders on its page:
+
+| Control | Prop | Default | Range or values |
+| --- | --- | --- | --- |
+| Streaming | `stream` | `false` | toggle |
+
+`AssistantMarkdown`: An agent's reply: short markdown with citations. While it streams, pass `reveal` and each new word fades in; the text is parsed once, so half-written bold or a half-written table never flashes. Tables right-align their number columns.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `text` (required) | `string` |  | The reply: paragraphs, `- ` and `1. ` lists, pipe tables, **bold**, `code`, and [1] citations. |
+| `reveal` | `number` |  | Words shown so far while the reply streams. Leave out for the whole text. |
+| `citeTitle` | `((n: number) => string \| undefined)` |  | The name of citation n (1-based), shown on hover. |
+| `onCite` | `((n: number) => void)` |  |  |
+| `className` | `string` |  |  |
+
+### Message sources
+
+<a id="message-sources"></a>Page: https://design.alorawork.com/ai/message-sources
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/message-sources.json"
+```
+
+Files: `src/components/ai/message-sources.tsx`. Installs too: `button`, `tooltip`.
+
+`MessageSources`: Where an answer came from: numbered chips under the reply. A chip opens its record in place, and the numbers match the reply's citations. Escape or the close button folds it back and returns focus to the chip.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `sources` (required) | `MessageSource[]` |  |  |
+| `openId` | `string \| null` |  | The open source; leave out to let the row hold its own. |
+| `onOpenChange` | `((id: string \| null) => void)` |  |  |
+| `className` | `string` |  |  |
+
+### Proposal card
+
+<a id="proposal-card"></a>Page: https://design.alorawork.com/ai/proposal-card
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/proposal-card.json"
+```
+
+Files: `src/components/ai/proposal-card.tsx`. Installs too: `button`.
+
+Sliders on its page:
+
+| Control | Prop | Default | Range or values |
+| --- | --- | --- | --- |
+| State | `status` | `live` | `live`, `pending`, `applying`, `applied`, `declined` |
+
+`ProposalCard`: A change the agent wants to make, waiting for a person: each value before and after, with Approve and Decline. Nothing changes until someone approves. Approving folds the old values away and leaves the new ones; declining leaves the old ones. The answer lands in the row the buttons were in, so the card keeps its height.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` (required) | `string` |  | What the agent wants to do, as a plain sentence. |
+| `changes` (required) | `ProposalChange[]` |  |  |
+| `status` | `ProposalStatus` |  | Leave out to let the card hold its own state. |
+| `onApprove` | `(() => void \| Promise<unknown>)` |  | Approve was pressed. A returned promise keeps the card on "Applying…" until it settles. |
+| `onDecline` | `(() => void)` |  |  |
+| `disabled` | `boolean` |  | Blocks both buttons, for example while the agent is still replying. |
+| `className` | `string` |  |  |
+
+### Report row
+
+<a id="report-row"></a>Page: https://design.alorawork.com/ai/report-row
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/report-row.json"
+```
+
+Files: `src/components/ai/report-row.tsx`. Installs too: `button`, `tooltip`.
+
+Sliders on its page:
+
+| Control | Prop | Default | Range or values |
+| --- | --- | --- | --- |
+| Making | `making` | `false` | toggle |
+
+`ReportRow`: A file the agent made, in the thread: name, facts, preview and download. While it's being written the facts line shimmers. Download confirms on the button itself.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` (required) | `string` |  | The file's name, with its extension. |
+| `meta` | `string` |  | Facts about the file, for example "2 pages · 84 KB". |
+| `making` | `boolean` | `false` | The agent is still writing it: the row shimmers and its actions wait. |
+| `onPreview` | `(() => void)` |  |  |
+| `onDownload` | `(() => void)` |  |  |
+| `className` | `string` |  |  |
+
+### Turn rail
+
+<a id="turn-rail"></a>Page: https://design.alorawork.com/ai/turn-rail
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/turn-rail.json"
+```
+
+Files: `src/components/ai/turn-rail.tsx`.
+
+`TurnRail`: A map of the conversation on the thread's left edge: one tick per question, brighter for the ones on screen. Moving along it swells the nearby ticks like a dock and previews that turn; a click or Enter jumps there, and the arrow keys walk it. It needs two turns and a mouse; on touch the thread just scrolls.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `turns` (required) | `RailTurn[]` |  |  |
+| `scrollRef` (required) | `RefObject<HTMLElement \| null>` |  | The scrolling thread. Each question inside it carries `data-turn="<id>"`. |
+| `onJump` | `(() => void)` |  | Called on a jump, so the thread can stop following new text. |
 | `className` | `string` |  |  |
 
 ## Backgrounds
