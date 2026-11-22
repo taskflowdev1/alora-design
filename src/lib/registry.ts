@@ -8,6 +8,9 @@ import { ITEMS as SHOWPIECES_D } from "./showpieces/d.js";
 import { ITEMS as SHOWPIECES_E } from "./showpieces/e.js";
 import { ITEMS as SHOWPIECES_F } from "./showpieces/f.js";
 import { ITEMS as SHOWPIECES_G } from "./showpieces/g.js";
+import { ITEMS as SHOWPIECES_H } from "./showpieces/h.js";
+import { ITEMS as SHOWPIECES_I } from "./showpieces/i.js";
+import { ITEMS as SHOWPIECES_J } from "./showpieces/j.js";
 
 export type Group =
   | "Actions"
@@ -328,6 +331,9 @@ export const ITEMS: Item[] = [
   ...SHOWPIECES_E,
   ...SHOWPIECES_F,
   ...SHOWPIECES_G,
+  ...SHOWPIECES_H,
+  ...SHOWPIECES_I,
+  ...SHOWPIECES_J,
 ];
 
 export const GROUPS: Group[] = ["Foundations", "Showpieces", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
