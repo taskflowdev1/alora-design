@@ -20,6 +20,170 @@ A foundation, set by the theme: no component to install.
 
 ## Showpieces
 
+### Rolling odometer total
+
+<a id="odometer-total"></a>Page: https://design.alorawork.com/components/odometer-total
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/odometer-total.json"
+```
+
+Files: `src/components/ui/odometer-total.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`OdometerTotal`: A total on an odometer: each digit spins the short way to its new value, and when the number gains a digit the separators slide over inside a box that never changes width.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Sales today"` |  |
+| `unit` | `string` | `"Rp"` | Shown small before the number. |
+| `value` | `number` |  | Controlled value; leave out to let the card keep its own. |
+| `defaultValue` | `number` | `48240000` |  |
+| `fitTo` | `number` |  | The largest value it should hold without growing. Defaults to one digit more than the starting value. |
+| `steps` | `number[]` | `[89000, 1250000, 12500000, -245000]` | The amounts the quick buttons add; a negative one takes off (a refund). Empty hides the row. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Target gauge needle
+
+<a id="target-gauge"></a>Page: https://design.alorawork.com/components/target-gauge
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/target-gauge.json"
+```
+
+Files: `src/components/ui/target-gauge.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`TargetGauge`: A needle gauge against a target. The needle sweeps to the value, passes it slightly, settles with a small tremble and kicks when a sale lands. Drag it and it pulls against its spring, then swings back to the real figure.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Today’s target"` |  |
+| `value` | `number` |  | Controlled value; leave out to let the gauge keep its own. |
+| `defaultValue` | `number` | `31400000` |  |
+| `target` | `number` | `48000000` |  |
+| `sales` | `number[]` | `[1250000, 420000, 2750000, 890000, 3100000]` | The sale amounts "New sale" walks through. |
+| `format` | `((value: number) => string)` | `formatRp` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Ghost period compare
+
+<a id="ghost-compare"></a>Page: https://design.alorawork.com/components/ghost-compare
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/ghost-compare.json"
+```
+
+Files: `src/components/ui/ghost-compare.tsx`.
+
+`GhostCompare`: This period's bars, with last period's waiting behind them. Hold the card (or tap it, or press Enter) and the old bars fade in as this week's narrow to make room, while the delta pill counts up with them. Letting go puts it back.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Sales this week"` |  |
+| `current` | `number[]` | `[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]` | This period, one number per bar. |
+| `previous` | `number[]` | `[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]` | Last period, same length. |
+| `labels` | `string[]` | `WEEKDAYS_3` | One label per bar. |
+| `today` | `number` | `6` | Index of the bar in the stronger shade (today). |
+| `hint` | `string` | `"Hold for last week"` | The pill at rest, before the comparison is showing. |
+| `unit` | `string` | `"Rp"` | Shown small before the total. |
+| `onCompareChange` | `((comparing: boolean) => void)` |  | Called when the comparison shows or hides. |
+
+Also takes the native props of the element it renders.
+
+### Split-flap KPI board
+
+<a id="split-flap-board"></a>Page: https://design.alorawork.com/components/split-flap-board
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/split-flap-board.json"
+```
+
+Files: `src/components/ui/split-flap-board.tsx`. Installs too: `button`, `tooltip`.
+
+`SplitFlapBoard`: A station board for KPIs: a number that changes clatters through its flaps to the new value, cell by cell. Press a row to bump it, or the button to move them all.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rows` | `SplitFlapRow[]` | `DEFAULT_ROWS` |  |
+| `cells` | `number` | `5` | Cells per row. |
+| `actionLabel` | `string` | `"Next hour"` | Label of the button that moves every row. |
+| `onValuesChange` | `((values: Record<string, number>) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Goal rings
+
+<a id="goal-rings"></a>Page: https://design.alorawork.com/components/goal-rings
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/goal-rings.json"
+```
+
+Files: `src/components/ui/goal-rings.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`GoalRings`: Three concentric targets. They sweep closed when they come into view; a ring that passes its goal laps itself, its rounded head riding over the start with a soft shadow. Press a row to add to it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `rings` | `GoalRing[]` | `DEFAULT_RINGS` | Up to three, outermost first. |
+| `actionLabel` | `string` | `"Close the day"` | Label of the button that closes every ring. |
+| `onRingChange` | `((id: string, value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Dot matrix number
+
+<a id="dot-matrix-number"></a>Page: https://design.alorawork.com/components/dot-matrix-number
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/dot-matrix-number.json"
+```
+
+Files: `src/components/ui/dot-matrix-number.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`DotMatrixNumber`: A big figure drawn in round LEDs. When the value changes, a ripple spreads from the digit that changed; press the board anywhere and the same ripple starts under your finger.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | `"Orders today"` |  |
+| `value` | `number` |  | Controlled value; leave out to let the board keep its own. |
+| `defaultValue` | `number` | `1284` |  |
+| `places` | `number` | `4` | How many digits the board has room for. |
+| `step` | `number` | `1` | What the button adds, and its label. |
+| `actionLabel` | `string` | `"New order"` |  |
+| `onValueChange` | `((value: number) => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Stock battery
+
+<a id="stock-battery"></a>Page: https://design.alorawork.com/components/stock-battery
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/stock-battery.json"
+```
+
+Files: `src/components/ui/stock-battery.tsx`. Installs too: `button`, `card`, `tooltip`.
+
+`StockBattery`: Remaining stock as a row of rounded cells that drain one at a time. When reorder is due the last cell breathes. Drag along the row or use the arrow keys to set the stock by hand.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `product` | `string` | `"Gelas kopi tanah liat"` |  |
+| `value` | `number` |  | Controlled stock; leave out to let the battery keep its own. |
+| `defaultValue` | `number` | `46` |  |
+| `capacity` | `number` | `120` | A full battery, in units. |
+| `reorderAt` | `number` | `24` | At or below this the last cell breathes and Restock becomes the main action. |
+| `cells` | `number` | `10` | How many cells the row is drawn with. |
+| `sellStep` | `number` | `6` | Units one press of Sell takes. |
+| `onValueChange` | `((value: number) => void)` |  |  |
+| `onRestock` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
 ## Actions
 
 ### Button

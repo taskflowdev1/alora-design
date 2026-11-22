@@ -127,6 +127,13 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Rolling odometer total](https://design.alorawork.com/components/odometer-total) | `odometer-total` | `OdometerTotal` | `label="Sales today"`, `unit="Rp"`, `value`, `defaultValue=48240000`, `fitTo`, `steps=[89000, 1250000, 12500000, -245000]`, `onValueChange` |
+| [Target gauge needle](https://design.alorawork.com/components/target-gauge) | `target-gauge` | `TargetGauge` | `label="Today’s target"`, `value`, `defaultValue=31400000`, `target=48000000`, `sales=[1250000, 420000, 2750000, 890000, 3100000]`, `format=formatRp`, `onValueChange` |
+| [Ghost period compare](https://design.alorawork.com/components/ghost-compare) | `ghost-compare` | `GhostCompare` | `label="Sales this week"`, `current=[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]`, `previous=[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]`, `labels=WEEKDAYS_3`, `today=6`, `hint="Hold for last week"`, `unit="Rp"`, `onCompareChange` |
+| [Split-flap KPI board](https://design.alorawork.com/components/split-flap-board) | `split-flap-board` | `SplitFlapBoard` | `rows=DEFAULT_ROWS`, `cells=5`, `actionLabel="Next hour"`, `onValuesChange` |
+| [Goal rings](https://design.alorawork.com/components/goal-rings) | `goal-rings` | `GoalRings` | `rings=DEFAULT_RINGS`, `actionLabel="Close the day"`, `onRingChange` |
+| [Dot matrix number](https://design.alorawork.com/components/dot-matrix-number) | `dot-matrix-number` | `DotMatrixNumber` | `label="Orders today"`, `value`, `defaultValue=1284`, `places=4`, `step=1`, `actionLabel="New order"`, `onValueChange` |
+| [Stock battery](https://design.alorawork.com/components/stock-battery) | `stock-battery` | `StockBattery` | `product="Gelas kopi tanah liat"`, `value`, `defaultValue=46`, `capacity=120`, `reorderAt=24`, `cells=10`, `sellStep=6`, `onValueChange`, `onRestock` |
 
 ### Actions
 
