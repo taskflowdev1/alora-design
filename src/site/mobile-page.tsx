@@ -76,7 +76,7 @@ export function MobilePage() {
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 sm:px-6">
       <section className="pb-12 pt-8 lg:pb-20 lg:pt-14">
-        <h1 className="-ml-[0.04em] max-w-[12ch] text-[length:clamp(56px,10vw,152px)] font-semibold leading-[0.9] tracking-[-0.05em] text-ink">made for the home screen</h1>
+        <h1 className="-ml-[0.04em] max-w-[12ch] text-[length:clamp(56px,10vw,152px)] font-semibold leading-[0.9] tracking-[-0.05em] text-ink">for yal phone users</h1>
         <div className="mt-8 grid grid-cols-2 gap-2 sm:flex lg:mt-10">
           <Button variant="primary" asChild className="justify-center max-sm:h-touch">
             <SLink to="/mobile/app">
