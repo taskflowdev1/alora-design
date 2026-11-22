@@ -142,7 +142,6 @@ async function run() {
     await page.close();
   }
 
-  // Pages
   const pages = [
     ["L1", "landing", "/", true, true],
     ["G0", "components-index", "/components", false, false],
@@ -171,7 +170,6 @@ async function run() {
     }
   }
 
-  // One shot per component page, desktop and phone, dark.
   const comps = [...CORE.map((n, i) => [`G${i + 1}`, n]), ...NICHE.map((n, i) => [`N${i + 1}`, n])];
   for (const [letter, name] of comps) {
     for (const view of ["desktop", "phone"]) {
@@ -187,7 +185,6 @@ async function run() {
     }
   }
 
-  // Metric variants A/B/C: whole stage, dark and light.
   for (const [letter, v] of [["M-A", "tile"], ["M-B", "scale"], ["M-C", "compact"]]) {
     for (const theme of ["dark", "light"]) {
       const file = `${letter}-metric-${v}-desktop-${theme}`;
@@ -222,7 +219,6 @@ async function run() {
     }
   }
 
-  // States
   const rightClick = async (p, sel) => {
     const b = await p.locator(sel).first().boundingBox();
     await p.mouse.click(b.x + b.width / 2, b.y + b.height / 2, { button: "right" });
@@ -301,7 +297,6 @@ async function run() {
     await shot(page, file, { letter, what: name, view: "desktop", theme: "dark" });
     await page.close();
   }
-  // Phone states
   for (const [letter, name, path, act] of [
     ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("[role=listitem] button >> nth=1")],
     ["S22", "phone-select-open", "/components/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],

@@ -58,8 +58,6 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
 const BLANK: Product = { sku: "RMB-NEW-001", name: "", price: 0, stock: 0 };
 const useProducts = () => React.useContext(ProductsStore)!;
 
-/* ------------------------------------------------------------ Products */
-
 export function ProductsScreen() {
   const nav = useNav();
   const { products } = useProducts();
@@ -113,8 +111,6 @@ export function ProductsScreen() {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Product + edit */
 
 export function ProductScreen({ params, back }: ScreenProps) {
   const nav = useNav();
@@ -271,8 +267,6 @@ function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { prod
   );
 }
 
-/* ------------------------------------------------------------ Stock count */
-
 export function StockCountScreen({ back }: ScreenProps) {
   const nav = useNav();
   const [counts, setCounts] = React.useState<Record<string, number>>({ "RMB-GL-014": 2, "RMB-LL-008": 11 });
@@ -357,8 +351,6 @@ export function StockCountScreen({ back }: ScreenProps) {
   );
 }
 
-/* ------------------------------------------------------------ Customers */
-
 export function CustomersScreen({ back }: ScreenProps) {
   const nav = useNav();
   const [q, setQ] = React.useState("");
@@ -406,8 +398,6 @@ export function CustomerScreen({ params, back }: ScreenProps) {
     </MobileScreen>
   );
 }
-
-/* ------------------------------------------------------------ Inbox */
 
 type Market = "all" | Chat["market"];
 
@@ -465,8 +455,6 @@ export function InboxScreen() {
     </MobileScreen>
   );
 }
-
-/* ------------------------------------------------------------ Chat */
 
 export function ChatScreen({ params, back }: ScreenProps) {
   const chat = CHATS.find((c) => c.id === params.id) ?? CHATS[0];
@@ -535,8 +523,6 @@ export function ChatScreen({ params, back }: ScreenProps) {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Assistant */
 
 const QUESTION = "Which products should I restock this week?";
 const ANSWER =

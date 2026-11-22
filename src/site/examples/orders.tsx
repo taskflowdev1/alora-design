@@ -20,8 +20,6 @@ import { OrderDetail } from "../demos";
 import { NOW, ORDERS, SHOPS, smartTime, type OrderStatus } from "../data";
 import { NoTranslate, PANE_CLASS, PrimaryAction, Rp, useLoading, usePaneRoom, useWide } from "./shared";
 
-/* ------------------------------------------------------------ orders */
-
 const STATUSES: OrderStatus[] = ["Unpaid", "Paid", "Packed", "Shipped", "Cancelled"];
 const ORDER_COLS = [
   { key: "order", label: "Order", locked: true },

@@ -216,7 +216,6 @@ export function SlaFuse({
         ctx.arc(tip.x, tip.y, (1.7 + heat * 1.5) * flicker, 0, Math.PI * 2);
         ctx.fill();
       } else if (m.puff > 0) {
-        // Put out: one soft bloom where the spark stood, gone in a moment.
         m.puff = Math.max(0, m.puff - dt / 0.26);
         const r = 5 + (1 - m.puff) * 15;
         const g = ctx.createRadialGradient(tip.x, tip.y, 0, tip.x, tip.y, r);

@@ -196,7 +196,6 @@ export function StatusIsland({
     };
   }, [controlled, go]);
 
-  // Each state change (and each controlled progress value) aims the spring again.
   React.useLayoutEffect(() => {
     if (status === "idle" && !controlled) live.current.p = 0;
     if (status === "done" && !controlled) live.current.p = 1;

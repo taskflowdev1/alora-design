@@ -27,8 +27,6 @@ import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { PRODUCTS, productPhoto } from "../data";
 import { PrimaryAction, Rp, useLoading } from "./shared";
 
-/* ------------------------------------------------------------ products */
-
 type ProductRow = (typeof PRODUCTS)[number] & { sold: number[] };
 
 const PRODUCT_ROWS: ProductRow[] = PRODUCTS.map((p, i) => ({

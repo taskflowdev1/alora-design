@@ -13,8 +13,6 @@ import type { Demo } from "../demos";
 import { Mark, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
-/* ---------- Scenes ---------- */
-
 const INVOICE: LineItem[] = [
   { id: "a", name: "Gelas kopi tanah liat", qty: 12, price: 89000 },
   { id: "b", name: "Piring rotan bundar", qty: 4, price: 145000 },
@@ -70,8 +68,6 @@ const PERIODS: WaterfallPeriod[] = [
     ],
   },
 ];
-
-/* ---------- Upload flow ---------- */
 
 const SAMPLES = [
   { name: "gelas-kopi-tanah-liat.webp", size: 1840000, thumb: "/photos/cup-terracotta.webp" },

@@ -203,7 +203,6 @@ export function ShiftRingClock({
     }
     settling.current = true;
     emit(toS, toE);
-    // The last few degrees ease onto the snap point.
     const t0 = performance.now();
     const tick = (t: number) => {
       const k = Math.min(1, (t - t0) / 180);

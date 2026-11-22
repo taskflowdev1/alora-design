@@ -40,8 +40,6 @@ import { CommentsDemo } from "../demos-niche";
 import { Head, Mark, Tile, stack } from "../mark";
 import { say } from "./shared";
 
-/* ------------------------------------------------------------ Niche */
-
 const PAYOUT_COLS = [
   { key: "shop", label: "Shop", locked: true },
   { key: "expected", label: "Expected" },

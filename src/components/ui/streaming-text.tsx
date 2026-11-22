@@ -59,7 +59,6 @@ function Writing({ reserve, children }: { reserve: number; children: React.React
     const line = parseFloat(getComputedStyle(el).lineHeight) || 1;
     setLeft(Math.max(0, reserve - Math.round(el.offsetHeight / line)));
   }, [reserve]);
-  // Re-measured as words arrive and when the width changes.
   React.useLayoutEffect(measure, [measure, children]);
   React.useLayoutEffect(() => {
     const ro = new ResizeObserver(measure);

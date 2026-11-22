@@ -60,8 +60,6 @@ function OrderRow({ o, onClick, value }: { o: Order; onClick?: () => void; value
   return <MobileListRow media={<OrderThumb o={o} />} title={o.customer} subtitle={o.items} value={value ?? <Rp n={o.total} />} onClick={onClick} />;
 }
 
-/* ---------------------------------------------------------------- install */
-
 export function InstallScene({ platform }: { platform: InstallPlatform }) {
   const [open, setOpen] = React.useState(true);
   const [installed, setInstalled] = React.useState(false);
@@ -97,8 +95,6 @@ export function InstallScene({ platform }: { platform: InstallPlatform }) {
     </>
   );
 }
-
-/* ---------------------------------------------------------------- passkey */
 
 export function PasskeyScene() {
   const [stage, setStage] = React.useState<"out" | "code" | "in">("out");
@@ -144,8 +140,6 @@ export function PasskeyScene() {
     </div>
   );
 }
-
-/* ---------------------------------------------------------------- push */
 
 export function PushScene() {
   const [status, setStatus] = React.useState<PushStatus>("ask");
@@ -213,8 +207,6 @@ export function PushScene() {
   );
 }
 
-/* ---------------------------------------------------------------- app shell */
-
 export function ShellScene() {
   const [shop, setShop] = React.useState("Kemang");
   const [pick, setPick] = React.useState(false);
@@ -265,8 +257,6 @@ export function ShellScene() {
   );
 }
 
-/* ---------------------------------------------------------------- badge */
-
 const HOME_APPS = [
   ["Camera", Camera],
   ["Mail", Mail],
@@ -315,8 +305,6 @@ export function BadgeScene() {
   );
 }
 
-/* ---------------------------------------------------------------- offline queue */
-
 const QUEUED: SyncItem[] = [
   { id: ORDERS[0].id, title: `Packed ${ORDERS[0].id}`, state: "waiting" },
   { id: ORDERS[1].id, title: `Packed ${ORDERS[1].id}`, state: "waiting" },
@@ -351,8 +339,6 @@ export function SyncScene({ online }: { online: boolean }) {
     </div>
   );
 }
-
-/* ---------------------------------------------------------------- update */
 
 export function UpdateScene() {
   const [phase, setPhase] = React.useState<"waiting" | "ready" | "reloading" | "loading" | "new" | "later">("waiting");
@@ -394,8 +380,6 @@ export function UpdateScene() {
   );
 }
 
-/* ---------------------------------------------------------------- share */
-
 export function ShareScene() {
   const [open, setOpen] = React.useState(false);
   const o = ORDERS[2];
@@ -429,8 +413,6 @@ export function ShareScene() {
   );
 }
 
-/* ---------------------------------------------------------------- scan */
-
 export function ScanScene() {
   const [counts, setCounts] = React.useState<Record<string, number>>({ [PRODUCTS[0].sku]: 2 });
   const next = React.useRef(1);
@@ -454,8 +436,6 @@ export function ScanScene() {
     </MobileScreen>
   );
 }
-
-/* ---------------------------------------------------------------- keep awake */
 
 export function WakeScene() {
   const lock = useWakeLock();
@@ -507,8 +487,6 @@ export function WakeScene() {
   );
 }
 
-/* ---------------------------------------------------------------- swipe back */
-
 export function StackScene() {
   const [stack, setStack] = React.useState<string[]>(["list", ORDERS[1].id]);
   const pop = () => setStack((s) => s.slice(0, -1));
@@ -555,8 +533,6 @@ export function StackScene() {
   });
   return <MobilePageStack pages={pages} onBack={pop} />;
 }
-
-/* ---------------------------------------------------------------- keyboard */
 
 export function KeyboardScene({ onKeyboard }: { onKeyboard: (open: boolean) => void }) {
   const [name, setName] = React.useState("Rina Kusuma");

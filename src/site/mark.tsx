@@ -10,8 +10,6 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { SLink, useHref } from "./config";
 import { ORDERS } from "./data";
 
-/* ------------------------------------------------------------ the mark around each component */
-
 /** Inside this, marks keep their layout but drop the hover chip and link (the landing shows components bare). */
 export const PlainMarks = React.createContext(false);
 

@@ -90,7 +90,6 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
     fold.current = window.setTimeout(after, 200);
   };
 
-  // A double tap on a revealed action runs it once.
   const run = useDoubleTapGuard((a: SwipeAction) => {
     settle(0, 0);
     a.onSelect();
@@ -99,7 +98,6 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
   return (
     <div className="grid transition-[grid-template-rows] duration-[200ms] ease-ad" style={{ gridTemplateRows: gone ? "0fr" : "1fr" }}>
       <div className={cn("relative min-h-0 overflow-hidden rounded-item", className)} inert={gone || undefined}>
-        {/* Actions sit behind the row, flush with its edges. */}
         {leading.length ? (
           <div className="absolute inset-y-0 left-0 flex" style={{ width: lw, visibility: side === "left" ? "visible" : "hidden" }}>
             {leading.map((a) => (
@@ -154,7 +152,6 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
             const v = performance.now() - s.t > 90 ? 0 : s.v;
             const width = e.currentTarget.offsetWidth;
             if (trailing.length && s.x < -width * 0.6) {
-              // Full swipe: slide out and run the first trailing action.
               return settle(-width, v, () => commit(trailing[0]));
             }
             const aim = s.x + v * 0.15;
@@ -163,7 +160,7 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
           }}
           onPointerCancel={() => ((g.current.lock = ""), settle(g.current.rest, 0))}
           onClickCapture={(e) => {
-            // A drag is not a tap, and a tap on an open row closes it.
+            // A tap on an open row only closes it.
             const s = g.current;
             if (s.moved) {
               // The click that ends a drag: swallow it, keep the row where the drag left it.

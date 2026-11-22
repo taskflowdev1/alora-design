@@ -232,7 +232,7 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     return age <= hold ? 1 : Math.max(0, 1 - (age - hold) / Math.max(0.01, refill));
   };
 
-  // One soft dab of paint over what is there. The cell's clock moves toward now by how much of it is new paint.
+  // The cell's clock moves toward now by how much of it is new paint.
   function dab(x: number, y: number, sigma: number, amount: number, now: number) {
     const scale = fw / W;
     const cx = x * scale;

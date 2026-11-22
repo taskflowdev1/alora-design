@@ -120,7 +120,6 @@ export function Attachment({ name, meta, kind = "file", src, state = "done", pro
 /** Attachments in a row that scrolls sideways inside itself (above a composer, under a message). */
 export function AttachmentGroup({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const ref = React.useRef<HTMLDivElement>(null);
-  // Fades a cut edge only on a side with more to scroll to.
   useEdgeFade(ref, { axis: "x", size: 24 });
   return <div ref={ref} className={cn("flex min-w-0 gap-2 overflow-x-auto overscroll-x-contain pb-1 [&>*]:shrink-0", className)} {...props} />;
 }

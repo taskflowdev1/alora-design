@@ -62,8 +62,6 @@ const query = (c: Config) => {
   return q ? `?${q}` : "";
 };
 
-/* ---------------------------------------------------------------- tailwind */
-
 /** `dark:` matches the dark theme: inside .dark when light is the default, outside .light when dark is. */
 const darkVariant = (c: Config) =>
   c.theme === "dark" ? `@custom-variant dark (&:not(:where(.light, .light *)));` : `@custom-variant dark (&:where(.dark, .dark *));`;
@@ -83,8 +81,6 @@ export function tailwindCss(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) 
     "",
   ].join("\n");
 }
-
-/* ---------------------------------------------------------------- shadcn */
 
 const SCHEMA = "https://ui.shadcn.com/schema/registry-item.json";
 
@@ -169,8 +165,6 @@ export function registryIndex(c: Config) {
     ],
   };
 }
-
-/* ---------------------------------------------------------------- agent kit */
 
 /** The part of a rule the kit lists (encyclopedia.ts `Rule`; passed in so this module stays small for the site). */
 export type KitRule = { id: string; level: string; rule: string };

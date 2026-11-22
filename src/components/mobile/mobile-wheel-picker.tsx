@@ -113,7 +113,6 @@ export function WheelPicker({ children, className }: { children: React.ReactNode
     <div className={cn("relative flex gap-1", className)}>
       <div aria-hidden className="absolute inset-x-0 rounded-control bg-fill" style={{ top: ROW * 2, height: ROW }} />
       {children}
-      {/* Rows fade into the surface at the top and bottom. */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-linear-to-b from-surface to-transparent" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-linear-to-t from-surface to-transparent" />
     </div>

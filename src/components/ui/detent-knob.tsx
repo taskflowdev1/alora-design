@@ -232,7 +232,6 @@ export function DetentKnob({
     };
   }, [notches]);
 
-  // A value set from outside moves the knob at once.
   React.useEffect(() => {
     if (ctl.current && ctl.current.notch() !== notch) ctl.current.set(notch);
   }, [notch]);

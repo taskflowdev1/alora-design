@@ -18,8 +18,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DAILY, HOURLY, MARKET_SHOPS, ORDERS, PRODUCTS, productPhoto } from "../data";
 import { Metrics, NoTranslate, useLoading } from "./shared";
 
-/* ------------------------------------------------------------ dashboard */
-
 /** Sales today per shop, in Rp jt (they add up to the day's total), largest first. Ids match MARKET_SHOPS. */
 const BY_SHOP: Record<string, number> = {
   kemang: 12.4,

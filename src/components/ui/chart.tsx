@@ -155,7 +155,6 @@ const linear = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? "L" : 
 export function CartesianChart({ data, series, kind = "line", height = 200, curve = "smooth", grid = false, axis = false, dots = false, stacked = false, fill = 0.14, labelEvery = 0, legend = true, format = formatShort, active, onActiveChange, activeSeries, onActiveSeriesChange, className, ...aria }: CartesianChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [own, setOwn] = React.useState<number | null>(null);
-  // Controlled when `active` is passed (linked to a table), otherwise its own.
   const hover = active !== undefined ? active : own;
   const setHover = (next: number | null | ((v: number | null) => number | null)) => {
     const v = typeof next === "function" ? next(hover) : next;

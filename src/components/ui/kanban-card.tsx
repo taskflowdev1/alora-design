@@ -292,7 +292,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
         });
       }
     }
-    // Let go: the card in the hand settles into its slot, wherever that is now.
     const s = settle.current;
     if (s) {
       settle.current = null;
@@ -391,7 +390,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     const column = columnAt(e.clientX, e.clientY);
     setOver(column);
     if (!column) return;
-    // The slot follows the hand: the cards it passes slide apart to open it.
     const index = indexAt(column, d.id, d.from.top + dy + d.from.height / 2);
     const now = spot(live.current.list, d.id);
     if (now && (now.column !== column || now.index !== index)) {
@@ -415,7 +413,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     settle.current = { id: d.id, ghost: d.ghost, pose: { dx: d.dx, dy: d.dy, tilt: d.tilt, scale: d.ghost.style.scale || "1" } };
     const was = spot(d.before, d.id);
     const now = spot(live.current.list, d.id);
-    // The others slide back (a cancel) or stay where they made room, and the card settles into its slot.
     remember(d.id, false);
     if (!cancel && was && now && (was.column !== now.column || was.index !== now.index)) commit(live.current.list, d.id);
     setPreview(null);

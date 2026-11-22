@@ -10,8 +10,6 @@ import { CommandPalette } from "@/components/ui/command-palette";
 import { DAILY, HOURLY } from "../data";
 import { useBusy } from "./shared";
 
-/* ------------------------------------------------------------ B2 sales */
-
 type Range = "day" | "week" | "month";
 const SALES: Record<Range, { label: string; value: number; delta: string; up: boolean; orders: number; chart: typeof HOURLY; current: number; every: number }> = {
   day: { label: "Sales today", value: 48240000, delta: "9,7%", up: true, orders: 312, chart: HOURLY, current: 6, every: 3 },
@@ -50,8 +48,6 @@ export function SalesCard({ chartHeight = 96, className }: { chartHeight?: numbe
     </Card>
   );
 }
-
-/* ------------------------------------------------------------ B3 command palette, open */
 
 export function PaletteCard({ className }: { className?: string }) {
   const say = (m: string) => () => toast(m, "neutral");

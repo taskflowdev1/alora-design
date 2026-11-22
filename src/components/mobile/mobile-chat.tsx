@@ -103,7 +103,6 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
     t.style.height = `${Math.min(t.scrollHeight, 22 * 5 + 22)}px`;
   }, [value]);
   const can = !!value.trim() && !busy;
-  // A double tap on Send or a suggestion sends once.
   const send = useDoubleTapGuard((text: string) => {
     if (!text.trim() || busy) return;
     onSend(text.trim());

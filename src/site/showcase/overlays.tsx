@@ -11,8 +11,6 @@ import { ORDERS, smartTime } from "../data";
 import { BackPage, Mark, Tile, frame } from "../mark";
 import { say } from "./shared";
 
-/* ------------------------------------------------------------ Overlays, opened in place */
-
 /** A small page behind an overlay: a few order rows, dimmed by the overlay that sits on it. */
 export function DialogTile({ className }: { className?: string }) {
   const [reason, setReason] = React.useState("stock");

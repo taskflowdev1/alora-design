@@ -65,14 +65,12 @@ function paintFoil(ctx: CanvasRenderingContext2D, w: number, h: number, label: s
   FOIL_STOPS.forEach((c, i) => g.addColorStop(i / (FOIL_STOPS.length - 1), c));
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
-  // A faint oil-slick across the silver.
   const oil = ctx.createLinearGradient(w, 0, 0, h);
   oil.addColorStop(0, "oklch(0.8 0.09 340 / 0.16)"); // grey-ok: foil
   oil.addColorStop(0.5, "oklch(0.86 0.08 120 / 0.1)"); // grey-ok: foil
   oil.addColorStop(1, "oklch(0.8 0.09 230 / 0.18)"); // grey-ok: foil
   ctx.fillStyle = oil;
   ctx.fillRect(0, 0, w, h);
-  // The printed security pattern, then the grain.
   ctx.fillStyle = "rgb(60 64 74 / 0.07)"; // grey-ok: foil print
   for (let y = 0, row = 0; y < h + 14; y += 14, row++) {
     for (let x = row % 2 ? 7 : 0; x < w + 14; x += 14) {

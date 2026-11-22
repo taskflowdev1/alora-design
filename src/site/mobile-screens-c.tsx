@@ -61,8 +61,6 @@ import { HOURLY, ORDERS, PRODUCTS, SHOPS, productPhoto } from "./data";
 import { APPROVALS, SHIFTS, weekDay, type Approval } from "./mobile-data";
 import { COURIERS, ScreenEmpty, useNav, type ScreenProps } from "./mobile-app-kit";
 
-/* ------------------------------------------------------------ More */
-
 export function MoreScreen() {
   const nav = useNav();
   const [out, setOut] = React.useState(false);
@@ -109,8 +107,6 @@ function SignOutAlert({ open, onOpenChange }: { open: boolean; onOpenChange: (o:
     />
   );
 }
-
-/* ------------------------------------------------------------ POS */
 
 type Cart = Record<string, number>;
 let cart: Cart = { "RMB-GL-014": 2, "RMB-LL-008": 1, "RMB-SP-003": 3 };
@@ -368,8 +364,6 @@ export function PosReceiptScreen({ params }: ScreenProps) {
   );
 }
 
-/* ------------------------------------------------------------ Approvals */
-
 export function ApprovalsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState<Approval[]>(state === "empty" ? [] : APPROVALS);
@@ -469,8 +463,6 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
   );
 }
 
-/* ------------------------------------------------------------ Schedule */
-
 const DAY = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function ScheduleScreen({ back }: ScreenProps) {
@@ -517,8 +509,6 @@ export function ScheduleScreen({ back }: ScreenProps) {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Settings */
 
 export function SettingsScreen({ back }: ScreenProps) {
   const [alerts, setAlerts] = React.useState({ orders: true, stock: true, payouts: false, chats: true });
@@ -585,8 +575,6 @@ export function SettingsScreen({ back }: ScreenProps) {
   );
 }
 
-/* ------------------------------------------------------------ Account */
-
 export function AccountScreen({ back }: ScreenProps) {
   const [twoStep, setTwoStep] = React.useState(true);
   const [out, setOut] = React.useState(false);
@@ -618,8 +606,6 @@ export function AccountScreen({ back }: ScreenProps) {
     </>
   );
 }
-
-/* ------------------------------------------------------------ Sign in and one-time code */
 
 export function LoginScreen() {
   const nav = useNav();
@@ -748,8 +734,6 @@ export function OtpScreen({ params, back }: ScreenProps) {
     </MobileScreen>
   );
 }
-
-/* ------------------------------------------------------------ Welcome */
 
 const art = "pointer-events-none grid gap-2 rounded-sheet bg-surface p-3 shadow-dialog";
 

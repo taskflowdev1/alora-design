@@ -83,7 +83,6 @@ export function GhostCompare({
 
   React.useLayoutEffect(paint, [paint]);
 
-  // The pill is as wide as what it says, and slides between the two widths.
   React.useLayoutEffect(() => {
     const measure = () => {
       if (hintBox.current && deltaBox.current) setPillWidths([hintBox.current.offsetWidth, deltaBox.current.offsetWidth]);

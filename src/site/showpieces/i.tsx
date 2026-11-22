@@ -49,8 +49,6 @@ const LIST_TOTAL = ORDERS.reduce((sum, o) => sum + o.total, 0);
 /** The gap between one row and the next in a wave, in ms. */
 const WAVE = 55;
 
-/* ------------------------------------------------------------ Bulk action bar */
-
 function BulkOrders({ className, inset }: { className?: string; inset?: boolean }) {
   const [status, setStatus] = React.useState<Record<string, string>>(START_STATUS);
   const [ticked, setTicked] = React.useState<ReadonlySet<string>>(new Set());
@@ -171,8 +169,6 @@ function BulkOrders({ className, inset }: { className?: string; inset?: boolean 
   );
 }
 
-/* ------------------------------------------------------------ Status changer */
-
 function StatusRows({ className }: { className?: string }) {
   return (
     <Card inset="nest" className={cn("grid w-full gap-px", className)}>
@@ -193,8 +189,6 @@ function StatusRows({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ Approval flow */
-
 function ApprovalScene({ className, inset }: { className?: string; inset?: boolean }) {
   const [run, setRun] = React.useState(0);
   const [approved, setApproved] = React.useState(false);
@@ -207,8 +201,6 @@ function ApprovalScene({ className, inset }: { className?: string; inset?: boole
     </div>
   );
 }
-
-/* ------------------------------------------------------------ Kanban */
 
 const BOARD_COLUMNS = [
   { id: "new", title: "New" },
@@ -264,8 +256,6 @@ function KanbanScene({ className }: { className?: string }) {
   );
 }
 
-/* ------------------------------------------------------------ Notification inbox */
-
 const NOTICES: Notice[] = [
   { id: "n1", title: <>Payout of {formatRp(12840000)} sent</>, time: "Today, 10:12", unread: true },
   { id: "n2", title: "Keranjang pandan besar is out of stock", time: "Today, 09:40", unread: true },
@@ -299,8 +289,6 @@ function InboxScene({ className }: { className?: string }) {
     </div>
   );
 }
-
-/* ------------------------------------------------------------ Registry wiring */
 
 export const DEMOS: Record<string, Demo> = {
   "bulk-action-bar": {
