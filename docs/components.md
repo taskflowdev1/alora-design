@@ -20,6 +20,155 @@ A foundation, set by the theme: no component to install.
 
 ## Showpieces
 
+### Morphing status island
+
+<a id="status-island"></a>Page: https://design.alorawork.com/components/status-island
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/status-island.json"
+```
+
+Files: `src/components/ui/status-island.tsx`.
+
+`StatusIsland`: A black pill that springs between four states and reshapes around what each one shows. Its box never changes size, so nothing around it moves. Uncontrolled, a press starts the sequence and each further press skips ahead.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `status` | `IslandStatus` |  | Controlled state. Leave out and a press plays idle → syncing → progress → done by itself. |
+| `progress` | `number` | `0` | 0…1 while `status` is "progress" and controlled. |
+| `onStatusChange` | `((status: IslandStatus) => void)` |  | Called with the next state on a press, and on each step of the self-running sequence. |
+| `idleLabel` | `string` | `"Sync 7 shops"` |  |
+| `syncLabel` | `string` | `"Syncing"` |  |
+| `channels` | `string[]` | `["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]` | The names that roll past while syncing. |
+| `progressLabel` | `string` | `"248 products"` |  |
+| `doneLabel` | `string` | `"248 products synced"` |  |
+
+Also takes the native props of the element it renders.
+
+### Save button morph
+
+<a id="save-morph"></a>Page: https://design.alorawork.com/components/save-morph
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/save-morph.json"
+```
+
+Files: `src/components/ui/save-morph.tsx`.
+
+`SaveMorph`: A save button that narrows into a spinner, then widens back as the spinning arc runs on into a check. The labels are pinned in place and the button's edge reveals them, so no word ever slides. Its box never changes size.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Save changes"` |  |
+| `doneLabel` | `string` | `"Saved"` |  |
+| `failLabel` | `string` | `"Try again"` |  |
+| `onSave` | `(() => void \| Promise<unknown>)` |  | The save. Return a promise and the spinner runs until it settles; a rejection comes back as `failLabel`. |
+| `size` | `"default" \| "lg"` | `"default"` | The size of the button. |
+
+Also takes the native props of the element it renders.
+
+### Dust dissolve delete
+
+<a id="dust-delete"></a>Page: https://design.alorawork.com/components/dust-delete
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/dust-delete.json"
+```
+
+Files: `src/components/ui/dust-delete.tsx`. Installs too: `button`.
+
+`DustDelete`: A card that breaks into fine dust when deleted. The dust drifts away from the cursor, and Undo pulls every grain back to where it came from. The slot keeps its size, so nothing around it moves. Under reduced motion it simply fades.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` | `"Gelas kopi tanah liat"` |  |
+| `price` | `string` | `"Rp 89.000"` |  |
+| `image` | `string` |  | A photo URL; without one the card shows only its text. |
+| `deleteLabel` | `string` | `"Delete"` |  |
+| `undoLabel` | `string` | `"Undo"` |  |
+| `tone` | `"fill" \| "surface"` | `"surface"` | The card's fill: "surface" on a page, "fill" when it already sits on a card. |
+| `onDelete` | `(() => void)` |  |  |
+| `onUndo` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
+### Undo fuse pill
+
+<a id="undo-fuse"></a>Page: https://design.alorawork.com/components/undo-fuse
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/undo-fuse.json"
+```
+
+Files: `src/components/ui/undo-fuse.tsx`.
+
+`UndoFuse`: A pill offering Undo while its fill drains. Hover, focus, a held finger or scrolling it away all pause the drain; Undo rewinds the fill to full. Mount it when the action happens; give it a new `key` to offer again.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | `"Order INV-20841 archived"` |  |
+| `undoneLabel` | `string` | `"Order restored"` | Shown while the fill rewinds after Undo. |
+| `actionLabel` | `string` | `"Undo"` |  |
+| `duration` | `number` | `6000` | How long the offer stays open, in ms. |
+| `paused` | `boolean` | `false` | Hold the drain from outside, for example until the pill has scrolled into the middle of the page. |
+| `onUndo` | `(() => void)` |  |  |
+| `onExpire` | `(() => void)` |  | The time ran out: commit the action. |
+| `onClosed` | `(() => void)` |  | The pill has finished leaving, after an undo or after expiring. |
+
+Also takes the native props of the element it renders.
+
+### Flip countdown
+
+<a id="flip-countdown"></a>Page: https://design.alorawork.com/components/flip-countdown
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/flip-countdown.json"
+```
+
+Files: `src/components/ui/flip-countdown.tsx`.
+
+`FlipCountdown`: A promo timer on weighted split flaps. In the final ten seconds the digits pull closer together and the flaps turn faster. Set the width with `className`; the digits scale with it.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `seconds` | `number` | `24` | Seconds on the clock when it starts. Ignored with `endsAt`. |
+| `endsAt` | `number \| Date` |  | A real deadline. Without one, the clock counts `seconds` and holds while off screen. |
+| `loop` | `boolean` | `false` | Start over after reaching zero. |
+| `onComplete` | `(() => void)` |  |  |
+| `ref` | `Ref<FlipCountdownHandle>` |  |  |
+
+Also takes the native props of the element it renders.
+
+### SLA burning fuse
+
+<a id="sla-fuse"></a>Page: https://design.alorawork.com/components/sla-fuse
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/sla-fuse.json"
+```
+
+Files: `src/components/ui/sla-fuse.tsx`. Installs too: `button`.
+
+`SlaFuse`: An order's deadline as a burning fuse. The cord shortens toward the end and the spark at its tip grows brighter as time runs out. Drag the fuse or use the arrow keys to scrub it; shipping puts the spark out where it stands.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `order` | `string` | `"INV-20841"` |  |
+| `item` | `string` | `"Gelas kopi tanah liat × 2"` |  |
+| `total` | `number` | `2700` | The whole window, in seconds: a full fuse. |
+| `remaining` | `number` | `2340` | Seconds left when it starts. |
+| `speed` | `number` | `1` | How many seconds of the deadline pass per real second; 1 is real time. |
+| `paused` | `boolean` | `false` | Hold the clock from outside; the spark keeps burning in place. |
+| `actionLabel` | `string` | `"Ship order"` |  |
+| `shippedLabel` | `string` | `"Shipped"` |  |
+| `reopenLabel` | `string` | `"Reopen"` | The button after shipping: lights the fuse again where it stopped. |
+| `lateLabel` | `string` | `"Late"` |  |
+| `onShip` | `(() => void)` |  |  |
+| `onReopen` | `(() => void)` |  |  |
+| `onLate` | `(() => void)` |  |  |
+
+Also takes the native props of the element it renders.
+
 ## Actions
 
 ### Button

@@ -127,6 +127,12 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
+| [Morphing status island](https://design.alorawork.com/components/status-island) | `status-island` | `StatusIsland` | `status`, `progress=0`, `onStatusChange`, `idleLabel="Sync 7 shops"`, `syncLabel="Syncing"`, `channels=["Shopee", "Tokopedia", "TikTok Shop", "Rimba Kemang"]`, `progressLabel="248 products"`, `doneLabel="248 products synced"` |
+| [Save button morph](https://design.alorawork.com/components/save-morph) | `save-morph` | `SaveMorph` | `label="Save changes"`, `doneLabel="Saved"`, `failLabel="Try again"`, `onSave`, `size="default"` |
+| [Dust dissolve delete](https://design.alorawork.com/components/dust-delete) | `dust-delete` | `DustDelete` | `title="Gelas kopi tanah liat"`, `price="Rp 89.000"`, `image`, `deleteLabel="Delete"`, `undoLabel="Undo"`, `tone="surface"`, `onDelete`, `onUndo` |
+| [Undo fuse pill](https://design.alorawork.com/components/undo-fuse) | `undo-fuse` | `UndoFuse` | `label="Order INV-20841 archived"`, `undoneLabel="Order restored"`, `actionLabel="Undo"`, `duration=6000`, `paused=false`, `onUndo`, `onExpire`, `onClosed` |
+| [Flip countdown](https://design.alorawork.com/components/flip-countdown) | `flip-countdown` | `FlipCountdown` | `seconds=24`, `endsAt`, `loop=false`, `onComplete`, `ref` |
+| [SLA burning fuse](https://design.alorawork.com/components/sla-fuse) | `sla-fuse` | `SlaFuse` | `order="INV-20841"`, `item="Gelas kopi tanah liat × 2"`, `total=2700`, `remaining=2340`, `speed=1`, `paused=false`, `actionLabel="Ship order"`, `shippedLabel="Shipped"`, `reopenLabel="Reopen"`, `lateLabel="Late"`, `onShip`, `onReopen`, `onLate` |
 
 ### Actions
 
