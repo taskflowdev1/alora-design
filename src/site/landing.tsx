@@ -4,6 +4,7 @@ import { cn } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Carousel } from "@/components/ui/carousel";
+import { HoloCard } from "@/components/ui/holo-card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { SandField } from "@/components/backgrounds/sand-field";
 import { SLink } from "./config";
@@ -112,6 +113,12 @@ export function Landing() {
         <div data-landing="moments">
           <Moment id="metric" title="Metric card" to="/components/metric-card" className="max-w-[560px]">
             <SalesCard chartHeight={148} />
+          </Moment>
+          <Moment id="holo" title="Holo card" to="/components/holo-card" className="max-w-[440px] justify-items-center">
+            {/* Room around it for the tilt and its shadow; move the pointer over it. */}
+            <div className="grid w-full place-items-center py-6">
+              <HoloCard className="w-full" />
+            </div>
           </Moment>
           <Moment id="otp" title="One-time code" to="/components/input-otp" className="max-w-[440px]">
             <Card className="grid">
