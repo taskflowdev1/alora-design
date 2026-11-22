@@ -159,7 +159,7 @@ export function PushScene() {
     <>
       <MobileScreen title="Orders" bottomInset="none">
         <div className="grid gap-4">
-          <div className="px-3 empty:hidden">
+          <div className="px-pad empty:hidden">
             <MobilePushAsk status={status} onAllow={() => setSystem(true)} onLater={() => setStatus("unsupported")} onFix={() => setHow(true)} />
           </div>
           <MobileList>
@@ -228,7 +228,7 @@ export function ShellScene() {
       <div className="grid content-start gap-5 pt-2">
         {tab === "Home" ? (
           <>
-            <section className="mx-3 grid gap-1 rounded-card bg-surface p-pad shadow-card">
+            <section className="mx-pad grid gap-1 rounded-card bg-surface p-pad">
               <h2 className="text-[13px] text-ink-muted">Sales today</h2>
               <p className="flex items-baseline gap-1.5 text-[30px] font-semibold tabular-nums text-ink">
                 <span className="text-[15px] font-normal text-ink-muted">Rp</span>
@@ -336,7 +336,7 @@ export function SyncScene({ online }: { online: boolean }) {
   return (
     <div className="flex h-full flex-col bg-page">
       <MobileAppHeader title="To pack" standalone={false} trailing={<MobileSyncPill online={online} items={q.items} onClick={() => setSheet(true)} />} />
-      <div className="px-3 pb-2 pt-1 empty:hidden">
+      <div className="px-pad pb-2 pt-1 empty:hidden">
         <MobileBanner open={!online} icon={WifiOff}>
           You're offline. Changes stay on this phone.
         </MobileBanner>
@@ -403,7 +403,7 @@ export function ShareScene() {
     <>
       <MobileScreen title={o.id} translateTitle={false} large={false} back={{ label: "Orders", onClick: () => {} }} bottomInset="action-bar">
         <div className="grid gap-5 pt-2">
-          <section className="mx-3 grid justify-items-center gap-1 rounded-card bg-surface p-6 shadow-card">
+          <section className="mx-pad grid justify-items-center gap-1 rounded-card bg-surface p-6">
             <h2 className="text-[15px] text-ink-muted">{o.customer}</h2>
             <p className="flex items-baseline gap-1.5 text-[34px] font-semibold tabular-nums text-ink">
               <span className="text-[16px] font-normal text-ink-muted">Rp</span>
@@ -443,7 +443,7 @@ export function ScanScene() {
   const rows = PRODUCTS.filter((p) => counts[p.sku]).slice(0, 3);
   return (
     <MobileScreen title="Stock count" large={false} bottomInset="none" trailing={<Button variant="ghost" className="h-touch px-3 text-[15px]" onClick={() => (live ? cam.stop() : void cam.start())}>{live ? "Stop" : "Camera"}</Button>}>
-      <div className="grid gap-4 px-3 pt-2">
+      <div className="grid gap-4 px-pad pt-2">
         <MobileScanner onScan={add} camera={live ? cam.video : undefined} />
       </div>
       <MobileList title="Counted" className="mt-4">
@@ -534,7 +534,7 @@ export function StackScene() {
       node: (
         <MobileScreen title={o.id} translateTitle={false} large={false} back={{ label: "Orders", onClick: pop }} bottomInset="none">
           <div className="grid gap-5 pt-2">
-            <section className="mx-3 grid gap-1 rounded-card bg-surface p-pad shadow-card">
+            <section className="mx-pad grid gap-1 rounded-card bg-surface p-pad">
               <h2 className="text-[13px] text-ink-muted">{o.customer}</h2>
               <p className="flex items-baseline gap-1.5 text-[28px] font-semibold tabular-nums text-ink">
                 <span className="text-[14px] font-normal text-ink-muted">Rp</span>

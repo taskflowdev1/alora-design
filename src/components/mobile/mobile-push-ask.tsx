@@ -53,7 +53,7 @@ export function MobilePushAsk({ status, title = "Get new orders on this phone", 
   return (
     <div inert={!open || undefined} className="grid transition-[grid-template-rows,opacity] duration-[260ms] ease-ad motion-reduce:transition-none" style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}>
       <div className="min-h-0 overflow-hidden">
-        <section className={cn("grid gap-3 rounded-card bg-surface p-pad shadow-card", className)}>
+        <section className={cn("grid gap-3 rounded-card bg-surface p-pad", className)}>
           <p className="flex items-start gap-3 text-[15px] font-medium text-ink">
             <Icon size={20} strokeWidth={1.75} className="mt-px shrink-0" />
             {view === "blocked" ? "Notifications are off in Settings" : view === "needs-install" ? "Install the app to get notifications" : title}
