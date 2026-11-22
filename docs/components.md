@@ -302,28 +302,6 @@ Files: `src/components/ui/rubber-band-stepper.tsx`.
 
 Also takes the native props of the element it renders.
 
-### Lever toggle
-
-<a id="lever-toggle"></a>Page: https://design.alorawork.com/components/lever-toggle
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/lever-toggle.json"
-```
-
-Files: `src/components/ui/lever-toggle.tsx`.
-
-`LeverToggle`: A chunky lever: it throws across with momentum, hesitates at the midpoint and lands with a small recoil.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `checked` | `boolean` |  |  |
-| `defaultChecked` | `boolean` | `false` |  |
-| `onCheckedChange` | `((checked: boolean) => void)` |  |  |
-| `offLabel` | `string` | `"Closed"` | The word on the left, for off. |
-| `onLabel` | `string` | `"Open"` | The word on the right, for on. |
-
-Also takes the native props of the element it renders.
-
 ### Shift ring clock
 
 <a id="shift-ring-clock"></a>Page: https://design.alorawork.com/components/shift-ring-clock
@@ -344,29 +322,6 @@ Files: `src/components/ui/shift-ring-clock.tsx`.
 | `step` | `number` | `15` | Minutes between snap points. |
 | `minLength` | `number` | `60` | The shortest shift, in minutes. |
 | `maxLength` | `number` | `23 * 60` | The longest shift, in minutes. |
-
-Also takes the native props of the element it renders.
-
-### Date text morph
-
-<a id="date-text-morph"></a>Page: https://design.alorawork.com/components/date-text-morph
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/date-text-morph.json"
-```
-
-Files: `src/components/ui/date-text-morph.tsx`.
-
-`DateTextMorph`: A date you can click to read the other way. The letters the two forms share travel to their new places, and only the rest fade, so "in 2 days" turns into "Fri, 28 Nov" instead of being swapped for it. Size it with `className`.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `date` | `Date` |  | The date shown. Defaults to two days from now. |
-| `now` | `Date` |  | What "today" is, for the relative wording. |
-| `mode` | `"relative" \| "absolute"` |  | Which form shows: "relative" ("in 2 days") or "absolute" ("Fri, 28 Nov"). |
-| `defaultMode` | `"relative" \| "absolute"` | `"relative"` |  |
-| `onModeChange` | `((mode: "relative" \| "absolute") => void)` |  |  |
-| `align` | `"start" \| "center"` | `"start"` | Where the text sits in the width reserved for its longer form. |
 
 Also takes the native props of the element it renders.
 
@@ -405,7 +360,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/save-morph.json"
 
 Files: `src/components/ui/save-morph.tsx`.
 
-`SaveMorph`: A save button that narrows into a spinner, then widens back as the spinning arc runs on into a check. The labels are pinned in place and the button's edge reveals them, so no word ever slides. Its box never changes size.
+`SaveMorph`: A save button that keeps its width and shape through every state. The label rolls away, a small spinner runs in its place, and the answer rolls into the same spot.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -413,6 +368,7 @@ Files: `src/components/ui/save-morph.tsx`.
 | `doneLabel` | `string` | `"Saved"` |  |
 | `failLabel` | `string` | `"Try again"` |  |
 | `onSave` | `(() => void \| Promise<unknown>)` |  | The save. Return a promise and the spinner runs until it settles; a rejection comes back as `failLabel`. |
+| `dirty` | `boolean` |  | Whether the form has unsaved changes. When given, the done label stays until this turns true again; clear it before the save's promise resolves. Left out, the button returns to `label` on its own after a moment. |
 | `size` | `"default" \| "lg"` | `"default"` | The size of the button. |
 
 Also takes the native props of the element it renders.
@@ -519,27 +475,6 @@ Files: `src/components/ui/sla-fuse.tsx`. Installs too: `button`.
 
 Also takes the native props of the element it renders.
 
-### Parcel journey line
-
-<a id="parcel-journey"></a>Page: https://design.alorawork.com/components/parcel-journey
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/parcel-journey.json"
-```
-
-Files: `src/components/ui/parcel-journey.tsx`. Installs too: `button`.
-
-`ParcelJourney`: A parcel riding its route across the map, pausing at each scan. Press or drag anywhere on the map to scrub the whole trip (it settles on the nearest hub); arrow keys, Home and End step through the scans.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `stops` | `ParcelStop[]` | `DEFAULT_STOPS` | The hubs in order, each with its scan. Their `at` points sit on the map, x 0–640 and y 28–192. |
-| `tracking` | `string` | `"RK-2041-8836"` | The tracking number, as printed. |
-| `autoPlay` | `boolean` | `true` | Ride the route once when it first scrolls into view. |
-| `onArrive` | `(() => void)` |  | Called when the parcel reaches the last stop. |
-
-Also takes the native props of the element it renders.
-
 ### Peel shipping label
 
 <a id="peel-label"></a>Page: https://design.alorawork.com/components/peel-label
@@ -563,202 +498,6 @@ Files: `src/components/ui/peel-label.tsx`. Installs too: `button`.
 
 Also takes the native props of the element it renders.
 
-### Route untangle
-
-<a id="route-untangle"></a>Page: https://design.alorawork.com/components/route-untangle
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/route-untangle.json"
-```
-
-Files: `src/components/ui/route-untangle.tsx`. Installs too: `button`.
-
-`RouteUntangle`: A knot of delivery roads that untangles into a clean loop, one uncrossed pair at a time, while the distance rolls down. Drag a stop (or focus it and use the arrow keys) to make a new problem, then untangle again.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `stops` | `{ x: number; y: number; }[]` | `DEFAULT_STOPS` | The stops on a 560 × 290 map; the first is the depot. |
-| `kmPerUnit` | `number` | `0.034` | Kilometres per map unit, for the figures. |
-| `onUntangle` | `((savedKm: number) => void)` |  | Called when the loop has been untangled, with the kilometres saved. |
-
-Also takes the native props of the element it renders.
-
-### Box packing fit
-
-<a id="box-packing"></a>Page: https://design.alorawork.com/components/box-packing
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/box-packing.json"
-```
-
-Files: `src/components/ui/box-packing.tsx`. Installs too: `button`.
-
-`BoxPacking`: An open carton in isometric. Tap a product and it drops in, lands with one small bounce and nests against the others; the fill level picks the carton, which grows or shrinks around them.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `items` | `PackItem[]` | `DEFAULT_ITEMS` | The products, each with its size in 10 cm cells. |
-| `cartons` | `PackCarton[]` | `DEFAULT_CARTONS` | Smallest first. The first one everything fits in is picked. |
-| `defaultValue` | `string[]` | `["teko", "gelas", "mangkuk"]` | Ids in the box at the start. |
-| `onChange` | `((ids: string[], carton: PackCarton) => void)` |  | Called when the contents change, with the carton picked for them. |
-
-Also takes the native props of the element it renders.
-
-### Paid rubber stamp
-
-<a id="paid-stamp"></a>Page: https://design.alorawork.com/components/paid-stamp
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/paid-stamp.json"
-```
-
-Files: `src/components/ui/paid-stamp.tsx`. Installs too: `button`.
-
-`PaidStamp`: An invoice and a rubber stamp. Press anywhere on the paper and the stamp slams down there: the sheet jolts, the ink goes on rough and bleeds a little into the page. Stamp again and it prints fainter, like a pad running dry.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `shop` | `string` | `"Rimba Kemang"` |  |
-| `customer` | `string` | `"Toko Bu Sari"` |  |
-| `invoice` | `string` | `"INV/2026/11/0482"` |  |
-| `lines` | `PaidStampLine[]` | `DEFAULT_LINES` |  |
-| `word` | `string` | `"LUNAS"` | The word on the rubber. |
-| `date` | `string` | `"21 NOV 2026"` | The date on the rubber, as printed. |
-| `onStamp` | `(() => void)` |  | Called on each stamp. |
-
-Also takes the native props of the element it renders.
-
-### Envelope send
-
-<a id="envelope-send"></a>Page: https://design.alorawork.com/components/envelope-send
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/envelope-send.json"
-```
-
-Files: `src/components/ui/envelope-send.tsx`. Installs too: `button`.
-
-`EnvelopeSend`: An invoice that sends itself: it folds in thirds, slips into an envelope, the flap closes on a seal and the envelope flies off, and the next invoice in the series comes up. Under reduced motion it goes straight to sent.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `shop` | `string` | `"Rimba Kemang"` |  |
-| `customer` | `string` | `"Toko Bu Sari"` |  |
-| `invoice` | `string` | `"INV/2026/11/0482"` |  |
-| `lines` | `EnvelopeLine[]` | `DEFAULT_LINES` |  |
-| `initial` | `string` | `"R"` | The initial on the seal. |
-| `onSend` | `(() => void)` |  | Called the moment the envelope has flown. |
-
-Also takes the native props of the element it renders.
-
-### Chat to order
-
-<a id="chat-to-order"></a>Page: https://design.alorawork.com/components/chat-to-order
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/chat-to-order.json"
-```
-
-Files: `src/components/ui/chat-to-order.tsx`. Installs too: `button`.
-
-`ChatToOrder`: A pasted chat message and an empty order. Read message sends each marked phrase across to its field, one by one; a single phrase can be sent by itself, and a filled field sent back by pressing it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `message` | `ChatOrderPart[]` | `MESSAGE` | The message, with the words that fill each field marked. |
-| `fields` | `ChatOrderField[]` | `FIELDS` | The order's fields, top to bottom. |
-| `time` | `string` | `"10.24"` | The time on the message. |
-| `onComplete` | `((values: Record<string, string>) => void)` |  | Every field is filled. |
-
-Also takes the native props of the element it renders.
-
-### Invoice x-ray scan
-
-<a id="invoice-xray"></a>Page: https://design.alorawork.com/components/invoice-xray
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/invoice-xray.json"
-```
-
-Files: `src/components/ui/invoice-xray.tsx`. Installs too: `button`.
-
-`InvoiceXray`: A paper invoice under a beam of light. Scan runs it down the page, or drag the grip; as it passes the vendor, number, date and total, each lifts off the paper into an editable chip. Bring the beam back up and they settle back.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `defaultValues` | `InvoiceValues` | `VALUES` | The fields the scan reads off the paper. They stay editable after it. |
-| `lines` | `InvoiceLine[]` | `LINES` | The printed line items. |
-| `shop` | `string` | `"Rimba Kemang"` | Who the invoice is billed to. |
-| `onValuesChange` | `((values: InvoiceValues) => void)` |  | Any field was edited. |
-| `onScanned` | `((values: InvoiceValues) => void)` |  | The beam reached the bottom of the page. |
-
-Also takes the native props of the element it renders.
-
-### Answer becomes chart
-
-<a id="answer-chart"></a>Page: https://design.alorawork.com/components/answer-chart
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/answer-chart.json"
-```
-
-Files: `src/components/ui/answer-chart.tsx`. Installs too: `button`.
-
-`AnswerChart`: An AI answer whose numbers fall out of the sentence, land on a baseline and grow into bars. The chart stays live: drag a bar, or step it with the arrow keys, and its number in the sentence follows.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `intro` | `string` | `"Rimba Kemang sold"` | The start of the sentence, before the first number. |
-| `data` | `AnswerChartDatum[]` | `DATA` | One number per bar, in the order of the sentence. |
-| `onValueChange` | `((id: string, value: number) => void)` |  | A bar was dragged or stepped to a new value. |
-
-Also takes the native props of the element it renders.
-
-### Thermal receipt printer
-
-<a id="receipt-printer"></a>Page: https://design.alorawork.com/components/receipt-printer
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/receipt-printer.json"
-```
-
-Files: `src/components/ui/receipt-printer.tsx`. Installs too: `button`.
-
-`ReceiptPrinter`: A thermal printer. The receipt feeds out in small motor steps, its end curling under its own weight. Pull it down until it rips, flick it, or use the button; then print another.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `shop` | `string` | `"Rimba Kemang"` |  |
-| `place` | `string` | `"Jl. Kemang Raya 12, Jakarta Selatan"` | The line under the shop name. |
-| `when` | `string` | `"21 Nov 2026, 14.32"` | Printed as given. |
-| `items` | `ReceiptItem[]` | `ITEMS` |  |
-| `payment` | `string` | `"QRIS"` | How it was paid, beside the total. |
-| `code` | `string` | `"RK-20261121-0418"` | Printed under the barcode, and what the barcode is drawn from. |
-| `autoPrint` | `boolean` | `true` | Print once the first time it scrolls into view. |
-| `onPrinted` | `(() => void)` |  |  |
-| `onTear` | `(() => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Instant photo develop
-
-<a id="instant-photo"></a>Page: https://design.alorawork.com/components/instant-photo
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/instant-photo.json"
-```
-
-Files: `src/components/ui/instant-photo.tsx`. Installs too: `tooltip`.
-
-`InstantPhoto`: An instant camera. The shutter slides a blank print out, and it develops from pale grey to full colour on its own; shake it (drag it around, tap it, or press the arrow keys) and it develops faster.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `photos` (required) | `InstantPhotoShot[]` |  | The shots it takes, in turn. Square crops read best. |
-| `onDeveloped` | `((shot: InstantPhotoShot) => void)` |  | A print finished developing. |
-
-Also takes the native props of the element it renders.
-
 ### Before after wipe
 
 <a id="before-after"></a>Page: https://design.alorawork.com/components/before-after
@@ -769,7 +508,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/before-after.json"
 
 Files: `src/components/ui/before-after.tsx`.
 
-`BeforeAfter`: A draggable wipe between a raw and an edited product shot, with a slight parallax between them. Drag anywhere on the picture, click to send the wipe there, use the arrow keys, or double-click to centre it.
+`BeforeAfter`: A wipe between a raw and an edited picture of the same frame. Click anywhere and the wipe glides there; dragging and the arrow keys work too, and Enter centres it.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -858,7 +597,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/foil-badge.json"
 
 Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
 
-`FoilBadge`: A sales milestone struck as a foil seal. Locked it is matte; claimed, it lifts, comes down hard and the foil appears at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the arrow keys.
+`FoilBadge`: A sales milestone struck as a foil plaque with a crisp rim. Locked it is matte; claimed, it lifts, comes down hard and the foil appears at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the arrow keys.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -867,52 +606,6 @@ Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
 | `claimLabel` | `string` | `"Claim badge"` | The action that claims it. |
 | `defaultUnlocked` | `boolean` | `false` |  |
 | `onUnlockedChange` | `((unlocked: boolean) => void)` |  | Fires when the badge is stamped in, and with false when it's reset. |
-
-Also takes the native props of the element it renders.
-
-### Prize spin wheel
-
-<a id="spin-wheel"></a>Page: https://design.alorawork.com/components/spin-wheel
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/spin-wheel.json"
-```
-
-Files: `src/components/ui/spin-wheel.tsx`.
-
-`SpinWheel`: A prize wheel with real weight. Flick it (or press the hub): its speed comes from your hand, the pointer chatters over the pegs and it slows to a stop inside a wedge, which takes the accent. A slow push just turns it.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `prizes` | `WheelPrize[]` | `DEFAULT_PRIZES` |  |
-| `winner` | `string` |  | A prize id decided elsewhere (say, on the server). Left out, the wheel lands wherever the flick takes it. |
-| `spinLabel` | `string` | `"Spin"` |  |
-| `onResult` | `((prize: WheelPrize) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Loyalty stamp card
-
-<a id="stamp-card"></a>Page: https://design.alorawork.com/components/stamp-card
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/stamp-card.json"
-```
-
-Files: `src/components/ui/stamp-card.tsx`. Installs too: `button`.
-
-`StampCard`: A coffee-shop loyalty card. Each purchase brings a rubber stamp down into the next slot with a thud the card feels; the last one turns the whole card over to show the reward. Press the card or the button.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `shop` | `string` | `"Rimba Kemang"` |  |
-| `total` | `number` | `10` | How many stamps fill the card. |
-| `defaultCount` | `number` | `7` | Stamps already on the card. |
-| `reward` | `string` | `"Gratis 1 Gelas kopi tanah liat"` | On the back of the card. |
-| `code` | `string` | `"RIMBA-GRATIS"` |  |
-| `actionLabel` | `string` | `"Add purchase"` |  |
-| `onStamp` | `((count: number) => void)` |  | Fires with the new count after each stamp. |
-| `onComplete` | `(() => void)` |  | Fires when the last slot is stamped. |
 
 Also takes the native props of the element it renders.
 

@@ -1,13 +1,10 @@
 // Showpiece batch C: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
 // and its moment on the landing. Aggregated in ./index.ts.
 import * as React from "react";
-import { addDays, formatRp } from "@/lib/ad";
+import { formatRp } from "@/lib/ad";
 import { Card } from "@/components/ui/card";
-import { Segmented } from "@/components/ui/segmented";
-import { DateTextMorph } from "@/components/ui/date-text-morph";
 import { DetentKnob } from "@/components/ui/detent-knob";
 import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
-import { LeverToggle } from "@/components/ui/lever-toggle";
 import { RubberBandStepper } from "@/components/ui/rubber-band-stepper";
 import { ShiftRingClock } from "@/components/ui/shift-ring-clock";
 import type { Demo } from "../demos";
@@ -48,32 +45,6 @@ function OrderLine() {
   );
 }
 
-function ShopStatus() {
-  return (
-    <div className="grid w-full grid-cols-1 justify-items-center gap-3">
-      <span className="justify-self-start text-title font-semibold">Rimba Kemang</span>
-      <LeverToggle defaultChecked className="w-full" />
-    </div>
-  );
-}
-
-const SHIP_DAYS = [
-  { value: "2", label: "2 days" },
-  { value: "7", label: "1 week" },
-  { value: "21", label: "3 weeks" },
-];
-
-function ShipDate() {
-  const [today] = React.useState(() => new Date());
-  const [days, setDays] = React.useState("2");
-  return (
-    <div className="grid w-full grid-cols-1 justify-items-center gap-5">
-      <DateTextMorph date={addDays(today, Number(days))} now={today} align="center" className="text-[clamp(32px,9cqw,44px)] leading-tight tracking-[-0.02em]" />
-      <Segmented aria-label="Ships in" value={days} onValueChange={setDays} options={SHIP_DAYS} />
-    </div>
-  );
-}
-
 export const DEMOS: Record<string, Demo> = {
   "detent-knob": {
     controls: [{ key: "step", type: "select", label: "Notch", options: ["5", "10"], labels: ["5%", "10%"], default: "5" }],
@@ -90,19 +61,10 @@ export const DEMOS: Record<string, Demo> = {
     render: (p) => <RubberBandStepper step={Number(p.step)} />,
     usage: (p) => `<RubberBandStepper value={qty} onValueChange={setQty} min={0} max={999}${p.step !== "1" ? ` step={${p.step}}` : ""} />`,
   },
-  "lever-toggle": {
-    render: () => <LeverToggle defaultChecked />,
-    usage: () => `<LeverToggle checked={open} onCheckedChange={setOpen} offLabel="Closed" onLabel="Open" />`,
-  },
   "shift-ring-clock": {
     controls: [{ key: "step", type: "select", label: "Snap", options: ["15", "30", "60"], labels: ["15 min", "30 min", "1 hour"], default: "15" }],
     render: (p) => <ShiftRingClock key={String(p.step)} step={Number(p.step)} />,
     usage: (p) => `<ShiftRingClock value={shift} onValueChange={setShift} step={${p.step}} />  // { start: 1320, end: 360 }, minutes after midnight`,
-  },
-  "date-text-morph": {
-    controls: [{ key: "mode", type: "select", label: "Starts as", options: ["relative", "absolute"], labels: ["Relative", "Absolute"], default: "relative" }],
-    render: (p) => <DateTextMorph key={String(p.mode)} defaultMode={p.mode as "relative"} className="text-[32px] leading-tight tracking-[-0.02em]" />,
-    usage: (p) => `<DateTextMorph date={shipDate}${p.mode !== "relative" ? ` defaultMode="${p.mode}"` : ""} className="text-[32px]" />`,
   },
 };
 
@@ -122,9 +84,7 @@ export const TILES: TileDef[] = [
   tile("detent-knob", "Discount", <DetentKnob />),
   tile("hold-to-confirm", "Supplier payment", <HoldToConfirm className="w-full" />),
   tile("rubber-band-stepper", "Order quantity", <RubberBandStepper />),
-  tile("lever-toggle", "Shop status", <LeverToggle defaultChecked className="w-full" />),
   tile("shift-ring-clock", "Night shift", <ShiftRingClock />),
-  tile("date-text-morph", "Ships", <DateTextMorph align="center" className="text-[32px] leading-tight tracking-[-0.02em]" />),
 ];
 
 export const MOMENTS: ShowpieceMoment[] = [
@@ -162,17 +122,6 @@ export const MOMENTS: ShowpieceMoment[] = [
     ),
   },
   {
-    id: "lever-toggle",
-    title: "Lever toggle",
-    to: "/components/lever-toggle",
-    width: "max-w-[400px]",
-    render: () => (
-      <Card>
-        <ShopStatus />
-      </Card>
-    ),
-  },
-  {
     id: "shift-ring-clock",
     title: "Shift ring clock",
     to: "/components/shift-ring-clock",
@@ -180,17 +129,6 @@ export const MOMENTS: ShowpieceMoment[] = [
     render: () => (
       <Card className="grid grid-cols-1 justify-items-center">
         <ShiftRingClock />
-      </Card>
-    ),
-  },
-  {
-    id: "date-text-morph",
-    title: "Date text morph",
-    to: "/components/date-text-morph",
-    width: "max-w-[480px]",
-    render: () => (
-      <Card className="[container-type:inline-size]">
-        <ShipDate />
       </Card>
     ),
   },

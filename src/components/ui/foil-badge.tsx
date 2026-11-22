@@ -14,15 +14,14 @@ const IMPACT = 0.54;
 
 const clamp = (n: number) => Math.max(-1, Math.min(1, n));
 
-/** A scalloped seal in the 0…1 box, for a clip-path. */
-const SEAL = (() => {
-  const N = 16, R = 0.463, C = 0.533;
-  const pt = (r: number, a: number) => `${(0.5 + r * Math.cos(a)).toFixed(4)} ${(0.5 + r * Math.sin(a)).toFixed(4)}`;
+/** A continuous-corner square in the 0…1 box, for a clip-path. The rim and the face use the same curve. */
+const SHAPE = (() => {
+  const N = 120, P = 2 / 5;
+  const axis = (v: number) => (0.5 + 0.5 * Math.sign(v) * Math.abs(v) ** P).toFixed(4);
   let d = "";
   for (let i = 0; i < N; i++) {
-    const a0 = (i / N) * Math.PI * 2 - Math.PI / 2;
-    const a1 = ((i + 1) / N) * Math.PI * 2 - Math.PI / 2;
-    d += `${i ? "" : `M${pt(R, a0)}`}Q${pt(C, (a0 + a1) / 2)} ${pt(R, a1)}`;
+    const a = (i / N) * Math.PI * 2;
+    d += `${i ? "L" : "M"}${axis(Math.cos(a))} ${axis(Math.sin(a))}`;
   }
   return `${d}Z`;
 })();
@@ -34,13 +33,13 @@ const CSS = `
 .ad-fbadge-shadow {
   transform: translate(calc(var(--fx) * -3cqw), calc(var(--fy) * -2.4cqw + 4cqw));
   /* grey-ok: a soft contact shadow on whatever the badge sits on */
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.42), rgb(0 0 0 / 0.16) 62%, transparent);
+  background: rgb(0 0 0 / 0.5); border-radius: 30%; filter: blur(5cqw);
 }
 /* grey-ok: the struck metal, a deep violet to teal under the foil */
 .ad-fbadge-metal { background: linear-gradient(135deg in oklab, oklch(0.36 0.07 292), oklch(0.26 0.05 250) 52%, oklch(0.33 0.06 195)); }
 .ad-fbadge-light {
   left: -60%; top: -60%; width: 220%; height: 220%; pointer-events: none; mix-blend-mode: screen;
-  opacity: calc(0.46 + var(--fon) * 0.5);
+  opacity: calc(0.66 + var(--fon) * 0.32);
   transform: translate(calc(var(--lx) * 22.7%), calc(var(--ly) * 22.7%));
   mask-image: radial-gradient(closest-side, #000 16%, rgb(0 0 0 / 0.6) 48%, transparent 84%);
 }
@@ -66,8 +65,8 @@ const CSS = `
   /* grey-ok: a white specular highlight, light rather than a UI grey */
   background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.3) 36%, transparent 70%);
 }
-/* grey-ok: the recessed middle of the seal, so the value stays readable with the light on it */
-.ad-fbadge-well { background: radial-gradient(circle at 42% 34%, oklch(0.3 0.05 268 / 0.82), oklch(0.2 0.04 256 / 0.92)); box-shadow: inset 0 2px 7px rgb(0 0 0 / 0.42), 0 1px 0 rgb(255 255 255 / 0.14); }
+/* grey-ok: the recessed face inside the foil rim, so the value stays readable with the light on it */
+.ad-fbadge-well { background: linear-gradient(150deg, oklch(0.27 0.045 268 / 0.76), oklch(0.17 0.03 256 / 0.9)); box-shadow: inset 0 1.2cqw 3cqw rgb(0 0 0 / 0.5); }
 .ad-fbadge-matte { background: var(--ad-fill-strong); transition: opacity 180ms var(--ad-ease); }
 .ad-fbadge-matte-well { background: var(--ad-fill); }
 .ad-fbadge[data-on="true"] .ad-fbadge-matte { opacity: 0; }
@@ -236,7 +235,7 @@ export interface FoilBadgeProps extends Omit<React.HTMLAttributes<HTMLDivElement
 }
 
 /**
- * A sales milestone struck as a foil seal. Locked it is matte; claimed, it lifts, comes down hard and the foil appears
+ * A sales milestone struck as a foil plaque with a crisp rim. Locked it is matte; claimed, it lifts, comes down hard and the foil appears
  * at the moment of impact, with one band of light across it. It then turns in 3D toward the pointer, a finger or the
  * arrow keys.
  */
@@ -303,7 +302,7 @@ export function FoilBadge({ value = "Rp 100 jt", label = "Sales in November", cl
       </style>
       <svg aria-hidden width="0" height="0" className="absolute">
         <clipPath id={clipId} clipPathUnits="objectBoundingBox">
-          <path d={SEAL} />
+          <path d={SHAPE} />
         </clipPath>
       </svg>
       <div
@@ -315,9 +314,9 @@ export function FoilBadge({ value = "Rp 100 jt", label = "Sales in November", cl
         data-on={on}
         data-struck={struck}
         onClick={claim}
-        className={cn("ad-fbadge relative aspect-square w-full max-w-[300px] select-none", !on && "cursor-pointer")}
+        className={cn("ad-fbadge relative aspect-square w-full max-w-[260px] select-none", !on && "cursor-pointer")}
       >
-        <div ref={shadowRef} aria-hidden className="ad-fbadge-shadow absolute inset-[7%] rounded-full" />
+        <div ref={shadowRef} aria-hidden className="ad-fbadge-shadow absolute inset-[8%]" />
         <div ref={pressRef} className="ad-fbadge-press absolute inset-0">
           <div aria-hidden className="ad-fbadge-turn absolute inset-0" style={{ clipPath: `url(#${clipId})` }}>
             <div className="ad-fbadge-metal absolute inset-0 overflow-hidden">
@@ -327,16 +326,16 @@ export function FoilBadge({ value = "Rp 100 jt", label = "Sales in November", cl
               <div className="ad-fbadge-glare absolute" />
               <div className="ad-fbadge-sweep absolute" />
             </div>
-            <div className="ad-fbadge-well absolute inset-[15%] rounded-full" />
+            <div className="ad-fbadge-well absolute inset-[5.5%]" style={{ clipPath: `url(#${clipId})` }} />
             <div className="ad-fbadge-matte absolute inset-0">
-              <div className="ad-fbadge-matte-well absolute inset-[15%] rounded-full" />
+              <div className="ad-fbadge-matte-well absolute inset-[5.5%]" style={{ clipPath: `url(#${clipId})` }} />
             </div>
-            <div className="ad-fbadge-ink absolute inset-[15%] grid content-center justify-items-center gap-[2.6cqw] text-center">
+            <div className="ad-fbadge-ink absolute inset-[5.5%] grid content-center justify-items-center gap-[3cqw] text-center">
               <span className="relative block size-[16px]">
                 <Lock size={16} strokeWidth={1.75} className={cn("ad-fbadge-swap absolute inset-0", on && "opacity-0")} />
                 <Award size={16} strokeWidth={1.75} className={cn("ad-fbadge-swap absolute inset-0", !on && "opacity-0")} />
               </span>
-              <span className="whitespace-nowrap text-[length:clamp(26px,11.4cqw,36px)] font-semibold leading-none tracking-[-0.03em] tabular-nums">{value}</span>
+              <span className="whitespace-nowrap text-[length:clamp(26px,13cqw,36px)] font-semibold leading-none tracking-[-0.03em] tabular-nums">{value}</span>
               <span className="max-w-[80%] text-[length:clamp(13px,4.6cqw,14px)] font-medium leading-tight">{label}</span>
             </div>
           </div>

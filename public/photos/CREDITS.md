@@ -36,3 +36,4 @@ Photos used by the gallery's demos, resized and cropped to squares. All are CC0 
 Photographed by Conor Cunningham for Outlander Magazine (the Icons issue, 2026); the first is the cover. © Conor Cunningham / Outlander Magazine, all rights reserved: not covered by this repository's MIT licence and not for reuse. Shown as found in [this r/Fauxmoi post](https://www.reddit.com/r/Fauxmoi/comments/1xli2ab/willem_dafoe_photographed_by_conor_cunningham_for/), resized to 800 × 1000.
 
 - `dafoe/dafoe-1.webp` … `dafoe/dafoe-8.webp`: the eight pictures of that post, the cover first.
+- `dafoe/dafoe-wipe.webp`, `dafoe/dafoe-wipe-raw.webp` (before/after wipe): a square crop of the cover without its lettering, and the same crop flattened by us to imitate an ungraded file. The flat version is our edit, not the photographer's raw. Same rights as above.

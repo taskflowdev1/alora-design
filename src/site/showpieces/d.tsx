@@ -45,6 +45,15 @@ function Quiet({ label = "Reset", onClick }: { label?: string; onClick: () => vo
 
 function SaveScene({ fail = false, className }: { fail?: boolean; className?: string }) {
   const [price, setPrice] = React.useState<number | null>(89000);
+  const [saved, setSaved] = React.useState<number | null>(85000);
+  const save = () =>
+    new Promise<void>((resolve, reject) =>
+      window.setTimeout(() => {
+        if (fail) return reject(new Error("Save failed"));
+        setSaved(price);
+        resolve();
+      }, 900),
+    );
   return (
     <Card className={cn("grid w-full max-w-[440px] gap-4", className)}>
       <div className="flex items-center gap-4">
@@ -53,7 +62,7 @@ function SaveScene({ fail = false, className }: { fail?: boolean; className?: st
       </div>
       <div className="flex items-center gap-gap">
         <CurrencyInput aria-label="Price" value={price} onValueChange={setPrice} className="min-w-0 flex-1" />
-        <SaveMorph onSave={fail ? () => new Promise((_, reject) => window.setTimeout(reject, 900)) : undefined} />
+        <SaveMorph dirty={price !== saved} onSave={save} />
       </div>
     </Card>
   );
@@ -125,7 +134,7 @@ export const DEMOS: Record<string, Demo> = {
   "save-morph": {
     controls: [{ key: "fail", type: "toggle", label: "Save fails", default: false }],
     render: (p) => <SaveScene key={String(p.fail)} fail={!!p.fail} />,
-    usage: () => `<SaveMorph label="Save changes" doneLabel="Saved" onSave={() => api.saveProduct(draft)} />`,
+    usage: () => `<SaveMorph label="Save changes" doneLabel="Saved" dirty={draft !== saved} onSave={() => api.saveProduct(draft)} />`,
   },
   "dust-delete": {
     render: () => <DustScene />,

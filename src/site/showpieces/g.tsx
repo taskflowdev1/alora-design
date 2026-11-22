@@ -1,11 +1,10 @@
 // Showpiece batch G: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
 // and its moment on the landing. Aggregated in ./index.ts.
+import { Card } from "@/components/ui/card";
 import { FoilBadge } from "@/components/ui/foil-badge";
 import { PhotoStack, type StackPhoto } from "@/components/ui/photo-stack";
 import { ProductHotspots, type Hotspot } from "@/components/ui/product-hotspots";
 import { ScratchVoucher } from "@/components/ui/scratch-voucher";
-import { SpinWheel } from "@/components/ui/spin-wheel";
-import { StampCard } from "@/components/ui/stamp-card";
 import type { Demo } from "../demos";
 import { Mark, S, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
@@ -69,30 +68,13 @@ export const DEMOS: Record<string, Demo> = {
     ),
     usage: () => `<FoilBadge value="Rp 100 jt" label="Sales in November" onUnlockedChange={(on) => on && celebrate()} />`,
   },
-  "spin-wheel": {
-    render: () => (
-      <div className="w-full max-w-[420px]">
-        <SpinWheel />
-      </div>
-    ),
-    usage: () => `<SpinWheel\n  prizes={[{ id: "d10", label: "Diskon 10%" }, { id: "ship", label: "Gratis ongkir" }, …]}\n  winner={idFromServer} // optional: where it must land\n  onResult={(prize) => claim(prize.id)}\n/>`,
-  },
-  "stamp-card": {
-    controls: [{ key: "total", type: "select", label: "Slots", options: ["6", "8", "10"], default: "10" }],
-    render: (p) => (
-      <div className="w-full max-w-[460px]">
-        <StampCard key={String(p.total)} total={Number(p.total)} defaultCount={Number(p.total) - 3} />
-      </div>
-    ),
-    usage: (p) => `<StampCard shop="Rimba Kemang" total={${p.total}} defaultCount={${Number(p.total) - 3}} reward="Gratis 1 Gelas kopi tanah liat" code="RIMBA-GRATIS" onComplete={redeem} />`,
-  },
 };
 
 export const TILES: TileDef[] = [
   {
     items: ["product-hotspots"],
     render: () => (
-      <Tile inset="pad" className={S[5]}>
+      <Tile inset="pad" className={S[4]}>
         <h3 className="text-title font-semibold">Shop the table</h3>
         <Mark name="product-hotspots">
           <Play>
@@ -107,9 +89,9 @@ export const TILES: TileDef[] = [
     render: () => (
       <Tile inset="pad" className={S[3]}>
         <h3 className="text-title font-semibold">New arrivals</h3>
-        <Mark name="photo-stack" className="grid justify-items-center py-2">
+        <Mark name="photo-stack" className="grid justify-items-center">
           <Play>
-            <PhotoStack photos={STACK} className="max-w-[240px]" />
+            <PhotoStack photos={STACK} className="max-w-[280px]" />
           </Play>
         </Mark>
       </Tile>
@@ -118,9 +100,9 @@ export const TILES: TileDef[] = [
   {
     items: ["scratch-voucher"],
     render: () => (
-      <Tile inset="pad" className={S[4]}>
+      <Tile inset="pad" className={S[12]}>
         <h3 className="text-title font-semibold">Member voucher</h3>
-        <Mark name="scratch-voucher">
+        <Mark name="scratch-voucher" className="mx-auto w-full max-w-[440px]">
           <Play>
             <ScratchVoucher />
           </Play>
@@ -141,32 +123,6 @@ export const TILES: TileDef[] = [
       </Tile>
     ),
   },
-  {
-    items: ["spin-wheel"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
-        <h3 className="text-title font-semibold">Checkout prize</h3>
-        <Mark name="spin-wheel" className="grid justify-items-center py-2">
-          <Play>
-            <SpinWheel className="max-w-[300px]" />
-          </Play>
-        </Mark>
-      </Tile>
-    ),
-  },
-  {
-    items: ["stamp-card"],
-    render: () => (
-      <Tile inset="pad" className={S[4]}>
-        <h3 className="text-title font-semibold">Loyalty</h3>
-        <Mark name="stamp-card">
-          <Play>
-            <StampCard />
-          </Play>
-        </Mark>
-      </Tile>
-    ),
-  },
 ];
 
 export const MOMENTS: ShowpieceMoment[] = [
@@ -182,7 +138,11 @@ export const MOMENTS: ShowpieceMoment[] = [
     title: "Photo stack shuffle",
     to: "/components/photo-stack",
     width: "max-w-[340px]",
-    render: () => <PhotoStack photos={STACK} />,
+    render: () => (
+      <Card>
+        <PhotoStack photos={STACK} />
+      </Card>
+    ),
   },
   {
     id: "scratch-voucher",
@@ -198,19 +158,5 @@ export const MOMENTS: ShowpieceMoment[] = [
     to: "/components/foil-badge",
     width: "max-w-[340px]",
     render: () => <FoilBadge />,
-  },
-  {
-    id: "spin-wheel",
-    title: "Prize spin wheel",
-    to: "/components/spin-wheel",
-    width: "max-w-[460px]",
-    render: () => <SpinWheel />,
-  },
-  {
-    id: "stamp-card",
-    title: "Loyalty stamp card",
-    to: "/components/stamp-card",
-    width: "max-w-[480px]",
-    render: () => <StampCard />,
   },
 ];

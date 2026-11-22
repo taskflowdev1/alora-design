@@ -9,16 +9,16 @@ const FLY_DAMPING = 17;
 const THROW_AT = 0.26;
 const THROW_SPEED = 650;
 /** The pile's resting tilts, per card, so the stack looks dropped rather than aligned. */
-const TILTS = [-4.2, 3.6, -2.8, 4, -3.3, 2.6];
+const TILTS = [-2.6, 2.2, -1.8, 2.4, -2, 1.6];
 
 const CSS = `
 .ad-stack { touch-action: pan-y; }
-.ad-stack-card { grid-area: 1 / 1; transform-origin: 50% 88%; will-change: transform; }
+.ad-stack-card { grid-area: 1 / 1; transform-origin: 50% 50%; will-change: transform; }
 .ad-stack-card[data-top="true"] { cursor: grab; }
 .ad-stack[data-dragging="true"] .ad-stack-card[data-top="true"] { cursor: grabbing; }
 .ad-stack-foot { transition: opacity 160ms var(--ad-ease); }
 .ad-stack-card[data-top="false"] .ad-stack-foot { opacity: 0; }
-.ad-stack:focus-visible .ad-stack-card[data-top="true"] { background: var(--ad-fill); }
+.ad-stack:focus-visible .ad-stack-card[data-top="true"] { background: var(--ad-fill-strong); }
 `;
 
 interface Body {
@@ -44,11 +44,15 @@ interface Body {
 /** Where a card rests at a depth in the pile. Below the third it waits, hidden, behind the others. */
 const rest = (card: number, rank: number) => {
   const depth = Math.min(rank, 2);
-  return { y: depth * 9, s: 1 - depth * 0.035, r: rank === 0 ? 0 : TILTS[card % TILTS.length] * (depth === 1 ? 1 : 1.3), o: rank <= 2 ? 1 : 0 };
+  return { y: depth * 8, s: 1 - depth * 0.035, r: rank === 0 ? 0 : TILTS[card % TILTS.length] * (depth === 1 ? 1 : 1.25), o: rank <= 2 ? 1 : 0 };
 };
 
+/** Scales about the middle so the tilt stays balanced; the % term keeps each print's bottom edge where `y` puts it. */
+const place = (x: number, y: number, r: number, s: number) =>
+  `translate3d(${x.toFixed(2)}px, calc(${y.toFixed(2)}px + ${((1 - s) * 50).toFixed(3)}%), 0) rotate(${r.toFixed(3)}deg) scale(${s.toFixed(4)})`;
+
 const paintCard = (el: HTMLElement, b: Body) => {
-  el.style.transform = `translate3d(${b.x.toFixed(2)}px, ${b.y.toFixed(2)}px, 0) rotate(${b.r.toFixed(3)}deg) scale(${b.s.toFixed(4)})`;
+  el.style.transform = place(b.x, b.y, b.r, b.s);
   el.style.opacity = b.o.toFixed(3);
 };
 
@@ -322,7 +326,7 @@ export function PhotoStack({ photos, onChange, className, ...props }: PhotoStack
       aria-roledescription="carousel"
       aria-label="Product photos"
       tabIndex={0}
-      className={cn("ad-stack grid w-full select-none pb-[26px]", className)}
+      className={cn("ad-stack grid w-full grid-cols-1 select-none px-2 pb-[26px] pt-[4.5px]", className)}
       {...props}
     >
       <style href="ad-photo-stack" precedence="default">
@@ -336,13 +340,13 @@ export function PhotoStack({ photos, onChange, className, ...props }: PhotoStack
             data-stack-card=""
             data-top={i === 0}
             aria-hidden={i !== 0}
-            className="ad-stack-card grid gap-nest rounded-card bg-surface p-nest shadow-raised"
-            style={{ transform: `translate3d(0, ${t.y}px, 0) rotate(${t.r}deg) scale(${t.s})`, opacity: t.o, zIndex: photos.length - i }}
+            className="ad-stack-card grid grid-cols-1 rounded-card bg-fill p-[calc(var(--ad-nest)*2)] shadow-raised"
+            style={{ transform: place(0, t.y, t.r, t.s), opacity: t.o, zIndex: photos.length - i }}
           >
-            <div className="aspect-[4/5] overflow-hidden rounded-control bg-fill">
+            <div className="aspect-[4/5] overflow-hidden rounded-item bg-fill-strong">
               <img src={p.src} alt={p.alt} draggable={false} className="pointer-events-none block size-full object-cover" />
             </div>
-            <div className="ad-stack-foot flex items-baseline justify-between gap-4 px-2 pb-1 text-body">
+            <div className="ad-stack-foot flex items-baseline justify-between gap-4 px-[calc(var(--ad-nest)*2)] pt-[calc(var(--ad-nest)*2)] text-body">
               <span className="min-w-0 truncate font-medium">{p.name}</span>
               <span className="shrink-0 tabular-nums text-ink-muted">{formatRp(p.price)}</span>
             </div>

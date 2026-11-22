@@ -10,14 +10,33 @@ const DEAD_ZONE = 0.12;
 const MAX_RATE = 34;
 const NUDGE = 300;
 
+/** The gap between the band and every fill inside it, on each side. Fills take the band's radius minus this. */
+const INSET = 8;
+const PRESS = 1.5;
+
 const CSS = `
+@property --ad-rubber-press { syntax: "<length>"; inherits: true; initial-value: 0px; }
 .ad-rubber { --pull: 0; --el: 0px; --er: 0px; --sy: 0px; }
-.ad-rubber-band { clip-path: inset(var(--sy) calc(${REACH}px - var(--er)) var(--sy) calc(${REACH}px - var(--el)) round var(--ad-radius-card)); }
+/* A real box, not a clip, so its corners take the same corner-shape as the fills inside it. */
+.ad-rubber-band { inset: var(--sy) calc(var(--er) * -1) var(--sy) calc(var(--el) * -1); border-radius: var(--ad-radius-card); }
 .ad-rubber-minus { transform: translateX(calc(var(--el) * -1)); }
 .ad-rubber-plus { transform: translateX(var(--er)); }
+.ad-rubber-value { transform: translateX(calc(var(--pull) * 0.62px)); touch-action: pan-y; cursor: ew-resize; }
 /* Only the fill and the press ease: the pull itself has to follow the finger with no lag. */
-.ad-rubber-value { transform: translateX(calc(var(--pull) * 0.62px)); touch-action: pan-y; cursor: ew-resize; transition: background-color 150ms var(--ad-ease), scale 150ms var(--ad-ease); }
-.ad-rubber-value:active { scale: 0.97; }
+.ad-rubber-hit { --ad-rubber-press: 0px; transition: --ad-rubber-press 150ms var(--ad-ease); }
+.ad-rubber-hit:active:not(:disabled) { --ad-rubber-press: ${PRESS}px; }
+/* Follows the band as it thins, and a press draws it in on all four sides, so the gap stays even and the arcs share a centre. */
+.ad-rubber-fill {
+  position: absolute; pointer-events: none;
+  inset: calc(var(--sy) + var(--ad-rubber-press)) var(--ad-rubber-press);
+  border-radius: max(0px, calc(var(--ad-radius-card) - ${INSET}px - var(--ad-rubber-press)));
+  transition: background-color 150ms var(--ad-ease);
+}
+@media (hover: hover) { .ad-rubber-hit:hover:not(:disabled) > .ad-rubber-fill { background: var(--ad-fill-strong); } }
+.ad-rubber-hit:focus-visible > .ad-rubber-fill, .ad-rubber-hit:active:not(:disabled) > .ad-rubber-fill { background: var(--ad-fill-strong); }
+.ad-rubber-hit > svg { position: relative; transition: scale 150ms var(--ad-ease); }
+.ad-rubber-hit:active:not(:disabled) > svg { scale: 0.88; }
+@media (prefers-reduced-motion: reduce) { .ad-rubber-hit, .ad-rubber-fill, .ad-rubber-hit > svg { transition: none; } }
 @keyframes ad-rubber-digit { from { opacity: 0.6; transform: translateY(calc(var(--dir, 1) * 0.2em)); filter: blur(1px); } }
 .ad-rubber-digit { display: inline-block; animation: ad-rubber-digit 90ms var(--ad-ease); }`;
 
@@ -201,19 +220,19 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
 
   const text = formatNumber(current);
   const chars = [...text];
-  const button =
-    "ad-press relative grid size-[44px] shrink-0 cursor-pointer place-items-center rounded-item text-ink hover:bg-fill-strong focus-visible:bg-fill-strong active:scale-[0.92] disabled:cursor-default disabled:text-ink-muted disabled:hover:bg-transparent disabled:active:scale-100";
+  const button = "ad-rubber-hit relative grid size-[44px] shrink-0 cursor-pointer place-items-center text-ink disabled:cursor-default disabled:text-ink-muted";
 
   return (
     <div ref={rootRef} className={cn("ad-rubber relative flex max-w-full select-none justify-center", className)} style={{ paddingInline: REACH }} {...props}>
       <style href="ad-rubber-band-stepper" precedence="default">
         {CSS}
       </style>
-      <div className="relative flex h-[60px] w-[184px] shrink-0 items-center justify-between px-2">
-        <div aria-hidden className="ad-rubber-band pointer-events-none absolute inset-y-0 bg-fill" style={{ left: -REACH, right: -REACH }} />
+      <div className="relative flex h-[60px] w-[184px] shrink-0 items-center justify-between" style={{ paddingInline: INSET }}>
+        <div aria-hidden className="ad-rubber-band pointer-events-none absolute bg-fill" />
         <div className="ad-rubber-minus relative">
           <button type="button" tabIndex={-1} aria-label={`Decrease ${label.toLowerCase()}`} disabled={current <= min} onClick={() => stepBy(-1)} className={button}>
-            <Minus size={16} aria-hidden />
+            <span aria-hidden className="ad-rubber-fill" />
+            <Minus size={16} strokeWidth={1.75} aria-hidden />
           </button>
         </div>
         <div
@@ -226,17 +245,19 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
           aria-valuenow={current}
           onKeyDown={onKeyDown}
           style={{ "--dir": dir } as React.CSSProperties}
-          className="ad-rubber-value relative flex h-[44px] min-w-[56px] items-center justify-center rounded-item px-1 text-[26px] font-semibold leading-none tabular-nums text-ink hover:bg-fill-strong focus-visible:bg-fill-strong"
+          className="ad-rubber-value ad-rubber-hit relative flex h-[44px] min-w-[56px] items-center justify-center px-1 text-[26px] font-semibold leading-none tabular-nums text-ink"
         >
+          <span aria-hidden className="ad-rubber-fill" />
           {chars.map((ch, i) => (
-            <span key={`${chars.length - i}:${ch}`} className="ad-rubber-digit">
+            <span key={`${chars.length - i}:${ch}`} className="ad-rubber-digit relative">
               {ch}
             </span>
           ))}
         </div>
         <div className="ad-rubber-plus relative">
           <button type="button" tabIndex={-1} aria-label={`Increase ${label.toLowerCase()}`} disabled={current >= max} onClick={() => stepBy(1)} className={button}>
-            <Plus size={16} aria-hidden />
+            <span aria-hidden className="ad-rubber-fill" />
+            <Plus size={16} strokeWidth={1.75} aria-hidden />
           </button>
         </div>
       </div>

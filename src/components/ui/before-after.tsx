@@ -7,14 +7,12 @@ const DAMPING = 36; // just under critical: it arrives without a wobble
 const KEY_STEP = 0.02;
 const KEY_STEP_BIG = 0.1;
 
-/*
- * One number (--v, 0 to 1) moves everything: the wipe, the knob, and the two pictures sliding a little in opposite
- * directions so they read as two layers rather than one image with a filter on half of it.
- */
+/** How far a press may wander, in px, and still count as a click that sends the wipe there. */
+const CLICK_SLOP = 4;
+
+/* One number (--v, 0 to 1) moves the wipe and the knob. The two pictures stay locked together, pixel on pixel. */
 const CSS = `
-.ad-ba { --v: 0.5; --n: calc(var(--v) * 2 - 1); container-type: inline-size; touch-action: pan-y; }
-.ad-ba-after { transform: translateX(calc(var(--n) * 1.5%)) scale(1.07); }
-.ad-ba-before { transform: translate(calc(var(--n) * -1.5% - 0.7%), 0.5%) rotate(-0.5deg) scale(1.09); }
+.ad-ba { --v: 0.5; container-type: inline-size; touch-action: pan-y; }
 .ad-ba-clip { clip-path: inset(0 calc((1 - var(--v)) * 100%) 0 0); }
 .ad-ba-edge { transform: translateX(calc(var(--v) * 100cqw)); }
 /* grey-ok: the shadow the raw layer casts on the edited one */
@@ -38,8 +36,8 @@ export interface BeforeAfterProps extends Omit<React.HTMLAttributes<HTMLDivEleme
 }
 
 /**
- * A draggable wipe between a raw and an edited product shot, with a slight parallax between them. Drag anywhere on the
- * picture, click to send the wipe there, use the arrow keys, or double-click to centre it.
+ * A wipe between a raw and an edited picture of the same frame. Click anywhere and the wipe glides there; dragging and
+ * the arrow keys work too, and Enter centres it.
  */
 export function BeforeAfter({
   before,
@@ -54,7 +52,7 @@ export function BeforeAfter({
   ...props
 }: BeforeAfterProps) {
   const root = React.useRef<HTMLDivElement>(null);
-  const sim = React.useRef({ x: defaultValue, v: 0, to: defaultValue, raf: 0, last: 0, id: -1, onScreen: true });
+  const sim = React.useRef({ x: defaultValue, v: 0, to: defaultValue, raf: 0, last: 0, id: -1, startX: 0, dragging: false, onScreen: true });
   const change = React.useRef(onValueChange);
   change.current = onValueChange;
   const [value, setValue] = React.useState(defaultValue);
@@ -148,37 +146,44 @@ export function BeforeAfter({
       ref={root}
       onPointerDown={(e) => {
         if (e.pointerType === "mouse" && e.button !== 0) return;
+        const s = sim.current;
         e.currentTarget.setPointerCapture(e.pointerId);
-        sim.current.id = e.pointerId;
+        s.id = e.pointerId;
+        s.startX = e.clientX;
+        s.dragging = false;
         setHeld(true);
-        if (e.pointerType === "touch") return; // a finger may be starting a scroll: it takes hold once it moves sideways
-        glide(at(e));
+        if (e.pointerType !== "touch") glide(at(e)); // a finger may be starting a scroll: it lands on release instead
       }}
       onPointerMove={(e) => {
-        if (sim.current.id === e.pointerId) jump(at(e));
+        const s = sim.current;
+        if (s.id !== e.pointerId) return;
+        // A hand that shifts a pixel mid-click must not cut the glide short.
+        if (!s.dragging && Math.abs(e.clientX - s.startX) < CLICK_SLOP) return;
+        s.dragging = true;
+        jump(at(e));
       }}
       onPointerUp={(e) => {
-        if (sim.current.id !== e.pointerId) return;
-        sim.current.id = -1;
+        const s = sim.current;
+        if (s.id !== e.pointerId) return;
+        s.id = -1;
         setHeld(false);
-        if (e.pointerType === "touch") glide(at(e));
+        if (e.pointerType === "touch" && !s.dragging) glide(at(e));
       }}
       onPointerCancel={() => {
         sim.current.id = -1;
         setHeld(false);
       }}
-      onDoubleClick={() => glide(0.5)}
       style={{ "--v": defaultValue } as React.CSSProperties}
-      className={cn("ad-ba relative aspect-[4/3] w-full cursor-ew-resize touch-pan-y overflow-hidden rounded-card bg-fill shadow-raised select-none", className)}
+      className={cn("ad-ba relative aspect-[4/3] w-full cursor-pointer touch-pan-y overflow-hidden rounded-card bg-fill shadow-raised select-none", className)}
       {...props}
     >
       <style href="ad-before-after" precedence="default">
         {CSS}
       </style>
 
-      <img src={after} alt={`${alt}, ${afterLabel.toLowerCase()}`} draggable={false} className="ad-ba-after pointer-events-none absolute inset-0 size-full object-cover" />
+      <img src={after} alt={`${alt}, ${afterLabel.toLowerCase()}`} draggable={false} className="pointer-events-none absolute inset-0 size-full object-cover" />
       <div className="ad-ba-clip pointer-events-none absolute inset-0 overflow-hidden">
-        <img src={before} alt={`${alt}, ${beforeLabel.toLowerCase()}`} draggable={false} style={{ filter: beforeFilter }} className="ad-ba-before absolute inset-0 size-full object-cover" />
+        <img src={before} alt={`${alt}, ${beforeLabel.toLowerCase()}`} draggable={false} style={{ filter: beforeFilter }} className="absolute inset-0 size-full object-cover" />
       </div>
 
       <span aria-hidden className={cn("ad-ba-tag pointer-events-none absolute left-3 top-3 rounded-item bg-surface px-bubble-sm py-1 text-small font-medium text-ink shadow-sel", value < 0.16 && "opacity-0")}>
@@ -203,7 +208,7 @@ export function BeforeAfter({
           aria-valuetext={`${Math.round(value * 100)}% ${beforeLabel.toLowerCase()}`}
           onKeyDown={onKey}
           className={cn(
-            "ad-press pointer-events-auto absolute left-0 top-1/2 flex size-[44px] -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full bg-surface text-ink shadow-raised hover:bg-fill focus-visible:bg-fill-strong",
+            "ad-press pointer-events-auto absolute left-0 top-1/2 flex size-[44px] -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-surface text-ink shadow-raised hover:bg-fill focus-visible:bg-fill-strong",
             held && "scale-[0.94]",
           )}
         >
