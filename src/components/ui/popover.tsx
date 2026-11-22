@@ -19,12 +19,14 @@ export interface PopoverProps {
   side?: "top" | "right" | "bottom" | "left";
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Where focus goes on open (default: the first control). preventDefault to keep it elsewhere. */
+  onOpenAutoFocus?: (event: Event) => void;
   className?: string;
   /** "dark" when opened from the dark sidebar. */
   tone?: "light" | "dark";
 }
 
-export function Popover({ trigger, children, align = "start", side = "bottom", open: openProp, onOpenChange, className, tone }: PopoverProps) {
+export function Popover({ trigger, children, align = "start", side = "bottom", open: openProp, onOpenChange, onOpenAutoFocus, className, tone }: PopoverProps) {
   const id = React.useId();
   const group = React.useContext(Group);
   // A close within 300 ms of opening is the second click of a double click: ignored, so the panel stays open instead of
@@ -50,6 +52,7 @@ export function Popover({ trigger, children, align = "start", side = "bottom", o
           sideOffset={6}
           collisionPadding={8}
           onEscapeKeyDown={() => setOpen(false, true)}
+          onOpenAutoFocus={onOpenAutoFocus}
           className={cn(
             "z-50 rounded-card bg-raised p-[calc(var(--ad-nest)*2)] text-ink shadow-raised",
             "origin-(--radix-popover-content-transform-origin) data-[state=open]:animate-[ad-in_220ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_180ms_var(--ad-ease)]",

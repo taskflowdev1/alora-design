@@ -97,6 +97,8 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
 - Routes: `/components` (desktop; `/gallery` redirects), `/mobile` (its own tab: PWA scenes, then the app's screens; plus
   `/mobile/<name>`, `/mobile/screens`, `/mobile/app/<screen>`), `/ai`, `/backgrounds`, `/examples/*`, `/encyclopedia`, `/export`. The
   sticky header is one box on every page; below lg its tabs scroll sideways in a second row. Ctrl/Cmd+K opens the palette.
+- Page top: one title, then at most `PageSearch`, one `FilterButton` (all filters, with a count), `MoreMenu` (⋯) and one
+  primary action, on one row (`layout.page-top`). On a phone: logo, profile, bottom nav; metrics in one snap row.
 - Pills, chips, segments and tabs share one padding scale: `px-bubble` / `px-bubble-sm`. Metric cards are all one
   height; Tile (default), Hero for the one main number, Scale for a few short counts.
 - Gallery per-component overrides go on `<body>` (portalled menus live there); `#root` keeps the global tokens.

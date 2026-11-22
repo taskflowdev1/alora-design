@@ -25,6 +25,8 @@ import {
   Mail,
   Tag,
   BarChart2,
+  Download,
+  Printer,
 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
@@ -61,7 +63,8 @@ import { Popover } from "@/components/ui/popover";
 import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/toast";
 import { Menu, MenuGroup, MenuItem, MenuLabel, MenuSub } from "@/components/ui/menu";
-import { Toolbar, ToolbarSpacer, PageHeader } from "@/components/ui/toolbar";
+import { MoreMenu, PageHeader, PageSearch } from "@/components/ui/toolbar";
+import { FilterButton, FilterChecks, FilterPick } from "@/components/ui/filter-button";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
 import { DAILY, NOW, ORDERS, PRODUCTS, SHOPS, TEAM, itemPhoto, productPhoto, smartTime, type OrderStatus } from "./data";
@@ -255,52 +258,53 @@ export const DEMOS: Record<string, Demo> = {
     stage: "page",
     render: () => {
       const [q, setQ] = React.useState("");
-      const [range, setRange] = React.useState("week");
+      const [status, setStatus] = React.useState<string[]>([]);
       return (
         <div className="grid w-full max-w-4xl gap-4">
-          {/* The title alone; export and the create action end the filter row (one line of controls). */}
-          <PageHeader title="Orders" />
-          <Toolbar>
-            <Search value={q} onValueChange={setQ} placeholder="Order or product" />
-            <Popover trigger={<Button>Filter</Button>}>
-              <div className="grid w-56 gap-2.5">
-                <CheckboxField label="Unpaid" defaultChecked />
-                <CheckboxField label="To pack" />
-                <CheckboxField label="Shipped" />
-              </div>
-            </Popover>
-            <Popover trigger={<Button>Columns</Button>}>
-              <div className="grid w-56 gap-2.5">
-                <CheckboxField label="Customer" defaultChecked />
-                <CheckboxField label="Payment" defaultChecked />
-                <CheckboxField label="Fee" />
-              </div>
-            </Popover>
-            <ToolbarSpacer />
-            {/* The right end stays together when the row wraps. */}
-            <div className="ml-auto flex items-center gap-gap">
-              <Segmented
-                aria-label="Range"
-                value={range}
-                onValueChange={setRange}
-                options={[
-                  { value: "day", label: "Day" },
-                  { value: "week", label: "Week" },
-                  { value: "month", label: "Month" },
-                ]}
-              />
-              <Button>Export</Button>
-              <Button variant="primary">
-                <Plus />
-                Add order
-              </Button>
-            </div>
-          </Toolbar>
+          {/* The whole top area: one title, one search, one Filter, the rest behind ⋯, one primary action. */}
+          <PageHeader title="Orders">
+            <PageSearch value={q} onValueChange={setQ} placeholder="Search orders" />
+            <FilterButton count={status.length ? 1 : 0} onClear={() => setStatus([])}>
+              <FilterChecks label="Status" value={status} onValueChange={setStatus} options={["Unpaid", "To pack", "Shipped"].map((s) => ({ value: s, label: s }))} />
+            </FilterButton>
+            <MoreMenu>
+              <MenuItem icon={Download}>Export</MenuItem>
+              <MenuItem icon={Printer}>Print slips</MenuItem>
+            </MoreMenu>
+            <Button variant="primary">
+              <Plus />
+              Add order
+            </Button>
+          </PageHeader>
         </div>
       );
     },
     usage: () =>
-      `<PageHeader title="Orders" />\n<Toolbar>\n  <Search value={q} onValueChange={setQ} />\n  <Popover trigger={<Button>Filter</Button>}>…</Popover>\n  <Popover trigger={<Button>Columns</Button>}>…</Popover>\n  <ToolbarSpacer />\n  <Segmented value={range} onValueChange={setRange} options={ranges} />\n  <Button>Export</Button>\n  <Button variant="primary"><Plus />Add order</Button>\n</Toolbar>`,
+      `<PageHeader title="Orders">\n  <PageSearch value={q} onValueChange={setQ} placeholder="Search orders" />\n  <FilterButton count={count} onClear={clear}>…</FilterButton>\n  <MoreMenu>\n    <MenuItem icon={Download}>Export</MenuItem>\n  </MoreMenu>\n  <Button variant="primary"><Plus />Add order</Button>\n</PageHeader>`,
+  },
+  "filter-button": {
+    stage: "page",
+    render: () => {
+      const [period, setPeriod] = React.useState("week");
+      const [shops, setShops] = React.useState<string[]>(["Kemang"]);
+      return (
+        <FilterButton count={(period !== "week" ? 1 : 0) + (shops.length ? 1 : 0)} onClear={() => (setPeriod("week"), setShops([]))} done="Show results">
+          <FilterPick
+            label="Period"
+            value={period}
+            onValueChange={setPeriod}
+            options={[
+              { value: "day", label: "Today" },
+              { value: "week", label: "Week" },
+              { value: "month", label: "Month" },
+            ]}
+          />
+          <FilterChecks label="Shop" allLabel="All shops" value={shops} onValueChange={setShops} options={["Kemang", "Senopati", "Dago"].map((s) => ({ value: s, label: s }))} />
+        </FilterButton>
+      );
+    },
+    usage: () =>
+      `<FilterButton count={count} onClear={clear} done="Show 23 orders">\n  <FilterPick label="Period" value={period} onValueChange={setPeriod} options={periods} />\n  <FilterChecks label="Shop" allLabel="All shops" value={shops} onValueChange={setShops} options={shopOptions} />\n</FilterButton>`,
   },
   "save-bar": {
     stage: "page",

@@ -1,14 +1,18 @@
 import * as React from "react";
 import { Download, Package, Plus } from "react-feather";
 import { formatNumber } from "@/lib/ad";
+import { useMediaQuery } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Thumb } from "@/components/ui/thumb";
-import { Chip, ChipGroup, Pill, Status } from "@/components/ui/status";
+import { Pill, Status } from "@/components/ui/status";
 import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
-import { Search } from "@/components/ui/search";
+import { FilterButton, FilterPick } from "@/components/ui/filter-button";
+import { MenuItem } from "@/components/ui/menu";
+import { MobileList, MobileListRow } from "@/components/mobile/mobile-list";
+import { MobileSheet } from "@/components/mobile/mobile-sheet";
 import { Sheet } from "@/components/ui/sheet";
-import { PageHeader, Toolbar } from "@/components/ui/toolbar";
+import { MoreMenu, PageHeader, PageSearch } from "@/components/ui/toolbar";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
@@ -21,7 +25,7 @@ import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { PRODUCTS, productPhoto } from "../data";
-import { useLoading } from "./shared";
+import { PrimaryAction, Rp, useLoading } from "./shared";
 
 /* ------------------------------------------------------------ products */
 
@@ -55,6 +59,11 @@ export function Products() {
   const [adding, setAdding] = React.useState(false);
   const [draft, setDraft] = React.useState({ name: "", price: null as number | null, stock: 10, tags: ["Handmade"] as string[] });
   const [files, setFiles] = React.useState<DropFile[]>([]);
+  const phone = useMediaQuery("(max-width: 767.98px)");
+  // A phone has no inline cells: a row opens a small sheet with the same two edits.
+  const [editing, setEditing] = React.useState<string | null>(null);
+  const [edit, setEdit] = React.useState({ price: null as number | null, stock: 0 });
+  const edited = rows.find((r) => r.sku === editing);
   const list = rows.filter(
     (p) =>
       (filter === "all" || (filter === "low" && p.stock > 0 && p.stock < 5) || (filter === "out" && p.stock === 0)) &&
@@ -64,34 +73,46 @@ export function Products() {
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
   return (
     <div className="grid grid-cols-1 gap-4">
-      <PageHeader title="Products" />
-      <Toolbar>
-        <Search value={q} onValueChange={setQ} placeholder="Name or SKU" wrapperClassName="max-sm:w-full" />
-        <ChipGroup aria-label="Stock" className="flex-nowrap">
-          {[
-            ["all", "All"],
-            ["low", "Low stock"],
-            ["out", "Out of stock"],
-          ].map(([k, l]) => (
-            <Chip key={k} selected={filter === k} onClick={() => setFilter(k)}>
-              {l}
-            </Chip>
-          ))}
-        </ChipGroup>
-        <div className="ml-auto flex items-center gap-gap">
-          <Button>
-            <Download />
-            Export
-          </Button>
-          <Button variant="primary" onClick={() => setAdding(true)}>
-            <Plus />
-            Add product
-          </Button>
-        </div>
-      </Toolbar>
+      <PageHeader title="Products">
+        <PageSearch value={q} onValueChange={setQ} placeholder="Name or SKU" />
+        <FilterButton count={filter === "all" ? 0 : 1} onClear={() => setFilter("all")} done={`Show ${formatNumber(list.length)} products`}>
+          <FilterPick
+            label="Stock"
+            value={filter}
+            onValueChange={setFilter}
+            options={[
+              { value: "all", label: "All" },
+              { value: "low", label: "Low stock" },
+              { value: "out", label: "Out of stock" },
+            ]}
+          />
+        </FilterButton>
+        <MoreMenu>
+          <MenuItem icon={Download} onSelect={() => toast("Export started", "neutral")}>Export</MenuItem>
+        </MoreMenu>
+        <PrimaryAction icon={Plus} label="Add product" onClick={() => setAdding(true)} />
+      </PageHeader>
       <Card inset="nest">
         {list.length === 0 ? (
           <EmptyState icon={Package} title="No products match" className="py-16" />
+        ) : phone ? (
+          <MobileList className="px-0 [&>[role=list]]:bg-transparent [&>[role=list]]:p-0">
+            {list.map((p) => (
+              <MobileListRow
+                key={p.sku}
+                onClick={() => (setEditing(p.sku), setEdit({ price: p.price, stock: p.stock }))}
+                media={<Loading loading={loading}><Thumb src={productPhoto(p.sku)} alt={p.name} size={36} /></Loading>}
+                title={<L>{p.name}</L>}
+                subtitle={<L><span translate="no">{p.sku}</span> · {p.stock} in stock</L>}
+                value={
+                  <span className="grid justify-items-end gap-0.5">
+                    <span className="text-ink"><L><Rp>{formatNumber(p.price)}</Rp></L></span>
+                    <Loading loading={loading}>{stockStatus(p.stock)}</Loading>
+                  </span>
+                }
+              />
+            ))}
+          </MobileList>
         ) : (
           <Table>
             <THead>
@@ -167,6 +188,32 @@ export function Products() {
           </Table>
         )}
       </Card>
+      <MobileSheet
+        open={!!editing}
+        onOpenChange={(o) => !o && setEditing(null)}
+        title={edited?.name}
+        footer={
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (edited) set(edited.sku, { price: edit.price ?? edited.price, stock: edit.stock });
+              setEditing(null);
+              toast(`${edited?.name ?? "Product"} saved`);
+            }}
+          >
+            Save
+          </Button>
+        }
+      >
+        <div className="grid gap-4 pb-1">
+          <Field label="Price">
+            <CurrencyInput aria-label="Price" value={edit.price} onValueChange={(price) => setEdit({ ...edit, price })} />
+          </Field>
+          <Field label="Stock">
+            <QuantityStepper aria-label="Stock" value={edit.stock} onValueChange={(stock) => setEdit({ ...edit, stock })} max={999} />
+          </Field>
+        </div>
+      </MobileSheet>
       <Sheet
         open={adding}
         onOpenChange={setAdding}

@@ -1,18 +1,17 @@
 import * as React from "react";
 import { useNavigate, useParams } from "react-router";
-import { Bell, ChevronDown, Home, LogOut, MoreHorizontal, Package, Plus, Settings as SettingsIcon, ShoppingBag, Tag, User, Users, XCircle } from "react-feather";
+import { Bell, Home, LogOut, MoreHorizontal, Package, Settings as SettingsIcon, ShoppingBag, Tag, User, Users, XCircle } from "react-feather";
 import { cn } from "@/lib/ad";
 import { serializeConfig } from "@/lib/config";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/ui/sidebar";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { Avatar } from "@/components/ui/avatar";
-import { toast } from "@/components/ui/toast";
 import { MobileTab, MobileTabBar } from "@/components/mobile/mobile-tab-bar";
 import { NotificationBell } from "@/components/ui/notification-bell";
 import { AppFrame } from "../app-frame";
 import { SLink, useConfig } from "../config";
 import { useEdgeFade } from "../layout";
-import { NOTICES, SHOPS } from "../data";
+import { NOTICES } from "../data";
 import { Cancellations } from "./cancellations";
 import { Dashboard } from "./dashboard";
 import { Orders } from "./orders";
@@ -32,20 +31,43 @@ const NAV: { key: Page; label: string; icon: typeof Home; count?: number }[] = [
   { key: "cancellations", label: "Cancellations", icon: XCircle, count: 4 },
 ];
 
-/** The phone layout's floating create action, above the tab bar. */
-function Fab({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ size?: number | string }>; label: string; onClick?: () => void }) {
+type Notices = { notices: typeof NOTICES; onRead: () => void };
+
+/** The shop's mark: its initial on a soft square. */
+const ShopMark = ({ className }: { className?: string }) => (
+  <span aria-hidden className={cn("grid size-7 shrink-0 place-items-center rounded-item text-body font-semibold", className)}>
+    R
+  </span>
+);
+
+const accountItems = (
+  <>
+    <MenuItem icon={User}>Profile</MenuItem>
+    <MenuItem icon={Bell}>Notifications</MenuItem>
+    <MenuItem icon={LogOut}>Sign out</MenuItem>
+  </>
+);
+
+/** Phone chrome: the shop on the left, notifications and the profile on the right. Sections live in the bottom nav. */
+function PhoneAppBar({ notices, onRead }: Notices) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className={cn(
-        "fixed bottom-[calc(92px+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 cursor-pointer place-items-center rounded-card bg-brand text-brand-ink shadow-dialog",
-        "ad-press hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]",
-      )}
-    >
-      <Icon size={20} />
-    </button>
+    <div data-phone-app-bar className="flex h-touch items-center gap-2 lg:hidden">
+      <ShopMark className="bg-fill-strong text-ink" />
+      <span translate="no" className="mr-auto truncate text-title font-semibold text-ink">
+        Rimba
+      </span>
+      <NotificationBell notices={notices} onMarkAllRead={onRead} className="size-touch" />
+      <Menu
+        align="end"
+        trigger={
+          <button type="button" aria-label="Account" className="grid size-touch cursor-pointer place-items-center rounded-full transition-[filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.78]">
+            <Avatar name="Rizky Hartono" size="sm" />
+          </button>
+        }
+      >
+        {accountItems}
+      </Menu>
+    </div>
   );
 }
 
@@ -65,26 +87,15 @@ function NavLink({ to, children, ...props }: { to: string; children: React.React
   );
 }
 
-function AppSidebar({ page }: { page: Page }) {
-  const [shop, setShop] = React.useState("All shops");
-  const [notices, setNotices] = React.useState(NOTICES);
+function AppSidebar({ page, notices, onRead }: { page: Page } & Notices) {
   return (
     <Sidebar className="h-full max-lg:hidden">
-      <Menu
-        tone="dark"
-        trigger={
-          <button type="button" className="mb-3 flex h-control w-full cursor-pointer items-center gap-2.5 rounded-item bg-side-fill px-2.5 text-left text-body text-side-ink ad-press hover:bg-side-fill-strong focus-visible:bg-side-fill-strong active:scale-[0.98]">
-            <span className="min-w-0 flex-1 truncate font-medium">Rimba · {shop}</span>
-            <ChevronDown size={16} className="shrink-0 text-side-muted" />
-          </button>
-        }
-      >
-        {["All shops", ...SHOPS].map((s) => (
-          <MenuItem key={s} onSelect={() => setShop(s)}>
-            {s}
-          </MenuItem>
-        ))}
-      </Menu>
+      <div className="mb-3 flex h-control items-center gap-2.5 px-1 text-body text-side-ink">
+        <ShopMark className="bg-side-fill-strong text-side-ink" />
+        <span translate="no" className="min-w-0 flex-1 truncate font-medium">
+          Rimba
+        </span>
+      </div>
       <SidebarSection>
         {NAV.map((n) => (
           <SidebarItem key={n.key} icon={n.icon} active={page === n.key} count={n.count} asChild>
@@ -111,12 +122,10 @@ function AppSidebar({ page }: { page: Page }) {
             </button>
           }
         >
-          <MenuItem icon={User}>Profile</MenuItem>
-          <MenuItem icon={Bell}>Notifications</MenuItem>
-          <MenuItem icon={LogOut}>Sign out</MenuItem>
+          {accountItems}
         </Menu>
         <div className="ad-on-dark">
-          <NotificationBell notices={notices} onMarkAllRead={() => setNotices(notices.map((n) => ({ ...n, unread: false })))} className="text-side-muted hover:text-side-ink" />
+          <NotificationBell notices={notices} onMarkAllRead={onRead} className="text-side-muted hover:text-side-ink" />
         </div>
       </div>
     </Sidebar>
@@ -148,7 +157,6 @@ function PhoneNavBar({ page }: { page: Page }) {
           <MenuItem icon={SettingsIcon} onSelect={() => go("settings")}>Settings</MenuItem>
         </Menu>
       </MobileTabBar>
-      {page === "orders" ? <Fab icon={Plus} label="Add order" onClick={() => toast("New order")} /> : null}
     </div>
   );
 }
@@ -160,14 +168,17 @@ export function Examples() {
   const { page = "dashboard" } = useParams();
   const p = (PAGES.includes(page as Page) ? page : "dashboard") as Page;
   const app = React.useRef<HTMLDivElement>(null);
+  const [notices, setNotices] = React.useState(NOTICES);
+  const bell = { notices, onRead: () => setNotices(notices.map((n) => ({ ...n, unread: false }))) };
   useEdgeFade(app);
   React.useLayoutEffect(() => {
     if (app.current) app.current.scrollTop = 0;
   }, [p]);
   return (
     <div className="mx-auto w-full max-w-[1280px] px-4 pb-4 sm:px-6 lg:h-[calc(100dvh-64px)] max-lg:min-h-[calc(100dvh-108px)]">
-      <AppFrame className="lg:h-full" sidebar={<AppSidebar page={p} />}>
-        <div ref={app} data-app style={PAGE_HEIGHT} className="ad-fade-y min-h-0 min-w-0 flex-1 overflow-auto max-lg:pb-24">
+      <AppFrame className="lg:h-full" sidebar={<AppSidebar page={p} {...bell} />}>
+        <PhoneAppBar {...bell} />
+        <div ref={app} data-app style={PAGE_HEIGHT} className="ad-fade-y min-h-0 min-w-0 flex-1 overflow-auto max-lg:pb-[calc(max(10px,env(safe-area-inset-bottom))+52px+2*var(--ad-nest)+12px+52px+16px)]">
           {/* key: a fresh page (its own state and scroll) per switch; it swaps in one frame, no fade from blank. */}
           <div key={p} className="px-0 py-1 lg:p-pad">
             {p === "dashboard" ? (

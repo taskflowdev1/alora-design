@@ -1,24 +1,24 @@
 import * as React from "react";
-import { Download, Plus, Search as SearchIcon } from "react-feather";
-import { formatRp } from "@/lib/ad";
+import { Columns, Download, Plus, Printer, Search as SearchIcon } from "react-feather";
+import { formatNumber, formatRp, sameDay, startOfWeek } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Status } from "@/components/ui/status";
 import { Table, TableBar, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
-import { Search } from "@/components/ui/search";
-import { Select } from "@/components/ui/select";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { FilterButton, FilterChecks, FilterGroup } from "@/components/ui/filter-button";
+import { MenuItem } from "@/components/ui/menu";
+import { MobileList, MobileListRow } from "@/components/mobile/mobile-list";
 import { PeriodStepper } from "@/components/ui/period-stepper";
 import { Sheet } from "@/components/ui/sheet";
-import { PageHeader, Toolbar } from "@/components/ui/toolbar";
+import { MoreMenu, PageHeader, PageSearch } from "@/components/ui/toolbar";
 import { toast } from "@/components/ui/toast";
 import { LoadingText } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ColumnMenu } from "@/components/ui/column-menu";
-import { useDoubleTapGuard } from "@/lib/ad-hooks";
+import { useDoubleTapGuard, useMediaQuery } from "@/lib/ad-hooks";
 import { OrderDetail } from "../demos";
 import { NOW, ORDERS, SHOPS, smartTime, type OrderStatus } from "../data";
-import { NoTranslate, PANE_CLASS, useLoading, usePaneRoom, useWide } from "./shared";
+import { NoTranslate, PANE_CLASS, PrimaryAction, Rp, useLoading, usePaneRoom, useWide } from "./shared";
 
 /* ------------------------------------------------------------ orders */
 
@@ -38,12 +38,14 @@ const ORDER_COLS = [
 export function Orders() {
   const forcedLoading = useLoading();
   const [q, setQ] = React.useState("");
-  const [shop, setShop] = React.useState("all");
+  const [shops, setShops] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<string[]>([]);
   const [week, setWeek] = React.useState(NOW);
   const [page, setPage] = React.useState(1);
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [cols, setCols] = React.useState(["time", "shop", "customer", "items", "payment", "fee"]);
+  const [columnsOpen, setColumnsOpen] = React.useState(false);
+  const phone = useMediaQuery("(max-width: 767.98px)");
   // Orders moved on from the pane (packed, then shipped): the table and the pane's steps follow.
   const [moved, setMoved] = React.useState<Record<string, OrderStatus>>({});
   const statusOf = (o: (typeof ORDERS)[number]): OrderStatus => moved[o.id] ?? o.status;
@@ -56,11 +58,11 @@ export function Orders() {
     const t = q.trim().toLowerCase();
     return ORDERS.filter(
       (o) =>
-        (shop === "all" || o.shop === shop) &&
+        (!shops.length || shops.includes(o.shop)) &&
         (!status.length || status.includes(moved[o.id] ?? o.status)) &&
         (!t || o.id.toLowerCase().includes(t) || o.items.toLowerCase().includes(t) || o.customer.toLowerCase().includes(t)),
     );
-  }, [q, shop, status, moved]);
+  }, [q, shops, status, moved]);
   const pageRows = rows.slice((page - 1) * 50, page * 50);
 
   // A filter or page change shows the skeleton, the same shape as the rows that arrive.
@@ -72,9 +74,9 @@ export function Orders() {
     setBusy(true);
     const id = window.setTimeout(() => setBusy(false), 350);
     return () => window.clearTimeout(id);
-  }, [page, shop, week, status]);
+  }, [page, shops, week, status]);
 
-  React.useEffect(() => setPage(1), [q, shop, status]);
+  React.useEffect(() => setPage(1), [q, shops, status]);
 
   const open = ORDERS.find((o) => o.id === openId);
   const openStatus = open ? statusOf(open) : null;
@@ -94,31 +96,63 @@ export function Orders() {
 
   return (
     <div className="flex h-[var(--ex-page-h)] min-h-[520px] flex-col gap-4 max-lg:h-auto">
-      <PageHeader title="Orders" />
-      <Toolbar>
-        <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="max-sm:w-full" />
-        <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.map((s) => ({ value: s, label: s }))]} />
-        {/* "Status · 3" at one fixed width: picking statuses while the menu is open must not grow the trigger and shove the row. */}
-        <MultiSelect aria-label="Status" placeholder="Status" maxChips={0} value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} className="w-32" />
-        <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} />
-        {/* Columns, Export and Add stay together at the right end, also when the row wraps (1024). */}
-        <div className="ml-auto flex items-center gap-gap">
-          <ColumnMenu columns={menuCols} visible={cols} onVisibleChange={setCols} defaults={["time", "shop", "customer", "items", "payment", "fee"]} />
-          <Button>
-            <Download />
-            Export
-          </Button>
-          <Button variant="primary" className="max-lg:hidden" onClick={() => toast("New order")}>
-            <Plus />
-            Add order
-          </Button>
-        </div>
-      </Toolbar>
+      <PageHeader title="Orders">
+        <PageSearch value={q} onValueChange={setQ} placeholder="Search orders" />
+        <FilterButton
+          count={(shops.length ? 1 : 0) + (status.length ? 1 : 0) + (sameDay(startOfWeek(week), startOfWeek(NOW)) ? 0 : 1)}
+          onClear={() => (setShops([]), setStatus([]), setWeek(NOW))}
+          done={`Show ${formatNumber(rows.length)} orders`}
+        >
+          <FilterChecks label="Status" value={status} onValueChange={setStatus} options={STATUSES.map((s) => ({ value: s, label: s }))} />
+          <FilterChecks label="Shop" allLabel="All shops" value={shops} onValueChange={setShops} options={SHOPS.map((s) => ({ value: s, label: <span translate="no">{s}</span> }))} />
+          <FilterGroup label="Week">
+            <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} className="justify-between" />
+          </FilterGroup>
+        </FilterButton>
+        {/* The Columns panel opens from the ⋯ menu and sits under it. A phone shows rows, so it has no columns to pick. */}
+        <span className="relative flex">
+          <MoreMenu>
+            {phone ? null : <MenuItem icon={Columns} onSelect={() => setColumnsOpen(true)}>Columns</MenuItem>}
+            <MenuItem icon={Download} onSelect={() => toast("Export started", "neutral")}>Export</MenuItem>
+            <MenuItem icon={Printer} onSelect={() => toast("Printing slips", "neutral")}>Print slips</MenuItem>
+          </MoreMenu>
+          {phone ? null : (
+            <ColumnMenu
+              open={columnsOpen}
+              onOpenChange={setColumnsOpen}
+              trigger={<span aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-px" />}
+              columns={menuCols}
+              visible={cols}
+              onVisibleChange={setCols}
+              defaults={["time", "shop", "customer", "items", "payment", "fee"]}
+            />
+          )}
+        </span>
+        <PrimaryAction icon={Plus} label="Add order" onClick={() => toast("New order")} />
+      </PageHeader>
       <Card inset="nest" className="flex min-h-0 flex-1 flex-col max-lg:min-h-[480px]" style={room ? { marginRight: room } : undefined} data-orders>
         {rows.length === 0 ? (
           <EmptyState icon={SearchIcon} title="No orders match" className="flex-1" />
         ) : (
           <>
+            {phone ? (
+              <MobileList className="min-h-0 flex-1 px-0 [&>[role=list]]:bg-transparent [&>[role=list]]:p-0">
+                {pageRows.map((o) => (
+                  <MobileListRow
+                    key={o.id}
+                    onClick={() => setOpenId(o.id)}
+                    title={<L><span translate="no">{o.customer}</span></L>}
+                    subtitle={<L><span translate="no">{o.id}</span> · {smartTime(o.at)}</L>}
+                    value={
+                      <span className="grid justify-items-end gap-0.5">
+                        <span className="text-ink"><L><Rp>{formatNumber(o.total)}</Rp></L></span>
+                        {loading ? <L>{statusOf(o)}</L> : <Status tone={o.status === "Unpaid" ? "attention" : o.status === "Cancelled" ? "muted" : "default"}>{statusOf(o)}</Status>}
+                      </span>
+                    }
+                  />
+                ))}
+              </MobileList>
+            ) : (
             <Table className="min-h-0 flex-1">
               <THead>
                 <tr>
@@ -196,6 +230,7 @@ export function Orders() {
                 ))}
               </TBody>
             </Table>
+            )}
             <TableBar page={page} total={rows.length} onPageChange={setPage} className="mt-1 shrink-0" />
           </>
         )}

@@ -1,22 +1,22 @@
 import * as React from "react";
-import { Download, ShoppingBag } from "react-feather";
+import { Download, RefreshCw, ShoppingBag } from "react-feather";
 import { formatNumber, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, MetricCard } from "@/components/ui/card";
-import { Segmented } from "@/components/ui/segmented";
+import { Card, CardHeader } from "@/components/ui/card";
 import { BarChart, BarList } from "@/components/ui/bar-chart";
 import { AttentionItem, AttentionList } from "@/components/ui/attention-list";
 import { Thumb } from "@/components/ui/thumb";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/ui/toolbar";
+import { MoreMenu, PageHeader } from "@/components/ui/toolbar";
+import { FilterButton, FilterChecks, FilterPick } from "@/components/ui/filter-button";
+import { MenuItem } from "@/components/ui/menu";
+import { MarketMark } from "@/components/ui/marketplace-mark";
 import { Avatar } from "@/components/ui/avatar";
 import { toast } from "@/components/ui/toast";
 import { LoadingText, Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Alert } from "@/components/ui/alert";
-import { ShopPicker } from "@/components/ui/shop-picker";
 import { DAILY, HOURLY, MARKET_SHOPS, ORDERS, PRODUCTS, productPhoto } from "../data";
-import { NoTranslate, useLoading } from "./shared";
+import { Metrics, NoTranslate, useLoading } from "./shared";
 
 /* ------------------------------------------------------------ dashboard */
 
@@ -48,8 +48,10 @@ const orderShopOf = (id: string) => {
 export function Dashboard() {
   const loading = useLoading();
   const [range, setRange] = React.useState<keyof typeof RANGES>("day");
-  const [shops, setShops] = React.useState(MARKET_SHOPS.map((s) => s.id));
+  // Empty means every shop, the default.
+  const [picked, setPicked] = React.useState<string[]>([]);
   const [shop, setShop] = React.useState<string | null>(null);
+  const shops = picked.length ? picked : MARKET_SHOPS.map((s) => s.id);
   const r = RANGES[range];
   // The picker narrows every number on the page to the shops it keeps; a bar in By shop narrows the lists below to one.
   const share = shops.reduce((a, id) => a + (BY_SHOP[id] ?? 0), 0) / DAY_TOTAL;
@@ -70,30 +72,45 @@ export function Dashboard() {
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Dashboard">
-        <ShopPicker shops={MARKET_SHOPS} value={shops} onValueChange={(v) => (setShops(v), setShop(null))} />
-        <Segmented
-          aria-label="Range"
-          value={range}
-          onValueChange={setRange}
-          options={[
-            { value: "day", label: "Today" },
-            { value: "week", label: "Week" },
-            { value: "month", label: "Month" },
-          ]}
-        />
-        <Button>
-          <Download />
-          Export
-        </Button>
+        <FilterButton
+          count={(picked.length ? 1 : 0) + (range !== "day" ? 1 : 0)}
+          onClear={() => (setPicked([]), setRange("day"), setShop(null))}
+          done="Show results"
+        >
+          <FilterPick
+            label="Period"
+            value={range}
+            onValueChange={setRange}
+            options={[
+              { value: "day", label: "Today" },
+              { value: "week", label: "Week" },
+              { value: "month", label: "Month" },
+            ]}
+          />
+          <FilterChecks
+            label="Shop"
+            allLabel="All shops"
+            value={picked}
+            onValueChange={(v) => (setPicked(v), setShop(null))}
+            presets={[{ label: <><MarketMark market="shopee" />All Shopee</>, value: MARKET_SHOPS.filter((s) => s.market === "shopee").map((s) => s.id) }]}
+            options={MARKET_SHOPS.map((s) => ({ value: s.id, label: <><MarketMark market={s.market} /><span translate="no">{s.name}</span></> }))}
+          />
+        </FilterButton>
+        <MoreMenu>
+          <MenuItem icon={Download} onSelect={() => toast("Export started", "neutral")}>Export</MenuItem>
+          <MenuItem icon={RefreshCw} onSelect={() => toast("Syncing 2 shops", "neutral")}>Sync 2 shops</MenuItem>
+        </MoreMenu>
       </PageHeader>
-      <Alert tone="neutral" title="2 shops haven’t synced since 09:40" action={<Button size="sm" onClick={() => toast("Syncing 2 shops", "neutral")}>Sync</Button>} />
-      <div className="flex flex-wrap gap-4">
-        <MetricCard primary loading={loading} label={`Sales ${r.label}`} unit="Rp" value={sales} delta={{ value: "9,7%", direction: "up" }} />
-        <MetricCard loading={loading} label="Orders" value={orders} />
-        <MetricCard loading={loading} label="Basket" unit="Rp" value={154600} />
-        <MetricCard loading={loading} label="To ship" value={Math.round(18 * share)} />
-        <MetricCard loading={loading} label="Cancelled" value={Math.round(r.cancelled * share)} />
-      </div>
+      <Metrics
+        loading={loading}
+        items={[
+          { label: `Sales ${r.label}`, unit: "Rp", value: sales, primary: true, delta: { value: "9,7%", direction: "up" } },
+          { label: "Orders", value: orders },
+          { label: "Basket", unit: "Rp", value: 154600 },
+          { label: "To ship", value: Math.round(18 * share) },
+          { label: "Cancelled", value: Math.round(r.cancelled * share) },
+        ]}
+      />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader title={chart ? `Sales, last ${chart.length} days` : "Sales by hour"} />

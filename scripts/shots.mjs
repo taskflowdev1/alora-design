@@ -280,9 +280,9 @@ async function run() {
     ["N15", "inline-edit-editing", "/components/inline-edit", async (p) => p.click("[data-stage] tbody tr >> nth=1 >> button >> nth=0")],
     ["N22", "comment-reactions-open", "/components/comment-thread", async (p) => p.click("[data-stage] [aria-label='Add reaction'] >> nth=0")],
     ["N26", "notification-bell-open", "/components/notification-bell", async (p) => p.click("[data-stage] button")],
-    ["E2b", "orders-columns", "/examples/orders", async (p) => p.click("button:has-text('Columns')")],
+    ["E2b", "orders-columns", "/examples/orders", async (p) => { await p.click("[aria-label='More actions']"); await p.click("[role=menuitem]:has-text('Columns')"); }],
     ["E4b", "products-add", "/examples/products", async (p) => p.click("button:has-text('Add product')")],
-    ["E5b", "promotions-calendar", "/examples/promotions", async (p) => p.click("[role=radio]:has-text('Calendar')")],
+    ["E5b", "promotions-calendar", "/examples/promotions", async (p) => { await p.click("[aria-label='More actions']"); await p.click("[role=menuitem]:has-text('Calendar view')"); }],
     ["E5c", "promotions-new", "/examples/promotions", async (p) => p.click("button:has-text('New promotion')")],
     ["E6b", "cancellation-pane", "/examples/cancellations", async (p) => p.click("tbody tr >> nth=1")],
     ["E7b", "team-invite", "/examples/team", async (p) => p.click("button:has-text('Invite')")],
@@ -303,7 +303,7 @@ async function run() {
   }
   // Phone states
   for (const [letter, name, path, act] of [
-    ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("tbody tr >> nth=1")],
+    ["S21", "phone-orders-pane", "/examples/orders", async (p) => p.click("[role=listitem] button >> nth=1")],
     ["S22", "phone-select-open", "/components/select", async (p) => p.click("[data-stage] [aria-haspopup=listbox]")],
     ["S26", "phone-more-menu", "/examples/dashboard", async (p) => p.click("text=More")],
   ]) {

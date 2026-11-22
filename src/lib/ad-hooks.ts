@@ -171,6 +171,19 @@ export function useDoubleTapGuard<A extends unknown[]>(handler: ((...args: A) =>
   );
 }
 
+/** Follows a CSS media query. Reads it on the first render, so a layout that depends on it never flashes the other one. */
+export function useMediaQuery(query: string) {
+  const [on, setOn] = React.useState(() => typeof matchMedia === "function" && matchMedia(query).matches);
+  React.useEffect(() => {
+    const m = matchMedia(query);
+    const set = () => setOn(m.matches);
+    set();
+    m.addEventListener("change", set);
+    return () => m.removeEventListener("change", set);
+  }, [query]);
+  return on;
+}
+
 /** True when the app runs from the home screen (no browser bar, so it must carry its own back button). */
 export function useStandalone() {
   const q = "(display-mode: standalone)";

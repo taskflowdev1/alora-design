@@ -456,8 +456,8 @@ section("inline-edit", async ({ page }) => {
 
 section("press-scale", async ({ page }) => {
   // Anchored pop-up triggers keep their size while pressed: a menu is placed against its trigger, so a press-shrink nudged
-  // the open menu on the click that closes it. Every anchored trigger on Orders (Shop, Status, Columns, …) stays at scale
-  // none under the mouse, and the open Columns menu doesn't move when its trigger is pressed again. Dialog triggers aren't
+  // the open menu on the click that closes it. Every anchored trigger on Orders (Filter, ⋯, the account menu…) stays at scale
+  // none under the mouse, and the open Filter popover doesn't move when its trigger is pressed again. Dialog triggers aren't
   // anchored, so they still press to 0.97.
   await page.goto(BASE + "/examples/orders");
   await sleep(600);
@@ -476,7 +476,7 @@ section("press-scale", async ({ page }) => {
     await sleep(250);
   }
   check(pressed.length >= 3 && pressed.every((p) => p.endsWith(":none")), `pop-up triggers don't shrink on press (${pressed.join(", ")})`);
-  const colsBtn = page.locator('#content button[aria-haspopup]:has-text("Columns")').first();
+  const colsBtn = page.locator("#content [data-filter-button]").first();
   await colsBtn.click();
   await sleep(400);
   const menuAt = () => page.evaluate(() => document.querySelector("[data-radix-popper-content-wrapper]")?.getBoundingClientRect().toJSON() ?? null);
@@ -488,7 +488,7 @@ section("press-scale", async ({ page }) => {
   const menuPressed = await menuAt();
   await page.mouse.up();
   await page.keyboard.press("Escape");
-  check(menuOpen && (!menuPressed || (near(menuOpen.x, menuPressed.x) && near(menuOpen.y, menuPressed.y))), `Columns menu stays put when its trigger is pressed again (${JSON.stringify({ menuOpen, menuPressed })})`);
+  check(menuOpen && (!menuPressed || (near(menuOpen.x, menuPressed.x) && near(menuOpen.y, menuPressed.y))), `Filter popover stays put when its trigger is pressed again (${JSON.stringify({ menuOpen, menuPressed })})`);
   await page.goto(BASE + "/components/dialog");
   const dlgTrigger = page.locator('[data-stage] [aria-haspopup="dialog"]:not([data-ad-anchor]):visible').first();
   const db = await dlgTrigger.boundingBox();

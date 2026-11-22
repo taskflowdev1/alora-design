@@ -1,27 +1,34 @@
 import * as React from "react";
-import { Download, Search as SearchIcon } from "react-feather";
-import { formatRp, sameDay, startOfDay } from "@/lib/ad";
+import { Calendar, Download, Search as SearchIcon } from "react-feather";
+import { formatNumber, formatRp, sameDay, startOfDay } from "@/lib/ad";
+import { useMediaQuery } from "@/lib/ad-hooks";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, MetricCard } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { BarList } from "@/components/ui/bar-chart";
 import { Pill, Status } from "@/components/ui/status";
 import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 import { Sheet } from "@/components/ui/sheet";
-import { PageHeader } from "@/components/ui/toolbar";
+import { MoreMenu, PageHeader, PageSearch } from "@/components/ui/toolbar";
+import { FilterButton, FilterChecks, FilterGroup, FilterPick } from "@/components/ui/filter-button";
+import { MobileList, MobileListRow } from "@/components/mobile/mobile-list";
 import { MenuItem } from "@/components/ui/menu";
 import { toast } from "@/components/ui/toast";
 import { EmptyState } from "@/components/ui/empty-state";
 import { MarketMark } from "@/components/ui/marketplace-mark";
-import { DateRangePicker, type DateRange } from "@/components/ui/date-range-picker";
+import { DateRangePicker, formatRange, type DateRange } from "@/components/ui/date-range-picker";
+import { MobileDateRangeSheet } from "@/components/mobile/mobile-date-range";
 import { Diff } from "@/components/ui/diff";
 import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
 import { CommentThread, type Comment } from "@/components/ui/comment-thread";
 import { CopyChip } from "@/components/ui/copy-chip";
 import { SplitButton } from "@/components/ui/split-button";
 import { CANCEL_REASONS, CANCELLATIONS, NOW, smartTime, type Cancellation } from "../data";
-import { NoTranslate, PANE_CLASS, useLoading, usePaneRoom } from "./shared";
+import { Metrics, NoTranslate, PANE_CLASS, Rp, useLoading, usePaneRoom } from "./shared";
 
 /* ------------------------------------------------------------ cancellations */
+
+const DEFAULT_RANGE: DateRange = { from: new Date(2026, 10, 10), to: NOW };
+const STATUSES: Cancellation["status"][] = ["Waiting refund", "Refunded", "Disputed"];
 
 const CANCEL_COMMENTS: Comment[] = [
   { id: "1", author: "Dewi Anggraini", time: "Today, 10:20", body: "Shopee kept the admin fee on this one. Opened a dispute.", reactions: [{ emoji: "👀", by: ["Rizky Hartono"] }] },
@@ -89,16 +96,38 @@ function CancellationDetail({ c }: { c: Cancellation }) {
   );
 }
 
+/** The dates inside Filter. A phone gets the touch range sheet: the desktop calendar is wider than the screen. */
+function FilterDates({ phone, value, onValueChange }: { phone: boolean; value: DateRange; onValueChange: (r: DateRange) => void }) {
+  const [open, setOpen] = React.useState(false);
+  if (!phone) return <DateRangePicker value={value} onValueChange={onValueChange} today={NOW} className="w-full" />;
+  return (
+    <>
+      <Button className="h-touch w-full justify-start text-[15px] font-normal" onClick={() => setOpen(true)}>
+        <Calendar />
+        {formatRange(value)}
+      </Button>
+      <MobileDateRangeSheet open={open} onOpenChange={setOpen} title="Dates" value={{ from: value.from, to: value.to ?? value.from }} onValueChange={onValueChange} today={NOW} />
+    </>
+  );
+}
+
 export function Cancellations() {
   const loading = useLoading();
   const [reason, setReason] = React.useState<string | null>(null);
-  const [range, setRange] = React.useState<DateRange>({ from: new Date(2026, 10, 10), to: NOW });
+  const [range, setRange] = React.useState<DateRange>(DEFAULT_RANGE);
+  const [q, setQ] = React.useState("");
+  const [statuses, setStatuses] = React.useState<Cancellation["status"][]>([]);
+  const phone = useMediaQuery("(max-width: 767.98px)");
   const [openId, setOpenId] = React.useState<string | null>(null);
   // The date range narrows everything on the page; a reason bar narrows the table further.
   const from = startOfDay(range.from);
   const to = startOfDay(range.to ?? range.from);
   const inRange = CANCELLATIONS.filter((c) => startOfDay(c.at) >= from && startOfDay(c.at) <= to);
-  const rows = inRange.filter((c) => !reason || c.reason === reason);
+  const t = q.trim().toLowerCase();
+  const rows = inRange.filter(
+    (c) => (!reason || c.reason === reason) && (!statuses.length || statuses.includes(c.status)) && (!t || `${c.id} ${c.customer} ${c.items}`.toLowerCase().includes(t)),
+  );
+  const rangeSet = !sameDay(range.from, DEFAULT_RANGE.from) || !sameDay(range.to ?? range.from, DEFAULT_RANGE.to ?? DEFAULT_RANGE.from);
   const counts = CANCEL_REASONS.map((r) => inRange.filter((c) => c.reason === r).length);
   const open = CANCELLATIONS.find((c) => c.id === openId);
   const lost = inRange.reduce((a, c) => a + c.feeDiff, 0);
@@ -106,20 +135,38 @@ export function Cancellations() {
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Cancellations">
-        <DateRangePicker value={range} onValueChange={setRange} today={NOW} />
-        <Button>
-          <Download />
-          Export
-        </Button>
+        <PageSearch value={q} onValueChange={setQ} placeholder="Order or customer" />
+        <FilterButton
+          count={(rangeSet ? 1 : 0) + (reason ? 1 : 0) + (statuses.length ? 1 : 0)}
+          onClear={() => (setRange(DEFAULT_RANGE), setReason(null), setStatuses([]))}
+          done={`Show ${formatNumber(rows.length)} cancellations`}
+        >
+          <FilterGroup label="Dates">
+            <FilterDates phone={phone} value={range} onValueChange={setRange} />
+          </FilterGroup>
+          <FilterPick
+            label="Reason"
+            value={reason ?? "all"}
+            onValueChange={(v) => setReason(v === "all" ? null : v)}
+            options={[{ value: "all", label: "All" }, ...CANCEL_REASONS.map((r) => ({ value: r, label: r }))]}
+          />
+          <FilterChecks label="Status" value={statuses} onValueChange={setStatuses} options={STATUSES.map((s) => ({ value: s, label: s }))} />
+        </FilterButton>
+        <MoreMenu>
+          <MenuItem icon={Download} onSelect={() => toast("Export started", "neutral")}>Export</MenuItem>
+        </MoreMenu>
       </PageHeader>
       {/* The counts first, then the money: one card shape per run, not interleaved. */}
-      <div className="flex flex-wrap gap-4">
-        <MetricCard loading={loading} label="Today" value={inRange.filter((c) => sameDay(c.at, NOW)).length} />
-        <MetricCard loading={loading} label="Cancelled" value={inRange.length} />
-        <MetricCard loading={loading} label="Disputed" value={inRange.filter((c) => c.status === "Disputed").length} />
-        <MetricCard loading={loading} label="Refunded" unit="Rp" value={inRange.reduce((a, c) => a + c.refund, 0)} />
-        <MetricCard loading={loading} label="Fees not returned" unit="Rp" value={Math.abs(lost)} />
-      </div>
+      <Metrics
+        loading={loading}
+        items={[
+          { label: "Today", value: inRange.filter((c) => sameDay(c.at, NOW)).length },
+          { label: "Cancelled", value: inRange.length },
+          { label: "Disputed", value: inRange.filter((c) => c.status === "Disputed").length },
+          { label: "Refunded", unit: "Rp", value: inRange.reduce((a, c) => a + c.refund, 0) },
+          { label: "Fees not returned", unit: "Rp", value: Math.abs(lost) },
+        ]}
+      />
       {/* The summary that filters the table sits above it, as on the dashboard, so its effect is in view. Stacked at
           every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
       <div className="grid grid-cols-1 items-start gap-4">
@@ -135,6 +182,24 @@ export function Cancellations() {
         <Card inset="nest" data-cancels style={room ? { marginRight: room } : undefined}>
           {rows.length === 0 ? (
             <EmptyState icon={SearchIcon} title="No cancellations in these days" className="py-16" />
+          ) : phone ? (
+            <MobileList className="px-0 [&>[role=list]]:bg-transparent [&>[role=list]]:p-0">
+              {rows.map((c) => (
+                <MobileListRow
+                  key={c.id}
+                  onClick={() => setOpenId(c.id)}
+                  media={<MarketMark market={c.market} />}
+                  title={<span translate="no">{c.customer}</span>}
+                  subtitle={c.reason}
+                  value={
+                    <span className="grid justify-items-end gap-0.5">
+                      <span className="text-ink"><Rp>{formatNumber(c.refund)}</Rp></span>
+                      {c.status === "Disputed" ? <Pill>Disputed</Pill> : <Status tone={c.status === "Refunded" ? "muted" : "default"}>{c.status}</Status>}
+                    </span>
+                  }
+                />
+              ))}
+            </MobileList>
           ) : (
           <Table>
             <THead>

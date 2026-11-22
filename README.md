@@ -129,7 +129,8 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | --- | --- | --- | --- |
 | [Button](https://design.alorawork.com/components/button) | `button` | `Button` | `variant`, `size`, `icon`, `asChild` |
 | [Menu](https://design.alorawork.com/components/menu) | `menu` | `Menu`, `MenuItem`, `MenuLabel`, `MenuGroup`, `MenuSub` | `trigger`, `children`, `align="start"`, `side="bottom"`, `tone="light"`, `showSafeArea`, `open`, `onOpenChange`, `className`, `icon`, `shortcut`, `onSelect`, `disabled`, `label` |
-| [Toolbar](https://design.alorawork.com/components/toolbar) | `toolbar` | `Toolbar`, `ToolbarSpacer`, `PageHeader` | `className`, `children`, `title` |
+| [Toolbar](https://design.alorawork.com/components/toolbar) | `toolbar` | `Toolbar`, `ToolbarSpacer`, `PageHeader`, `PageSearch`, `MoreMenu` | `className`, `children`, `title`, `value`, `onValueChange`, `placeholder="Search"`, `label="More actions"` |
+| [Filter button](https://design.alorawork.com/components/filter-button) | `filter-button` | `FilterButton`, `FilterGroup`, `FilterPick`, `FilterChecks` | `count=0`, `onClear`, `children`, `label="Filter"`, `done="Done"`, `className`, `label`, `value`, `onValueChange`, `options`, `presets`, `allLabel="All"` |
 | [Save bar](https://design.alorawork.com/components/save-bar) | `save-bar` | `SaveBar` | `open`, `onSave`, `onDiscard`, `saving`, `label="Unsaved changes"`, `inline`, `className` |
 | [Button group](https://design.alorawork.com/components/button-group) | `button-group` | `ButtonGroup` | none |
 | [Slide to pay](https://design.alorawork.com/components/slide-to-pay) | `slide-to-pay` | `SlideToPay` | `amount=1250000`, `onConfirm`, `resetAfter=2600`, `disabled` |
@@ -248,7 +249,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | --- | --- | --- | --- |
 | [Dialog](https://design.alorawork.com/components/dialog) | `dialog` | `Dialog`, `useReturnFocus` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `footer`, `className` |
 | [Side pane](https://design.alorawork.com/components/sheet) | `sheet` | `Sheet` | `open`, `onOpenChange`, `title`, `children`, `footer`, `modal=true`, `keepOpenOn`, `className` |
-| [Popover](https://design.alorawork.com/components/popover) | `popover` | `PopoverGroup`, `Popover` | `children`, `trigger`, `align="start"`, `side="bottom"`, `open`, `onOpenChange`, `className`, `tone` |
+| [Popover](https://design.alorawork.com/components/popover) | `popover` | `PopoverGroup`, `Popover` | `children`, `trigger`, `align="start"`, `side="bottom"`, `open`, `onOpenChange`, `onOpenAutoFocus`, `className`, `tone` |
 | [Tooltip](https://design.alorawork.com/components/tooltip) | `tooltip` | `TooltipProvider`, `Tooltip` | `children`, `content`, `side="top"`, `open`, `className` |
 | [Toast](https://design.alorawork.com/components/toast) | `toast` | `Toaster`, `ToastView` | `className`, `tone="success"`, `children` |
 | [Alert dialog](https://design.alorawork.com/components/alert-dialog) | `alert-dialog` | `AlertDialog` | `open`, `onOpenChange`, `trigger`, `title`, `children`, `action`, `onAction`, `cancel="Keep"`, `className` |
@@ -295,7 +296,7 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Toggle group](https://design.alorawork.com/components/toggle-group) | `toggle-group` | `ToggleGroup` | `options`, `className`, `aria-label`, `type`, `value`, `onValueChange` |
 | [Context menu](https://design.alorawork.com/components/context-menu) | `context-menu` | `ContextMenu`, `ContextMenuItem`, `ContextMenuGroup`, `ContextMenuSub` | `children`, `menu`, `className`, `icon`, `shortcut`, `onSelect`, `disabled`, `label` |
 | [Hover card](https://design.alorawork.com/components/hover-card) | `hover-card` | `HoverCard` | `trigger`, `children`, `side="bottom"`, `align="start"`, `className` |
-| [Column menu](https://design.alorawork.com/components/column-menu) | `column-menu` | `ColumnMenu` | `columns`, `visible`, `onVisibleChange`, `defaults`, `className` |
+| [Column menu](https://design.alorawork.com/components/column-menu) | `column-menu` | `ColumnMenu` | `columns`, `visible`, `onVisibleChange`, `defaults`, `trigger`, `open`, `onOpenChange`, `className` |
 | [Inline edit](https://design.alorawork.com/components/inline-edit) | `inline-edit` | `InlineEdit` | `value`, `onSave`, `prefix`, `suffix`, `format`, `parse`, `validate`, `align="left"`, `inputMode`, `className`, `aria-label` |
 | [Copy chip](https://design.alorawork.com/components/copy-chip) | `copy-chip` | `CopyChip`, `CopyField` | `value`, `children`, `onCopied`, `className`, `label`, `group=4` |
 | [Keyboard shortcut](https://design.alorawork.com/components/kbd) | `kbd` | `Kbd`, `Shortcut` | `children`, `className`, `keys` |

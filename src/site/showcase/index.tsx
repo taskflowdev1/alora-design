@@ -28,7 +28,7 @@ import { DesktopShellTile } from "./shell";
 const BASE_TILES: TileDef[] = [
   { items: ["corner-shape"], render: (c, className) => <CornerTile config={c} className={className} /> },
   { items: ["scrollbar"], render: (_, c) => <ScrollTile className={c} /> },
-  { items: ["toolbar", "button"], render: (_, c) => <OrdersActionsTile className={c} /> },
+  { items: ["toolbar", "filter-button", "button"], render: (_, c) => <OrdersActionsTile className={c} /> },
   {
     items: ["menu", "save-bar"],
     render: (_, c) => (

@@ -103,7 +103,7 @@ Files: `src/components/ui/menu.tsx`.
 npx shadcn@latest add "https://design.alorawork.com/r/toolbar.json"
 ```
 
-Files: `src/components/ui/toolbar.tsx`. Installs too: `popover`.
+Files: `src/components/ui/toolbar.tsx`. Installs too: `button`, `menu`, `popover`, `search`.
 
 `Toolbar`: Every control in a toolbar shares one height and one centre line. Popovers in it never stack.
 
@@ -114,13 +114,77 @@ Files: `src/components/ui/toolbar.tsx`. Installs too: `popover`.
 
 `ToolbarSpacer`
 
-`PageHeader`: The same header on every page: the title, then the page's actions on the right.
+`PageHeader`: The same header on every page: one title, then at most one PageSearch, one FilterButton, a MoreMenu and one primary action, on one row. While a phone's search is open it takes the whole row.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `title` (required) | `ReactNode` |  |  |
 | `children` | `ReactNode` |  |  |
 | `className` | `string` |  |  |
+
+`PageSearch`: The page's one search: a field from md up; on a phone an icon that opens a field over the header row.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  |  |
+| `onValueChange` (required) | `(value: string) => void` |  |  |
+| `placeholder` | `string` | `"Search"` |  |
+
+`MoreMenu`: Everything that isn't the page's one primary action: Export, Columns, Print… behind one ⋯ button.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `children` (required) | `ReactNode` |  |  |
+| `label` | `string` | `"More actions"` |  |
+
+### Filter button
+
+<a id="filter-button"></a>Page: https://design.alorawork.com/components/filter-button
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/filter-button.json"
+```
+
+Files: `src/components/ui/filter-button.tsx`. Installs too: `button`, `popover`, `status`, `mobile-badge`, `mobile-sheet`.
+
+`FilterButton`: The one Filter button of a page: shop, period, status and the rest live inside it. A popover on desktop, a bottom sheet on a phone (or inside a PhoneFrame). Filters apply as they change. The count rides on the corner, so the button keeps its width and the row beside it never moves.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `count` | `number` | `0` | How many filters differ from their defaults. Shown on the button; 0 hides it and turns Clear off. |
+| `onClear` | `(() => void)` |  | Puts every filter back to its default. |
+| `children` (required) | `ReactNode` |  | FilterGroup, FilterPick and FilterChecks. |
+| `label` | `string` | `"Filter"` |  |
+| `done` | `string` | `"Done"` | The sheet's closing button: name what it shows ("Show 23 orders"). |
+| `className` | `string` |  |  |
+
+`FilterGroup`: One titled filter inside a FilterButton.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `children` (required) | `ReactNode` |  |  |
+| `className` | `string` |  |  |
+
+`FilterPick`: One of a few (a period, a stock level): chips with one pill that slides to the choice.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `T` |  |  |
+| `onValueChange` (required) | `(value: T) => void` |  |  |
+| `options` (required) | `FilterOption<T>[]` |  |  |
+
+`FilterChecks`: Any of several (shops, statuses): All, then a chip per option. Choosing every option reads as All again.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` (required) | `string` |  |  |
+| `value` (required) | `T[]` |  | The chosen values. Empty means all of them, which is the default. |
+| `onValueChange` (required) | `(value: T[]) => void` |  |  |
+| `options` (required) | `FilterOption<T>[]` |  |  |
+| `presets` | `{ label: ReactNode; value: T[]; }[]` |  | One-tap sets, after All ("All Shopee"). |
+| `allLabel` | `string` | `"All"` |  |
 
 ### Save bar
 
@@ -2426,6 +2490,7 @@ Files: `src/components/ui/popover.tsx`.
 | `side` | `"top" \| "right" \| "bottom" \| "left"` | `"bottom"` |  |
 | `open` | `boolean` |  |  |
 | `onOpenChange` | `((open: boolean) => void)` |  |  |
+| `onOpenAutoFocus` | `((event: Event) => void)` |  | Where focus goes on open (default: the first control). preventDefault to keep it elsewhere. |
 | `className` | `string` |  |  |
 | `tone` | `"light" \| "dark"` |  | "dark" when opened from the dark sidebar. |
 
@@ -3178,6 +3243,9 @@ Files: `src/components/ui/column-menu.tsx`. Installs too: `button`, `checkbox`, 
 | `visible` (required) | `string[]` |  |  |
 | `onVisibleChange` (required) | `(keys: string[]) => void` |  |  |
 | `defaults` | `string[]` |  | What "Reset" goes back to. Defaults to every column. |
+| `trigger` | `ReactElement<unknown, string \| JSXElementConstructor<any>>` |  | Opened from somewhere else (a ⋯ menu): the anchor to place it against, in place of the Columns button. |
+| `open` | `boolean` |  |  |
+| `onOpenChange` | `((open: boolean) => void)` |  |  |
 | `className` | `string` |  |  |
 
 ### Inline edit

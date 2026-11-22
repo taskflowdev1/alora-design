@@ -75,7 +75,8 @@ export const ITEMS: Item[] = [
 
   { name: "button", title: "Button", group: "Actions", files: ["button.tsx"], deps: [RADIX] },
   { name: "menu", title: "Menu", group: "Actions", files: ["menu.tsx"], deps: [RADIX, "@floating-ui/react-dom"] },
-  { name: "toolbar", title: "Toolbar", group: "Actions", files: ["toolbar.tsx"], registryDeps: ["popover"] },
+  { name: "toolbar", title: "Toolbar", group: "Actions", files: ["toolbar.tsx"], registryDeps: ["button", "menu", "popover", "search"] },
+  { name: "filter-button", title: "Filter button", group: "Actions", files: ["filter-button.tsx"], registryDeps: ["button", "popover", "status", "mobile-badge", "mobile-sheet"] },
   { name: "save-bar", title: "Save bar", group: "Actions", files: ["save-bar.tsx"], registryDeps: ["button"] },
   { name: "button-group", title: "Button group", group: "Actions", files: ["button-group.tsx"], companions: ["button"] },
 

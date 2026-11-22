@@ -17,11 +17,15 @@ export interface ColumnMenuProps {
   onVisibleChange: (keys: string[]) => void;
   /** What "Reset" goes back to. Defaults to every column. */
   defaults?: string[];
+  /** Opened from somewhere else (a ⋯ menu): the anchor to place it against, in place of the Columns button. */
+  trigger?: React.ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
 /** Choose which table columns show. Locked columns stay on. The trigger says how many are shown. */
-export function ColumnMenu({ columns, visible, onVisibleChange, defaults, className }: ColumnMenuProps) {
+export function ColumnMenu({ columns, visible, onVisibleChange, defaults, trigger, open, onOpenChange, className }: ColumnMenuProps) {
   const all = columns.map((c) => c.key);
   const reset = defaults ?? all;
   const shown = columns.filter((c) => c.locked || visible.includes(c.key)).length;
@@ -30,14 +34,18 @@ export function ColumnMenu({ columns, visible, onVisibleChange, defaults, classN
     <Popover
       align="end"
       className="w-60"
+      open={open}
+      onOpenChange={onOpenChange}
       trigger={
-        <Button data-ad-anchor="" className={className}>
-          <Columns />
-          Columns
-          <span className="tabular-nums text-ink-muted">
-            {shown}/{columns.length}
-          </span>
-        </Button>
+        trigger ?? (
+          <Button data-ad-anchor="" className={className}>
+            <Columns />
+            Columns
+            <span className="tabular-nums text-ink-muted">
+              {shown}/{columns.length}
+            </span>
+          </Button>
+        )
       }
     >
       <div className="grid gap-px">

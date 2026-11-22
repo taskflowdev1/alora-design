@@ -1,18 +1,16 @@
 import * as React from "react";
-import { Archive, Box, ChevronRight, Copy, Edit2, Folder, MoreHorizontal, Plus, Printer, Trash2 } from "react-feather";
+import { Archive, Box, ChevronRight, Copy, Download, Edit2, Folder, Plus, Printer, Trash2 } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "@/components/ui/search";
 import { Field } from "@/components/ui/field";
-import { Select } from "@/components/ui/select";
-import { Segmented } from "@/components/ui/segmented";
-import { Checkbox, CheckboxField } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Status } from "@/components/ui/status";
-import { Popover } from "@/components/ui/popover";
 import { toast } from "@/components/ui/toast";
 import { Menu, MenuItem, menuSurface } from "@/components/ui/menu";
-import { Toolbar, ToolbarSpacer } from "@/components/ui/toolbar";
+import { FilterButton, FilterChecks, FilterPick } from "@/components/ui/filter-button";
+import { MoreMenu, Toolbar } from "@/components/ui/toolbar";
 import { SaveBar } from "@/components/ui/save-bar";
 import { ORDERS, SHOPS, type Order } from "../data";
 import { Head, Mark, Tile } from "../mark";
@@ -24,53 +22,41 @@ export const tone = (o: Order) => (o.status === "Unpaid" ? "attention" : o.statu
 
 export function OrdersActionsTile({ className }: { className?: string }) {
   const [q, setQ] = React.useState("");
-  const [shop, setShop] = React.useState("all");
+  const [shops, setShops] = React.useState<string[]>([]);
   const [range, setRange] = React.useState("week");
   const rows = ORDERS.slice(0, 5);
   const [sel, setSel] = React.useState<string[]>([rows[1].id, rows[3].id]);
   return (
     <Tile className={className}>
-      <div className="flex min-h-control flex-wrap items-center gap-gap px-2 pt-1">
-        <h3 className="mr-auto text-title font-semibold">Orders</h3>
-        <Menu
-          align="end"
-          trigger={
-            <Button variant="ghost" icon aria-label="More">
-              <MoreHorizontal />
-            </Button>
-          }
-        >
-          <MenuItem icon={Printer}>Print all slips</MenuItem>
-          <MenuItem icon={Archive}>Archive shipped</MenuItem>
-        </Menu>
-        <Button onClick={say("Exported 1.240 orders")}>Export</Button>
-        <Button variant="primary" onClick={say("New order")}>
-          <Plus />
-          Add order
-        </Button>
-      </div>
-      <Mark name="toolbar" className="mx-2">
+      {/* The page top every list uses: one title, one search, one Filter, the rest behind ⋯, one primary action. */}
+      <Mark name="toolbar" className="mx-2 mt-1">
         <Toolbar>
-          <Search value={q} onValueChange={setQ} placeholder="Order or product" />
-          <Select prefix="Shop" aria-label="Shop" value={shop} onValueChange={setShop} options={[{ value: "all", label: "All" }, ...SHOPS.slice(0, 4).map((s) => ({ value: s, label: s }))]} />
-          <Popover trigger={<Button>Filter</Button>}>
-            <div className="grid w-56 gap-2.5">
-              <CheckboxField label="Unpaid" defaultChecked />
-              <CheckboxField label="To pack" />
-              <CheckboxField label="Shipped" />
-            </div>
-          </Popover>
-          <ToolbarSpacer />
-          <Segmented
-            aria-label="Range"
-            value={range}
-            onValueChange={setRange}
-            options={[
-              { value: "day", label: "Day" },
-              { value: "week", label: "Week" },
-              { value: "month", label: "Month" },
-            ]}
-          />
+          <h3 className="mr-auto text-title font-semibold">Orders</h3>
+          <Search value={q} onValueChange={setQ} placeholder="Search orders" wrapperClassName="w-48" />
+          <Mark name="filter-button">
+            <FilterButton count={(shops.length ? 1 : 0) + (range !== "week" ? 1 : 0)} onClear={() => (setShops([]), setRange("week"))}>
+              <FilterPick
+                label="Period"
+                value={range}
+                onValueChange={setRange}
+                options={[
+                  { value: "day", label: "Day" },
+                  { value: "week", label: "Week" },
+                  { value: "month", label: "Month" },
+                ]}
+              />
+              <FilterChecks label="Shop" allLabel="All shops" value={shops} onValueChange={setShops} options={SHOPS.slice(0, 4).map((s) => ({ value: s, label: s }))} />
+            </FilterButton>
+          </Mark>
+          <MoreMenu>
+            <MenuItem icon={Download} onSelect={say("Exported 1.240 orders")}>Export</MenuItem>
+            <MenuItem icon={Printer} onSelect={say("Printing all slips")}>Print all slips</MenuItem>
+            <MenuItem icon={Archive} onSelect={say("Shipped orders archived")}>Archive shipped</MenuItem>
+          </MoreMenu>
+          <Button variant="primary" onClick={say("New order")}>
+            <Plus />
+            Add order
+          </Button>
         </Toolbar>
       </Mark>
       <div className="grid grid-cols-1 gap-px">

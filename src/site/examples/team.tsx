@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/toast";
 import { Loading, LoadingText, Skeleton } from "@/components/ui/skeleton";
 import { Timeline } from "@/components/ui/timeline";
 import { TEAM_ACTIVITY, TEAM_DETAIL } from "../data";
-import { useLoading } from "./shared";
+import { PrimaryAction, useLoading } from "./shared";
 
 /* ------------------------------------------------------------ team */
 
@@ -26,10 +26,7 @@ export function Team() {
   return (
     <div className="grid grid-cols-1 gap-5">
       <PageHeader title="Team">
-        <Button variant="primary" onClick={() => setInviting(true)}>
-          <UserPlus />
-          Invite
-        </Button>
+        <PrimaryAction icon={UserPlus} label="Invite" onClick={() => setInviting(true)} />
       </PageHeader>
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card inset="nest" className="grid gap-px">
