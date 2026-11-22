@@ -3482,7 +3482,7 @@ Files: `src/components/ui/kanban-card.tsx`. Installs too: `avatar-group`, `badge
 | `children` (required) | `ReactNode` |  |  |
 | `className` | `string` |  |  |
 
-`KanbanBoard`: A small board. A card moves with its menu or the arrow keys (dragging works too): it flies to the top of the other column while the cards around it close up and the column counts roll. The columns keep their height.
+`KanbanBoard`: A small board where cards change column and order. With the mouse a card lifts out and follows the pointer, tilting toward where it's heading, while the cards it passes slide apart to show where it will land; dropped, it settles into that slot (Esc or a drop off the board puts everything back). The menu or the arrow keys move it too: left and right fly it to the top of the next column, Alt with up and down moves it within its column. The column counts roll. On touch the columns scroll and the menu moves cards.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3490,7 +3490,7 @@ Files: `src/components/ui/kanban-card.tsx`. Installs too: `avatar-group`, `badge
 | `cards` | `KanbanBoardCard[]` |  |  |
 | `defaultCards` | `KanbanBoardCard[]` | `[]` |  |
 | `onCardsChange` | `((cards: KanbanBoardCard[]) => void)` |  |  |
-| `onMove` | `((id: string, column: string) => void)` |  |  |
+| `onMove` | `((id: string, column: string, index: number) => void)` |  | After a card lands: its column and its place in that column (0 is the top). |
 | `moveMenu` | `((card: KanbanBoardCard, targets: KanbanBoardColumn[], move: (column: string) => void) => ReactNode)` |  | The card's move control. Give it your Menu: `targets` are the other columns, `move` sends the card there. |
 | `height` | `number` | `320` | The columns' fixed height in px. |
 | `className` | `string` |  |  |

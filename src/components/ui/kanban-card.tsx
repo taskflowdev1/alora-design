@@ -140,7 +140,8 @@ export interface KanbanBoardProps {
   cards?: KanbanBoardCard[];
   defaultCards?: KanbanBoardCard[];
   onCardsChange?: (cards: KanbanBoardCard[]) => void;
-  onMove?: (id: string, column: string) => void;
+  /** After a card lands: its column and its place in that column (0 is the top). */
+  onMove?: (id: string, column: string, index: number) => void;
   /** The card's move control. Give it your Menu: `targets` are the other columns, `move` sends the card there. */
   moveMenu?: (card: KanbanBoardCard, targets: KanbanBoardColumn[], move: (column: string) => void) => React.ReactNode;
   /** The columns' fixed height in px. */
@@ -152,9 +153,13 @@ const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 /** A card in the hand: lifted a little and tilted toward where it's going. */
 const LIFT = 1.03;
 const TILT = 3;
-type Snapshot = { id: string; rects: Map<string, DOMRect>; focus: boolean; tilt?: number };
+/**
+ * Before a reorder: where every card was, so they can slide from there. `hop` flies the moved card over the columns
+ * (a menu or arrow move); without it the moved card slides like the rest (or stays hidden under the hand).
+ */
+type Snapshot = { id: string; rects: Map<string, DOMRect>; focus: boolean; hop: boolean };
 type Flight = { ghost: HTMLElement; anim: Animation };
-type Drag = { id: string; el: HTMLElement; from: DOMRect; x: number; y: number; dx: number; dy: number; tilt: number; ghost?: HTMLElement; still?: number };
+type Drag = { id: string; from: DOMRect; x: number; y: number; dx: number; dy: number; tilt: number; ghost?: HTMLElement; still?: number; before: KanbanBoardCard[] };
 
 /** A copy of a card on the board's top layer, where a column's scroll box can't clip it. */
 function lift(el: HTMLElement, at: DOMRect, origin: DOMRect) {
@@ -162,90 +167,156 @@ function lift(el: HTMLElement, at: DOMRect, origin: DOMRect) {
   ghost.removeAttribute("data-card");
   ghost.removeAttribute("tabindex");
   ghost.inert = true;
+  ghost.style.opacity = "";
   Object.assign(ghost.style, { position: "absolute", left: `${at.left - origin.left}px`, top: `${at.top - origin.top}px`, width: `${at.width}px`, height: `${at.height}px`, margin: "0", borderRadius: "var(--ad-radius-card)", boxShadow: "var(--ad-shadow-raised)" });
   return ghost;
 }
 
+/** The list with `id` moved to `column` at `index` among that column's other cards. */
+function place(list: KanbanBoardCard[], id: string, column: string, index: number) {
+  const card = list.find((c) => c.id === id);
+  if (!card) return list;
+  const rest = list.filter((c) => c.id !== id);
+  const peers = rest.filter((c) => c.column === column);
+  const moved = { ...card, column };
+  const at = index < peers.length ? rest.indexOf(peers[index]) : peers.length ? rest.indexOf(peers[peers.length - 1]) + 1 : rest.length;
+  return [...rest.slice(0, at), moved, ...rest.slice(at)];
+}
+
+const spot = (list: KanbanBoardCard[], id: string) => {
+  const card = list.find((c) => c.id === id);
+  return card ? { column: card.column, index: list.filter((c) => c.column === card.column).indexOf(card) } : null;
+};
+
 /**
- * A small board. A card moves with its menu or the arrow keys (dragging works too): it flies to the top of the other
- * column while the cards around it close up and the column counts roll. The columns keep their height.
+ * A small board where cards change column and order. With the mouse a card lifts out and follows the pointer, tilting
+ * toward where it's heading, while the cards it passes slide apart to show where it will land; dropped, it settles
+ * into that slot (Esc or a drop off the board puts everything back). The menu or the arrow keys move it too: left and
+ * right fly it to the top of the next column, Alt with up and down moves it within its column. The column counts roll.
+ * On touch the columns scroll and the menu moves cards.
  */
 export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, onMove, moveMenu, height = 320, className }: KanbanBoardProps) {
   const [inner, setInner] = React.useState(defaultCards);
-  const list = cards ?? inner;
+  const [preview, setPreview] = React.useState<KanbanBoardCard[] | null>(null);
+  const committed = cards ?? inner;
+  const list = preview ?? committed;
   const [over, setOver] = React.useState<string | null>(null);
+  const [settleTick, setSettleTick] = React.useState(0);
   const root = React.useRef<HTMLDivElement>(null);
   const layer = React.useRef<HTMLDivElement>(null);
   const snapshot = React.useRef<Snapshot | null>(null);
   const flights = React.useRef(new Map<string, Flight>());
   const drag = React.useRef<Drag | null>(null);
+  const settle = React.useRef<{ id: string; ghost: HTMLElement; pose: { dx: number; dy: number; tilt: number; scale: string } } | null>(null);
+  const live = React.useRef({ list, committed });
+  live.current = { list, committed };
 
-  const move = (id: string, column: string, dropped?: { at: DOMRect; tilt: number }) => {
-    const card = list.find((c) => c.id === id);
-    if (!card || card.column === column || !root.current) return;
+  const cardEl = (id: string) => root.current?.querySelector<HTMLElement>(`[data-card="${CSS.escape(id)}"]`) ?? null;
+
+  /** Remembers where every card is, so the next layout can slide them from there. */
+  const remember = (id: string, hop: boolean) => {
     const rects = new Map<string, DOMRect>();
-    root.current.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => rects.set(el.dataset.card!, el.getBoundingClientRect()));
+    root.current?.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => rects.set(el.dataset.card!, el.getBoundingClientRect()));
     // Already in the air: it takes off again from where it is now.
     const flying = flights.current.get(id);
     if (flying) rects.set(id, flying.ghost.getBoundingClientRect());
-    if (dropped) rects.set(id, dropped.at);
-    snapshot.current = { id, rects, focus: document.activeElement === root.current.querySelector(`[data-card="${CSS.escape(id)}"]`), tilt: dropped?.tilt };
-    const next = [{ ...card, column }, ...list.filter((c) => c.id !== id)];
+    snapshot.current = { id, rects, focus: document.activeElement === cardEl(id), hop };
+  };
+
+  const commit = (next: KanbanBoardCard[], id: string) => {
     if (cards === undefined) setInner(next);
     onCardsChange?.(next);
-    onMove?.(id, column);
+    const at = spot(next, id);
+    if (at) onMove?.(id, at.column, at.index);
+  };
+
+  /** Menu and keys: to the top of another column, or one place up or down in its own. */
+  const move = (id: string, column: string, index = 0) => {
+    const now = spot(committed, id);
+    if (!now || !root.current || (now.column === column && now.index === index)) return;
+    remember(id, now.column !== column);
+    commit(place(committed, id, column, index), id);
   };
 
   React.useLayoutEffect(() => {
-    const snap = snapshot.current;
     const box = root.current;
-    if (!snap || !box) return;
-    snapshot.current = null;
-    const self = box.querySelector<HTMLElement>(`[data-card="${CSS.escape(snap.id)}"]`);
-    if (snap.focus) self?.focus({ preventScroll: true });
-    self?.parentElement?.scrollTo({ top: 0 });
-    if (prefersReducedMotion()) return;
-
+    if (!box) return;
     const origin = box.getBoundingClientRect();
-    box.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => {
-      const id = el.dataset.card!;
-      const from = snap.rects.get(id);
-      if (!from) return;
-      el.getAnimations().forEach((a) => a.cancel());
-      const to = el.getBoundingClientRect();
-      const dx = from.left - to.left;
-      const dy = from.top - to.top;
-      if (id !== snap.id) {
-        if (dx || dy) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 260, easing: EASE });
-        return;
-      }
-      flights.current.get(id)?.anim.cancel();
-      const ghost = lift(el, new DOMRect(from.left, from.top, to.width, to.height), origin);
-      layer.current?.appendChild(ghost);
-      el.style.opacity = "0";
-      const tx = to.left - from.left;
-      const ty = to.top - from.top;
-      // Dropped from the hand it settles from its lift and tilt; moved by menu or key it hops over.
-      const anim = ghost.animate(
-        snap.tilt != null
-          ? [{ transform: `rotate(${snap.tilt}deg) scale(${LIFT})` }, { transform: `translate(${tx}px, ${ty}px)` }]
-          : [
+    const d = drag.current;
+    // Under the hand the card's slot stays empty, wherever the slot has moved to.
+    if (d?.ghost) {
+      const el = cardEl(d.id);
+      if (el) el.style.opacity = "0";
+    }
+    const snap = snapshot.current;
+    snapshot.current = null;
+    if (snap) {
+      const self = cardEl(snap.id);
+      if (snap.focus) self?.focus({ preventScroll: true });
+      if (snap.hop) self?.parentElement?.scrollTo({ top: 0 });
+      if (!prefersReducedMotion()) {
+        box.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => {
+          const id = el.dataset.card!;
+          const from = snap.rects.get(id);
+          if (!from || (d?.ghost && id === d.id)) return;
+          el.getAnimations().forEach((a) => a.cancel());
+          const to = el.getBoundingClientRect();
+          const dx = from.left - to.left;
+          const dy = from.top - to.top;
+          if (id !== snap.id || !snap.hop) {
+            if (dx || dy) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 260, easing: EASE });
+            return;
+          }
+          flights.current.get(id)?.anim.cancel();
+          const ghost = lift(el, new DOMRect(from.left, from.top, to.width, to.height), origin);
+          layer.current?.appendChild(ghost);
+          el.style.opacity = "0";
+          const tx = to.left - from.left;
+          const ty = to.top - from.top;
+          const anim = ghost.animate(
+            [
               { transform: "translate(0, 0) scale(1)" },
               { transform: `translate(${tx * 0.55}px, ${ty * 0.55 - 6}px) scale(${LIFT})`, offset: 0.5 },
               { transform: `translate(${tx}px, ${ty}px) scale(1)` },
             ],
-        { duration: snap.tilt != null ? 260 : 320, easing: EASE },
+            { duration: 320, easing: EASE },
+          );
+          const land = () => {
+            ghost.remove();
+            el.style.opacity = "";
+            if (flights.current.get(id)?.anim === anim) flights.current.delete(id);
+          };
+          anim.onfinish = land;
+          anim.oncancel = land;
+          flights.current.set(id, { ghost, anim });
+        });
+      }
+    }
+    // Let go: the card in the hand settles into its slot, wherever that is now.
+    const s = settle.current;
+    if (s) {
+      settle.current = null;
+      const el = cardEl(s.id);
+      if (!el) return void s.ghost.remove();
+      el.style.opacity = "0";
+      const to = el.getBoundingClientRect();
+      const left = parseFloat(s.ghost.style.left) + origin.left;
+      const top = parseFloat(s.ghost.style.top) + origin.top;
+      const anim = s.ghost.animate(
+        [
+          { translate: `${s.pose.dx}px ${s.pose.dy}px`, rotate: `${s.pose.tilt}deg`, scale: s.pose.scale },
+          { translate: `${to.left - left}px ${to.top - top}px`, rotate: "0deg", scale: "1" },
+        ],
+        { duration: prefersReducedMotion() ? 0 : 240, easing: EASE, fill: "forwards" },
       );
-      const land = () => {
-        ghost.remove();
+      const done = () => {
+        s.ghost.remove();
         el.style.opacity = "";
-        if (flights.current.get(id)?.anim === anim) flights.current.delete(id);
       };
-      anim.onfinish = land;
-      anim.oncancel = land;
-      flights.current.set(id, { ghost, anim });
-    });
-  }, [list]);
+      anim.onfinish = done;
+      anim.oncancel = done;
+    }
+  }, [list, settleTick]);
 
   React.useEffect(() => {
     const all = flights.current;
@@ -257,8 +328,8 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 
   /*
    * Dragging is our own, with the mouse: the browser's drag picture is a flat, see-through rectangle that loses the
-   * card's corners. The card lifts out of its column, follows the pointer tilting toward where it's heading, and
-   * settles into the column it's dropped on, or back where it was. On touch the columns scroll and the menu moves cards.
+   * card's corners. Moves and the release are read on the window, since the card under the hand is re-made whenever
+   * its slot changes column.
    */
   const columnAt = (x: number, y: number) => {
     for (const el of root.current?.querySelectorAll<HTMLElement>("[data-column]") ?? []) {
@@ -268,11 +339,15 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     return null;
   };
 
-  const startDrag = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
-    if (e.pointerType !== "mouse" || e.button !== 0 || (e.target as HTMLElement).closest("button, a, input, select, textarea")) return;
-    const el = e.currentTarget;
-    drag.current = { id, el, from: el.getBoundingClientRect(), x: e.clientX, y: e.clientY, dx: 0, dy: 0, tilt: 0 };
-    el.setPointerCapture(e.pointerId);
+  /** Where in `column` a card whose middle is at `y` belongs: below every card whose middle is above it. */
+  const indexAt = (column: string, id: string, y: number) => {
+    const peers = live.current.list.filter((c) => c.column === column && c.id !== id);
+    let i = 0;
+    for (const c of peers) {
+      const r = cardEl(c.id)?.getBoundingClientRect();
+      if (r && r.top + r.height / 2 < y) i++;
+    }
+    return i;
   };
 
   const pose = (d: Drag) => {
@@ -281,7 +356,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     d.ghost.style.rotate = `${d.tilt}deg`;
   };
 
-  const dragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const onMoveWindow = (e: PointerEvent) => {
     const d = drag.current;
     if (!d || !root.current) return;
     const dx = e.clientX - d.x;
@@ -289,11 +364,14 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     if (!d.ghost) {
       // A few pixels first, so a click stays a click.
       if (Math.hypot(dx, dy) < 4) return;
-      const ghost = lift(d.el, d.from, root.current.getBoundingClientRect());
+      const el = cardEl(d.id);
+      if (!el) return;
+      const ghost = lift(el, d.from, root.current.getBoundingClientRect());
       Object.assign(ghost.style, { boxShadow: "var(--ad-shadow-card)", transition: `scale 180ms ${EASE}, rotate 220ms ${EASE}, box-shadow 180ms ${EASE}`, cursor: "grabbing" });
       layer.current?.appendChild(ghost);
       d.ghost = ghost;
-      d.el.style.opacity = "0";
+      el.style.opacity = "0";
+      document.documentElement.style.cursor = "grabbing";
       if (!prefersReducedMotion()) {
         void ghost.offsetWidth;
         ghost.style.scale = String(LIFT);
@@ -310,38 +388,55 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
       d.tilt = 0;
       pose(d);
     }, 90);
-    setOver(columnAt(e.clientX, e.clientY));
+    const column = columnAt(e.clientX, e.clientY);
+    setOver(column);
+    if (!column) return;
+    // The slot follows the hand: the cards it passes slide apart to open it.
+    const index = indexAt(column, d.id, d.from.top + dy + d.from.height / 2);
+    const now = spot(live.current.list, d.id);
+    if (now && (now.column !== column || now.index !== index)) {
+      remember(d.id, false);
+      setPreview(place(live.current.list, d.id, column, index));
+    }
   };
 
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>, cancel = false) => {
+  const finish = (cancel: boolean) => {
     const d = drag.current;
     drag.current = null;
+    window.removeEventListener("pointermove", onMoveWindow);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onCancel);
+    window.removeEventListener("keydown", onKey, true);
     if (!d) return;
     window.clearTimeout(d.still);
     setOver(null);
-    const ghost = d.ghost;
-    if (!ghost) return;
-    const column = cancel ? null : columnAt(e.clientX, e.clientY);
-    const card = list.find((c) => c.id === d.id);
-    if (column && card && card.column !== column) {
-      ghost.remove();
-      move(d.id, column, { at: new DOMRect(d.from.left + d.dx, d.from.top + d.dy, d.from.width, d.from.height), tilt: d.tilt });
-      return;
-    }
-    // Not moved: it settles back into its slot.
-    const back = ghost.animate(
-      [
-        { translate: `${d.dx}px ${d.dy}px`, rotate: `${d.tilt}deg`, scale: String(ghost.style.scale || 1) },
-        { translate: "0px 0px", rotate: "0deg", scale: "1" },
-      ],
-      { duration: prefersReducedMotion() ? 0 : 240, easing: EASE },
-    );
-    const done = () => {
-      ghost.remove();
-      d.el.style.opacity = "";
-    };
-    back.onfinish = done;
-    back.oncancel = done;
+    if (!d.ghost) return;
+    document.documentElement.style.cursor = "";
+    settle.current = { id: d.id, ghost: d.ghost, pose: { dx: d.dx, dy: d.dy, tilt: d.tilt, scale: d.ghost.style.scale || "1" } };
+    const was = spot(d.before, d.id);
+    const now = spot(live.current.list, d.id);
+    // The others slide back (a cancel) or stay where they made room, and the card settles into its slot.
+    remember(d.id, false);
+    if (!cancel && was && now && (was.column !== now.column || was.index !== now.index)) commit(live.current.list, d.id);
+    setPreview(null);
+    setSettleTick((t) => t + 1);
+  };
+  const onUp = (e: PointerEvent) => finish(columnAt(e.clientX, e.clientY) == null);
+  const onCancel = () => finish(true);
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    e.stopPropagation();
+    finish(true);
+  };
+
+  const startDrag = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
+    if (e.pointerType !== "mouse" || e.button !== 0 || drag.current || (e.target as HTMLElement).closest("button, a, input, select, textarea")) return;
+    drag.current = { id, from: e.currentTarget.getBoundingClientRect(), x: e.clientX, y: e.clientY, dx: 0, dy: 0, tilt: 0, before: committed };
+    window.addEventListener("pointermove", onMoveWindow);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
+    window.addEventListener("keydown", onKey, true);
   };
 
   const onCardKey = (e: React.KeyboardEvent<HTMLDivElement>, card: KanbanBoardCard) => {
@@ -351,6 +446,11 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
       e.preventDefault();
       const next = columns[at + (e.key === "ArrowRight" ? 1 : -1)];
       if (next) move(card.id, next.id);
+    } else if ((e.key === "ArrowUp" || e.key === "ArrowDown") && e.altKey) {
+      e.preventDefault();
+      const now = spot(committed, card.id);
+      const peers = committed.filter((c) => c.column === card.column).length;
+      if (now) move(card.id, card.column, Math.max(0, Math.min(peers - 1, now.index + (e.key === "ArrowDown" ? 1 : -1))));
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
       const el = e.key === "ArrowDown" ? e.currentTarget.nextElementSibling : e.currentTarget.previousElementSibling;
@@ -366,11 +466,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
       {columns.map((col) => {
         const here = list.filter((c) => c.column === col.id);
         return (
-          <div
-            key={col.id}
-            data-column={col.id}
-            className="grid min-w-0"
-          >
+          <div key={col.id} data-column={col.id} className="grid min-w-0">
             <KanbanColumn
               title={col.title}
               count={<RollCount value={here.length} />}
@@ -386,12 +482,9 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
                       data-card={id}
                       tabIndex={0}
                       role="group"
-                      aria-label={`${id}, in ${col.title}. Left and right arrows move it.`}
+                      aria-label={`${id}, in ${col.title}. Left and right arrows move it to another column, Alt with up and down reorders it.`}
                       onPointerDown={(e) => startDrag(e, id)}
-                      onPointerMove={dragMove}
-                      onPointerUp={(e) => endDrag(e)}
-                      onPointerCancel={(e) => endDrag(e, true)}
-                      onKeyDown={(e) => (e.key === "Escape" && drag.current ? endDrag(e as never, true) : onCardKey(e, card))}
+                      onKeyDown={(e) => onCardKey(e, card)}
                       className="shrink-0 cursor-grab select-none rounded-card active:cursor-grabbing focus-visible:[&>*]:bg-fill-strong"
                     >
                       <KanbanCard {...rest} id={id} action={moveMenu?.(card, targets, (to) => move(id, to))} />
