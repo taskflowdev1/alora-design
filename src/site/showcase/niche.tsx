@@ -30,6 +30,7 @@ import { AvatarGroup } from "@/components/ui/avatar-group";
 import { NotificationBell } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
 import { CalendarMonth } from "@/components/ui/calendar-month";
+import { HoloCard } from "@/components/ui/holo-card";
 import { Dropzone, type DropFile } from "@/components/ui/dropzone";
 import { TagInput } from "@/components/ui/tag-input";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -487,6 +488,22 @@ export function ShipmentTile({ className }: { className?: string }) {
             { id: "5", time: "Yesterday, 21:28", title: "Buyer asked about the glaze", media: <User /> },
           ]}
         />
+      </Mark>
+    </Tile>
+  );
+}
+
+export function CompanyCardsTile({ className }: { className?: string }) {
+  return (
+    <Tile inset="pad" className={className}>
+      <h3 className="text-title font-semibold">Company cards</h3>
+      <Mark name="holo-card" className="grid grid-cols-1 justify-items-center gap-6 py-3 md:grid-cols-3">
+        {/* The cards turn under the pointer, so a click on one stays on it instead of opening the page. */}
+        <div className="contents" onClick={(e) => e.stopPropagation()}>
+          <HoloCard />
+          <HoloCard tone="graphite" holder="DEWI LESTARI" last4="7312" expiry="11/28" />
+          <HoloCard tone="accent" holder="RUDI SANTOSO" last4="0926" expiry="03/30" />
+        </div>
       </Mark>
     </Tile>
   );

@@ -17,7 +17,7 @@ import { MenuOpenTile, OrdersActionsTile, SaveTile } from "./actions";
 import { AlertsTile, EmptyLoadingStack, LowStockTile, NumbersStack, ShopCardTile, TableTile } from "./display";
 import { CornerTile, ScrollTile } from "./foundations";
 import { CheckoutTile, FindTile, NewOrderTile } from "./inputs";
-import { CalendarTile, NotesTile, OrderTile, PackStack, PaletteTile, PayoutsTile, PricesTile, ProductTile, ShipmentTile } from "./niche";
+import { CalendarTile, CompanyCardsTile, NotesTile, OrderTile, PackStack, PaletteTile, PayoutsTile, PricesTile, ProductTile, ShipmentTile } from "./niche";
 import { DialogTile, PopoverTile, SheetTile, ToastTile, TooltipTile } from "./overlays";
 import { DesktopShellTile } from "./shell";
 
@@ -73,6 +73,7 @@ const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat" | Mobil
     { items: ["split-button", "kanban-card", "progress-ring"], render: () => <PackStack className="md:col-span-2 lg:col-span-4" /> },
     { items: ["inline-edit"], render: () => <PricesTile className={S[6]} /> },
     { items: ["timeline"], render: () => <ShipmentTile className={S[6]} /> },
+    { items: ["holo-card"], render: () => <CompanyCardsTile className={S[12]} /> },
   ],
   AI: [],
   Backgrounds: [],

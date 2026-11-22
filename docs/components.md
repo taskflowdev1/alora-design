@@ -2727,6 +2727,28 @@ Files: `src/components/ui/calendar-month.tsx`. Installs too: `button`, `popover`
 | `onEventClick` | `((e: CalendarEvent) => void)` |  |  |
 | `className` | `string` |  |  |
 
+### Holo card
+
+<a id="holo-card"></a>Page: https://design.alorawork.com/components/holo-card
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/holo-card.json"
+```
+
+Files: `src/components/ui/holo-card.tsx`.
+
+`HoloCard`: A payment card at ISO proportions (85.6 × 53.98) with a holographic foil. It turns in 3D toward the pointer inside a box that never changes size, so nothing around it moves. Type scales with its width: set the width with `className`.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `holder` | `string` | `"RIZKY HARTONO"` | The name on the card, as printed. |
+| `last4` | `string` | `"4410"` | The last four digits; the rest of the number is always masked. |
+| `expiry` | `string` | `"08/29"` | Printed as given, `MM/YY`. |
+| `tone` | `"holo" \| "graphite" \| "accent"` | `"holo"` | The finish: iridescent foil, quiet graphite, or the theme's accent. |
+| `interactive` | `boolean` | `true` | Tilt toward the pointer, a finger or the arrow keys. Off, or under reduced motion, it rests with a soft sheen. |
+
+Also takes the native props of the element it renders.
+
 ## Mobile
 
 ### Tab bar

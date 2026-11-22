@@ -62,6 +62,7 @@ import { AvatarGroup } from "@/components/ui/avatar-group";
 import { NotificationBell, type Notice } from "@/components/ui/notification-bell";
 import { KanbanCard, KanbanColumn } from "@/components/ui/kanban-card";
 import { CalendarMonth } from "@/components/ui/calendar-month";
+import { HoloCard } from "@/components/ui/holo-card";
 import { CALENDAR_EVENTS, MARKET_SHOPS, NOW, ORDERS, PRODUCTS, SPARK, TEAM, itemPhoto } from "./data";
 import type { Demo } from "./demos";
 
@@ -199,6 +200,14 @@ function CalendarDemo() {
 }
 
 export const NICHE_DEMOS: Record<string, Demo> = {
+  "holo-card": {
+    controls: [
+      { key: "tone", type: "select", label: "Finish", options: ["holo", "graphite", "accent"], labels: ["Holo", "Graphite", "Accent"], default: "holo" },
+      { key: "interactive", type: "toggle", label: "Follows the pointer", default: true },
+    ],
+    render: (p) => <HoloCard tone={p.tone as "holo"} interactive={!!p.interactive} />,
+    usage: (p) => `<HoloCard holder="RIZKY HARTONO" last4="4410" expiry="08/29"${p.tone !== "holo" ? ` tone="${p.tone}"` : ""}${p.interactive ? "" : " interactive={false}"} />`,
+  },
   "command-palette": {
     render: () => <CommandDemo />,
     usage: () =>

@@ -183,6 +183,7 @@ export const ITEMS: Item[] = [
   { name: "notification-bell", title: "Notification bell", group: "Niche", files: ["notification-bell.tsx"], registryDeps: ["button", "popover", "tooltip"] },
   { name: "kanban-card", title: "Kanban card", group: "Niche", files: ["kanban-card.tsx"], registryDeps: ["avatar-group", "badge"] },
   { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], registryDeps: ["button", "popover", "tooltip"] },
+  { name: "holo-card", title: "Holo card", group: "Niche", files: ["holo-card.tsx"] },
 
   // Mobile: phone components. Own files in src/components/mobile (they import each other relatively, so they install
   // next to each other); shared parts appear here with their touch size. Shown at /mobile in a 390 × 844 phone frame.
