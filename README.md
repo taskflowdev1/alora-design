@@ -123,6 +123,11 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Corner shape](https://design.alorawork.com/components/corner-shape) | in `theme` | — | Set by the theme (see Settings) |
 | [Scrollbar](https://design.alorawork.com/components/scrollbar) | in `theme` | — | Set by the theme (see Settings) |
 
+### Showpieces
+
+| Component | Install name | Exports | Props (`=default`) |
+| --- | --- | --- | --- |
+
 ### Actions
 
 | Component | Install name | Exports | Props (`=default`) |

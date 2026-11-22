@@ -72,6 +72,7 @@ import { MOBILE_DEMOS_2 } from "./demos-mobile-2";
 import { NICHE_DEMOS } from "./demos-niche";
 import { MORE_DEMOS } from "./demos-more";
 import { MOTION_DEMOS } from "./demos-motion";
+import { SHOWPIECE_DEMOS } from "./showpieces";
 import { CopyChip } from "@/components/ui/copy-chip";
 import { Steps } from "@/components/ui/steps";
 import { FeeRow, FeeTotal } from "@/components/ui/fee-row";
@@ -135,6 +136,7 @@ function Concentric({ config }: { config: Config }) {
 const orderRows = ORDERS.slice(0, 8);
 
 export const DEMOS: Record<string, Demo> = {
+  ...SHOWPIECE_DEMOS,
   ...NICHE_DEMOS,
   ...MORE_DEMOS,
   ...MOTION_DEMOS,

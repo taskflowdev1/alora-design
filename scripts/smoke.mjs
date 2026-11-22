@@ -143,22 +143,20 @@ const logo = await page.evaluate(() => {
 check(logo.svg && logo.text === "design" && logo.label === "Alora Design", `header shows the Alora logo (${JSON.stringify(logo)})`);
 check((await page.getAttribute("a:has-text('erp-ui skill')", "href")) === "https://github.com/JoshD94/ai-skills/tree/main/erp-ui", "hero links the erp-ui skill");
 
-// Landing: one component at a time. Each moment is a linked title over one component; the showpieces, then the AI
-// parts in one exchange and a background. No tables (row data lives on the Components and Examples pages).
+// Landing: one component at a time. Each moment is a linked title over one component. No tables, AI or backgrounds
+// (they live on the Components, Examples, AI and Backgrounds pages).
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 const landing = await page.evaluate(() => ({
   moments: [...document.querySelectorAll("main [data-moment]")].map((m) => m.dataset.moment),
   titled: [...document.querySelectorAll("main [data-moment]")].every((m) => m.querySelector(":scope > h2 a[href]")),
   tables: document.querySelectorAll("main table").length,
   order: [...document.querySelectorAll("main [data-landing]")].map((e) => e.dataset.landing),
-  sand: document.querySelectorAll("[data-landing=backgrounds] [data-sand-field]").length,
-  thread: !!document.querySelector("[data-landing=ai] [data-agent-thread] [data-composer]"),
 }));
 check(
   landing.moments[0] === "metric" && landing.moments.length >= 6 && landing.titled && landing.tables === 0,
   `landing: one titled component per moment, metric card first, no tables (${JSON.stringify(landing)})`,
 );
-check(landing.order.join() === "moments,ai,backgrounds,footer" && landing.thread && landing.sand === 1, `landing: components, then the AI exchange, Backgrounds, the closing footer (${JSON.stringify(landing)})`);
+check(landing.order.join() === "moments,footer", `landing: the component moments, then the closing footer (${JSON.stringify(landing)})`);
 // The OTP opens on 123456 (shown faintly in the boxes); the dial's number takes typing and glides there; the palette
 // keeps its height while it filters.
 await page.locator("[data-moment=otp] input").first().click();

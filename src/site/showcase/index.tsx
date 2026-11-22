@@ -13,6 +13,7 @@ import { useConfig } from "../config";
 import { S, stack, type TileDef } from "../mark";
 import { MORE_TILES } from "../showcase-more";
 import { MOTION_TILES } from "../showcase-motion";
+import { SHOWPIECE_TILES } from "../showpieces";
 import { MenuOpenTile, OrdersActionsTile, SaveTile } from "./actions";
 import { AlertsTile, EmptyLoadingStack, LowStockTile, NumbersStack, ShopCardTile, TableTile } from "./display";
 import { CornerTile, ScrollTile } from "./foundations";
@@ -75,6 +76,7 @@ const BASE_TILES: Record<Exclude<Group, "Charts" | "Navigation" | "Chat" | Mobil
     { items: ["timeline"], render: () => <ShipmentTile className={S[6]} /> },
     { items: ["holo-card"], render: () => <CompanyCardsTile className={S[12]} /> },
   ],
+  Showpieces: SHOWPIECE_TILES,
   AI: [],
   Backgrounds: [],
 };

@@ -1,6 +1,14 @@
 // Every item on the site: drives the Components, AI and Backgrounds pages, the shadcn registry (/r/<name>.json),
 // /api/kit and the README tables (scripts/gen-docs.mjs). Pure data: the API imports it.
 
+import { ITEMS as SHOWPIECES_A } from "./showpieces/a";
+import { ITEMS as SHOWPIECES_B } from "./showpieces/b";
+import { ITEMS as SHOWPIECES_C } from "./showpieces/c";
+import { ITEMS as SHOWPIECES_D } from "./showpieces/d";
+import { ITEMS as SHOWPIECES_E } from "./showpieces/e";
+import { ITEMS as SHOWPIECES_F } from "./showpieces/f";
+import { ITEMS as SHOWPIECES_G } from "./showpieces/g";
+
 export type Group =
   | "Actions"
   | "Inputs"
@@ -12,6 +20,7 @@ export type Group =
   | "Chat"
   | "Foundations"
   | "Niche"
+  | "Showpieces"
   | "AI"
   | "Backgrounds"
   | MobileGroup;
@@ -312,9 +321,16 @@ export const ITEMS: Item[] = [
       { key: "lightStrength", label: "Light theme depth", type: "range", min: 0.1, max: 0.8, step: 0.01, default: 0.39 },
     ],
   },
+  ...SHOWPIECES_A,
+  ...SHOWPIECES_B,
+  ...SHOWPIECES_C,
+  ...SHOWPIECES_D,
+  ...SHOWPIECES_E,
+  ...SHOWPIECES_F,
+  ...SHOWPIECES_G,
 ];
 
-export const GROUPS: Group[] = ["Foundations", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
+export const GROUPS: Group[] = ["Foundations", "Showpieces", "Actions", "Inputs", "Display", "Charts", "Navigation", "Overlays", "Layout", "Chat", "Niche"];
 
 export const MOBILE_GROUPS: MobileGroup[] = ["Bars", "Lists", "Sheets", "Touch inputs", "Data", "Feedback", "Flows"];
 

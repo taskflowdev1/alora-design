@@ -268,7 +268,7 @@ async function run() {
     ["S20", "examples-custom-config", "/examples/dashboard?r=6&c=r&a=0f8a8a&g=w&h=40&sh=80", null],
     ["S23", "header-search", "/components", async (p) => { await p.keyboard.press("Control+k"); await sleep(250); await p.keyboard.type("pick"); }],
     ["S24", "landing-otp", "/", async (p) => p.locator("[data-moment=otp]").scrollIntoViewIfNeeded()],
-    ["S25", "landing-ai", "/", async (p) => p.locator("[data-landing=ai]").scrollIntoViewIfNeeded()],
+    ["S25", "ai-app", "/ai", async (p) => p.locator("[data-agent-app]").scrollIntoViewIfNeeded()],
     ["N1", "command-palette-open", "/components/command-palette", async (p) => p.click("[data-stage] button:has-text('Search')")],
     ["N2", "date-range-open", "/components/date-range-picker", async (p) => p.click("[data-stage] button")],
     ["N3", "time-picker-open", "/components/time-picker", async (p) => p.click("[data-stage] button")],

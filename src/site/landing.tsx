@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Carousel } from "@/components/ui/carousel";
 import { HoloCard } from "@/components/ui/holo-card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { SandField } from "@/components/backgrounds/sand-field";
 import { SLink } from "./config";
 import { Wordmark } from "./logo";
 import { PlainMarks } from "./mark";
@@ -14,7 +13,7 @@ import { PaletteCard, SalesCard } from "./moments/sales-palette";
 import { SalesTrendTile } from "./showcase-more";
 import { StockCountTile } from "./showcase-motion";
 import { OtpFlow } from "./otp-flow";
-import { AgentThread, NewChat } from "./agent";
+import { SHOWPIECE_MOMENTS } from "./showpieces";
 import { DAFOE_PHOTOS } from "./data";
 import { Credit, TABS } from "./layout";
 
@@ -102,8 +101,8 @@ function PhotoCarousel() {
 }
 
 /**
- * The landing: one showpiece component per screen, each polished on its own; then the AI parts in one exchange and a
- * background. Tables, lists and the rest live on the Components and Examples pages.
+ * The landing: one showpiece component per screen, each polished on its own (the first few here, the rest from
+ * ./showpieces). Tables, lists, AI and backgrounds live on their own pages.
  */
 export function Landing() {
   return (
@@ -138,21 +137,13 @@ export function Landing() {
           <Moment id="carousel" title="Carousel" to="/components/carousel" className="max-w-[720px]">
             <PhotoCarousel />
           </Moment>
+          {SHOWPIECE_MOMENTS.map((m) => (
+            <Moment key={m.id} id={m.id} title={m.title} to={m.to} className={m.width}>
+              {m.render()}
+            </Moment>
+          ))}
         </div>
       </PlainMarks.Provider>
-      <div data-landing="ai">
-        <Moment id="ai" title="AI" to="/ai" className="max-w-[640px]">
-          <AgentThread />
-        </Moment>
-      </div>
-      <div data-landing="backgrounds">
-        <Moment id="backgrounds" title="Backgrounds" to="/backgrounds">
-          <div data-field-stage className="relative isolate grid min-h-[clamp(440px,58dvh,600px)] place-items-center overflow-hidden rounded-sheet bg-surface px-4 py-12 shadow-card">
-            <SandField className="rounded-[inherit] bg-surface" />
-            <NewChat />
-          </div>
-        </Moment>
-      </div>
       <Closing />
     </main>
   );

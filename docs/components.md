@@ -18,6 +18,8 @@ A foundation, set by the theme: no component to install.
 
 A foundation, set by the theme: no component to install.
 
+## Showpieces
+
 ## Actions
 
 ### Button
