@@ -24,7 +24,7 @@ Moved verbatim from `AGENTS.md` to keep the always-loaded file short.
   (+ lazy `encyclopedia-demos.tsx`), `export.tsx`, `layout.tsx` (header, footer, Customize flap).
 - `api/`: Vercel functions (`kit.ts`, `checklist.ts`, `r.ts`, `tokens.ts`) that import `src/lib/*` and read component
   sources from disk (`includeFiles` in `vercel.json`).
-- `scripts/`: `verify`, `unit.mjs` (formatter goldens in `unit-goldens.json`, config round-trip, registry deps vs
+- `scripts/`: `verify` (full, or `--changed [base]` scoped by `changed.mjs` and `lib/smoke-map.mjs`), `unit.mjs` (formatter goldens in `unit-goldens.json`, config round-trip, registry deps vs
   imports), `smoke.mjs`, `gen-docs.mjs` (README tables, `docs/components.md`, `docs/ui-checklist.md`), `greys.mjs`,
   `lib/load-lib.mjs` (imports `src/` TypeScript from Node scripts), `shots`, `review` + `review.mjs` (before/after
   sheets from a shot list kept with the round's output), `check-endpoints`, `env.sh`.

@@ -14,7 +14,8 @@ npm run dev          # http://localhost:5190
 
 Quick checks while you work: `npm run typecheck`, `npm run lint`, `npm run unit`, `npm run docs:check`. Before a pull
 request, `npm run verify` runs all of them plus the grey check, a build and a headless smoke test (it installs the
-Playwright headless shell the first time).
+Playwright headless shell the first time). `npm run verify:changed` is the faster version for work in progress: it runs
+the browser checks that reach your changes, and widens to everything when you touch shared code or config.
 
 ## Adding a component
 
