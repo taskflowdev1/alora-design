@@ -609,6 +609,93 @@ Files: `src/components/ui/foil-badge.tsx`. Installs too: `button`.
 
 Also takes the native props of the element it renders.
 
+### Invoice line items
+
+<a id="line-items"></a>Page: https://design.alorawork.com/components/line-items
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/line-items.json"
+```
+
+Files: `src/components/ui/line-items.tsx`. Installs too: `button`, `card`, `number-dial`, `quantity-stepper`, `select`.
+
+`LineItems`: An invoice's lines: product, quantity, price and total. A new row slides in, a changed quantity rolls its total with the subtotal, tax and grand total in step, and a removed row collapses. The list has a fixed height and the totals sit under it, so they never jump.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `defaultItems` | `LineItem[]` | `[]` |  |
+| `catalog` | `LineProduct[]` | `[]` | What "Add item" offers. A product already on the invoice leaves the list. |
+| `taxRate` | `number` | `0.11` | 0.11 is PPN 11%. |
+| `taxLabel` | `string` | `"PPN 11%"` |  |
+| `rows` | `number` | `4` | Rows the list holds before it scrolls inside itself; its height never changes. |
+| `onItemsChange` | `((items: LineItem[]) => void)` |  |  |
+| `className` | `string` |  |  |
+
+### CSV import mapping
+
+<a id="import-mapping"></a>Page: https://design.alorawork.com/components/import-mapping
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/import-mapping.json"
+```
+
+Files: `src/components/ui/import-mapping.tsx`. Installs too: `card`, `number-dial`, `select`.
+
+`ImportMapping`: Column mapping for a spreadsheet import. Auto-match draws each pairing in turn, a wrong one is changed with its select (a field feeds from one column, so taking it frees the other), and a column nobody wants just stays out. Import runs its progress inside the button and lands as the result in the same place.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `fileName` | `string` | `"produk.csv"` |  |
+| `rowCount` (required) | `number` |  | Rows in the sheet. |
+| `columns` (required) | `MapColumn[]` |  |  |
+| `fields` (required) | `MapField[]` |  |  |
+| `noun` | `string` | `"products"` | What is being imported, plural: "products". |
+| `onImport` | `((mapping: Record<string, string>, report: (rows: number) => void) => Promise<void>)` |  | Runs the import and reports rows done through `report`. Leave out for a simulated run. A rejection returns the piece to its mapped state so it can be tried again. |
+| `onDoneChange` | `((done: boolean) => void)` |  | Fires once the import has landed, and with false if it is reset by a new key. |
+| `className` | `string` |  |  |
+
+### Year heatmap
+
+<a id="year-heatmap"></a>Page: https://design.alorawork.com/components/year-heatmap
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/year-heatmap.json"
+```
+
+Files: `src/components/ui/year-heatmap.tsx`. Installs too: `card`, `number-dial`.
+
+`YearHeatmap`: A year of daily figures as rounded cells in accent shades, sweeping in the first time it is seen. Hover or arrow to a day and its date and amount change in the fixed readout above, so nothing floats or jumps. Arrows move by day and week, Home and End go to the first and last day, Escape returns to the year's total.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `days` (required) | `HeatDay[]` |  | One entry per day, oldest first. |
+| `label` | `string` | `"Sales this year"` | What the readout shows at rest, over the sum of all days. |
+| `unit` | `string` | `"Rp"` | Before the number. |
+| `className` | `string` |  |  |
+| `aria-label` | `string` |  |  |
+
+### Margin waterfall
+
+<a id="margin-waterfall"></a>Page: https://design.alorawork.com/components/margin-waterfall
+
+```sh
+npx shadcn@latest add "https://design.alorawork.com/r/margin-waterfall.json"
+```
+
+Files: `src/components/ui/margin-waterfall.tsx`. Installs too: `card`, `number-dial`, `segmented`.
+
+`MarginWaterfall`: From revenue down to profit: one bar for the money in, one step down for each cost, one bar for what is left. Hover or arrow to a step for its amount and share in the fixed readout; switching period morphs the bars and rolls the figures.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `periods` (required) | `WaterfallPeriod[]` |  | Every period must list the same steps in the same order, so the bars can morph between them. |
+| `defaultPeriod` | `string` |  |  |
+| `revenueLabel` | `string` | `"Revenue"` |  |
+| `profitLabel` | `string` | `"Profit"` |  |
+| `unit` | `string` | `"Rp"` |  |
+| `onPeriodChange` | `((id: string) => void)` |  |  |
+| `className` | `string` |  |  |
+
 ## Actions
 
 ### Button
@@ -3051,12 +3138,22 @@ npx shadcn@latest add "https://design.alorawork.com/r/copy-chip.json"
 
 Files: `src/components/ui/copy-chip.tsx`.
 
-`CopyChip`: An id or code that copies on click. The icon turns into a check for a moment; nothing moves.
+`CopyChip`: An id or code that copies on click. The icon morphs into a confirmation for a moment; nothing moves.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `value` (required) | `string` |  |  |
 | `children` | `ReactNode` |  |  |
+| `onCopied` | `(() => void)` |  |  |
+| `className` | `string` |  |  |
+
+`CopyField`: A number someone has to read out or paste elsewhere: a virtual account, an invoice. The whole field is the button; the number is grouped for reading but copies clean, and the icon morphs into a confirmation in place, then back.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `value` (required) | `string` |  | The exact text that is copied, with no spaces. |
+| `label` (required) | `ReactNode` |  | What the number is: "Virtual account BCA". |
+| `group` | `number` | `4` | Digits per group when showing an all-digit value. 0 shows it whole. |
 | `onCopied` | `(() => void)` |  |  |
 | `className` | `string` |  |  |
 
@@ -3194,7 +3291,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/dropzone.json"
 
 Files: `src/components/ui/dropzone.tsx`. Installs too: `button`, `progress`, `tooltip`.
 
-`Dropzone`: A soft area, no dashed border. The whole area opens the file picker and deepens on hover; dragging over it deepens the fill too. Browse stays as the visible (and keyboard) way in. Files list under it with progress.
+`Dropzone`: A soft area, no dashed border. The whole area opens the file picker and deepens on hover; dragging over it deepens the fill too. Browse stays as the visible (and keyboard) way in. A new file shrinks from the area into its row, the row fills with its progress, and a removed row collapses so the ones below close up.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
@@ -3203,8 +3300,10 @@ Files: `src/components/ui/dropzone.tsx`. Installs too: `button`, `progress`, `to
 | `multiple` | `boolean` | `true` |  |
 | `files` | `DropFile[]` | `[]` |  |
 | `onRemove` | `((id: string) => void)` |  |  |
+| `onRetry` | `((id: string) => void)` |  | Start a failed upload again; shows Retry on a row with an `error`. |
 | `title` | `string` | `"Drop files here"` | What to drop, e.g. "Drop product photos". |
 | `className` | `string` |  |  |
+| `listClassName` | `string` |  | On the file list, e.g. a fixed height so a new row never moves what is below. |
 
 ### Tag input
 

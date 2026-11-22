@@ -152,6 +152,10 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Photo stack shuffle](https://design.alorawork.com/components/photo-stack) | `photo-stack` | `PhotoStack` | `photos`, `onChange` |
 | [Scratch voucher](https://design.alorawork.com/components/scratch-voucher) | `scratch-voucher` | `ScratchVoucher` | `shop="Rimba Kemang"`, `validity="Until 31 Dec"`, `offer="25% off"`, `code="RIMBA-7K2Q"`, `label="Scratch here"`, `onReveal` |
 | [Foil achievement badge](https://design.alorawork.com/components/foil-badge) | `foil-badge` | `FoilBadge` | `value="Rp 100 jt"`, `label="Sales in November"`, `claimLabel="Claim badge"`, `defaultUnlocked=false`, `onUnlockedChange` |
+| [Invoice line items](https://design.alorawork.com/components/line-items) | `line-items` | `LineItems` | `defaultItems=[]`, `catalog=[]`, `taxRate=0.11`, `taxLabel="PPN 11%"`, `rows=4`, `onItemsChange`, `className` |
+| [CSV import mapping](https://design.alorawork.com/components/import-mapping) | `import-mapping` | `ImportMapping` | `fileName="produk.csv"`, `rowCount`, `columns`, `fields`, `noun="products"`, `onImport`, `onDoneChange`, `className` |
+| [Year heatmap](https://design.alorawork.com/components/year-heatmap) | `year-heatmap` | `YearHeatmap` | `days`, `label="Sales this year"`, `unit="Rp"`, `className`, `aria-label` |
+| [Margin waterfall](https://design.alorawork.com/components/margin-waterfall) | `margin-waterfall` | `MarginWaterfall` | `periods`, `defaultPeriod`, `revenueLabel="Revenue"`, `profitLabel="Profit"`, `unit="Rp"`, `onPeriodChange`, `className` |
 
 ### Actions
 
@@ -295,14 +299,14 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 | [Hover card](https://design.alorawork.com/components/hover-card) | `hover-card` | `HoverCard` | `trigger`, `children`, `side="bottom"`, `align="start"`, `className` |
 | [Column menu](https://design.alorawork.com/components/column-menu) | `column-menu` | `ColumnMenu` | `columns`, `visible`, `onVisibleChange`, `defaults`, `className` |
 | [Inline edit](https://design.alorawork.com/components/inline-edit) | `inline-edit` | `InlineEdit` | `value`, `onSave`, `prefix`, `suffix`, `format`, `parse`, `validate`, `align="left"`, `inputMode`, `className`, `aria-label` |
-| [Copy chip](https://design.alorawork.com/components/copy-chip) | `copy-chip` | `CopyChip` | `value`, `children`, `onCopied`, `className` |
+| [Copy chip](https://design.alorawork.com/components/copy-chip) | `copy-chip` | `CopyChip`, `CopyField` | `value`, `children`, `onCopied`, `className`, `label`, `group=4` |
 | [Keyboard shortcut](https://design.alorawork.com/components/kbd) | `kbd` | `Kbd`, `Shortcut` | `children`, `className`, `keys` |
 | [Sparkline](https://design.alorawork.com/components/sparkline) | `sparkline` | `Sparkline` | `data`, `kind="line"`, `width=96`, `height=28`, `dot=true`, `className`, `aria-label` |
 | [Progress ring](https://design.alorawork.com/components/progress-ring) | `progress-ring` | `ProgressRing` | `value`, `max=100`, `size=48`, `thickness=5`, `label`, `className`, `aria-label` |
 | [Step progress](https://design.alorawork.com/components/steps) | `steps` | `Steps` | `steps`, `current`, `size="default"`, `className` |
 | [Activity timeline](https://design.alorawork.com/components/timeline) | `timeline` | `Timeline` | `events`, `className` |
 | [Comment thread](https://design.alorawork.com/components/comment-thread) | `comment-thread` | `CommentThread` | `comments`, `me`, `onReact`, `onReply`, `className` |
-| [File dropzone](https://design.alorawork.com/components/dropzone) | `dropzone` | `Dropzone` | `onFiles`, `accept`, `multiple=true`, `files=[]`, `onRemove`, `title="Drop files here"`, `className` |
+| [File dropzone](https://design.alorawork.com/components/dropzone) | `dropzone` | `Dropzone` | `onFiles`, `accept`, `multiple=true`, `files=[]`, `onRemove`, `onRetry`, `title="Drop files here"`, `className`, `listClassName` |
 | [Tag input](https://design.alorawork.com/components/tag-input) | `tag-input` | `TagInput` | `value`, `onValueChange`, `placeholder="Add a tag"`, `suggestions=[]`, `className`, `aria-label` |
 | [Avatar group](https://design.alorawork.com/components/avatar-group) | `avatar-group` | `AvatarGroup` | `people`, `max=4`, `size="md"`, `className` |
 | [Notification bell](https://design.alorawork.com/components/notification-bell) | `notification-bell` | `NotificationBell` | `notices`, `onMarkAllRead`, `className` |
