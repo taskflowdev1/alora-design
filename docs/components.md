@@ -20,32 +20,6 @@ A foundation, set by the theme: no component to install.
 
 ## Showpieces
 
-### QR payment tile
-
-<a id="qr-payment-tile"></a>Page: https://design.alorawork.com/components/qr-payment-tile
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/qr-payment-tile.json"
-```
-
-Files: `src/components/ui/qr-payment-tile.tsx`. Installs too: `button`.
-
-`QrPaymentTile`: A payment QR that assembles module by module while a countdown drains around it. When `paid` turns true the modules collapse inward and become a drawn check; when the time runs out the code fades and offers a new one.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `merchant` | `string` | `"Rimba Kemang"` |  |
-| `amount` | `number` | `1250000` | The amount in rupiah. |
-| `reference` | `string` | `"INV-20418"` |  |
-| `value` | `string` |  | The text the code carries, up to 106 bytes. A longer one (a full QRIS string) goes through `modules`. |
-| `modules` | `boolean[][]` |  | A ready QR matrix from your own encoder, dark = true. Wins over `value`. |
-| `seconds` | `number` | `90` | How long the code stays valid. |
-| `paid` | `boolean` | `false` | Set when the payment lands: the modules collapse into a check. Back to false starts a fresh code. |
-| `onExpire` | `(() => void)` |  |  |
-| `onRefresh` | `(() => void)` |  | The expired code's "New code" was pressed; the countdown has restarted. Pass a fresh `value` here. |
-
-Also takes the native props of the element it renders.
-
 ### Slide to pay
 
 <a id="slide-to-pay"></a>Page: https://design.alorawork.com/components/slide-to-pay
@@ -67,50 +41,7 @@ Files: `src/components/ui/slide-to-pay.tsx`.
 
 Also takes the native props of the element it renders.
 
-### Card wallet stack
-
-<a id="card-wallet-stack"></a>Page: https://design.alorawork.com/components/card-wallet-stack
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/card-wallet-stack.json"
-```
-
-Files: `src/components/ui/card-wallet-stack.tsx`.
-
-`CardWalletStack`: Company cards resting in a pocket. Drag one up and it comes out on a spring while the others close the gap; flick it down and it tucks back. A tap, Enter or Space does the same, the arrow keys move between cards and Esc puts it away.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `cards` | `WalletCard[]` | `DEFAULT_CARDS` |  |
-| `label` | `string` | `"Rimba Kemang"` | The pocket's title while every card is in. |
-| `defaultOpen` | `string \| null` | `null` | The id of a card that starts out of the pocket. |
-| `onOpenChange` | `((id: string \| null) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Secure number reveal
-
-<a id="secure-number-reveal"></a>Page: https://design.alorawork.com/components/secure-number-reveal
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/secure-number-reveal.json"
-```
-
-Files: `src/components/ui/secure-number-reveal.tsx`.
-
-`SecureNumberReveal`: A masked card number you hold to read. Holding (pointer, finger, Space or Enter) scrambles it into the real digits left to right; letting go encrypts it back from the right, character by character. Nothing stays revealed.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `number` | `string` | `"4556 7120 3398 4410"` | The full card number, grouped as it should read. Its last four always show. |
-| `holder` | `string` | `"RIZKY HARTONO"` |  |
-| `expiry` | `string` | `"08/29"` | Printed as given, `MM/YY`. |
-| `cvv` | `string` | `"382"` |  |
-| `onRevealChange` | `((revealed: boolean) => void)` |  | Called as the hold starts and ends. |
-
-Also takes the native props of the element it renders.
-
-### Balance privacy wave
+### Balance privacy
 
 <a id="balance-privacy-wave"></a>Page: https://design.alorawork.com/components/balance-privacy-wave
 
@@ -120,39 +51,16 @@ npx shadcn@latest add "https://design.alorawork.com/r/balance-privacy-wave.json"
 
 Files: `src/components/ui/balance-privacy-wave.tsx`. Installs too: `button`.
 
-`BalancePrivacyWave`: A balance with a privacy eye. Hiding blurs it digit by digit in a soft wave from the left, showing sharpens it from the right. Once blurred, the digits in the page are swapped for a mask, so hidden means hidden for copy and for screen readers too.
+`BalancePrivacyWave`: A balance with a privacy eye. Hiding turns it into dots digit by digit in a soft wave from the left, each digit lifting away as its dot springs in; showing runs back from the right. Once hidden, the digits in the page are swapped for a mask, so hidden means hidden for copy and for screen readers too.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `label` | `string` | `"Balance"` |  |
 | `amount` | `number` | `48240000` | The balance in rupiah. |
-| `details` | `BalanceDetail[]` | `DEFAULT_DETAILS` | Smaller figures under the balance; they blur with it. |
+| `details` | `BalanceDetail[]` | `DEFAULT_DETAILS` | Smaller figures under the balance; they hide with it. |
 | `hidden` | `boolean` |  | Controlled: whether the figures are hidden. |
 | `defaultHidden` | `boolean` | `false` |  |
 | `onHiddenChange` | `((hidden: boolean) => void)` |  |  |
-
-Also takes the native props of the element it renders.
-
-### Installment slicer
-
-<a id="installment-slicer"></a>Page: https://design.alorawork.com/components/installment-slicer
-
-```sh
-npx shadcn@latest add "https://design.alorawork.com/r/installment-slicer.json"
-```
-
-Files: `src/components/ui/installment-slicer.tsx`.
-
-`InstallmentSlicer`: A price you cut into installments. Dragging across the month counts slices one solid bar into that many rounded pieces, the cuts opening under the handle, while the monthly amount rolls. The first piece is what's due now.
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | `"Gelas kopi tanah liat, 14 pcs"` | What's being paid for. |
-| `total` | `number` | `1250000` | The full price in rupiah. |
-| `options` | `number[]` | `[1, 3, 6, 12]` | The month counts to choose from, ascending. 1 is paying in full. |
-| `value` | `number` |  | Controlled: the chosen month count. |
-| `defaultValue` | `number` |  |  |
-| `onValueChange` | `((months: number) => void)` |  |  |
 
 Also takes the native props of the element it renders.
 

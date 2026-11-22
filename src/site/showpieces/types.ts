@@ -10,5 +10,7 @@ export interface ShowpieceMoment {
   to: string;
   /** Tailwind max width for the component column, e.g. "max-w-[440px]". */
   width: string;
+  /** A touch gesture (a slide, a swipe): shown on the landing only where the pointer is a finger. */
+  touchOnly?: boolean;
   render: () => React.ReactNode;
 }

@@ -189,6 +189,7 @@ export const MOMENTS: ShowpieceMoment[] = [
     title: "Scratch voucher",
     to: "/components/scratch-voucher",
     width: "max-w-[440px]",
+    touchOnly: true,
     render: () => <ScratchVoucher />,
   },
   {

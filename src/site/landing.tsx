@@ -43,9 +43,9 @@ function Hero() {
  * One component on its own: its name (a link to its page) over the component, centred, with the screen around it.
  * Scrolling brings one moment into focus at a time; the ones above and below dim (index.css `.ad-moment`).
  */
-function Moment({ id, title, to, className, children }: { id: string; title: string; to: string; className?: string; children: React.ReactNode }) {
+function Moment({ id, title, to, touchOnly, className, children }: { id: string; title: string; to: string; touchOnly?: boolean; className?: string; children: React.ReactNode }) {
   return (
-    <section aria-label={title} data-moment={id} className="ad-moment mx-auto grid w-full max-w-[1280px] justify-items-center gap-8 px-4 py-[clamp(56px,11dvh,120px)] sm:px-6">
+    <section aria-label={title} data-moment={id} className={cn("ad-moment mx-auto grid w-full max-w-[1280px] justify-items-center gap-8 px-4 py-[clamp(56px,11dvh,120px)] sm:px-6", touchOnly && "[@media(pointer:fine)]:hidden")}>
       <h2 className="text-center text-[length:clamp(28px,3.4vw,44px)] font-semibold leading-[1.05] tracking-[-0.03em] text-ink">
         <SLink to={to} className="-mx-1 rounded-small px-1 transition-colors duration-[160ms] hover:text-ink-muted focus-visible:bg-fill">
           {title}
@@ -136,7 +136,7 @@ export function Landing() {
             <PhotoCarousel />
           </Moment>
           {SHOWPIECE_MOMENTS.map((m) => (
-            <Moment key={m.id} id={m.id} title={m.title} to={m.to} className={m.width}>
+            <Moment key={m.id} id={m.id} title={m.title} to={m.to} touchOnly={m.touchOnly} className={m.width}>
               {m.render()}
             </Moment>
           ))}

@@ -131,7 +131,7 @@ export const TILES: TileDef[] = [
 
 export const MOMENTS: ShowpieceMoment[] = [
   { id: "parcel-journey", title: "Parcel journey line", to: "/components/parcel-journey", width: "max-w-[720px]", render: () => <ParcelJourney /> },
-  { id: "peel-label", title: "Peel shipping label", to: "/components/peel-label", width: "max-w-[560px]", render: () => <PeelLabel /> },
+  { id: "peel-label", title: "Peel shipping label", to: "/components/peel-label", width: "max-w-[560px]", touchOnly: true, render: () => <PeelLabel /> },
   { id: "route-untangle", title: "Route untangle", to: "/components/route-untangle", width: "max-w-[640px]", render: () => <RouteUntangle /> },
   { id: "box-packing", title: "Box packing fit", to: "/components/box-packing", width: "max-w-[520px]", render: () => <BoxPacking /> },
   { id: "paid-stamp", title: "Paid rubber stamp", to: "/components/paid-stamp", width: "max-w-[480px]", render: () => <PaidStamp /> },

@@ -4,31 +4,46 @@ import { cn, formatNumber } from "@/lib/ad";
 import { Button } from "@/components/ui/button";
 
 /** Between two characters of the wave: the big number, then the small ones running alongside it. */
-const STEP = 30;
-const DETAIL_STEP = 16;
-const DETAIL_START = 70;
-const BLUR_MS = 240;
-/** Stands in for every digit once the blur has covered it, so the real number leaves the page. */
+const STEP = 32;
+const DETAIL_STEP = 18;
+const DETAIL_START = 80;
+const MS = 240;
+/** The dot follows its digit out (and leads it back in) by this much. */
+const LAG = 60;
+/** Stands in for every digit once the wave has covered it, so the real number leaves the page. */
 const MASK = "0";
 
 /*
- * Each character blurs on its own delay (--d). The small lift is a keyframe with two identical names: changing the name
- * is what restarts it, and it only runs once the eye has been used, so a page load is still.
+ * Every character is a slot of its digit's width holding two layers: the digit and a round dot. Hiding lifts and
+ * blurs each digit away as its dot springs in, slot by slot from the left; showing runs from the right, the dot
+ * leaving first. Separators fade, so a hidden balance reads as groups of dots. The slot keeps its width, so nothing
+ * moves.
  */
 const CSS = `
-.ad-wave-c {
-  display: inline-block; filter: blur(0); opacity: 1;
-  transition: filter ${BLUR_MS}ms var(--ad-ease) var(--d), opacity ${BLUR_MS}ms var(--ad-ease) var(--d);
+.ad-wave-s { display: inline-grid; }
+.ad-wave-s > * { grid-area: 1 / 1; }
+.ad-wave-d {
+  transition: opacity ${MS}ms var(--ad-ease), filter ${MS}ms var(--ad-ease), transform ${MS}ms var(--ad-ease);
+  transition-delay: calc(var(--d) + ${LAG}ms);
 }
-.ad-wave[data-hidden="true"] .ad-wave-c { filter: blur(7px); opacity: 0.72; }
-.ad-wave[data-played="true"][data-hidden="true"] .ad-wave-c { animation: ad-wave-a ${BLUR_MS}ms var(--ad-ease) var(--d); }
-.ad-wave[data-played="true"][data-hidden="false"] .ad-wave-c { animation: ad-wave-b ${BLUR_MS}ms var(--ad-ease) var(--d); }
-@keyframes ad-wave-a { 40% { transform: translateY(-2px); } }
-@keyframes ad-wave-b { 40% { transform: translateY(-2px); } }
+.ad-wave-dot {
+  place-self: center; width: 0.26em; height: 0.26em; border-radius: 999px; corner-shape: round; background: currentColor;
+  margin-top: 0.3em; opacity: 0; transform: scale(0.2);
+  transition: opacity 160ms var(--ad-ease), transform ${MS}ms var(--ad-ease);
+  transition-delay: var(--d);
+}
+.ad-wave[data-hidden="true"] .ad-wave-d { opacity: 0; filter: blur(4px); transform: translateY(-0.14em) scale(0.92); transition-delay: var(--d); }
+.ad-wave[data-hidden="true"] .ad-wave-dot {
+  opacity: 1; transform: none;
+  transition: opacity 160ms var(--ad-ease), transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(var(--d) + ${LAG}ms);
+}
+.ad-wave-sep { transition: opacity ${MS}ms var(--ad-ease); transition-delay: var(--d); }
+.ad-wave[data-hidden="true"] .ad-wave-sep { opacity: 0; }
 .ad-wave-eye { transition: opacity 160ms var(--ad-ease), scale 160ms var(--ad-ease), filter 160ms var(--ad-ease); }
 .ad-wave-eye[data-on="false"] { opacity: 0; scale: 0.8; filter: blur(2px); }
 @media (prefers-reduced-motion: reduce) {
-  .ad-wave-c, .ad-wave-eye { transition: none !important; animation: none !important; }
+  .ad-wave-d, .ad-wave-dot, .ad-wave-sep, .ad-wave-eye { transition: none !important; }
 }`;
 
 export interface BalanceDetail {
@@ -41,7 +56,7 @@ export interface BalancePrivacyWaveProps extends Omit<React.HTMLAttributes<HTMLD
   label?: string;
   /** The balance in rupiah. */
   amount?: number;
-  /** Smaller figures under the balance; they blur with it. */
+  /** Smaller figures under the balance; they hide with it. */
   details?: BalanceDetail[];
   /** Controlled: whether the figures are hidden. */
   hidden?: boolean;
@@ -58,20 +73,31 @@ const DEFAULT_DETAILS: BalanceDetail[] = [
 function Figure({ text, masked, delay }: { text: string; masked: boolean; delay: (i: number) => number }) {
   return (
     <span aria-hidden>
-      {[...text].map((c, i) => (
+      {[...text].map((c, i) => {
+        const style = { "--d": `${delay(i)}ms` } as React.CSSProperties;
         // The position is the identity here: a digit keeps its place while its value changes.
-        <span key={i} className="ad-wave-c" style={{ "--d": `${delay(i)}ms` } as React.CSSProperties}>
-          {masked && /\d/.test(c) ? MASK : c}
-        </span>
-      ))}
+        if (!/\d/.test(c)) {
+          return (
+            <span key={i} className="ad-wave-sep" style={style}>
+              {c}
+            </span>
+          );
+        }
+        return (
+          <span key={i} className="ad-wave-s" style={style}>
+            <span className="ad-wave-d">{masked ? MASK : c}</span>
+            <span className="ad-wave-dot" />
+          </span>
+        );
+      })}
     </span>
   );
 }
 
 /**
- * A balance with a privacy eye. Hiding blurs it digit by digit in a soft wave from the left, showing sharpens it from the
- * right. Once blurred, the digits in the page are swapped for a mask, so hidden means hidden for copy and for
- * screen readers too.
+ * A balance with a privacy eye. Hiding turns it into dots digit by digit in a soft wave from the left, each digit
+ * lifting away as its dot springs in; showing runs back from the right. Once hidden, the digits in the page are
+ * swapped for a mask, so hidden means hidden for copy and for screen readers too.
  */
 export function BalancePrivacyWave({
   label = "Balance",
@@ -85,14 +111,13 @@ export function BalancePrivacyWave({
 }: BalancePrivacyWaveProps) {
   const [own, setOwn] = React.useState(defaultHidden);
   const isHidden = hidden ?? own;
-  const [played, setPlayed] = React.useState(false);
   const [masked, setMasked] = React.useState(isHidden);
 
   const main = formatNumber(amount);
   const longestDetail = Math.max(0, ...details.map((d) => formatNumber(d.amount).length));
   const mainLast = main.length - 1;
   const detailLast = longestDetail - 1;
-  const waveMs = Math.max(mainLast * STEP, DETAIL_START + detailLast * DETAIL_STEP) + BLUR_MS;
+  const waveMs = Math.max(mainLast * STEP, DETAIL_START + detailLast * DETAIL_STEP) + LAG + MS;
 
   // The real digits leave only after the wave has covered them, and come back the moment it turns around.
   React.useEffect(() => {
@@ -105,7 +130,6 @@ export function BalancePrivacyWave({
   }, [isHidden, waveMs]);
 
   const toggle = () => {
-    setPlayed(true);
     setOwn(!isHidden);
     onHiddenChange?.(!isHidden);
   };
@@ -115,7 +139,7 @@ export function BalancePrivacyWave({
   const detailDelay = (i: number) => DETAIL_START + (isHidden ? i : detailLast - i) * DETAIL_STEP;
 
   return (
-    <div data-hidden={isHidden} data-played={played} className={cn("ad-wave grid min-w-0 gap-3", className)} {...props}>
+    <div data-hidden={isHidden} className={cn("ad-wave grid min-w-0 gap-4", className)} {...props}>
       <style href="ad-balance-privacy-wave" precedence="default">
         {CSS}
       </style>
@@ -126,20 +150,19 @@ export function BalancePrivacyWave({
           <EyeOff size={16} strokeWidth={1.75} aria-hidden data-on={isHidden} className="ad-wave-eye col-start-1 row-start-1" />
         </Button>
       </div>
-      <p className="flex min-w-0 items-baseline gap-2 whitespace-nowrap font-semibold tabular-nums tracking-[-0.03em] text-ink">
-        <span className="text-title font-medium tracking-normal text-ink-muted">Rp</span>
-        <span className="text-[length:clamp(34px,11cqw,52px)] leading-[1.1]">
-          <span className="sr-only">{isHidden ? "Hidden" : main}</span>
-          <Figure text={main} masked={masked} delay={mainDelay} />
-        </span>
+      {/* The hero number of the metric card: the unit small and muted on the number's baseline. */}
+      <p className="whitespace-nowrap text-[length:clamp(36px,13.5cqw,60px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
+        <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
+        <span className="sr-only">{isHidden ? "Hidden" : main}</span>
+        <Figure text={main} masked={masked} delay={mainDelay} />
       </p>
       {details.length > 0 && (
-        <dl className="mt-1 grid grid-cols-2 gap-gap">
+        <dl className="mt-2 grid grid-cols-2 gap-gap">
           {details.map((d) => (
-            <div key={d.label} className="grid min-w-0 gap-0.5">
-              <dt className="truncate text-small text-ink-muted">{d.label}</dt>
-              <dd className="truncate text-body font-medium tabular-nums text-ink">
-                <span className="text-ink-muted">Rp </span>
+            <div key={d.label} className="grid min-w-0 gap-1">
+              <dt className="truncate text-body text-ink-muted">{d.label}</dt>
+              <dd className="truncate text-title font-semibold tabular-nums tracking-[-0.01em] text-ink">
+                <span className="mr-1 text-body font-medium tracking-normal text-ink-muted">Rp</span>
                 <span className="sr-only">{isHidden ? "Hidden" : formatNumber(d.amount)}</span>
                 <Figure text={formatNumber(d.amount)} masked={masked} delay={detailDelay} />
               </dd>

@@ -127,12 +127,8 @@ Generated from the source by `scripts/gen-docs.mjs`; `scripts/verify` fails when
 
 | Component | Install name | Exports | Props (`=default`) |
 | --- | --- | --- | --- |
-| [QR payment tile](https://design.alorawork.com/components/qr-payment-tile) | `qr-payment-tile` | `QrPaymentTile` | `merchant="Rimba Kemang"`, `amount=1250000`, `reference="INV-20418"`, `value`, `modules`, `seconds=90`, `paid=false`, `onExpire`, `onRefresh` |
 | [Slide to pay](https://design.alorawork.com/components/slide-to-pay) | `slide-to-pay` | `SlideToPay` | `amount=1250000`, `onConfirm`, `resetAfter=2600`, `disabled` |
-| [Card wallet stack](https://design.alorawork.com/components/card-wallet-stack) | `card-wallet-stack` | `CardWalletStack` | `cards=DEFAULT_CARDS`, `label="Rimba Kemang"`, `defaultOpen=null`, `onOpenChange` |
-| [Secure number reveal](https://design.alorawork.com/components/secure-number-reveal) | `secure-number-reveal` | `SecureNumberReveal` | `number="4556 7120 3398 4410"`, `holder="RIZKY HARTONO"`, `expiry="08/29"`, `cvv="382"`, `onRevealChange` |
-| [Balance privacy wave](https://design.alorawork.com/components/balance-privacy-wave) | `balance-privacy-wave` | `BalancePrivacyWave` | `label="Balance"`, `amount=48240000`, `details=DEFAULT_DETAILS`, `hidden`, `defaultHidden=false`, `onHiddenChange` |
-| [Installment slicer](https://design.alorawork.com/components/installment-slicer) | `installment-slicer` | `InstallmentSlicer` | `label="Gelas kopi tanah liat, 14 pcs"`, `total=1250000`, `options=[1, 3, 6, 12]`, `value`, `defaultValue`, `onValueChange` |
+| [Balance privacy](https://design.alorawork.com/components/balance-privacy-wave) | `balance-privacy-wave` | `BalancePrivacyWave` | `label="Balance"`, `amount=48240000`, `details=DEFAULT_DETAILS`, `hidden`, `defaultHidden=false`, `onHiddenChange` |
 | [Rolling odometer total](https://design.alorawork.com/components/odometer-total) | `odometer-total` | `OdometerTotal` | `label="Sales today"`, `unit="Rp"`, `value`, `defaultValue=48240000`, `fitTo`, `steps=[89000, 1250000, 12500000, -245000]`, `onValueChange` |
 | [Target gauge needle](https://design.alorawork.com/components/target-gauge) | `target-gauge` | `TargetGauge` | `label="Today’s target"`, `value`, `defaultValue=31400000`, `target=48000000`, `sales=[1250000, 420000, 2750000, 890000, 3100000]`, `format=formatRp`, `onValueChange` |
 | [Ghost period compare](https://design.alorawork.com/components/ghost-compare) | `ghost-compare` | `GhostCompare` | `label="Sales this week"`, `current=[38200000, 41600000, 35900000, 47100000, 52300000, 61800000, 48240000]`, `previous=[34100000, 39800000, 37600000, 41200000, 46900000, 55400000, 44100000]`, `labels=WEEKDAYS_3`, `today=6`, `hint="Hold for last week"`, `unit="Rp"`, `onCompareChange` |
