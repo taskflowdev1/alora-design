@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router";
 import { ArrowDownRight, ArrowUpRight } from "react-feather";
 import { cn, formatCompact, formatNumber } from "@/lib/ad";
@@ -27,7 +28,8 @@ export function PrimaryAction({ icon: Icon, label, onClick }: { icon: React.Comp
       {label}
     </Button>
   ) : (
-    <MobileFab icon={Icon} label={label} iconOnly onClick={onClick} />
+    // On the page itself, not in the app's scroll box: that box's edge fade is a mask, which clips a fixed child too.
+    createPortal(<MobileFab icon={Icon} label={label} iconOnly onClick={onClick} />, document.body)
   );
 }
 

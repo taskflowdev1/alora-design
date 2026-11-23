@@ -195,10 +195,49 @@ function SkipLink() {
   );
 }
 
+/**
+ * Phones: the header steps out of the way while you read. Scrolling down slides it up out of view; scrolling back up,
+ * even a little, or reaching the top brings it back. Anything opened from it (search, menus) keeps it in place.
+ */
+function useHideOnScroll() {
+  const [hidden, setHidden] = React.useState(false);
+  React.useEffect(() => {
+    const phone = window.matchMedia("(max-width: 767px)");
+    let last = window.scrollY;
+    let travel = 0;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const dy = y - last;
+      last = y;
+      if (!phone.matches || y < 64) return setHidden(false);
+      // A few pixels of travel in one direction before it turns, so a wobbling thumb doesn't flicker it.
+      travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
+      if (travel > 12) setHidden(true);
+      else if (travel < -8) setHidden(false);
+    };
+    const onMedia = () => !phone.matches && setHidden(false);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    phone.addEventListener("change", onMedia);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      phone.removeEventListener("change", onMedia);
+    };
+  }, []);
+  return [hidden, setHidden] as const;
+}
+
 /** One header for every page: same position, width and height on landing, gallery, examples and export. */
 function SiteHeader() {
+  const [hidden, setHidden] = useHideOnScroll();
+  const { pathname } = useLocation();
+  // A new page starts with the header in view.
+  React.useEffect(() => setHidden(false), [pathname, setHidden]);
   return (
-    <header className="sticky top-0 z-40 bg-page">
+    <header
+      data-away={hidden || undefined}
+      onFocusCapture={() => setHidden(false)}
+      className="sticky top-0 z-40 bg-page transition-transform duration-[260ms] ease-ad data-[away]:-translate-y-full motion-reduce:transition-none"
+    >
       <div className="relative mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
         <SkipLink />
         <SLink to="/" data-logo className="mr-3 flex rounded-control px-1 py-1 transition-colors duration-[160ms] focus-visible:bg-fill sm:mr-6">
