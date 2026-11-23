@@ -225,7 +225,11 @@ export function ComponentBento({ query }: { query: string }) {
     <div className="grid gap-10" data-components={COMPONENT_ITEMS.filter((i) => i.showcase !== false).map((i) => i.name).join(",")}>
       {bands.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
       {bands.map((b) => (
-        <section key={b.title} aria-label={b.title} data-group={b.title} className="grid gap-3">
+        // Phones and tablets: off screen a band isn't rendered at all, so a frame's work never covers the whole page (the
+        // header's slide on a scroll turn re-sorted every layer of it, a visible hitch). Each band keeps
+        // the height it last showed ("auto"), so nothing above the view changes size as you scroll back. Not on desktop: the
+        // side list jumps mid-page, and Safari has no scroll anchoring to absorb bands above filling in.
+        <section key={b.title} aria-label={b.title} data-group={b.title} className="grid gap-3 max-lg:[contain-intrinsic-size:auto_900px] max-lg:[content-visibility:auto]">
           <h2 className="text-title font-semibold text-ink">{b.title}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
             {b.places.map((p) =>

@@ -236,7 +236,7 @@ function SiteHeader() {
     <header
       data-away={hidden || undefined}
       onFocusCapture={() => setHidden(false)}
-      className="sticky top-0 z-40 bg-page transition-transform duration-[260ms] ease-ad data-[away]:-translate-y-full motion-reduce:transition-none"
+      className="sticky top-0 z-40 bg-page transition-transform duration-[260ms] ease-ad max-md:will-change-transform data-[away]:-translate-y-full motion-reduce:transition-none"
     >
       <div className="relative mx-auto flex h-16 w-full max-w-[1280px] items-center gap-1 px-4 sm:px-6">
         <SkipLink />
