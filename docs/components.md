@@ -1370,7 +1370,7 @@ npx shadcn@latest add "https://design.alorawork.com/r/avatar.json"
 
 Files: `src/components/ui/avatar.tsx`.
 
-`Avatar`: People are always circles.
+`Avatar`: People are always circles. The initials are trimmed to their cap height, so they sit in the true middle in any font.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
