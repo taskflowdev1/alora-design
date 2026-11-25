@@ -1,39 +1,28 @@
-/* Alora Design base rules. Corner shape, one scrollbar style, no focus rings, touch and motion defaults. */
 *, ::before, ::after {
   corner-shape: var(--ad-corner);
 }
-/* In the base layer, so a utility on one element (a carousel's [scrollbar-width:none]) still wins. Unlayered, this
-   rule beat every Tailwind utility and the carousel showed a bar it meant to hide. */
 @layer base {
   *, ::before, ::after {
     scrollbar-width: thin;
     scrollbar-color: var(--ad-scroll) transparent;
   }
-  /* No double-tap zoom delay on anything you press. */
   a, button, label, summary, input, textarea, select, [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="radio"], [role="checkbox"], [role="switch"] {
     touch-action: manipulation;
   }
-  /* Scrolling inside an overlay never scrolls the page behind it. */
   [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-radix-popper-content-wrapper] > *,
   :is([role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-radix-popper-content-wrapper]) * {
     overscroll-behavior: contain;
   }
-  /* Link underlines clear the descenders. */
   a {
     text-underline-offset: 0.2em;
     text-decoration-thickness: from-font;
   }
-  /* Phones zoom into any field under 16 px. Touch screens get 16 px; a mouse keeps the dense size. A field with its own
-     text size utility keeps it (utilities win over this layer), so those set pointer-coarse:text-[16px] themselves. */
   @media (pointer: coarse) {
     input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"]), textarea, select, [contenteditable="true"] {
       font-size: max(16px, 1em);
     }
   }
 }
-/* A small control (a 18 px checkbox, a 20 px chip, a 5 px dot) gets a 24 px hit area without growing: a transparent
-   ::after reaches out to 24 px on any side that is shorter, and never shrinks a side that is longer. In the components
-   layer, so an `absolute` utility on the same element still wins over the `relative` here. */
 @layer components {
   .ad-hit {
     position: relative;
@@ -54,7 +43,6 @@ html {
   color: var(--ad-ink);
   background: var(--ad-page);
   font-variant-numeric: tabular-nums;
-  /* No faux bold or italic: a missing weight shows as the nearest real one (base.defaults). */
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -96,8 +84,6 @@ html {
   --ad-scroll: var(--ad-side-scroll);
   color: var(--ad-ink);
 }
-/* Weight step without a width change: the label is laid out twice in one grid cell, the hidden copy at the active
-   weight, so a selected item turning medium never moves its neighbours. */
 .ad-hold {
   display: inline-grid;
   gap: inherit;
@@ -113,13 +99,10 @@ html {
   visibility: hidden;
   font-weight: 500;
 }
-/* Loading pulse (animate-ad-pulse in theme.css): opacity only, so a pulsing block keeps its size. */
 @keyframes ad-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-/* Loading text (skeletonText() in ad.ts sets the bar's colour): the text holds its box and baseline, unseen; one bar
-   at letter height sits on it, so a value never shifts when it lands and two stacked lines never touch. */
 .ad-skel {
   position: relative;
   display: inline-block;
@@ -137,8 +120,6 @@ html {
   top: 50%;
   height: 0.8em;
   translate: 0 -50%;
-  /* Rounded to the bar's own height: the small radius on body text, about a fifth of the line on big numbers (a hero
-     figure's bar at the small radius read as a hard block). Square mode still zeroes it. */
   border-radius: min(max(var(--ad-radius-small), 0.2em), 0.3em, var(--ad-radius-card));
   animation: ad-pulse 1.6s ease-in-out infinite;
 }
@@ -150,12 +131,9 @@ html {
     scroll-behavior: auto !important;
   }
 }
-/* Add to <html> for the frame the theme changes in (then remove), so every colour swaps at once instead of fading. */
 .ad-theme-switch, .ad-theme-switch *, .ad-theme-switch ::before, .ad-theme-switch ::after {
   transition: none !important;
 }
-/* The full-page theme crossfade (crossfadeTheme in theme-switch.tsx): the new page fades in over a still picture of the
-   old one, and presses go through to the real page so a second switch isn't lost. */
 .ad-theme-fade::view-transition-old(root), .ad-theme-fade::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
@@ -163,28 +141,17 @@ html {
 .ad-theme-fade::view-transition {
   pointer-events: none;
 }
-/* The press: a button, chip or tab shrinks a little while held (its active:scale-[…] sets how far) and eases back,
-   with its hover fill on the same 150 ms. Tailwind's scale utilities set the `scale` property, so it is listed here
-   next to `transform`. */
 @utility ad-press {
   transition-property: background-color, color, transform, scale;
   transition-duration: 150ms;
   transition-timing-function: var(--ad-ease);
 }
-/* A trigger whose pop-up is anchored to it (popover, menu, select, combobox, date picker, hover or context menu)
-   doesn't shrink while pressed: the pop-up is placed against the trigger's box, so a shrinking trigger nudged it a few
-   pixels on every open and close. Such triggers carry data-ad-anchor; menu and listbox triggers are anchored by
-   definition. Dialog and sheet triggers press as usual: their pop-up is centred, not anchored. Important, so it beats
-   each trigger's active:scale utility even where an install puts this file in a layer. */
 :is([data-ad-anchor], [aria-haspopup="menu"], [aria-haspopup="listbox"], [role="combobox"]):active {
   scale: none !important;
 }
-/* Keyboard focus shows at once: the hover fade would smear the fill along a row while Tab is held. Leaving focus
-   still fades, since the rule stops matching first. A wrapper that paints its focused child's fill counts too. */
 :focus-visible, :has(> :focus-visible) {
   transition-duration: 0s !important;
 }
-/* Overlays grow from 0.97 (never from 0) toward the trigger via transform-origin, and leave the same way. */
 @keyframes ad-in {
   from { opacity: 0; transform: scale(0.97); }
 }

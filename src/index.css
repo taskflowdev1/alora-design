@@ -9,7 +9,6 @@ body {
   background: var(--ad-page);
 }
 
-/* Site-only: a soft fade on a scroll area's cut edge, only where there is more to scroll to (data-fade from useEdgeFade). */
 .ad-fade-y {
   --fade-t: 0px;
   --fade-b: 0px;
@@ -24,8 +23,6 @@ body {
   --fade-b: 32px;
 }
 
-/* Site-only: a component inside a Components-page tile (Mark in mark.tsx). Only the innermost hovered mark shows its
-   soft fill and its name chip; the chip sits just above the mark and opens the component's sliders. */
 .ad-mark {
   position: relative;
   border-radius: calc(var(--ad-radius-control) + 6px);
@@ -66,8 +63,6 @@ body {
   }
 }
 
-/* Site-only: the landing's moments (landing.tsx). One component in focus at a time: as a moment scrolls in it comes up
-   to full strength, and it dims again on its way out. Scroll-driven, so nothing runs while the page is still. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .ad-moment {
@@ -83,15 +78,10 @@ body {
   100% { opacity: 0.25; }
 }
 
-/* Site-only: the page always has its scrollbar track (classic scrollbars only; overlay ones take no room), so pages
-   that fit the window (Examples) keep the header exactly where pages that scroll have it instead of shifting by half
-   a scrollbar. */
 html {
   overflow-y: scroll;
 }
 
-/* The scrollbar above stays while a dialog locks scrolling, so the lock's stand-in padding for it would push the page
-   sideways by a scrollbar (Cmd+K moved the page). */
 html body[data-scroll-locked] {
   margin-right: 0 !important;
   padding-right: 0 !important;
