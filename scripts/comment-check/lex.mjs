@@ -7,7 +7,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 let ts = null;
 export function loadTypescript(dirs) {
   for (const d of [...dirs, here]) {
-    try { ts = createRequire(path.join(d, 'package.json'))('typescript'); return true; } catch {}
+    try {
+      const found = createRequire(path.join(d, 'package.json'))('typescript');
+      if (typeof found.createSourceFile === 'function') { ts = found; return true; }
+    } catch {}
   }
   return false;
 }
@@ -72,13 +75,13 @@ function scanC(src, lang) {
     }
     return FAIL;
   }
-  function str(i) { 
+  function str(i) {
     const c = src[i];
     if (lang === 'swift' && c === '#' && /^#+["/]/.test(src.slice(i, i + 12))) {
       let k = i; while (src[k] === '#') k++; const h = '#'.repeat(k - i);
       if (src.startsWith('"""', k)) return quoted(k + 3, '"""' + h, true, true, false);
       if (src[k] === '"') return quoted(k + 1, '"' + h, false, true, false);
-      return quoted(k + 1, '/' + h, true, true, false); 
+      return quoted(k + 1, '/' + h, true, true, false);
     }
     if (lang === 'rust' && (c === 'r' || c === 'b') && !/\w/.test(src[i - 1] || '')) {
       const m = /^(?:br|r)(#*)"/.exec(src.slice(i, i + 300));
@@ -98,7 +101,7 @@ function scanC(src, lang) {
     }
     return null;
   }
-  function code(j, closer) { 
+  function code(j, closer) {
     let depth = 0;
     while (j < n) {
       const s = str(j); if (s === FAIL) return FAIL; if (s != null) { j = s; continue; }
@@ -239,7 +242,7 @@ function scanSh(src) {
       if (c === '$' && src[i + 1] === '{') { i = param(i + 2); if (i === FAIL) return FAIL; continue; }
       if (c === '$' && src[i + 1] === "'") { i = ansi(i + 2); if (i === FAIL) return FAIL; continue; }
       if (c === '$' && src[i + 1] === '"') { i = dq(i + 2); if (i === FAIL) return FAIL; continue; }
-      if (c === '$') { i += 2; continue; } 
+      if (c === '$') { i += 2; continue; }
       if (c === '(' && src[i + 1] === '(' && wordStart(i)) { i = arith(i + 2); if (i === FAIL) return FAIL; continue; }
       if (c === '<' && src[i + 1] === '<' && src[i + 2] === '<') { i += 3; continue; }
       if (c === '<' && src[i + 1] === '<') {
@@ -247,9 +250,9 @@ function scanSh(src) {
         if (!m) return FAIL;
         pending.push({ dash: !!m[1], delim: m[2] ?? m[3] ?? m[4] ?? m[5] }); i += m[0].length; continue;
       }
-      if (stop && wordStart(i) && /^case\b/.test(src.slice(i, i + 5))) return FAIL; 
+      if (stop && wordStart(i) && /^case\b/.test(src.slice(i, i + 5))) return FAIL;
       if (c === '#' && wordStart(i)) {
-        if (src[i - 1] === '(') { i++; continue; } 
+        if (src[i - 1] === '(') { i++; continue; }
         const e = src.indexOf('\n', i); const end = e < 0 ? n : e;
         if (record) res.push({ a: i, b: end, kind: 'line' });
         i = end; continue;
@@ -298,7 +301,7 @@ export function pyBatch(items) {
   return new Map(Object.entries(JSON.parse(r.stdout)));
 }
 function lineStarts(src) { const s = [0]; for (let i = 0; i < src.length; i++) if (src[i] === '\n') s.push(i + 1); return s; }
-function cpOffset(src, starts, line, col) { 
+function cpOffset(src, starts, line, col) {
   let i = starts[line - 1], k = 0;
   while (k < col && i < src.length) { const cp = src.codePointAt(i); i += cp > 0xffff ? 2 : 1; k++; }
   return i;
@@ -364,7 +367,7 @@ export function analyze(file, src, lang, pyInfo, cfg = {}) {
   for (const u of units) if (!u.protect && ranges.some(([x, y]) => u.start >= x && u.end <= y)) u.protect = 'tool-read header block';
   if (lang === 'go') lines.forEach((l, i) => {
     if (!/^\s*import\s+"C"/.test(l)) return;
-    let line = i; 
+    let line = i;
     for (const u of [...units].reverse()) if (u.end === line && u.wholeLine) { u.protect ||= 'cgo preamble'; line = u.start - 1; }
   });
   if (lang !== 'py' && lang !== 'sh' && units.length) {
@@ -387,4 +390,3 @@ export function analyze(file, src, lang, pyInfo, cfg = {}) {
   for (const b of blocks) { b.id = `${file}:${b.start}:${b.col}`; b.text = src.slice(b.a, b.b); }
   return { lang, ok, partial: !!raw.partial, units, blocks, starts };
 }
-

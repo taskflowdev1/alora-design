@@ -102,7 +102,7 @@ export function check({ root, mode, base, cfg = {}, list = [] }) {
     if (mode !== 'changed' && (MIGRATION_PATH.test(f) || legacy.some((re) => re.test(f)))) continue;
     const full = path.join(root, f);
     let src;
-    try { const st = fs.lstatSync(full); if (!st.isFile() || st.size > 800_000) continue; src = decodeUtf8(fs.readFileSync(full)); } catch { continue; }
+    try { const st = fs.lstatSync(full); if (!st.isFile()) continue; if (st.size > 4_000_000) { skip('files over 4 MB'); continue; } src = decodeUtf8(fs.readFileSync(full)); } catch { continue; }
     if (src == null) continue;
     const lang = langOf(f, src); if (!lang) continue;
     if (GENERATED_HEAD.test(src.slice(0, 600))) continue;
@@ -110,7 +110,7 @@ export function check({ root, mode, base, cfg = {}, list = [] }) {
     todo.push({ f, src, lang });
   }
   if (todo.some((t) => t.lang === 'ts') && !loadTypescript([root, ...(cfg.typescript || []).map((d) => path.join(root, d))])) {
-    throw new Error('typescript is not installed; run npm ci, or list a folder holding node_modules/typescript under "typescript" in .comment-check.json');
+    throw new Error('typescript is not installed or has no compiler API (TypeScript 7); run npm ci, or list a folder holding node_modules/typescript 5 or 6 under "typescript" in .comment-check.json');
   }
   const py = pyBatch(todo.filter((t) => t.lang === 'py').map((t) => ({ key: t.f, src: t.src })));
   const findings = [];
