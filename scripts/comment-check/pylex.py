@@ -20,7 +20,7 @@ def comments(src):
             if tok.type == tokenize.COMMENT:
                 (l1, c1), (l2, c2) = tok.start, tok.end
                 if l1 == 1 and c1 == 0 and tok.string.startswith("#!"):
-                    continue  
+                    continue
                 out.append([l1, c1, l2, c2])
         return out
     except (tokenize.TokenError, IndentationError, SyntaxError):
