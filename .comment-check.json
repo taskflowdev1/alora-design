@@ -1,0 +1,6 @@
+{
+  "base": "origin/main",
+  "protectJsdoc": true,
+  "markers": ["grey-ok", "jobq: portable"],
+  "legacy": ["src/components/ui/card.tsx", "src/lib/config.ts", "src/site/layout.tsx"]
+}

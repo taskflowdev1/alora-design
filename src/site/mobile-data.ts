@@ -1,5 +1,3 @@
-// Invented data for the Mobile example app (Rimba, a made-up homeware shop with three stores and three marketplace
-// shops). Every name, number and message here is made up. "Now" is data.ts's NOW (Monday 16 Nov 2026, 14:20).
 import { NOW, PRODUCTS, productPhotos } from "./data";
 
 const at = (days: number, h: number, m = 0) => new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() + days, h, m);
@@ -124,8 +122,6 @@ export const APPROVALS: Approval[] = [
   { id: "ap4", kind: "expense", who: "Wulan Sari", title: "Till float top-up", amount: 500000, time: "Yesterday, 17:30" },
   { id: "ap5", kind: "leave", who: "Intan Permata", title: "Half day", dates: "27 Nov", time: "Yesterday, 12:15" },
 ];
-
-/* Team schedule: the week of 16 Nov. */
 
 interface Shift {
   id: string;

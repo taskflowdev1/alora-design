@@ -1,5 +1,3 @@
-// Showpiece batch G: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import { Card } from "@/components/ui/card";
 import { FoilBadge } from "@/components/ui/foil-badge";
 import { PhotoStack, type StackPhoto } from "@/components/ui/photo-stack";

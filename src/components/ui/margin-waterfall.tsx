@@ -77,7 +77,6 @@ export function MarginWaterfall({ periods, defaultPeriod, revenueLabel = "Revenu
   }, []);
 
   const period = periods.find((p) => p.id === periodId) ?? periods[0];
-  // One scale for every period, so a smaller month really is a shorter bar.
   const top = Math.max(...periods.map((p) => p.revenue), 1);
   const spent = period.steps.reduce((s, x) => s + x.value, 0);
   const profit = period.revenue - spent;

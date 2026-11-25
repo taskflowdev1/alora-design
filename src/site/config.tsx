@@ -7,7 +7,6 @@ export const shapedSupported = () => typeof CSS !== "undefined" && CSS.supports(
 
 export function applyTokens(el: HTMLElement, c: Config) {
   const root = el === document.documentElement;
-  // A theme switch turns every transition off for a frame, so colours swap at once instead of fading one by one.
   const switching = root && el.style.colorScheme !== "" && el.style.colorScheme !== c.theme;
   if (switching) el.classList.add("ad-theme-switch");
   const map = inlineTokens(c, shapedSupported());
@@ -69,7 +68,6 @@ export function useLiveConfig(): [Config, (patch: Partial<Config>) => void] {
 export function ConfigTokens() {
   const [config] = useConfig();
   React.useLayoutEffect(() => {
-    // An older URL value can land while a newer change is pending: keep the newer one on screen.
     if (draft && serializeConfig(draft) === serializeConfig(config)) setDraft(null);
     applyTokens(document.documentElement, draft ?? config);
   }, [config]);

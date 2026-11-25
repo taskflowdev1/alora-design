@@ -87,7 +87,6 @@ export function CalendarMonth({ month, onMonthChange, events, today = new Date()
                 </Tooltip>
               ))}
               {list.length > max ? (
-                // The day's full list, so the hidden events can be reached.
                 <Popover
                   className="grid w-56 gap-1"
                   trigger={

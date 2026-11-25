@@ -47,7 +47,6 @@ export function MobileSignaturePad({ onValueChange, onChange, placeholder = "Sig
         ctx.fill();
         continue;
       }
-      // Midpoint curves: smooth without lagging behind the finger.
       for (let i = 1; i < s.length; i++) {
         const a = s[i - 1];
         const b = s[i];
@@ -74,7 +73,6 @@ export function MobileSignaturePad({ onValueChange, onChange, placeholder = "Sig
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(c);
-    // The ink colour comes from the theme: redraw when it changes.
     const mo = new MutationObserver(draw);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
     mo.observe(document.body, { attributes: true, attributeFilter: ["class", "style"] });

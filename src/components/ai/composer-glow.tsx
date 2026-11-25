@@ -85,7 +85,6 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
       className={cn("flex items-end gap-1 bg-surface p-[var(--composer-pad)] shadow-card max-sm:[--composer-line:23px]", className)}
     >
       <Tooltip content="Attach files">
-        {/* A disabled button gets no pointer events, so the tooltip hangs on this wrapper. */}
         <span className="inline-flex">
           <Button variant="ghost" icon aria-label="Attach files" disabled={disabled} onClick={onAttach} className="text-ink-muted hover:text-ink">
             <Plus />
@@ -126,8 +125,6 @@ export function Composer({ placeholder = "Ask anything", working = false, value,
   );
 }
 
-// Film grain as a mask: fractal noise drives the alpha between about 45% and 100%, so the aura reads as a glow with
-// fine grain, not loose speckles.
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0 0 0 .45'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23g)'/%3E%3C/svg%3E")`;
 
 const CSS = `

@@ -52,7 +52,6 @@ export function MobileActionBar({ children, className }: { children: React.React
         onClickCapture={(e) => {
           if (!(e.target as Element).closest("button, a")) return;
           const now = performance.now();
-          // Capture phase: the button's own handler (and a form submit) never sees the repeat.
           if (now - last.current < 400) {
             e.preventDefault();
             e.stopPropagation();
@@ -88,7 +87,6 @@ export interface MobileFabProps extends Omit<React.ButtonHTMLAttributes<HTMLButt
  */
 export function MobileFab({ icon: Icon, label, iconOnly = false, above = "tab-bar", className, onClick, ...props }: MobileFabProps) {
   const safe = `max(10px, ${SAFE_BOTTOM})`;
-  // It pushes or opens a sheet: one double tap does it once.
   const click = useDoubleTapGuard(onClick);
   return (
     <button

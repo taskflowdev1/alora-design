@@ -5,10 +5,6 @@ import { cn, formatRp } from "@/lib/ad";
 /** How far the dot's centre sits inside its tag, so the tag opens around the dot and the dot stays in place. */
 const DOT_INSET = 20;
 
-/*
- * A tag is revealed by a circle that starts as the dot and grows from the dot's centre, so it opens out of the exact
- * point that was tapped. The tag itself only moves from 0.96, like any other pop-up.
- */
 const STYLES = `
 .ad-hs-dot {
   position: absolute; left: 0; top: 0; translate: -50% -50%; width: 24px; height: 24px; display: grid; place-items: center;
@@ -88,7 +84,6 @@ export function ProductHotspots({ src, alt, spots, ratio = 1, onOpenChange, clas
     [onOpenChange, spots],
   );
 
-  // Each tag opens toward the side it fits on, measured so a long name near an edge never leaves the photo.
   React.useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -113,7 +108,6 @@ export function ProductHotspots({ src, alt, spots, ratio = 1, onOpenChange, clas
     return () => ro.disconnect();
   }, [spots]);
 
-  // The pulses stop off screen.
   React.useEffect(() => {
     const root = rootRef.current;
     if (!root) return;

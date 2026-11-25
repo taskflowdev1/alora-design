@@ -49,9 +49,7 @@ export interface MobileSheetProps {
   className?: string;
 }
 
-// Critically damped spring (no wobble) that starts from the release speed, so a throw carries on into the settle.
 const W = 20;
-// Closing settles about 25 % faster than opening (exits are quicker than entrances).
 const W_CLOSE = 26;
 
 /**
@@ -82,8 +80,6 @@ export function MobileSheet({
   const early = useJustOpened(open);
   const isOpen = React.useRef(open);
   isOpen.current = open;
-  // The second tap of the double tap that opened it lands on the new backdrop: that is not a tap outside. A closing
-  // sheet ignores further close requests, so its owner hears "closed" once.
   const setOpen = React.useCallback(
     (o: boolean, t?: number) => {
       if (!o && (!isOpen.current || early(t))) return;
@@ -93,13 +89,10 @@ export function MobileSheet({
     [onOpenChange, early],
   );
   const [mounted, setMounted] = React.useState(open);
-  // What it shows while closing: the last open render's content, so it never empties or shrinks on its way out.
   const shown = React.useRef({ title, children, footer });
   if (open) shown.current = { title, children, footer };
   const view = shown.current;
   const restoreFocus = useReturnFocus(open);
-  // A close that follows a tap inside the sheet (an action, a pick) keeps the shade for the rest of 400 ms, so the
-  // double tap's second half can't fall through to the screen below. Other closes let the next tap through at once.
   const tapAt = React.useRef(-Infinity);
   const shadeDown = React.useRef(-Infinity);
   const [shield, setShield] = React.useState(false);
@@ -117,9 +110,7 @@ export function MobileSheet({
     const el = sheet.current;
     if (el) {
       const low = st.stops[st.stops.length - 1];
-      // A layer only while it moves: a resting sheet stays an ordinary box.
       el.style.willChange = st.raf || st.on ? "transform" : "";
-      // Past the top the sheet stretches (bottom anchored, as native sheets do) instead of lifting off its rest.
       if (st.full && (st.stops.length > 1 || y < 0)) el.style.height = `${st.full - Math.min(y, low)}px`;
       else if (st.full) el.style.height = heightCss.current ?? "";
       el.style.maxHeight = y < 0 ? "none" : "";
@@ -159,12 +150,10 @@ export function MobileSheet({
     const el = sheet.current;
     if (!el) return;
     const screen = layer?.clientHeight ?? window.innerHeight;
-    // Measure at the tallest detent's own height (the CSS one), then put the sheet back where it was.
     el.style.height = heightCss.current ?? "";
     el.style.maxHeight = "";
     const full = el.offsetHeight;
     s.current.full = full;
-    // The frame or app sets --ad-safe-top in px; on a device env() is used for layout and 0 is close enough here.
     const room = screen - (parseFloat(getComputedStyle(el).getPropertyValue("--ad-safe-top")) || 0) - 8;
     const heights = detents.map((d) => (d === "fit" ? full : Math.min(full, d * room)));
     s.current.stops = heights.map((h) => Math.max(0, full - h)).sort((a, b) => a - b);
@@ -181,7 +170,6 @@ export function MobileSheet({
   };
   const riseRef = React.useRef(rise);
   riseRef.current = rise;
-  // The portal attaches the sheet a frame after it mounts; start rising when the element exists.
   const attach = React.useCallback((el: HTMLDivElement | null) => {
     sheet.current = el;
     if (el) riseRef.current(true);
@@ -204,7 +192,6 @@ export function MobileSheet({
   }, [open]);
   React.useEffect(() => () => cancelAnimationFrame(s.current.raf), []);
 
-  // A closing sheet can't be grabbed: catching it mid-close would leave it on screen while its owner thinks it's shut.
   const begin = (clientY: number) => {
     const st = s.current;
     if (!open) return false;
@@ -219,7 +206,6 @@ export function MobileSheet({
     if (!st.on) return;
     const raw = clientY - st.from;
     const top = st.stops[0];
-    // Past the tallest detent the sheet pulls harder the further it goes.
     const y = raw >= top ? raw : top - (1 - 1 / (((top - raw) * 0.55) / 120 + 1)) * 120;
     const now = performance.now();
     st.v = st.v * 0.4 + ((y - st.y) / Math.max(1, now - st.t)) * 1000 * 0.6;
@@ -230,17 +216,14 @@ export function MobileSheet({
     const st = s.current;
     if (!st.on) return;
     st.on = false;
-    // A pause before letting go is no throw.
     const v = performance.now() - st.t > 90 ? 0 : st.v;
     const lowest = st.stops[st.stops.length - 1];
-    // Project the throw about as far as UIKit does (v × 0.4 s), so a short flick still changes detent.
     const aim = st.y + v * 0.4;
     if (aim > lowest + 72 || (v > 900 && st.y > lowest - 8)) {
       st.flingV = v;
       return setOpen(false);
     }
     let to = st.stops.reduce((a, b) => (Math.abs(b - aim) < Math.abs(a - aim) ? b : a), st.stops[0]);
-    // A real flick always moves one detent the way it was thrown, from the detent nearest where it was let go.
     if (Math.abs(v) > 500) {
       const here = st.stops.reduce((a, b) => (Math.abs(b - st.y) < Math.abs(a - st.y) ? b : a), st.stops[0]);
       const i = st.stops.indexOf(here);
@@ -261,8 +244,6 @@ export function MobileSheet({
       animate(s.current.stops.reduce((a, b) => (Math.abs(b - s.current.y) < Math.abs(a - s.current.y) ? b : a)), 0);
     },
   };
-  // Pulling the content down when it is already at its top drags the sheet (iOS and Material sheets do). The blocking
-  // touchmove listener exists only while the content sits at its top, so scrolling a long list never waits on it.
   const fns = React.useRef({ begin, follow, release });
   fns.current = { begin, follow, release };
   const body = React.useRef<HTMLDivElement | null>(null);
@@ -318,8 +299,6 @@ export function MobileSheet({
   const heightCss = React.useRef<string | undefined>(undefined);
   heightCss.current = fit || !tallest ? undefined : `calc((100% - ${SAFE_TOP} - 8px - max(8px, ${SAFE_BOTTOM})) * ${tallest})`;
   return (
-    // Radix sees the real open state, so a closing sheet stops trapping focus and blocking the screen at once (a tap
-    // on a row right after dismissing reaches the row); the content stays mounted until the close spring ends.
     <D.Root open={open} onOpenChange={(o) => setOpen(o)} modal={!layer}>
       {trigger ? <D.Trigger asChild>{trigger}</D.Trigger> : null}
       {mounted ? (
@@ -332,11 +311,9 @@ export function MobileSheet({
             aria-describedby={undefined}
             aria-label={view.title ? undefined : aria["aria-label"]}
             onOpenAutoFocus={(e) => {
-              // No keyboard popping up on open (touch): focus the sheet itself.
               e.preventDefault();
               sheet.current?.focus({ preventScroll: true });
             }}
-            // Focus already went back on close (above); Radix would send it to the top of the page.
             onCloseAutoFocus={(e) => e.preventDefault()}
             onInteractOutside={(e) => (layer || early(e.detail.originalEvent.timeStamp)) && e.preventDefault()}
             style={{
@@ -355,7 +332,6 @@ export function MobileSheet({
           >
             {surface ? (
               <>
-                {/* 24 px of strip, with a hit area that reaches 34 px under the title's top edge (it is a handle too). */}
                 <div {...grab} className="relative z-10 -mb-[10px] flex h-[34px] shrink-0 cursor-grab touch-none justify-center pt-[14px] active:cursor-grabbing">
                   <span aria-hidden className="h-[5px] w-9 rounded-full bg-fill-strong" />
                 </div>

@@ -1,5 +1,3 @@
-// /mobile: the Mobile half of the Components page. Phone screens composed from the mobile components in real use (the
-// example app live first), each followed by links to the components it is made of.
 import * as React from "react";
 import { Grid, Maximize2, Package, Plus, RotateCcw, Tag, Truck } from "react-feather";
 import { NOW, PAID_ORDERS, smartTime } from "./data";
@@ -193,7 +191,6 @@ const APP_TILES: [string, Record<string, string>?][] = [
   ["reports"],
   ["inbox"],
   ["chat", { id: "ch1" }],
-  // Products shows the list's floating button; Product shows the KPI carousel (photos). 21 tiles fill seven rows of three.
   ["products"],
   ["product", { sku: "RMB-GL-014" }],
   ["product-edit", { sku: "RMB-GL-014" }],

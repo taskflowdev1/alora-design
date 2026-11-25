@@ -83,7 +83,6 @@ export function MobileInstallSheet({ open, onOpenChange, name, icon, platform, o
     setState("busy");
     const outcome = await (onInstall?.() ?? Promise.resolve<InstallOutcome>("unavailable"));
     setState(outcome === "accepted" ? "done" : "idle");
-    // The check lands, then the same button becomes the way in.
     if (outcome === "accepted") timer.current = window.setTimeout(() => (setReady(true), setState("idle")), 1000);
   };
   return (

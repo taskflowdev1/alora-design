@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-// One demo per Mobile item, each a real phone screen. The gallery draws them inside PhoneFrame (stage "phone").
 import * as React from "react";
 import { BarChart2, Bell, Check, CreditCard, Filter, Globe, Home, MapPin, MoreHorizontal, Package, Plus, Printer, RotateCcw, ShoppingBag, Truck, User, XCircle, Calendar as CalendarIcon, Clock } from "react-feather";
 import { formatDate, formatRp } from "@/lib/ad";
@@ -176,7 +175,6 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
       const [snack, setSnack] = React.useState("");
       const [undo, setUndo] = React.useState<(() => void) | null>(null);
       const [more, setMore] = React.useState<Order | null>(null);
-      // A full swipe commits in one motion, so every drop can be undone (the row goes back where it was).
       const drop = (o: Order, text: string) => {
         const before = rows;
         setRows((r) => r.filter((x) => x.id !== o.id));
@@ -466,7 +464,6 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
               <MobileListRow
                 key={x.sku}
                 media={<Thumb src={productPhoto(x.sku)} alt={x.name} size={40} />}
-                // Two lines for the name: the 140 px stepper leaves little room, and a cut name can't be told apart.
                 title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{x.name}</span>}
                 subtitle={x.sku}
                 value={<QuantityStepper size="touch" aria-label={`${x.name} count`} value={stock[x.sku]} onValueChange={(v) => setStock((s) => ({ ...s, [x.sku]: v }))} />}
@@ -484,7 +481,6 @@ export const MOBILE_DEMOS: Record<string, Demo> = {
       const [rows, setRows] = React.useState(TO_PACK.slice(0, 8));
       const [last, setLast] = React.useState<{ o: Order; i: number } | null>(null);
       const [tab, setTab] = React.useState("Orders");
-      // The next row moves up under the finger, so a double tap on the check would pack two.
       const pack = useDoubleTapGuard((o: Order, i: number) => (setRows((r) => r.filter((x) => x.id !== o.id)), setLast({ o, i })));
       return (
         <>

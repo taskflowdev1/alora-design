@@ -54,7 +54,6 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
   const [to, setTo] = React.useState<Date | null>(value.to);
   const [month, setMonth] = React.useState(() => new Date(value.to.getFullYear(), value.to.getMonth(), 1));
   const [dir, setDir] = React.useState(0);
-  // A swipe already slid the old month out (110 ms), so the new one comes in over the other half; the arrows take 220 ms.
   const [enter, setEnter] = React.useState(220);
   React.useEffect(() => {
     if (!open) return;
@@ -71,14 +70,12 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
     setEnter(ms);
     setMonth(next);
   };
-  // With a range picked, a tap starts over; while picking the end, a day before the start becomes the new start.
   const tap = (d: Date) => {
     if (to || d < from) {
       setFrom(d);
       setTo(null);
     } else setTo(d);
   };
-  // Monday-first, always six weeks; days of the months around are blank.
   const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const cells = monthGrid(month).map((d) => (d.getMonth() === month.getMonth() ? d : null));
   const end = to ?? from;
@@ -145,7 +142,6 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
             }
             if (s.lock !== "x") return;
             s.moved = true;
-            // Towards a month that can't be shown (the future), it only gives a little.
             s.dx = dx < 0 && !canNext ? dx * 0.25 : dx;
             moveGrid(s.dx);
           }}
@@ -157,14 +153,12 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
             const flick = Math.abs(s.dx) / Math.max(1, performance.now() - s.t) > 0.5;
             const n = s.dx < 0 ? 1 : -1;
             if ((Math.abs(s.dx) > 48 || (flick && Math.abs(s.dx) > 16)) && (n < 0 || canNext)) {
-              // Out the way it went; the next month comes in from the other side.
               moveGrid(n * -(grid.current?.offsetWidth ?? 320) * 0.5, 110, true);
               window.setTimeout(() => (moveGrid(0), go(n, 110)), 110);
             } else moveGrid(0, 240);
           }}
           onPointerCancel={() => ((swipe.current = null), moveGrid(0, 240))}
           onClickCapture={(e) => {
-            // The click that ends a swipe is not a tap on a day.
             if (swiped.current) e.stopPropagation();
             swiped.current = false;
           }}
@@ -184,7 +178,6 @@ export function MobileDateRangeSheet({ open, onOpenChange, title = "Dates", valu
           >
             <style href="ad-date-range" precedence="default">{`@keyframes ad-range-next { from { opacity: 0; transform: translateX(24px); } } @keyframes ad-range-prev { from { opacity: 0; transform: translateX(-24px); } } @media (prefers-reduced-motion: reduce) { .ad-range-grid { animation: none !important; } }`}</style>
             {cells.map((d, i) => {
-              // A blank keeps its 44 px, so a month whose last week is empty is as tall as any other.
               if (!d) return <span key={i} aria-hidden className="h-touch" />;
               const col = i % 7;
               const isFrom = sameDay(d, from);

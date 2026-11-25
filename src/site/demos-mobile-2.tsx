@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-// Demos for the Mobile v2 set: each a real phone screen, drawn in the 390 × 844 PhoneFrame (stage "phone").
 import * as React from "react";
 import {
   Bell,
@@ -341,7 +340,6 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
             title="Edit product"
             dirty={name !== saved}
             onSave={() => {
-              // Save stays on: with no name it says so on the field and puts the cursor there.
               if (!name.trim()) return (setTouched(true), document.getElementById(nameId)?.focus(), false);
               return new Promise((r) => window.setTimeout(() => (setSaved(name), r(null)), 500));
             }}
@@ -770,7 +768,6 @@ export const MOBILE_DEMOS_2: Record<string, Demo> = {
         const t = window.setInterval(() => setUps((l) => l.map((u) => (u.state !== "uploading" ? u : { ...u, progress: Math.min(1, u.progress + 0.06), state: u.progress + 0.06 >= 1 ? "done" : "uploading" }))), 240);
         return () => window.clearInterval(t);
       }, [ups]);
-      // The next row moves up under the finger, so a double tap on Cancel would cancel two.
       const cancel = useDoubleTapGuard((id: string) => setUps((l) => l.filter((x) => x.id !== id)));
       return (
         <MobileScreen title="Uploads" large={false} back={{ label: "Delivery", onClick: () => {} }} bottomInset="none">

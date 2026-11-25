@@ -1,9 +1,6 @@
 import * as React from "react";
 import { prefersReducedMotion } from "./ad";
 
-// Shared React hooks for Alora Design components. Installed with lib/ad.ts (the same registry item), so any component
-// may import them without adding a dependency.
-
 export interface EdgeFadeOptions {
   /** Which edges fade: "y" (top and bottom, default), "x" (start and end) or "both". */
   axis?: "x" | "y" | "both";
@@ -26,7 +23,6 @@ export function useEdgeFade(ref: React.RefObject<HTMLElement | null>, { axis = "
     const rtl = axis !== "y" && getComputedStyle(el).direction === "rtl";
     const measure = () => {
       const ys = axis !== "x" ? [el.scrollTop > 1, el.scrollTop + el.clientHeight < el.scrollHeight - 1] : [false, false];
-      // scrollLeft is negative in RTL; the absolute value is the distance from the start edge either way.
       const left = Math.abs(el.scrollLeft);
       const xs = axis !== "y" ? [left > 1, left + el.clientWidth < el.scrollWidth - 1] : [false, false];
       // grey-ok: mask stops, not paint

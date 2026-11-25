@@ -6,10 +6,6 @@ import { Segmented } from "@/components/ui/segmented";
 
 export type ThemeChoice = "system" | "light" | "dark";
 
-// During the switch: no page transitions (every colour swaps at once), and the root's view-transition snapshots don't
-// crossfade, so the only motion is the new theme's circle growing over the area that changes.
-// The switch's own track sits outside the circle (`live`): its old picture is dropped and its live one shows at once, so
-// the pill slides as usual instead of showing in two places while the circle passes.
 const CSS = `.ad-theme-switch::view-transition-old(root), .ad-theme-switch::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .ad-theme-switch::view-transition-group(ad-theme-live), .ad-theme-switch::view-transition-new(ad-theme-live) { animation: none; }
 .ad-theme-switch::view-transition-old(ad-theme-live) { display: none; }`;
@@ -18,8 +14,6 @@ type VT = { ready: Promise<void>; finished: Promise<void>; skipTransition?: () =
 type DocVT = Document & { startViewTransition?: (cb: () => void) => VT };
 type Box = { left: number; top: number; right: number; bottom: number };
 
-// One reveal at a time: a newer switch finishes the running one and owns the cleanup, so an older switch ending late
-// can't take the `.ad-theme-switch` class (or the live name) away from it mid-reveal.
 let running: VT | null = null;
 let generation = 0;
 
@@ -119,15 +113,12 @@ export function switchTheme(
   const t = doc.startViewTransition(() => flushSync(apply));
   running = t;
   const { x, y } = origin;
-  // From the nearest point of the box (0 when the origin is inside it) to its farthest corner.
   const r0 = Math.hypot(Math.max(b.left - x, 0, x - b.right), Math.max(b.top - y, 0, y - b.bottom));
   const r1 = Math.hypot(Math.max(x - b.left, b.right - x), Math.max(y - b.top, b.bottom - y));
   t.ready
     .then(() =>
       root.animate(
         { clipPath: [`circle(${r0}px at ${x}px ${y}px)`, `circle(${r1}px at ${x}px ${y}px)`] },
-        // Nearly linear in radius, so the area it covers grows evenly (a circle's area speeds up on its own); the
-        // gentle start and end keep the edges soft. A strong ease-out covered the box in the first 60 % and then idled.
         { duration: 500, easing: "cubic-bezier(0.25, 0.25, 0.75, 1)", pseudoElement: "::view-transition-new(root)" },
       ),
     )
@@ -162,8 +153,6 @@ export interface ThemeSwitchProps {
 export function ThemeSwitch({ value, onValueChange, system = true, iconOnly, within, className }: ThemeSwitchProps) {
   const point = React.useRef<{ x: number; y: number } | null>(null);
   const host = React.useRef<HTMLDivElement>(null);
-  // During a reveal the browser hit-tests every pointer event to <html> (the snapshots cover the page), so a second pick
-  // would be lost. Route a press on <html> that falls on one of our options to that option, so the last pick wins.
   React.useEffect(() => {
     const root = document.documentElement;
     const under = (e: MouseEvent) => {
@@ -213,7 +202,6 @@ export function ThemeSwitch({ value, onValueChange, system = true, iconOnly, wit
           ),
         }))}
         onValueChange={(v) => {
-          // From the keyboard the change spreads from the focused option instead of the pointer.
           let o = point.current;
           if (!o && document.activeElement instanceof HTMLElement) {
             const b = document.activeElement.getBoundingClientRect();

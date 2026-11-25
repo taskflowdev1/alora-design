@@ -69,7 +69,6 @@ export function Trace({ steps, live, className }: { steps: TraceStep[]; live?: b
             ) : (
               <div className="flex min-h-item items-center gap-2.5 px-2 py-1">
                 {row}
-                {/* The chevron's slot, so times line up with the rows that have one. */}
                 <span aria-hidden className="size-[14px] shrink-0" />
               </div>
             )}

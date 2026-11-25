@@ -93,7 +93,6 @@ export function InputOTP({
   const [focused, setFocused] = React.useState(false);
   const [sel, setSel] = React.useState(0);
   const s: InputOTPStatus = invalid ? "invalid" : status;
-  // One shake each time the row turns invalid (Web Animations, so the input keeps its focus).
   const row = React.useRef<HTMLDivElement>(null);
   const prev = React.useRef(s);
   React.useEffect(() => {
@@ -118,7 +117,6 @@ export function InputOTP({
   const locked = disabled || s === "checking" || s === "success";
   const sync = () => setSel(inner.current?.selectionStart ?? value.length);
   const ok = s === "success";
-  // Join and seal close the gaps so the code reads as one piece.
   const joinAt = JOIN_AT;
   const joined = ok && celebrate !== "quiet";
   const r = "var(--ad-radius-control)";
@@ -149,7 +147,6 @@ export function InputOTP({
                 ? {
                     transition: `border-radius 280ms ${ease} ${joinAt}ms`,
                     borderRadius: joined ? (i === 0 ? `${r} 0 0 ${r}` : i === length - 1 ? `0 ${r} ${r} 0` : 0) : undefined,
-                    // Seal: once the bar covers them, the boxes go so only the circle is left.
                     animation: celebrate === "seal" ? `ad-otp-hide 1ms linear ${joinAt + 380}ms forwards` : undefined,
                   }
                 : { animationDelay: s === "checking" ? `${i * 90}ms` : undefined }

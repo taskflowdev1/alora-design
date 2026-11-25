@@ -112,7 +112,6 @@ export function LineItems({ defaultItems = [], catalog = [], taxRate = 0.11, tax
   };
 
   const remove = (id: string, button: HTMLElement) => {
-    // Keyboard focus moves to the next row's remove button (or the previous one) before this row goes.
     const all = [...(list.current?.querySelectorAll<HTMLElement>("[data-li-remove]:not(:disabled)") ?? [])];
     const at = all.indexOf(button);
     (all[at + 1] ?? all[at - 1])?.focus({ preventScroll: true });

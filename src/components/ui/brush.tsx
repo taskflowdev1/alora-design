@@ -34,14 +34,12 @@ export function useBrush(): Brush {
     chart: { active: point, onActiveChange: setPoint, activeSeries: series, onActiveSeriesChange: setSeries },
     row: (i) => ({
       onPointerEnter: () => setPoint(i),
-      // On touch a tap keeps the link (the finger lifting isn't leaving); tapping another row moves it.
       onPointerLeave: (e) => e.pointerType === "mouse" && setPoint((p) => (p === i ? null : p)),
       onFocus: () => setPoint(i),
       onBlur: () => setPoint((p) => (p === i ? null : p)),
       ...(point === i ? { "data-brushed": true as const, className: "[&>td]:bg-fill" } : {}),
     }),
     head: (key) => ({ onPointerEnter: () => setSeries(key), onPointerLeave: () => setSeries((s) => (s === key ? null : s)) }),
-    // The other columns step down to muted ink, never to a faded opacity: their numbers must stay readable (4.5:1).
     cell: (key) => cn("transition-colors duration-[160ms] ease-ad", series != null && (series === key ? "text-ink" : "text-ink-muted")),
   };
 }

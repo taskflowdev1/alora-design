@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# Build into TMPDIR, then capture per-component screenshots + automatic taste checks (borders, fonts, hover shifts)
-# into output/shots/ (OUT= to change). Heavy: run it as a background job.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 . scripts/env.sh

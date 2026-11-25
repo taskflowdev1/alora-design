@@ -75,7 +75,6 @@ export function MobileTopTabs<T extends string>({ value, onValueChange, tabs, cl
         {pill ? (
           <span
             aria-hidden
-            // Keyboard focus is always on the chosen tab (roving tabindex): its pill darkens, as a chosen filter chip does.
             className="pointer-events-none absolute inset-y-nest rounded-[calc(var(--ad-radius-control)-var(--ad-nest))] bg-sel shadow-sel group-has-[:focus-visible]/tl:bg-ink-muted motion-reduce:transition-none"
             style={{ left: pill.left, width: pill.width, transition: drag != null ? "none" : "left 300ms var(--ad-ease), width 300ms var(--ad-ease)" }}
           />
@@ -125,7 +124,6 @@ export function MobileTabPager<T extends string>({ value, onValueChange, pages, 
   const track = React.useRef<HTMLDivElement>(null);
   const settle = React.useRef(0);
   const own = React.useRef(false);
-  // Set while the pager scrolls itself to a tapped tab; a finger on the pager clears it (that scroll is the user's).
   const auto = React.useRef(false);
   const index = pages.findIndex((p) => p.value === value);
   React.useEffect(() => {

@@ -12,8 +12,6 @@ export type Option = {
   disabled?: boolean;
 };
 
-/* The one dropdown surface. Select, Multi-select, Combobox and Language picker all use it. */
-
 /** Menu surface: radius = item radius + padding, so options sit concentric inside it. */
 export const dropdownSurface = cn(
   "z-50 min-w-[var(--radix-popover-trigger-width)] rounded-card bg-raised p-nest text-ink shadow-raised",
@@ -167,7 +165,6 @@ export function Select({
   ...aria
 }: SelectProps) {
   const id = React.useId();
-  // A close within 300 ms of opening (a double click) is ignored; picking and Escape close at once.
   const [open, setOpen] = usePopupOpen();
   const selectedIndex = Math.max(0, options.findIndex((o) => o.value === value));
   const pick = (i: number) => {

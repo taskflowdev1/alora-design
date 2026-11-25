@@ -1,4 +1,3 @@
-// Example app screens, part B: Products, Product (+ edit), Stock count, Customers, Customer, Inbox, Chat, Assistant.
 import * as React from "react";
 import { Box, Camera, ChevronRight, Edit2, FileText, MapPin, MessageCircle, Package, Phone, Plus, Search as SearchIcon, ShoppingBag, Tag, Zap, Maximize, Check, Image as ImageIcon, Grid } from "react-feather";
 import { cn, formatRp, prefersReducedMotion } from "@/lib/ad";
@@ -93,7 +92,6 @@ export function ProductsScreen() {
       }
     >
       {loading ? (
-        // The same rows the list will have, so nothing moves when it lands.
         <MobileListSkeleton rows={Math.max(1, list.length)} />
       ) : list.length ? (
         <MobileList>
@@ -105,7 +103,6 @@ export function ProductsScreen() {
         <ScreenEmpty icon={SearchIcon} title="No products match" />
       )}
     </MobileScreen>
-    {/* A list screen's main action floats in thumb reach (taste: phone, a floating button for the main action). */}
     <MobileFab icon={Plus} label="New product" onClick={() => setCreating(true)} />
     <ProductEditor product={BLANK} isNew open={creating} onOpenChange={setCreating} />
     </>
@@ -120,7 +117,6 @@ export function ProductScreen({ params, back }: ScreenProps) {
   const photos = productPhotos(p.sku).slice(0, 3);
   const days = DAILY.slice(-14).map((d, i) => ({ label: `${d.label} Nov`, value: Math.max(0, Math.round((d.value / 9) * (1 + ((i + p.price) % 3) * 0.2))), display: "" }));
   const sold = days.reduce((s, d) => s + d.value, 0);
-  // The shops' stock adds up to the total (half, about a third, the rest).
   const a = Math.round(p.stock * 0.5);
   const b = Math.round(p.stock * 0.3);
   const perShop = SHOPS.slice(0, 3).map((shop, i) => ({ shop, n: [a, b, p.stock - a - b][i] }));
@@ -128,7 +124,6 @@ export function ProductScreen({ params, back }: ScreenProps) {
     <>
       <MobileScreen title={p.name} large={false} back={back} bottomInset="action-bar">
         <div className="grid gap-5 pt-2">
-          {/* Price and stock first (what an owner opens a product for), then short 4:3 photos you can swipe. */}
           <div className="px-pad">
             <MobileStatGrid>
               <MobileStatTile label="Price" value={formatRp(p.price)} />
@@ -187,7 +182,6 @@ function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { prod
   const [online, setOnline] = React.useState(true);
   const [discount, setDiscount] = React.useState(0);
   const [sheet, setSheet] = React.useState<"photos" | "price" | "category" | "shops" | null>(null);
-  // The name's error waits until the field is left or Save is pressed, then follows the typing.
   const [touched, setTouched] = React.useState(false);
   React.useEffect(() => {
     if (!open) return;
@@ -209,7 +203,6 @@ function ProductEditor({ product: p, open, onOpenChange, isNew = false }: { prod
         saveLabel={isNew ? "Add product" : "Save"}
         dirty={dirty}
         onSave={() => {
-          // Save stays on: with no name it says so on the field and puts the cursor there.
           if (!name.trim()) {
             setTouched(true);
             document.getElementById(nameId)?.focus();
@@ -274,12 +267,9 @@ export function StockCountScreen({ back }: ScreenProps) {
   const [ask, setAsk] = React.useState(false);
   const order = React.useRef(0);
   const next = ["RMB-GL-014", "RMB-PR-022", "RMB-LL-008", "RMB-MB-005", "RMB-VS-012"];
-  // Newest scan on top (with its flash), so the item you just scanned is never off screen.
   const [seen, setSeen] = React.useState<string[]>(["RMB-LL-008", "RMB-GL-014"]);
   const counted = seen.map((sku) => PRODUCTS.find((p) => p.sku === sku)!).filter(Boolean);
   const diffs = counted.filter((p) => counts[p.sku] !== p.stock).length;
-  // A scan moves its row to the top: the rows glide to their new places (FLIP) and a new one fades in, so the eye can
-  // follow what moved instead of the list jumping in one frame.
   const listBox = React.useRef<HTMLDivElement>(null);
   const before = React.useRef<Map<string, number> | null>(null);
   const rows = () => [...(listBox.current?.querySelectorAll<HTMLElement>('[role="list"] > *') ?? [])];
@@ -331,7 +321,6 @@ export function StockCountScreen({ back }: ScreenProps) {
         </div>
       </MobileScreen>
       <MobileActionBar>
-        {/* Off only before the first scan, and then the label says what's missing. */}
         <Button variant="primary" disabled={!counted.length} onClick={() => setAsk(true)}>
           {counted.length ? <Check /> : null}
           {counted.length ? "Finish count" : "Scan an item"}
@@ -443,7 +432,6 @@ export function InboxScreen() {
   return (
     <MobileScreen
       title="Inbox"
-      // The assistant isn't a buyer chat: it gets its own bar button instead of a row in the buyers' list.
       trailing={
         <MobileBarButton aria-label="Assistant" onClick={() => nav.push("assistant")}>
           <Zap />

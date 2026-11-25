@@ -52,14 +52,12 @@ export function PageSearch({ value, onValueChange, placeholder = "Search" }: Pag
     if (!opened || !bar.current) return;
     bar.current.querySelector("input")?.focus();
     if (prefersReducedMotion()) return;
-    // Grows out of the icon at the right end of the row.
     bar.current.animate([{ clipPath: "inset(0 0 0 calc(100% - 96px))", opacity: 0.4 }, { clipPath: "inset(0 0 0 0)", opacity: 1 }], { duration: 220, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
   }, [opened]);
   if (!phone) return <Search value={value} onValueChange={onValueChange} placeholder={placeholder} aria-label={placeholder} wrapperClassName="w-56" />;
   const close = () => {
     onValueChange("");
     setOpened(false);
-    // The icon comes back on the next frame; focus goes home with it.
     requestAnimationFrame(() => slot.current?.querySelector("button")?.focus());
   };
   return (
@@ -67,7 +65,6 @@ export function PageSearch({ value, onValueChange, placeholder = "Search" }: Pag
       {open ? (
         <div ref={bar} data-page-search className="absolute inset-0 z-10 flex items-center gap-0.5">
           <Search value={value} onValueChange={onValueChange} placeholder={placeholder} aria-label={placeholder} wrapperClassName="h-touch w-auto min-w-0 flex-1" onBlur={() => !value && setOpened(false)} />
-          {/* Pressed before the field blurs, so the close isn't lost to the blur that hides this row. */}
           <Button variant="ghost" icon aria-label="Close search" className="size-touch" onPointerDown={(e) => e.preventDefault()} onClick={close}>
             <X />
           </Button>

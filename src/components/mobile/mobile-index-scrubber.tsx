@@ -23,7 +23,6 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
   const [scrubbing, setScrubbing] = React.useState(false);
   /** The bubble's centre, in the strip's own px (the drawn letter it stands for). */
   const [bubbleY, setBubbleY] = React.useState(0);
-  // Keyboard focus shows the bubble with the current letter (a fill over the whole 44 px column would be a grey bar).
   const [kb, setKb] = React.useState(false);
   const letters = sections.map((s) => s.letter);
   const jump = (letter: string) => {
@@ -31,7 +30,6 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
     const head = root.current?.querySelector<HTMLElement>(`[data-index-letter="${letter}"]`);
     const scroller = root.current?.closest<HTMLElement>("[data-mobile-screen]");
     if (!head || !scroller) return;
-    // The heading lands just under the sticky nav bar.
     const bar = scroller.querySelector("header")?.offsetHeight ?? 0;
     const y = head.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
     const k = scroller.offsetHeight / scroller.getBoundingClientRect().height || 1;
@@ -112,7 +110,6 @@ export function MobileIndexedList<T>({ sections, renderItem, bottomInset = 96, c
             {l}
           </span>
         ))}
-        {/* The finger covers the strip: the letter it is on floats large to its left. */}
         <span
           aria-hidden
           data-shape="round"

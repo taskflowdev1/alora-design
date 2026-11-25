@@ -29,8 +29,6 @@ export interface PopoverProps {
 export function Popover({ trigger, children, align = "start", side = "bottom", open: openProp, onOpenChange, onOpenAutoFocus, className, tone }: PopoverProps) {
   const id = React.useId();
   const group = React.useContext(Group);
-  // A close within 300 ms of opening is the second click of a double click: ignored, so the panel stays open instead of
-  // flashing. Escape closes at once. In a group the group holds the state.
   const [open, setOpen] = usePopupOpen({
     open: openProp ?? (group ? group.open === id : undefined),
     onOpenChange: (o) => {
@@ -38,7 +36,6 @@ export function Popover({ trigger, children, align = "start", side = "bottom", o
       onOpenChange?.(o);
     },
   });
-  // Mouse: open (or close) on pointer down, like Menu and the pickers; touch and pen keep the click.
   const press = usePressOpen(open, setOpen);
   return (
     <P.Root open={open} onOpenChange={setOpen}>

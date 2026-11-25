@@ -53,7 +53,6 @@ export function MobileModal({
   const [saving, setSaving] = React.useState(false);
   const content = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useReturnFocus(open);
-  // While it slides away the modal still covers the screen: a second tap on Save or Cancel does nothing.
   const isOpen = React.useRef(open);
   isOpen.current = open;
   const leave = () => isOpen.current && (dirty ? setAsk(true) : onOpenChange(false));
@@ -78,7 +77,6 @@ export function MobileModal({
             ref={content}
             aria-describedby={undefined}
             onOpenAutoFocus={(e) => {
-              // The modal itself, not its first field: no keyboard pops up on open, and Tab starts inside.
               e.preventDefault();
               content.current?.focus({ preventScroll: true });
             }}
@@ -93,7 +91,6 @@ export function MobileModal({
             )}
           >
             <style href="ad-mobile-modal" precedence="default">{`@keyframes ad-modal-in { from { transform: translateY(100%); } } @keyframes ad-modal-out { to { transform: translateY(100%); } } @keyframes ad-saving { 50% { opacity: 0.55; } } @media (prefers-reduced-motion: reduce) { .ad-m-modal { animation-name: ad-fade-in !important; } .ad-m-modal[data-state=closed] { animation-name: ad-fade-out !important; } }`}</style>
-            {/* A form, so Enter in a field saves; `contents` keeps the column layout of the modal itself. */}
             <form
               className="contents"
               noValidate
@@ -102,7 +99,6 @@ export function MobileModal({
                 void save();
               }}
             >
-              {/* The same 44 px bar as MobileScreen, so the title doesn't jump between a screen and its editor. */}
               <header className="grid shrink-0 grid-cols-[minmax(88px,1fr)_auto_minmax(88px,1fr)] items-center px-1.5" style={{ paddingTop: SAFE_TOP, height: `calc(${SAFE_TOP} + 44px)` }}>
                 <div className="flex min-w-0 items-center">
                   <button type="button" onClick={leave} className={cn(bar, "text-ink")}>

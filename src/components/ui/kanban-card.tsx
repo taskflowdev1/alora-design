@@ -28,7 +28,6 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
       {id}
     </p>
   ) : null;
-  // The picture's corner nests in the card's: card radius minus the card padding (p-3).
   const picture = media != null ? <span className={cn("shrink-0 [&>*]:!rounded-[max(4px,calc(var(--ad-radius-card)-0.75rem))]", action != null && "max-sm:hidden")}>{media}</span> : null;
   return (
     <div
@@ -89,7 +88,6 @@ export function KanbanCard({ title, id, media, tags = [], people = [], due, atte
 /** A board column: a soft lane with its title and count, cards stacked with even gaps. */
 export function KanbanColumn({ title, count, children, className }: { title: React.ReactNode; count?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    // Cards inside are rounded-card at a nest inset, so the lane is card + nest: the corners run concentric.
     <section className={cn("grid min-w-64 content-start gap-2 rounded-[calc(var(--ad-radius-card)+var(--ad-nest))] bg-fill p-nest", className)}>
       <header className="flex h-item items-center justify-between gap-2 px-3">
         <h3 className="truncate text-body font-semibold">{title}</h3>
@@ -217,7 +215,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
   const remember = (id: string, hop: boolean) => {
     const rects = new Map<string, DOMRect>();
     root.current?.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => rects.set(el.dataset.card!, el.getBoundingClientRect()));
-    // Already in the air: it takes off again from where it is now.
     const flying = flights.current.get(id);
     if (flying) rects.set(id, flying.ghost.getBoundingClientRect());
     snapshot.current = { id, rects, focus: document.activeElement === cardEl(id), hop };
@@ -243,7 +240,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     if (!box) return;
     const origin = box.getBoundingClientRect();
     const d = drag.current;
-    // Under the hand the card's slot stays empty, wherever the slot has moved to.
     if (d?.ghost) {
       const el = cardEl(d.id);
       if (el) el.style.opacity = "0";
@@ -325,11 +321,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     };
   }, []);
 
-  /*
-   * Dragging is our own, with the mouse: the browser's drag picture is a flat, see-through rectangle that loses the
-   * card's corners. Moves and the release are read on the window, since the card under the hand is re-made whenever
-   * its slot changes column.
-   */
   const columnAt = (x: number, y: number) => {
     for (const el of root.current?.querySelectorAll<HTMLElement>("[data-column]") ?? []) {
       const r = el.getBoundingClientRect();
@@ -361,7 +352,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     const dx = e.clientX - d.x;
     const dy = e.clientY - d.y;
     if (!d.ghost) {
-      // A few pixels first, so a click stays a click.
       if (Math.hypot(dx, dy) < 4) return;
       const el = cardEl(d.id);
       if (!el) return;
@@ -377,7 +367,6 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
       }
       ghost.style.boxShadow = "var(--ad-shadow-raised)";
     }
-    // Tilts with the pointer's sideways speed and rights itself when the pointer rests.
     if (!prefersReducedMotion()) d.tilt = Math.max(-TILT, Math.min(TILT, (dx - d.dx) * 0.35));
     d.dx = dx;
     d.dy = dy;

@@ -44,7 +44,6 @@ export function Orders() {
   const [cols, setCols] = React.useState(["time", "shop", "customer", "items", "payment", "fee"]);
   const [columnsOpen, setColumnsOpen] = React.useState(false);
   const phone = useMediaQuery("(max-width: 767.98px)");
-  // Orders moved on from the pane (packed, then shipped): the table and the pane's steps follow.
   const [moved, setMoved] = React.useState<Record<string, OrderStatus>>({});
   const statusOf = (o: (typeof ORDERS)[number]): OrderStatus => moved[o.id] ?? o.status;
   const wide = useWide();
@@ -63,7 +62,6 @@ export function Orders() {
   }, [q, shops, status, moved]);
   const pageRows = rows.slice((page - 1) * 50, page * 50);
 
-  // A filter or page change shows the skeleton, the same shape as the rows that arrive.
   React.useEffect(() => {
     if (first.current) {
       first.current = false;
@@ -79,16 +77,13 @@ export function Orders() {
   const open = ORDERS.find((o) => o.id === openId);
   const openStatus = open ? statusOf(open) : null;
   const next = openStatus === "Paid" ? { status: "Packed" as const, label: "Mark as packed", done: "marked as packed" } : openStatus === "Packed" ? { status: "Shipped" as const, label: "Mark as shipped", done: "marked as shipped" } : null;
-  // One step per press: the second click of a double click must not pack and ship at once.
   const advance = useDoubleTapGuard(() => {
     if (!open || !next) return;
     setMoved((m) => ({ ...m, [open.id]: next.status }));
     toast(`${open.id} ${next.done}`);
   });
   const room = usePaneRoom(!!open, "[data-orders]");
-  // Below xl, Payment and Fee give way so Status and Total stay in view; the menu lists only what can show.
   const menuCols = wide ? ORDER_COLS : ORDER_COLS.filter((c) => c.key !== "payment" && c.key !== "fee");
-  // Beside the open pane the table is narrower: the pane already shows the time and the payment.
   const show = (k: string) => cols.includes(k) && !(room && (k === "payment" || k === "time"));
   const L = ({ children }: { children: React.ReactNode }) => <LoadingText loading={loading}>{children}</LoadingText>;
 
@@ -107,7 +102,6 @@ export function Orders() {
             <PeriodStepper value={week} period="week" onValueChange={setWeek} max={NOW} className="justify-between" />
           </FilterGroup>
         </FilterButton>
-        {/* The Columns panel opens from the ⋯ menu and sits under it. A phone shows rows, so it has no columns to pick. */}
         <span className="relative flex">
           <MoreMenu>
             {phone ? null : <MenuItem icon={Columns} onSelect={() => setColumnsOpen(true)}>Columns</MenuItem>}
@@ -159,7 +153,6 @@ export function Orders() {
                   {show("shop") ? <TH>Shop</TH> : null}
                   {show("customer") ? <TH>Customer</TH> : null}
                   {show("items") ? <TH>Items</TH> : null}
-                  {/* Below xl the payment method gives way, so Status and Total stay in view. */}
                   {show("payment") ? <TH className="max-xl:hidden">Payment</TH> : null}
                   <TH>Status</TH>
                   <TH align="right">Total</TH>
@@ -243,7 +236,6 @@ export function Orders() {
         footer={
           <>
             <Button onClick={() => toast("Invoice sent", "neutral")}>Send invoice</Button>
-            {/* The next step for this order: pack a paid one, ship a packed one. */}
             {next ? (
               <Button variant="primary" onClick={advance}>
                 {next.label}

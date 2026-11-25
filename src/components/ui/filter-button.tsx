@@ -66,7 +66,6 @@ export function FilterButton({ count = 0, onClear, children, label = "Filter", d
     <Popover
       align="end"
       className="w-[340px] max-w-[calc(100vw-16px)]"
-      // The panel takes focus, not its first chip: a mouse open must not paint a keyboard highlight on an option.
       onOpenAutoFocus={(e) => {
         e.preventDefault();
         (e.currentTarget as HTMLElement | null)?.focus();

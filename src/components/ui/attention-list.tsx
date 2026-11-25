@@ -29,7 +29,6 @@ export function AttentionItem({ media, title, meta, value, action, onClick }: At
       )}
     >
       {onClick ? (
-        // A real button, so the row is reachable by keyboard. Its ::after covers the whole row; the action sits above it.
         <button
           type="button"
           onClick={onClick}
@@ -52,7 +51,6 @@ export function AttentionItem({ media, title, meta, value, action, onClick }: At
           {value ? <span className="shrink-0 tabular-nums text-body font-medium text-ink">{value}</span> : null}
         </>
       )}
-      {/* Buttons here keep the small radius: the action sits about 6 px inside the row, so its corner nests in the row's. */}
       {action ? <span className="relative z-10 shrink-0 [&_button]:rounded-small">{action}</span> : null}
     </li>
   );

@@ -54,7 +54,6 @@ export function StockBattery({ product = "Gelas kopi tanah liat", value, default
   const out = stock === 0;
   const lastCell = Math.ceil(stock / perCell) - 1;
   const rising = stock > prev.current;
-  // The run starts at the cell where the level was, so a small change never waits behind cells that stay as they are.
   const edge = Math.floor(prev.current / perCell);
   React.useEffect(() => {
     prev.current = stock;
@@ -77,7 +76,6 @@ export function StockBattery({ product = "Gelas kopi tanah liat", value, default
   const fromPointer = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    // Snap to a whole cell, so a drag always lands on a full one.
     set(Math.round(f * cells) * perCell);
   };
 

@@ -350,7 +350,6 @@ export function CalendarTile({ className }: { className?: string }) {
   return (
     <Tile className={className}>
       <Mark name="calendar-month" className="flex-1">
-        {/* The month row takes the tile title inset (Head: px-2 pt-1), so "November 2026" lines up with the titles beside it. */}
         <CalendarMonth
           month={m}
           onMonthChange={setM}
@@ -496,7 +495,6 @@ export function CompanyCardsTile({ className }: { className?: string }) {
     <Tile inset="pad" className={className}>
       <h3 className="text-title font-semibold">Company cards</h3>
       <Mark name="holo-card" className="grid grid-cols-1 justify-items-center gap-6 py-3 md:grid-cols-3">
-        {/* The cards turn under the pointer, so a click on one stays on it instead of opening the page. */}
         <div className="contents" onClick={(e) => e.stopPropagation()}>
           <HoloCard />
           <HoloCard tone="graphite" holder="DEWI LESTARI" last4="7312" expiry="11/28" />

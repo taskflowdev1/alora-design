@@ -5,7 +5,6 @@ import { MobileLayer } from "./mobile-sheet";
 
 const OFFSET = {
   "tab-bar": `calc(${SAFE_BOTTOM} + 84px)`,
-  // Over a MobileFab (which floats above the tab bar): its bottom, its 52 px, then a 12 px gap.
   "tab-bar-fab": `calc(max(10px, ${SAFE_BOTTOM}) + 52px + 2 * var(--ad-nest) + 12px + 52px + 12px)`,
   "action-bar": `calc(${SAFE_BOTTOM} + 86px)`,
   none: `max(12px, ${SAFE_BOTTOM})`,
@@ -76,7 +75,6 @@ export function MobileSnackbar({ open, onOpenChange, message, action, duration =
           const d = drag.current;
           drag.current = null;
           if (!el.current) return;
-          // It leaves from where the finger left it, still going down.
           const v = d && performance.now() - d.t < 90 ? d.v : 0;
           if (d && (d.at > 28 || v > 500)) {
             el.current.style.setProperty("--ad-drag", `${d.at}px`);

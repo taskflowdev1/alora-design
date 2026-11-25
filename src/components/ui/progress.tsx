@@ -5,7 +5,6 @@ export function Progress({ value, max = 100, className, "aria-label": label }: {
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
   return (
     <div role="progressbar" aria-label={label} aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} className={cn("h-1.5 w-full overflow-hidden rounded-small bg-fill", className)}>
-      {/* A full-width bar slid left (transform only, no width animation); the track clips it. */}
       <div className="h-full w-full rounded-small bg-on transition-transform duration-[220ms] ease-ad" style={{ transform: `translateX(${pct - 100}%)` }} />
     </div>
   );

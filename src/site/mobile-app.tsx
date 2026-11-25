@@ -1,8 +1,3 @@
-// The Mobile example app: an invented ERP phone app for Rimba (orders, products, stock, POS, chats, approvals), built
-// only from the library's mobile components and shared parts at their touch size. Five tabs, each with its own stack
-// of screens that push in from the right and slide back out, plus full-screen flows (sign in, welcome) over the tabs.
-// Every screen is in SCREENS with the components it is made of, so /mobile/app/<screen> opens it directly and the
-// /mobile/screens gallery can list them all.
 import * as React from "react";
 import { Home, Inbox as InboxIcon, Menu, Package, ShoppingBag } from "react-feather";
 import { MobileTabBar, MobileTab } from "@/components/mobile/mobile-tab-bar";
@@ -112,7 +107,6 @@ function chain(id: string, params: Params): Entry[] {
   const out: Entry[] = [];
   let d = findScreen(id);
   while (d) {
-    // Parents get the same params (an order's id names the order screen under its proof of delivery).
     out.unshift(entry(d.id, params, "still"));
     d = d.parent ? findScreen(d.parent) : undefined;
   }
@@ -142,7 +136,6 @@ function Stack({ entries, nav, state, onDone }: { entries: Entry[]; nav: Nav; st
         const li = live.indexOf(e);
         const under = li >= 0 && li < live.length - 1;
         const deep = li >= 0 && li < live.length - 2;
-        // The screen it goes back to (not the one a replace left fading out under it).
         const prev = entries.slice(0, i).filter((x) => x.phase !== "gone").at(-1);
         return (
           <div
@@ -184,7 +177,6 @@ interface MobileAppProps {
 
 /** The whole app. Mount it inside a PhoneFrame (docs) or full screen (/mobile/app on a phone). */
 export function MobileApp(props: MobileAppProps) {
-  // Touch press states (data-pressed); PhoneFrame installs it too, but full screen on a phone there is no frame.
   usePressFeedback();
   return (
     <OrdersProvider>
@@ -211,7 +203,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
           const k = Math.min(n, live.length - 1);
           if (k < 1) return l;
           const top = live[live.length - 1];
-          // The top slides out; the ones between it and the landing screen leave at once, under it.
           const skip = new Set(live.slice(live.length - k, live.length - 1));
           return l.filter((e) => !skip.has(e)).map((e) => (e === top ? { ...e, phase: "out" } : e));
         }),
@@ -224,8 +215,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
       snack: (text, undo) => setSnack({ text, undo, n: Date.now() }),
     };
   }, []);
-  // A screen's motion ended: one that slid out goes, one that slid or faded in is placed (and the screen it replaced
-  // goes with it).
   const settle = (list: Entry[], key: number) => {
     const e = list.find((x) => x.key === key);
     if (!e) return list;
@@ -236,10 +225,7 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
     setS((st) => (st.cover?.some((e) => e.key === key) ? { ...st, cover: settle(st.cover, key) } : { ...st, stacks: { ...st.stacks, [st.tab]: settle(st.stacks[st.tab], key) } }));
   const depth = s.stacks[s.tab].filter((e) => e.phase !== "out" && e.phase !== "gone").length;
   const bar = depth === 1 && !s.cover;
-  // While any screen is moving, taps are ignored (as iOS does): a double tap on Back would otherwise pop two screens,
-  // and one on Take cash would land on the receipt's New sale before the receipt was seen.
   const busy = s.stacks[s.tab].some(moving) || !!s.cover?.some(moving) || s.coverPhase !== "still";
-  // If an animation never reports its end (a tab hidden mid-push), place everything after the longest motion.
   React.useEffect(() => {
     if (!busy) return;
     const t = window.setTimeout(() => {
@@ -250,8 +236,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
   }, [busy]);
   const top = (s.cover ?? s.stacks[s.tab]).filter((e) => e.phase !== "out" && e.phase !== "gone").at(-1);
   const deep = depth > 1 || !!s.cover;
-  // Page mode: the title names the top screen, and one history step stands for "deeper than the root", re-armed after
-  // each system back while there is still somewhere to go back to.
   const title = top ? titleOf(top) : "";
   React.useEffect(() => {
     if (page) document.title = `${title ? `${title} · ` : ""}Mobile app · Alora Design`;
@@ -270,7 +254,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
       history.pushState({ ...history.state, adBack: true }, "");
       armed.current = true;
     } else if (!deep && armed.current) {
-      // Back at the root by the app's own Back or Done: take the step off so the next system back leaves the app.
       armed.current = false;
       expect.current = true;
       history.back();
@@ -288,7 +271,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
     return () => window.removeEventListener("popstate", on);
   }, [page]);
   const toPack = orders.filter((o) => o.status === "Paid").length;
-  // A new snack replaces the old one (fresh timer); closing keeps the same element so it can slide out.
   const snackKey = React.useRef(0);
   if (snack) snackKey.current = snack.n;
   return (
@@ -300,7 +282,6 @@ function AppShell({ screen = "home", params = {}, state, page = false }: MobileA
             <Stack entries={s.stacks[t]} nav={nav} state={t === s.tab && !s.cover ? forced : undefined} onDone={drop} />
           </div>
         ))}
-        {/* The tab bar leaves with a push and returns after the pop; under reduced motion it only fades. */}
         <div
           className={cn("transition-[translate,opacity] duration-[260ms] ease-ad motion-reduce:transition-opacity", !bar && "translate-y-[120px] opacity-0 motion-reduce:translate-y-0")}
           inert={!bar || undefined}

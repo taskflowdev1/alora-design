@@ -1,5 +1,3 @@
-// OKLCH helpers. Pure functions, shared by the site and the API.
-
 type Oklch = { l: number; c: number; h: number };
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));

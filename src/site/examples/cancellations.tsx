@@ -117,7 +117,6 @@ export function Cancellations() {
   const [statuses, setStatuses] = React.useState<Cancellation["status"][]>([]);
   const phone = useMediaQuery("(max-width: 767.98px)");
   const [openId, setOpenId] = React.useState<string | null>(null);
-  // The date range narrows everything on the page; a reason bar narrows the table further.
   const from = startOfDay(range.from);
   const to = startOfDay(range.to ?? range.from);
   const inRange = CANCELLATIONS.filter((c) => startOfDay(c.at) >= from && startOfDay(c.at) <= to);
@@ -154,7 +153,6 @@ export function Cancellations() {
           <MenuItem icon={Download} onSelect={() => toast("Export started", "neutral")}>Export</MenuItem>
         </MoreMenu>
       </PageHeader>
-      {/* The counts first, then the money: one card shape per run, not interleaved. */}
       <Metrics
         loading={loading}
         items={[
@@ -165,8 +163,6 @@ export function Cancellations() {
           { label: "Fees not returned", unit: "Rp", value: Math.abs(lost) },
         ]}
       />
-      {/* The summary that filters the table sits above it, as on the dashboard, so its effect is in view. Stacked at
-          every width: beside a 320 px card the table lost its Status column past the edge at 1280 and 1440. */}
       <div className="grid grid-cols-1 items-start gap-4">
         <Card inset="nest">
           <CardHeader title="By reason" className="px-2 pt-2" action={reason ? <Button variant="ghost" size="sm" onClick={() => setReason(null)}>All reasons</Button> : undefined} />

@@ -1,6 +1,3 @@
-// Invented demo data: the brand "Rimba", its shops, products and orders are made up.
-// "Now" is pinned to Monday 16 Nov 2026, 14:20 so screenshots stay stable.
-
 import { MONTHS, dayDiff } from "@/lib/ad";
 import type { CalendarEvent } from "@/components/ui/calendar-month";
 import type { Notice } from "@/components/ui/notification-bell";

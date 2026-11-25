@@ -20,7 +20,6 @@ export interface StreamingTextProps {
 }
 
 const MARK = /(\[\d+\])/;
-// A source marker hugs the word before it ("pace[1]."), whatever spacing the model wrote.
 const tidy = (s: string, cite: boolean) => (cite ? s.replace(/\s+(?=\[\d+\])/g, "") : s);
 
 /** One word with any markers and punctuation stuck to it, kept on one line so a number never wraps away from its word. */
@@ -94,7 +93,6 @@ export function StreamingText({ text, streaming, reserve = 3, final, cite, class
           const start = all.indexOf(p, at);
           at = start + p.length;
           const parts = p.split(/(\s+)/).filter(Boolean);
-          // Everything up to the last chunk that has fully arrived is text; the rest is its own skeleton.
           let end = 0;
           let cut = 0;
           parts.forEach((w, i) => {

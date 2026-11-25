@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; builds BEFORE_REF from git, or a public clone when the copy has no .git)
-# Before/after review sheets for one round: ./scripts/review <shots.mjs> [ONLY-regex]
-# Builds BEFORE_REF (default origin/main) and this tree, then runs scripts/review.mjs on the shot list (format in its
-# header). Output goes to OUT, default the shot list's folder + /review. The before copy gets its own `npm ci`
-# (never a symlink to this tree's node_modules). Builds go to TMPDIR, never dist/.
 set -euo pipefail
 LIST="$(realpath "${1:?usage: scripts/review <shots.mjs> [ONLY-regex]}")"
 if [ -n "${2:-}" ]; then export ONLY="$2"; fi

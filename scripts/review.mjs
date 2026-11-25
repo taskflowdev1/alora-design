@@ -1,11 +1,3 @@
-// Before/after review sheets: for each shot in a list, the same page, viewport, theme and state in two builds,
-// stacked (before above after) into OUT/<P><n>-<slug>.png, with the parts in OUT/parts and a log.json.
-// Run through scripts/review, which builds both versions. Here:
-//   BEFORE_DIST, AFTER_DIST   the two builds        REF   label for the before build
-//   OUT                       output folder         ONLY  regex on the sheet name; numbering follows the full list
-//   REVIEW_PORT               first of two preview ports (default 5331)
-// The shot list is a module (keep it out of git, next to its output): `export default (h) => [h.S(...), ...]`,
-// optionally `export const prefix = "R"`. `h` holds S, the selectors (stage, pop, phone) and the actions below.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -44,7 +36,6 @@ const browser = await chromium.launch();
 const VP = {
   desk: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 },
   desk1024: { viewport: { width: 1024, height: 800 }, deviceScaleFactor: 2 },
-  // Component pages that show a framed phone: tall enough for the whole phone, shot on the phone's screen.
   deskTall: { viewport: { width: 1440, height: 1200 }, deviceScaleFactor: 2 },
   phone: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 };
@@ -153,7 +144,6 @@ for (const s of LIST) {
       const page = await open(v, s.path, s.theme, s.vp);
       await s.act(page);
       ok = await shoot(page, s.target, file, s.opts);
-      // An action can leave a press held for the shot (a finger down on a scrubber) and release it here.
       if (page.__release) await page.__release();
       await page.context().close();
     } catch (e) {

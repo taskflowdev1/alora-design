@@ -1,6 +1,3 @@
-// Export generators shared by the site (/export) and the API (/api/kit, /r/*.json, /tokens.*).
-// Pure: callers pass the CSS files, component sources and rules in.
-
 import { cornerValue, GREY_ROLES, radii, serializeConfig, tokens, tokensCss, typeScale, type Config } from "./config.js";
 import { ITEMS, REGISTRY_ITEMS, SITE, itemPath, sourceKey, type Item } from "./registry.js";
 
@@ -96,12 +93,9 @@ export function themeItem(c: Config, a: Pick<Assets, "themeCss" | "baseCss">) {
   const outside: CssObject = {};
   const into = (o: CssObject, k: string, v: string | CssObject) => (o[k] = typeof v === "object" && typeof o[k] === "object" ? { ...o[k], ...v } : v);
   for (const [k, v] of Object.entries(base)) {
-    // base.css's own "@layer base" block joins the rest: shadcn puts every base rule in that layer anyway.
     if (k === "@layer base" && typeof v === "object") for (const [k2, v2] of Object.entries(v)) into(layered, k2, v2);
     else into(k.startsWith("@") ? outside : layered, k, v);
   }
-  // shadcn writes cssVars.light to :root and cssVars.dark to .dark. With dark as the default,
-  // :root carries the dark colours and a .light class carries the light ones.
   if (dark) layered[".light"] = t.light;
   return {
     $schema: SCHEMA,
@@ -141,10 +135,7 @@ export function componentItem(item: Item, c: Config, a: Pick<Assets, "sources">)
     type: "registry:ui",
     title: item.title,
     dependencies: ["react-feather", ...(item.deps ?? [])],
-    // Companions (parts a usage example sits next to) install too, so a pasted example works as shown.
     registryDependencies: [registryUrl("theme", c), `${SITE}/r/ad.json`, ...[...(item.registryDeps ?? []), ...(item.companions ?? [])].map((n) => registryUrl(n, c))],
-    // registry:ui files land in the app's ui folder, collections included, so their relative imports resolve.
-    // Mobile files land there too, so imports between the two folders become same-folder imports.
     files: item.files.map((f) => ({
       path: `registry/alora/${item.dir ?? "ui"}/${f}`,
       type: "registry:ui",

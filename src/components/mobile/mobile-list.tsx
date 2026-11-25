@@ -57,7 +57,6 @@ export function MobileListRow({ media, title, subtitle, value, chevron, onClick,
         {subtitle ? <span className="truncate text-[13px] text-ink-muted">{subtitle}</span> : null}
       </span>
       {value == null ? null : typeof value === "string" || typeof value === "number" ? (
-        // Text values give way to the title: they truncate at 55 % of the row instead of pushing the title out.
         <span className="min-w-0 max-w-[55%] shrink truncate text-[15px] tabular-nums text-ink-muted">{value}</span>
       ) : (
         <span className="flex shrink-0 text-[15px] tabular-nums text-ink-muted">{value}</span>
@@ -123,7 +122,6 @@ export function MobileListSkeleton({ rows = 6, media = "thumb", subtitle = true,
       <div className="grid rounded-card bg-surface p-nest">
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className={cn("flex items-center gap-3 px-[calc(var(--ad-pad)-var(--ad-nest))]", subtitle ? "min-h-[56px] py-2" : "min-h-touch py-1.5")}>
-            {/* Whole px, never rem steps: on the 13 px root size-10 is 32.5 px, not the 40 px thumbnail it stands for. */}
             {media === "thumb" ? <span className={cn("size-[40px] shrink-0 rounded-small", skeletonFill())} /> : media === "icon" ? <span className={cn("size-[20px] shrink-0 rounded-small", skeletonFill())} /> : null}
             <span className="grid min-w-0 flex-1 gap-0.5">
               <Line text={widths[i % widths.length]} className="text-[15px]" />

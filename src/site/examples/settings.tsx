@@ -91,7 +91,6 @@ export function Settings() {
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
   const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && currentLocation.pathname !== nextLocation.pathname);
-  // A reload or closing the tab asks too, not only a link inside the app.
   React.useEffect(() => {
     if (!dirty) return;
     const ask = (e: BeforeUnloadEvent) => e.preventDefault();

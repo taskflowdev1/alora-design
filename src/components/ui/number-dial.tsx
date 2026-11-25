@@ -7,7 +7,6 @@ const KEYFRAMES = `@keyframes ad-digit-in { from { opacity: 0; transform: transl
 /** One digit slot: when its character changes, the old one leaves and the new one arrives in the direction of change. */
 function Digit({ ch, dir, instant }: { ch: string; dir: 1 | -1; instant?: boolean }) {
   const [s, setS] = React.useState({ cur: ch, prev: null as string | null, n: 0, dir });
-  // Derived during render (React's documented pattern): only a changed digit gets a new key, so only it animates.
   if (s.cur !== ch) setS({ cur: ch, prev: s.cur, n: s.n + 1, dir });
   return (
     <span className="relative inline-block" style={{ ["--ad-dir" as string]: s.dir }}>
@@ -41,7 +40,6 @@ export interface RollingNumberProps {
 export function RollingNumber({ value, format = formatNumber, blur, instant, className }: RollingNumberProps) {
   const prev = React.useRef(value);
   const dir: 1 | -1 = value >= prev.current ? 1 : -1;
-  // Changes closer together than the roll (a held arrow key, a fast wheel) swap at once instead of replaying it.
   const changedAt = React.useRef(-Infinity);
   const rapid = React.useRef(false);
   if (value !== prev.current) rapid.current = performance.now() - changedAt.current < 220;
@@ -50,7 +48,6 @@ export function RollingNumber({ value, format = formatNumber, blur, instant, cla
     prev.current = value;
   }, [value]);
   const still = instant || rapid.current;
-  // A plain space would collapse inside its own slot ("Rp1.896.000"), so it holds a non-breaking one.
   const chars = format(value)
     .split("")
     .map((c) => (c === " " ? "\u00a0" : c));
@@ -62,7 +59,6 @@ export function RollingNumber({ value, format = formatNumber, blur, instant, cla
       <span className="sr-only">{chars.join("")}</span>
       <span aria-hidden className="inline-flex">
         {chars.map((c, i) => (
-          // Keyed from the right, so 99 → 100 keeps the ones and tens slots and adds a hundreds slot.
           <Digit key={chars.length - i} ch={c} dir={dir} instant={still} />
         ))}
       </span>
@@ -107,14 +103,12 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   const raf = React.useRef(0);
   const drag = React.useRef<{ x: number; t: number; v: number; raw: number } | null>(null);
   const typed = React.useRef({ s: "", t: 0 });
-  // Changes from the keyboard swap the digits at once; a drag or wheel goes back to rolling.
   const [keyed, setKeyed] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const cb = React.useRef({ onValueChange, onTick });
   cb.current = { onValueChange, onTick };
 
   const clamp = React.useCallback((n: number) => Math.min(max, Math.max(min, n)), [min, max]);
-  // Draws the ruler at pos (fractional), and reports each whole value it passes (not while it follows an outside change).
   const paint = React.useCallback((report = true) => {
     const el = strip.current;
     const w = box.current?.clientWidth ?? 0;
@@ -136,7 +130,7 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
         return paint(report);
       }
       const x0 = pos.current - target;
-      const w = 9; // stiffness: about 0.5 s to settle from rest
+      const w = 9;
       const t0 = performance.now();
       const step = (now: number) => {
         const t = (now - t0) / 1000;
@@ -168,13 +162,10 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
   const set = (n: number) => {
     const v = clamp(Math.round(n));
     cancelAnimationFrame(raf.current);
-    // Keys jump: keyboard changes never animate the ruler.
     pos.current = v;
     paint();
   };
 
-  // Typing a value: the number turns into a field in place; Enter or leaving it sends the ruler gliding there, the
-  // digits rolling through every value it passes. Esc puts it back.
   const [draft, setDraft] = React.useState<string | null>(null);
   const commit = () => {
     if (draft == null) return;
@@ -249,7 +240,6 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
           if (!d) return;
           const now = performance.now();
           const dv = -(e.clientX - d.x) / spacing;
-          // Past either end the ruler pulls harder the further it goes (rubber band), then springs back on release.
           const raw = (d.raw += dv);
           const over = raw < min ? raw - min : raw > max ? raw - max : 0;
           pos.current = over ? (over < 0 ? min : max) + over / (1 + Math.abs(over) / 3) : raw;
@@ -264,7 +254,6 @@ export function NumberDial({ value, onValueChange, min = 0, max = 100, majorEver
           drag.current = null;
           setDragging(false);
           if (!d) return;
-          // A pause before letting go kills the glide.
           const v = performance.now() - d.t > 80 ? 0 : d.v;
           settle(clamp(Math.round(pos.current + v / 9)), v);
         }}

@@ -21,7 +21,6 @@ export interface SheetProps {
 
 /** Side pane for details and create forms on desktop. Floats with margin, eases in from the right. */
 export function Sheet({ open, onOpenChange, title, children, footer, modal = true, keepOpenOn, className }: SheetProps) {
-  // The pane is opened by state, not by a Radix trigger, so Radix has nowhere to return focus: remember what had it.
   const returnFocus = useReturnFocus(open);
   const body = React.useRef<HTMLDivElement>(null);
   const pane = React.useRef<HTMLDivElement>(null);
@@ -35,8 +34,6 @@ export function Sheet({ open, onOpenChange, title, children, footer, modal = tru
           data-toast-avoid="side"
           onOpenAutoFocus={(e) => {
             e.preventDefault();
-            // With a mouse, a create form starts in its first field; otherwise the pane itself takes focus (not the
-            // Close button, whose tooltip would pop up on every open). Phones never get a keyboard thrown up.
             const field = typeof matchMedia === "function" && matchMedia("(pointer: fine)").matches
               ? body.current?.querySelector<HTMLElement>("input:not([type=hidden]):not(:disabled), textarea:not(:disabled), select:not(:disabled)")
               : null;

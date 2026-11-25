@@ -70,7 +70,6 @@ export function MultiSelect({ value, onValueChange, options, placeholder = "Sele
   const flight = React.useRef<{ value: string; label: string; from: DOMRect } | null>(null);
 
   const chipEl = (v: string) => row.current?.querySelector<HTMLElement>(`[data-chip="${CSS.escape(v)}"]`) ?? null;
-  // Where every chip is right now, so the ones that stay can glide from there.
   const snapshot = () => {
     const m = new Map<string, number>();
     row.current?.querySelectorAll<HTMLElement>("[data-chip]").forEach((el) => m.set(el.dataset.chip!, el.getBoundingClientRect().left));

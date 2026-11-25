@@ -12,7 +12,6 @@ const emit = () => subs.forEach((f) => f());
 const SHOW = 3200;
 const TICK = 100;
 
-/* One clock for every toast. It stops while the pointer rests on a toast or the tab is hidden, so nothing goes unread. */
 function tick() {
   if (document.hidden || document.querySelector("[data-ad-toast]:hover")) return;
   const done: number[] = [];
@@ -85,7 +84,6 @@ export function Toaster({ className }: { className?: string }) {
   return (
     <div
       aria-live="polite"
-      // Pinned to the corner and moved with transform (not right/bottom), so stepping clear of a bar never re-lays it out.
       className={cn("pointer-events-none fixed bottom-0 right-0 z-[80] flex flex-col items-end gap-2 transition-transform duration-[220ms] ease-ad", className)}
       style={{ transform: `translate(${-pos.right}px, ${-pos.bottom}px)` }}
     >
@@ -94,7 +92,6 @@ export function Toaster({ className }: { className?: string }) {
           key={t.id}
           tone={t.tone}
           data-ad-toast=""
-          // Leaves the way it came: back down and out, a little faster than it rose.
           className={cn("pointer-events-auto", t.leaving ? "pointer-events-none animate-[ad-down_180ms_var(--ad-ease)_forwards]" : "animate-[ad-up_220ms_var(--ad-ease)]")}
         >
           {t.message}

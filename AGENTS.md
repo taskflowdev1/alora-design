@@ -52,13 +52,17 @@ Full file-by-file layout: [docs/agent-notes/layout.md](docs/agent-notes/layout.m
 ## Run, test, verify
 
 - `npm ci`, then `npm run dev` (port 5190). Node 24 via nvm (`.nvmrc`).
-- Quick (seconds): `npm run typecheck`, `npm run lint`, `npm run unit`, `npm run docs:check`, `npm run knip` (dead
+- Quick (seconds): `npm run comments`, `npm run typecheck`, `npm run lint` (`--max-warnings 0`), `npm run unit`, `npm run docs:check`, `npm run knip` (dead
   exports), `npx vite build --outDir "$TMPDIR/site"`. After changing a component's props, the settings, the registry
   or a rule: `npm run docs`.
 - While iterating: `./scripts/verify --changed [base]` (default `origin/main`): all static checks, the build, and the smoke
   sections that reach the changed files. Shared code, config, tooling or a deleted file widens to full; docs alone skip
   the build and browser. Before a large release or merging shared code: `./scripts/verify` (full, every section, no caches).
   Run both and shots as background jobs. A new smoke section needs an entry in `scripts/lib/smoke-map.mjs`.
+- No code comments, except a rare `Why:` one for a weird business decision (`/** */` docs on exported components and props
+  are allowed: `scripts/gen-docs.mjs` turns them into `docs/components.md` and the kit ships them). `scripts/comment-check/`
+  is a vendored copy of `~/.config/agent-setup/tools/comment-check` (change it there, then re-run its `install`); settings
+  in `.comment-check.json` (`legacy` lists files with open work, to clean once they land). `scripts/verify` runs it first.
 - A failure ends with `GATE FAIL alora-design-verify: <check> | log: <path> | rerun: ./scripts/verify --only <step>`.
   `SMOKE_WORKERS=1` runs smoke serially. Heavy scripts source `scripts/env.sh` (nvm, `npm ci` when deps are missing,
   Playwright headless shell; caches under `$HOME`) and carry `# jobq: portable`, so the job runner can use a fresh copy.

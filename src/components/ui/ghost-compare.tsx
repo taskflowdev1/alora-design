@@ -130,7 +130,6 @@ export function GhostCompare({
     const pr = press.current;
     if (!pr.active) return;
     pr.active = false;
-    // A press the browser took over for scrolling changes nothing.
     if (cancelled) change(pr.was);
     else change(performance.now() - pr.at < TAP_MS ? !pr.was : false);
   };
@@ -152,7 +151,6 @@ export function GhostCompare({
       onLostPointerCapture={() => release()}
       onContextMenu={(e) => e.preventDefault()}
       onClick={(e) => {
-        // Enter and Space arrive as a click with no pointer behind it.
         if (e.detail === 0) change(!on);
       }}
       onKeyDown={(e) => {

@@ -78,7 +78,6 @@ export function HoldToConfirm({
   live.current = { duration, resetAfter, disabled };
   const ctl = React.useRef<{ start: (x: number, y: number) => void; release: () => void; finish: () => void } | null>(null);
 
-  // The row re-centres on the shorter word by half the difference, so "Rp …" glides instead of jumping.
   React.useLayoutEffect(() => {
     const el = ref.current;
     const box = measureRef.current;
@@ -124,7 +123,6 @@ export function HoldToConfirm({
       const dt = Math.max(t - last, 1) / 1000;
       last = t;
       if (mode === "hold") {
-        // Capped, so a stalled tab can never complete a hold the person didn't sit through.
         p += Math.min(dt, 1 / 20) / (live.current.duration / 1000);
         if (p >= 1) return finish();
       } else if (mode === "drain") {
@@ -148,7 +146,6 @@ export function HoldToConfirm({
     const start = (x: number, y: number) => {
       if (mode === "done" || live.current.disabled) return;
       const r = el.getBoundingClientRect();
-      // From a finger the fill grows out of the touch; keyboard presses grow from the middle.
       const ox = Number.isNaN(x) ? r.width / 2 : x - r.left;
       const oy = Number.isNaN(y) ? r.height / 2 : y - r.top;
       if (mode === "idle") {
@@ -164,7 +161,6 @@ export function HoldToConfirm({
       mode = "drain";
       kick();
     };
-    // A click with no pointer behind it (a screen reader's activate) can't hold, so it confirms outright.
     const finishNow = () => {
       if (mode === "done" || live.current.disabled) return;
       const r = el.getBoundingClientRect();
@@ -197,7 +193,6 @@ export function HoldToConfirm({
       }}
       onPointerMove={(e) => {
         if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-        // Sliding well off the button is the way out of a hold.
         const r = e.currentTarget.getBoundingClientRect();
         if (e.clientX < r.left - 32 || e.clientX > r.right + 32 || e.clientY < r.top - 32 || e.clientY > r.bottom + 32) ctl.current?.release();
       }}

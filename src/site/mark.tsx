@@ -1,5 +1,3 @@
-// The pieces the component bentos share (the Components page and the landing): the hover mark around each
-// component, the tile, its title row, spans and the tile definition.
 import * as React from "react";
 import { useNavigate } from "react-router";
 import { Sliders } from "react-feather";
@@ -26,7 +24,6 @@ export function useOpenOnEmptyClick(href: string, { innermost = false, rows = tr
   const navigate = useNavigate();
   return (e: React.MouseEvent<HTMLElement>) => {
     const t = e.target as Element;
-    // Pop-ups are portalled: their clicks bubble here through React, but they aren't inside in the DOM.
     if (!e.currentTarget.contains(t)) return;
     if (innermost && t.closest("[data-spot]") !== e.currentTarget) return;
     if (t.closest(rows ? `${CONTROLS},[role=row]` : CONTROLS) || t.closest(POPUPS)) return;
@@ -56,7 +53,6 @@ export function Mark({ name, className, children }: { name: string; className?: 
       onClick={open}
       className={cn("ad-mark -m-1.5 min-w-0 cursor-pointer p-1.5", className)}
     >
-      {/* Keyboard focus shows the chip too (index.css hides it until hover), with the focus fill. */}
       <SLink to={itemPath(item)} className="ad-mark-chip focus-visible:pointer-events-auto! focus-visible:transform-none! focus-visible:bg-fill-strong! focus-visible:opacity-100!">
         <Sliders size={14} />
         {item.title}

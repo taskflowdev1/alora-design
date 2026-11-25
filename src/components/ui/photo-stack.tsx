@@ -116,7 +116,6 @@ function attachStack(root: HTMLElement, cards: HTMLElement[], onTop: (index: num
       const b = bodies[c];
       const dragged = drag && order[0] === c;
       if (b.fly && (Math.abs(b.x) > Math.abs(b.tx) * 0.72 || t - b.flyAt > 300)) {
-        // Past the pile's edge: drop behind it and come home.
         b.fly = 0;
         aim(c);
         layer();
@@ -242,7 +241,6 @@ function attachStack(root: HTMLElement, cards: HTMLElement[], onTop: (index: num
       e.preventDefault();
       toss(1);
     } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-      // Arrow keys step at once (motion.no-keyboard-animation); Enter and Space play the throw.
       e.preventDefault();
       rotate(1);
       snapAll();

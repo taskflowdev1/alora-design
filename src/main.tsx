@@ -6,7 +6,6 @@ import { router } from "./site/routes";
 import { applyTokens } from "./site/config";
 import { parseConfig } from "./lib/config";
 
-// Paint with the right tokens before React renders.
 applyTokens(document.documentElement, parseConfig(window.location.search));
 
 createRoot(document.getElementById("root")!).render(

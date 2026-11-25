@@ -1,5 +1,3 @@
-// Showpiece batch C: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import * as React from "react";
 import { formatRp } from "@/lib/ad";
 import { Card } from "@/components/ui/card";

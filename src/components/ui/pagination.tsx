@@ -40,7 +40,6 @@ export function Pagination({ page, pageCount, onPageChange, total, pageSize = 50
     const can = dir < 0 ? page > 1 : page < pageCount;
     return (
       <Tooltip content={can ? `Page ${target}` : dir < 0 ? "First page" : "Last page"}>
-        {/* A disabled button gets no pointer events, so the tooltip hangs on this wrapper. */}
         <span className="inline-flex">
           <Button variant="ghost" size="sm" icon aria-label={dir < 0 ? `Previous page${can ? `, ${target}` : ""}` : `Next page${can ? `, ${target}` : ""}`} disabled={!can} onClick={() => go(target)}>
             {dir < 0 ? <ChevronLeft /> : <ChevronRight />}

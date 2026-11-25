@@ -1,6 +1,3 @@
-// Headless review screenshots + automatic taste checks, run by scripts/shots after a build.
-// Serves the build in SITE_DIST (default dist) on its own port, writes OUT (default output/shots)/*.png, shots.md and checks.json.
-// Dark is the default theme; light shots add t=l. ONLY=<regex> limits the shots.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
@@ -36,7 +33,6 @@ const index = [];
 const checks = { borders: [], fonts: new Set(), shifts: [], skeleton: [], header: [], errors: [] };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// v1 letters G1–G41 keep their order; niche components are N1–N28.
 const CORE = [
   "corner-shape", "scrollbar", "button", "menu", "toolbar", "save-bar", "input", "search", "field", "select", "multi-select", "combobox",
   "date-picker", "period-stepper", "language-picker", "segmented", "tabs", "switch", "checkbox", "radio", "slider", "card", "metric-card",
@@ -106,7 +102,6 @@ async function shot(page, file, what, el) {
     const m = 20;
     await page.screenshot({ path: `${OUT}/${file}.png`, clip: { x: Math.max(0, b.x - m), y: Math.max(0, b.y - m), width: b.width + m * 2, height: b.height + m * 2 } });
   } else {
-    // A sticky header would be painted mid-page in a stitched full-page capture.
     if (what.full) await page.addStyleTag({ content: "header{position:static!important}" });
     await page.screenshot({ path: `${OUT}/${file}.png`, fullPage: what.full ?? false });
   }
@@ -130,7 +125,6 @@ async function run() {
     return page;
   }
 
-  // Header: same box on every page.
   for (const path of ["/", "/components", "/components/button", "/examples/dashboard", "/examples/team", "/export"]) {
     const page = await visit("desktop", path);
     const box = await page.evaluate(() => {
@@ -201,7 +195,6 @@ async function run() {
     }
   }
 
-  // Item 4 fixes, after: the same elements v1 showed on the landing wall (before/ holds the v1 crops).
   const fixes = [
     ["F1", "low-stock", "/components/attention-list", "[data-stage] > *"],
     ["F2", "bubbles", "/components/status", "[data-stage] > *"],
@@ -315,7 +308,6 @@ async function run() {
     await page.close();
   }
 
-  // Skeleton vs loaded: every card and soft row must keep its box.
   for (const path of ["/examples/dashboard", "/examples/orders"]) {
     const boxes = async (q) => {
       const page = await visit("desktop", `${path}${q}`);

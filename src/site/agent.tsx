@@ -1,5 +1,3 @@
-// The AI page's assistant: a working app built from the pieces in src/components/ai, with Rimba's chats. Replies are
-// scripted (agent-data.ts) and stream on a timer. Site-only; the pieces are what ships.
 import * as React from "react";
 import { Dialog as D } from "radix-ui";
 import { Archive, Clock, Database, Edit, Edit2, File as FileIcon, Inbox, Menu as MenuIcon, MessageCircle, MoreHorizontal, Settings, Star, Trash2, TrendingUp, X } from "react-feather";
@@ -201,7 +199,6 @@ export function AgentApp({ className }: { className?: string }) {
       patch(chatId, (c) => {
         const at = c.messages.findIndex((m) => m.waiting);
         const messages = c.messages.map((m, i) => (i === at ? { ...m, waiting: false } : m));
-        // The reply goes right after its question, ahead of anything still waiting.
         const after = at >= 0 ? at + 1 : messages.length;
         return { ...c, messages: [...messages.slice(0, after), msg, ...messages.slice(after)] };
       });
@@ -209,13 +206,10 @@ export function AgentApp({ className }: { className?: string }) {
     [patch],
   );
 
-  // The chat that is already running when the page opens.
   React.useEffect(() => {
     if (!runs.current[RUNNING_CHAT] && chatsRef.current.find((c) => c.id === RUNNING_CHAT)?.messages.length === 1) startRun(RUNNING_CHAT, RUNNING_SCRIPT, 5200);
   }, [startRun]);
 
-  // One clock for every running reply: steps, then words. It only runs while a reply does, and rests while the tab is
-  // hidden or the app is off screen.
   const anyRun = Object.keys(runs.current).length > 0;
   React.useEffect(() => {
     if (!anyRun) return;
@@ -295,7 +289,6 @@ export function AgentApp({ className }: { className?: string }) {
       patch(id, (c) => ({ ...c, messages: [...c.messages, { ...msg, waiting: true }] }));
       return;
     }
-    // The chat you just wrote in rides to the top of Today.
     setChats((list) => {
       const me = list.find((c) => c.id === id);
       return me ? [{ ...me, when: "Now", group: "Today", messages: [...me.messages, msg] }, ...list.filter((c) => c.id !== id)] : list;
@@ -312,7 +305,6 @@ export function AgentApp({ className }: { className?: string }) {
     tick();
   };
 
-  // Escape stops a running reply, unless a menu, dialog or field has it.
   const stopRef = React.useRef(stop);
   stopRef.current = stop;
   React.useEffect(() => {

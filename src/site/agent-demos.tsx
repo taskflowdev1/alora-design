@@ -1,4 +1,3 @@
-// Live previews of the assistant's pieces, for their spots on /ai and their pages at /ai/<name>. Site-only.
 import * as React from "react";
 import { Clock, Inbox, TrendingUp } from "react-feather";
 import { AssistantMarkdown } from "@/components/ai/assistant-markdown";

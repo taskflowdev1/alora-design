@@ -61,7 +61,6 @@ export function QuantityStepper({ value, onValueChange, min = 0, max = Infinity,
           }
         }}
         className={cn("w-[calc(var(--w)*1ch+16px)] min-w-9 grow bg-transparent text-center font-medium tabular-nums text-ink outline-none", size === "touch" ? "min-w-touch text-[16px]" : "text-body pointer-coarse:text-[16px]")}
-        // Grows with the number, but never past the widest valid value, so typing can't push the row around.
         style={{ ["--w" as string]: Math.min(Math.max(2, String(draft ?? value).length), Math.max(2, Number.isFinite(max) ? String(max).length : 4)) }}
       />
       <button type="button" aria-label="More" className={btn} disabled={value >= max} onClick={() => onValueChange(clamp(value + step))}>

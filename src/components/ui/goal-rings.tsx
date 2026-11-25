@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Tooltip } from "@/components/ui/tooltip";
 
 const STIFFNESS = 130;
-const DAMPING = 15.5; // a touch under critical: a ring that closes runs a little past its start and eases back
+const DAMPING = 15.5;
 const STROKE = 17;
 const RADII = [84, 62, 40];
 const SHADES = ["stroke-chart-1", "stroke-chart-2", "stroke-chart-3"];
@@ -225,7 +225,6 @@ export function GoalRings({ rings = DEFAULT_RINGS, actionLabel = "Close the day"
                     className={SHADES[i]}
                     style={{ strokeDasharray: "0 1", opacity: 0 }}
                   />
-                  {/* The head of a lapped ring: its round cap, casting a shadow forward onto the ring it rides over. */}
                   <g
                     ref={(el) => {
                       heads.current[i] = el;

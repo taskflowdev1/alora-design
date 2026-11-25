@@ -62,8 +62,6 @@ export function TagInput({ value, onValueChange, placeholder = "Add a tag", sugg
             if (e.key === "Backspace" && !text && value.length) onValueChange(value.slice(0, -1));
           }}
           onBlur={() => text && add(text)}
-          // Room for a word only while typing (or when empty, for the placeholder). Idle after the chips it takes whatever is
-          // left on the row (the field focuses it on click), so committing a tag on blur never pushes a blank second row.
           className={cn("h-[calc(var(--ad-control-h)-var(--ad-nest)*2)] flex-1 bg-transparent pl-1.5 text-ink outline-none placeholder:text-ink-muted", text || !value.length ? "min-w-24" : "min-w-4")}
         />
       </div>

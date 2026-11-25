@@ -31,9 +31,6 @@ export interface ProposedChangeProps {
  * (the one accent) or Not now. While applying the button keeps its width and says so; once applied the card says what
  * happened and offers Undo instead of a second confirm.
  */
-// The card is the track; its rows and quiet buttons are the raised step on it (sel: white in light, fill-strong in dark),
-// so in dark they sit above the card instead of reading as holes. Hover and focus take the next step: fill-strong in
-// light, a notch lighter in dark.
 const onFill = "bg-sel hover:bg-fill-strong focus-visible:bg-fill-strong dark:hover:bg-sel dark:focus-visible:bg-sel dark:hover:brightness-[1.25] dark:focus-visible:brightness-[1.25]";
 
 export function ProposedChange({ title, changes, state = "pending", onApply, onDismiss, onUndo, applyLabel = "Apply", size = "default", className }: ProposedChangeProps) {
@@ -72,7 +69,6 @@ export function ProposedChange({ title, changes, state = "pending", onApply, onD
               Not now
             </Button>
             <Button variant="primary" onClick={() => state === "pending" && onApply()} aria-busy={state === "applying" || undefined} className={touch}>
-              {/* Both labels share one cell, so the button keeps its width when it says Applying…. */}
               <span className="inline-grid justify-items-center">
                 <span aria-hidden className="invisible [grid-area:1/1]">
                   {applyLabel}

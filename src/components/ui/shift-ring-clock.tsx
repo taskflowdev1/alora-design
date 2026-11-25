@@ -85,11 +85,9 @@ export function ShiftRingClock({
   const startRef = React.useRef<SVGGElement>(null);
   const endRef = React.useRef<SVGGElement>(null);
   const [dragging, setDragging] = React.useState(false);
-  // The live, unsnapped ends while a hand is on the dial. `start` and `end` may run past a day; paint wraps them.
   const pos = React.useRef({ s: shift.start, e: shift.start + mod(shift.end - shift.start) });
   const drag = React.useRef<{ id: number; part: "start" | "end" | "move"; angle: number } | null>(null);
   const raf = React.useRef(0);
-  // True while a released handle eases onto its snap point, so the new value doesn't jump it there first.
   const settling = React.useRef(false);
 
   const paint = React.useCallback((s: number, e: number) => {
@@ -146,7 +144,6 @@ export function ShiftRingClock({
       const toStart = arcGap(m, s);
       const toEnd = arcGap(m, end);
       const inside = mod(m - s) <= end - s;
-      // Near an end grabs that end, anywhere else on the arc carries the whole shift.
       if (Math.min(toStart, toEnd) < 45) part = toStart < toEnd ? "start" : "end";
       else if (inside) part = "move";
       else part = toStart < toEnd ? "start" : "end";
@@ -174,7 +171,6 @@ export function ShiftRingClock({
       end += delta;
     } else if (d.part === "end") {
       end += delta;
-      // Pushed into its other end, it carries that end along.
       if (end - s < minLength) s = end - minLength;
       if (end - s > maxLength) s = end - maxLength;
     } else {
@@ -226,7 +222,6 @@ export function ShiftRingClock({
     cancelAnimationFrame(raf.current);
     raf.current = 0;
     settling.current = false;
-    // A key press during the settle starts from where the handle is going, on the grid.
     const from = live.current.shift;
     let s = from.start;
     let end = s + (mod(from.end - from.start) || DAY);
@@ -326,7 +321,6 @@ export function ShiftRingClock({
       </svg>
       <div className="pointer-events-none absolute inset-0 grid place-content-center justify-items-center gap-[2.4cqw]">
         <span className="sr-only">{`${hours} hours ${minutes} minutes, ${clock(shift.start)} to ${clock(shift.end)}`}</span>
-        {/* Bottom-aligned, not on the baseline: a clipped inline-block's baseline is its bottom edge, which skews the digits. */}
         <span aria-hidden className="inline-flex items-end text-[11.5cqw] font-semibold leading-none tabular-nums text-ink">
           <span className="ad-shift-tens inline-flex h-[1em] overflow-hidden" style={{ width: hours >= 10 ? "1ch" : 0, opacity: hours >= 10 ? 1 : 0 }}>
             <Roll digit={Math.floor(hours / 10)} />

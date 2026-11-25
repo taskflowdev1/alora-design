@@ -1,9 +1,3 @@
-/*
- * The shadcn-parity components in real use: charts, navigation, more inputs and display parts, the alert dialog and
- * drawer, resizable panes and the chat parts. Each tile composes a few of them the way an ERP would; every component
- * sits in a `Mark` exactly once. The Components page appends these tiles to their category bands; the landing borrows
- * a few of them as single-component moments.
- */
 import * as React from "react";
 import {
   AlertCircle,
@@ -60,8 +54,6 @@ import { Questionnaire } from "@/components/ui/questionnaire";
 import { CodeBlock } from "@/components/ui/code-block";
 import { BackPage, Head, Mark, Tile, frame, type TileDef } from "./mark";
 import { CUP_PHOTOS, DAILY, NOW, ORDERS, productPhoto, smartTime, type Order } from "./data";
-
-/* Demo data below is invented. */
 
 /** Sales per day, this fortnight and the one before, in rupiah. */
 export const SALES_14: Datum[] = DAILY.slice(-14).map((d, i) => ({ label: d.label, now: Math.round(d.value * 1e6), before: Math.round(DAILY[i + 2].value * 0.88 * 1e6) }));
@@ -480,7 +472,6 @@ function SuppliersTile({ className }: { className?: string }) {
 
 function ConfirmTile({ className }: { className?: string }) {
   return (
-    // The dimmed page runs to the card's edge: no lighter rim around it (a frame inside a frame).
     <Tile inset="none" className={className}>
       <Mark name="alert-dialog" className="m-0 flex flex-1 p-0 rounded-[inherit]!">
         <div className={cn(frame, "rounded-[inherit]")}>
@@ -584,8 +575,6 @@ function BeforeRestockTile({ className }: { className?: string }) {
     </Tile>
   );
 }
-
-/* Tiles below are placed by showcase/index.tsx. */
 
 export const MORE_TILES: TileDef[] = [
   { items: ["chart", "line-chart"], render: (_, c) => <SalesTrendTile className={c} /> },

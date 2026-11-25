@@ -1,4 +1,3 @@
-// /mobile: the Mobile tab. The life of an installed web app, one real phone per moment, then the example app's screens.
 import * as React from "react";
 import { ArrowRight, Grid, RotateCcw } from "react-feather";
 import { cn } from "@/lib/ad";
@@ -36,7 +35,6 @@ const PIECES: { name: string; title: string; control?: "platform" | "online"; re
 function Piece({ piece }: { piece: (typeof PIECES)[number] }) {
   const [platform, setPlatform] = React.useState<InstallPlatform>("android");
   const [net, setNet] = React.useState<"online" | "offline">("offline");
-  // The keyboard scene opens with the drawn keyboard up. A touch device has its own, so it never draws a second one.
   const opensKeyboard = piece.name === "mobile-action-bar";
   const [keyboard, setKeyboard] = React.useState(opensKeyboard);
   const coarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
@@ -64,7 +62,6 @@ function Piece({ piece }: { piece: (typeof PIECES)[number] }) {
           <RotateCcw />
         </Button>
       </div>
-      {/* Nothing inside a scene scrolls, so a wheel or a swipe over a phone moves the page. */}
       <LazyPhone key={run} keyboard={keyboard && !coarse} className="[&_[data-mobile-screen]]:overflow-hidden [&_[data-mobile-screen]]:overscroll-auto">
         {piece.render({ platform, online: net === "online", setKeyboard })}
       </LazyPhone>

@@ -1,5 +1,3 @@
-// Showpiece batch E: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import { PeelLabel } from "@/components/ui/peel-label";
 import type { Demo } from "../demos";
 import { Mark, Tile, type TileDef } from "../mark";

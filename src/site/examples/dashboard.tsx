@@ -46,12 +46,10 @@ const orderShopOf = (id: string) => {
 export function Dashboard() {
   const loading = useLoading();
   const [range, setRange] = React.useState<keyof typeof RANGES>("day");
-  // Empty means every shop, the default.
   const [picked, setPicked] = React.useState<string[]>([]);
   const [shop, setShop] = React.useState<string | null>(null);
   const shops = picked.length ? picked : MARKET_SHOPS.map((s) => s.id);
   const r = RANGES[range];
-  // The picker narrows every number on the page to the shops it keeps; a bar in By shop narrows the lists below to one.
   const share = shops.reduce((a, id) => a + (BY_SHOP[id] ?? 0), 0) / DAY_TOTAL;
   const sales = Math.round((range === "day" ? DAY_TOTAL : r.days.reduce((a, d) => a + d.value, 0)) * share * 1e4) * 100;
   const orders = Math.round(sales / 154600);
@@ -61,7 +59,6 @@ export function Dashboard() {
   const byShop = MARKET_SHOPS.filter((s) => shops.includes(s.id)).sort((a, b) => BY_SHOP[b.id] - BY_SHOP[a.id]);
   const scale = range === "day" ? 1 : r.days.reduce((a, d) => a + d.value, 0) / DAY_TOTAL;
   const chart = range === "day" ? null : r.days.map((d) => ({ ...d, value: Math.round(d.value * share * 10) / 10, display: `Rp ${formatNumber(Math.round(d.value * share * 10) / 10)} jt` }));
-  // Attention rows sit on a fill, so their skeleton bars take the next step up to show.
   const L = ({ children }: { children: React.ReactNode }) => (
     <LoadingText loading={loading} onFill>
       {children}
@@ -141,7 +138,6 @@ export function Dashboard() {
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         <Card inset="nest">
-          {/* Stock is counted for the whole business, so the shop filters leave this list as it is. */}
           <CardHeader title="Low stock" action={<Badge>{low.length}</Badge>} className="px-2 pt-2" />
           <AttentionList className="mt-1">
             {low.map((p) => (

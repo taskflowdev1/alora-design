@@ -1,10 +1,8 @@
-// The rounded app window the AI assistant and the example app share. Site-only.
 import * as React from "react";
 import { cn } from "@/lib/ad";
 
 const FRAME = {
   "--frame-inset": "calc(var(--ad-nest) * 2)",
-  // Concentric with the panels inside it. The min() drops the inset when the card radius is 0, so square stays square.
   "--frame-r": "calc(var(--ad-radius-card) + min(var(--ad-radius-card) * 99, var(--frame-inset)))",
 } as React.CSSProperties;
 

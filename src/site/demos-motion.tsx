@@ -1,4 +1,3 @@
-// Detail-page demos for the motion set: each live with its controls, plus its usage snippet.
 import * as React from "react";
 import { toast } from "@/components/ui/toast";
 import { PromptSuggestions } from "@/components/ui/prompt-suggestions";
@@ -13,7 +12,6 @@ function ReactionsDemo({ fail }: { fail: boolean }) {
     { emoji: "🎉", count: 9, who: "Dewi and 8 others" },
     { emoji: "👀", count: 1, who: "Rudi" },
   ]);
-  // Where reactions belong: under a teammate's comment.
   return (
     <Message from={{ name: "Dewi" }} time="Today, 14:05" className="w-full max-w-md">
       <p>Kemang’s restock is booked for Friday, 6 mugs from Dago.</p>

@@ -114,7 +114,6 @@ export function Landing() {
             <SalesCard chartHeight={148} />
           </Moment>
           <Moment id="holo" title="Holo card" to="/components/holo-card" className="max-w-[440px] justify-items-center">
-            {/* Room around it for the tilt and its shadow; move the pointer over it. */}
             <div className="grid w-full place-items-center py-6">
               <HoloCard className="w-full" />
             </div>
@@ -123,7 +122,6 @@ export function Landing() {
             <OtpFlow framed />
           </Moment>
           <Moment id="palette" title="Command palette" to="/components/command-palette" className="max-w-[560px]">
-            {/* A fixed height: filtering shortens the list inside it, never the card, so nothing below moves. */}
             <PaletteCard className="h-[372px] bg-surface" />
           </Moment>
           <Moment id="dial" title="Number dial" to="/components/number-dial" className="max-w-[640px]">

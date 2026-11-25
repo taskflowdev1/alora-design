@@ -107,7 +107,6 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
         </div>
       ) : null}
       {!loading && slice.length === 0 ? (
-        // Nothing to show: no header row and no select-all acting on nothing. The search above stays to clear it.
         <EmptyState icon={SearchIcon} title={q.trim() ? "No matching rows" : "No rows"} />
       ) : (
       <Table aria-busy={loading || undefined}>
@@ -140,7 +139,6 @@ export function DataTable<T>({ rows, columns, rowKey, selected, onSelectedChange
         <TBody>
           {loading && slice.length > 0
             ? slice.map((r) => (
-                // A refetch: the held rows laid out as usual but hidden, a bar over each cell's content.
                 <tr key={rowKey(r)} className="h-row" aria-hidden>
                   {onSelectedChange ? <TD className="pl-3 pr-0"><span className={checkBar} /></TD> : null}
                   {shown.map((c) => (

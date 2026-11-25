@@ -94,7 +94,6 @@ export function Combobox({
   const canCreate = !!onCreate && !!typed && !options.some((o) => o.label.toLowerCase() === typed.toLowerCase());
   const rows = React.useMemo<Option[]>(
     () => (canCreate ? [...filtered, { value: CREATE, label: creating ?? createLabel(typed), icon: <Plus size={16} /> }] : filtered),
-    // createLabel is usually an inline function; the row's text only depends on what was typed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [canCreate, filtered, creating, typed],
   );
@@ -143,7 +142,6 @@ export function Combobox({
   const current = options.find((o) => o.value === value);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // The full list comes back around the new row: it glides to its place, the others fade in.
   React.useLayoutEffect(() => {
     const s = settle.current;
     settle.current = null;
@@ -181,7 +179,6 @@ export function Combobox({
       spellCheck={false}
       enterKeyHint="search"
       onChange={(e) => {
-        // Typing during the pause after a create keeps what was typed.
         window.clearTimeout(timer.current);
         setQuery(e.target.value);
         nav.setActive(0);
@@ -273,7 +270,6 @@ export function Combobox({
           collisionPadding={8}
           onOpenAutoFocus={(e) => {
             e.preventDefault();
-            // Desktop only: on a phone the keyboard would cover the list (tap the field to type).
             if (window.matchMedia("(pointer: fine)").matches) inputRef.current?.focus();
           }}
           className={cn(dropdownSurface, "w-[max(240px,var(--radix-popover-trigger-width))]")}

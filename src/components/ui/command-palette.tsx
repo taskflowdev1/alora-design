@@ -53,7 +53,6 @@ export interface CommandPaletteProps {
  * Groups are separated by space and a quiet label, never by lines.
  */
 export function CommandPalette({ open = false, onOpenChange, inline, className, ...panel }: CommandPaletteProps) {
-  // Opened from state (a button or the shortcut), so Radix has no Trigger to hand focus back to on Esc.
   const returnFocus = useReturnFocus(open && !inline);
   if (inline) return <CommandPanel {...panel} inline className={cn("flex flex-col rounded-card bg-raised p-nest text-ink", className)} />;
   return (
@@ -63,16 +62,13 @@ export function CommandPalette({ open = false, onOpenChange, inline, className, 
         <D.Content
           aria-describedby={undefined}
           onOpenAutoFocus={(e) => {
-            // Phones: focus the panel, not the field, so the keyboard doesn't cover the list until they tap it.
             if (finePointer()) return;
             e.preventDefault();
             (e.target as HTMLElement | null)?.focus();
           }}
           onCloseAutoFocus={returnFocus}
           className={cn(
-            // A dialog over a dimmed page, so in dark it takes the dialog step, not the menu one (which would sit on the page grey).
             "fixed left-1/2 top-[14dvh] z-50 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 rounded-card bg-raised p-nest text-ink shadow-dialog dark:bg-surface",
-            // Opened many times a day, so it appears at once; it only fades on the way out.
             "data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]",
             className,
           )}
@@ -102,7 +98,6 @@ function CommandPanel({
   const filtered = React.useMemo(() => {
     const t = q.trim().toLowerCase();
     if (!t) return groups;
-    // Word-start matches first ("bar" finds Bar chart before Scrollbar), then the label before keywords; ties keep order.
     const rank = (i: Command) => {
       const label = ` ${i.label.toLowerCase()}`;
       const keywords = ` ${(i.keywords ?? "").toLowerCase()}`;
@@ -129,7 +124,6 @@ function CommandPanel({
     const box = list.current;
     const el = box?.querySelector<HTMLElement>(`[data-index="${active}"]`);
     if (!box || !el) return;
-    // Scroll the list only (never the page, which scrollIntoView would do for an inline panel).
     if (el.offsetTop < box.scrollTop) box.scrollTop = el.offsetTop;
     else if (el.offsetTop + el.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = el.offsetTop + el.offsetHeight - box.clientHeight;
   }, [active]);
@@ -172,7 +166,6 @@ function CommandPanel({
       </label>
       <div ref={list} id={`${uid}-list`} role="listbox" className={cn("relative mt-nest overflow-auto", inline ? "min-h-0 flex-1" : "max-h-[min(360px,56dvh)]")}>
         {flat.length === 0 ? (
-          // Inline (a fixed-height panel) the empty state fills the list, centred, with the house empty-state icon.
           inline ? (
             <div className="flex h-full min-h-16 flex-col items-center justify-center gap-3 text-body text-ink-muted">
               <SearchIcon size={40} strokeWidth={1.5} aria-hidden />

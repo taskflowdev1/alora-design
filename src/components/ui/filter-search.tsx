@@ -65,7 +65,6 @@ export function FilterSearch({ fields, tokens, onTokensChange, query, onQueryCha
     added.current = null;
     if (!box) return;
     if (fresh) box.scrollLeft = box.scrollWidth;
-    // The edge fade re-measures on scroll; a removed chip can change the overflow without one.
     box.dispatchEvent(new Event("scroll"));
     if (prefersReducedMotion()) return;
     box.querySelectorAll<HTMLElement>("[data-flip]").forEach((el) => {
@@ -122,7 +121,6 @@ export function FilterSearch({ fields, tokens, onTokensChange, query, onQueryCha
             const l = labelOf(t);
             return (
               <span key={tokenKey(t)} data-flip={tokenKey(t)} data-armed={armed && i === tokens.length - 1 ? "" : undefined} className={cn(fieldChipClass, "shrink-0 whitespace-nowrap", armed && i === tokens.length - 1 && "bg-on text-on-ink shadow-none")}>
-                {/* On a phone, two or more chips show just their values, so the field never has to scroll to fit them. */}
                 <span className={cn(armed && i === tokens.length - 1 ? "opacity-70" : "text-ink-muted", tokens.length > 1 && "max-sm:hidden")}>{l.field}</span>
                 <span>{l.value}</span>
                 <button

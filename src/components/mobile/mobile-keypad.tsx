@@ -57,7 +57,6 @@ export function MobileAmountKeypad({ value, onValueChange, label, max = 999_999_
     >
       <div className="grid justify-items-center gap-1 py-2">
         {label ? <span className="text-[13px] text-ink-muted">{label}</span> : null}
-        {/* The amount takes typed digits while the pad has keyboard focus: its line shows a fill then. */}
         <output ref={amount} aria-live="polite" className={cn("flex items-center rounded-control px-3 text-[32px] font-semibold leading-tight tabular-nums transition-colors duration-[150ms] ease-ad group-focus-visible/pad:bg-fill", value ? "text-ink" : "text-ink-muted")}>
           {formatRp(value)}
           <span aria-hidden className="ml-0.5 h-8 w-[2px] animate-[ad-pulse_1s_steps(1)_infinite] rounded-full bg-ink" />

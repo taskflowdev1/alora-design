@@ -41,9 +41,6 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
   const goBack = useDoubleTapGuard(back?.onClick);
   const tr = translateTitle ? undefined : "no";
   React.useImperativeHandle(outer, () => ref.current!);
-  // A list a little taller than the screen could stop scrolling with a sliver of the search bar still showing under
-  // the collapsed bar. Then a spacer adds just enough room for the large title and header to scroll fully away. A list
-  // that fits never scrolls, so an empty state stays centred.
   React.useLayoutEffect(() => {
     const el = ref.current;
     const gap = spacer.current;
@@ -68,7 +65,6 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
       raf = 0;
       const h = big.current?.offsetHeight ?? 0;
       const y = el.scrollTop;
-      // 0 → 1 while the large title passes under the bar; the bar's own title and fill follow it.
       const t = large ? Math.min(1, Math.max(0, (y - h * 0.45) / (h * 0.45))) : 1;
       el.style.setProperty("--ad-collapse", String(t));
     };
@@ -86,13 +82,9 @@ export function MobileScreen({ title, barTitle, large = true, back, leading, tra
           ? `calc(${SAFE_BOTTOM} + 88px)`
           : SAFE_BOTTOM;
   return (
-    // A column, so the content area fills what's left under the bar: an empty state (EmptyState className="grow")
-    // centres in the remaining height on every screen, whatever sits above it.
     <div ref={ref} data-mobile-screen className={cn("relative flex h-full flex-col overflow-y-auto overscroll-contain bg-page text-ink [scrollbar-width:none]", className)}>
       <header className="sticky top-0 z-20 shrink-0" style={{ paddingTop: SAFE_TOP }}>
         <div aria-hidden className="absolute inset-0 bg-page" style={{ opacity: large ? "var(--ad-collapse, 0)" : 1 }} />
-        {/* One 44 px bar on every screen (iOS), so the title sits at the same height with or without bar buttons. The
-            side columns keep room for a back label or two buttons; the title takes what is left and truncates. */}
         <div className="relative grid h-touch grid-cols-[minmax(88px,1fr)_auto_minmax(88px,1fr)] items-center px-1.5">
           <div className="flex min-w-0 justify-start">
             {leading ?? (back ? (

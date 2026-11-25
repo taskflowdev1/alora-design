@@ -47,7 +47,7 @@ const faceClass = (on: boolean) =>
  * answer lands in the action row, so the card never changes size.
  */
 export function ApprovalFlow({ title = "Gelas kopi tanah liat, 200 pcs", code = "PO-1042", amount = 17800000, people = PEOPLE, onDecision, onApprovedChange, className }: ApprovalFlowProps) {
-  const last = people.length; // the Approved stop comes after the last person
+  const last = people.length;
   const [at, setAt] = React.useState(1);
   const [face, setFace] = React.useState<Face>("waiting");
   const [reason, setReason] = React.useState("");
@@ -65,7 +65,6 @@ export function ApprovalFlow({ title = "Gelas kopi tanah liat, 200 pcs", code = 
     report.current?.(approved);
   }, [approved]);
 
-  // The button that was pressed leaves with its face: focus follows to the new face's main control.
   const moved = React.useRef(false);
   const go = (next: Face) => {
     moved.current = !!row.current?.contains(document.activeElement);
@@ -123,7 +122,6 @@ export function ApprovalFlow({ title = "Gelas kopi tanah liat, 200 pcs", code = 
       </div>
 
       <ol className="relative grid" style={{ gridTemplateColumns: `repeat(${stops.length}, minmax(0, 1fr))` }}>
-        {/* The line runs centre to centre; the fill is clipped, so its round end stays round at any length. */}
         <span aria-hidden className="absolute top-[calc(1rem+2px)] h-[3px] -translate-y-1/2 rounded-full bg-fill" style={{ left: `${50 / stops.length}%`, right: `${50 / stops.length}%` }}>
           <span
             className="block size-full rounded-full bg-on transition-[clip-path] duration-[300ms] ease-ad motion-reduce:transition-none"
@@ -135,7 +133,6 @@ export function ApprovalFlow({ title = "Gelas kopi tanah liat, 200 pcs", code = 
           const refused = rejected?.at === i;
           return (
             <li key={p?.name ?? "approved"} aria-current={i === at ? "step" : undefined} className="relative grid min-w-0 justify-items-center gap-1.5 text-center">
-              {/* The card's own colour around each stop parts the line, without a ring. */}
               <span className="rounded-full bg-surface p-[2px]">
                 {p ? (
                   <Avatar
@@ -180,7 +177,6 @@ export function ApprovalFlow({ title = "Gelas kopi tanah liat, 200 pcs", code = 
             onChange={(e) => setReason(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                // Focus moves to Resubmit during this key press: without this, the same Enter would press it.
                 e.preventDefault();
                 reject();
               }

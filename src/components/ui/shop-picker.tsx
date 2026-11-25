@@ -44,7 +44,6 @@ export function ShopPicker({ shops, value, onValueChange, quick = ["shopee", "ti
   return (
     <P.Root open={open} onOpenChange={setOpen}>
       <P.Trigger {...press} data-ad-anchor="" className={cn(triggerClass, className)} aria-label="Shops">
-        {/* 4 px apart, so the marks read as separate shops rather than one strip. */}
         <span className="flex shrink-0 items-center gap-[4px]">
           {(all || !markets.length ? [...new Set(shops.map((s) => s.market))] : markets).slice(0, 3).map((m) => (
             <MarketMark key={m} market={m} />

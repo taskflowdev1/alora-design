@@ -1,5 +1,3 @@
-// Showpiece batch D: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import * as React from "react";
 import { RotateCcw } from "react-feather";
 import { cn } from "@/lib/ad";

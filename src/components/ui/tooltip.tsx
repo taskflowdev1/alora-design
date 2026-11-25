@@ -42,7 +42,6 @@ export function Tooltip({
           collisionPadding={8}
           className={cn(
             "z-[70] max-w-64 rounded-item bg-tip px-2.5 py-1.5 text-small text-tip-ink shadow-raised",
-            // Only the first (delayed) tooltip grows in; one opened straight after another appears instantly.
             "origin-(--radix-tooltip-content-transform-origin) data-[state=delayed-open]:animate-[ad-in_160ms_var(--ad-ease)] data-[state=closed]:animate-[ad-out_130ms_var(--ad-ease)]",
             className,
           )}

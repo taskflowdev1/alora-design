@@ -30,10 +30,6 @@ import { Toggle } from "@/components/ui/toggle";
 import { PageHeader, Toolbar } from "@/components/ui/toolbar";
 import { DEMOS, DemoFrame } from "./encyclopedia-demos";
 
-// /encyclopedia: every UI rule the library follows, searchable and filterable, with live demos for the motion and
-// interaction rules. Filters live in the URL (q, cat, level, platform, demos; rule opens one rule, old ids included).
-// Data: src/lib/encyclopedia.ts.
-
 type LevelFilter = Level | "all";
 type PlatformFilter = "all" | "desktop" | "mobile";
 
@@ -176,7 +172,6 @@ const RuleSections = React.memo(function RuleSections({ shown, openRule }: { sho
                     </span>
                   ),
                   meta: (
-                    // Three fixed slots from sm up, so Demo, Platform and Level each keep their own column row to row.
                     <span className="flex items-center gap-3 sm:gap-2">
                       <span className="empty:hidden sm:w-10 sm:empty:block">{DEMOS[r.id] ? "Demo" : null}</span>
                       <span data-platform={platformOf(r) !== "both" ? platformOf(r) : undefined} className="empty:hidden sm:w-14 sm:empty:block">
@@ -239,7 +234,6 @@ function useFilters() {
   const [filters, setFilters] = React.useState(fromUrl);
   const written = React.useRef(urlKey);
   const timer = React.useRef<number>(undefined);
-  // The URL changed from outside (back, a link): take it over.
   React.useEffect(() => {
     if (urlKey === written.current) return;
     written.current = urlKey;
@@ -267,7 +261,6 @@ function useFilters() {
     const next = { ...filters, ...patch };
     setFilters(next);
     window.clearTimeout(timer.current);
-    // Typing writes the URL once it pauses; a pick writes it at once.
     if ("q" in patch && !extra) timer.current = window.setTimeout(() => commit(next), 250);
     else commit(next, extra);
   };
@@ -281,7 +274,6 @@ export function EncyclopediaPage() {
   const [slow, setSlow] = React.useState(false);
   useSlowMotion(slow);
 
-  // The list follows a deferred copy, so the field and the segments answer first.
   const deferred = React.useDeferredValue(filters);
   const shown = React.useMemo(() => {
     const terms = deferred.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -354,7 +346,6 @@ export function EncyclopediaPage() {
           onValueChange={(v) => update({ cat: v })}
           options={[{ value: "all", label: "All categories" }, ...CATEGORIES.map((c) => ({ value: c.id, label: c.title }))]}
         />
-        {/* Phones: level, platform and demos fold into one Filter popover, so the toolbar is two rows, not five. */}
         <div className="contents max-sm:hidden">
           {levelFilter}
           {platformFilter}

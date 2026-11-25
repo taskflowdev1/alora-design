@@ -54,7 +54,6 @@ function Roll({ text }: { text: string }) {
   );
 }
 
-// A no-break space keeps the number and its unit together.
 const kb = (n: number) => (n >= 1e6 ? `${formatNumber(n / 1e6, { maximumFractionDigits: 1 })}\u00a0MB` : `${Math.max(1, Math.round(n / 1e3))}\u00a0KB`);
 
 /**
@@ -93,7 +92,6 @@ function FileRow({ f, leaving, fly, onRemove, onRetry }: { f: DropFile; leaving?
   const thumb = React.useRef<HTMLSpanElement>(null);
   const uploading = f.progress != null;
   const [run, setRun] = React.useState({ uploading, finishing: false });
-  // Derived during render: the moment an upload ends cleanly, the fill plays out instead of vanishing.
   if (run.uploading !== uploading) setRun({ uploading, finishing: !uploading && !f.error });
   const { finishing } = run;
   React.useEffect(() => {
@@ -102,7 +100,6 @@ function FileRow({ f, leaving, fly, onRemove, onRetry }: { f: DropFile; leaving?
     return () => window.clearTimeout(t);
   }, [finishing]);
 
-  // A new file starts big over the drop area and shrinks into its row's thumbnail while the row opens under it.
   React.useLayoutEffect(() => {
     const { area, layer, known, ready } = fly;
     if (known.current.has(f.id)) return;
@@ -133,7 +130,6 @@ function FileRow({ f, leaving, fly, onRemove, onRetry }: { f: DropFile; leaving?
     flight.onfinish = land;
     flight.oncancel = land;
     row.animate([{ gridTemplateRows: "0fr", opacity: 0 }, { gridTemplateRows: "1fr", opacity: 1 }], { duration: 280, easing: FLY_EASE });
-    // No cleanup on purpose: Strict Mode's replayed effect would cancel the flight; it removes itself when it lands.
   }, [f.id, fly]);
 
   const pct = Math.round(f.progress ?? 100);
@@ -170,7 +166,6 @@ function FileRow({ f, leaving, fly, onRemove, onRetry }: { f: DropFile; leaving?
               ) : (
                 <span className="flex shrink-0 items-baseline text-small tabular-nums text-ink-muted">
                   <Roll text={kb(sent)} />
-                  {/* Its width closes when the upload ends, so the size glides over to the row's edge. */}
                   <span className={cn("overflow-hidden text-right text-ink transition-[width,opacity] duration-[240ms] ease-ad", showPct && !finishing ? "w-[calc(4ch+var(--ad-gap))] opacity-100" : "w-0 opacity-0")}>
                     <Roll text={`${pct}%`} />
                   </span>
@@ -212,10 +207,8 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
   React.useEffect(() => {
     ready.current = true;
   }, []);
-  // The next file moves up into the removed one's row, so a double click would remove two.
   const remove = useDoubleTapGuard(onRemove);
 
-  // Rows that just left keep playing their collapse where they were.
   const [gone, setGone] = React.useState<{ file: DropFile; index: number }[]>([]);
   const before = React.useRef(files);
   const ids = files.map((f) => f.id).join("\n");
@@ -227,7 +220,6 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
     if (!left.length || prefersReducedMotion()) return;
     setGone((g) => [...g, ...left]);
     window.setTimeout(() => setGone((g) => g.filter((x) => !left.some((l) => l.file.id === x.file.id))), 240);
-    // `files` is read for the snapshot only; the joined ids are what changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ids]);
   const rows: { file: DropFile; leaving?: boolean }[] = files.map((file) => ({ file }));
@@ -240,7 +232,6 @@ export function Dropzone({ onFiles, accept, multiple = true, files = [], onRemov
       <style href="ad-dropzone" precedence="default">
         {CSS}
       </style>
-      {/* A label for the hidden input, so a click anywhere in the area opens the picker (Browse handles its own click). */}
       <label
         ref={area}
         onDragOver={(e) => (e.preventDefault(), setOver(true))}

@@ -1,10 +1,4 @@
-// The grey ramp: check and inventory.
-//   node scripts/greys.mjs --check                 fail on a grey outside the ramp (scripts/verify runs it)
-//   node scripts/greys.mjs --inventory [--root D]  JSON: every grey a checkout renders, per theme, with counts and files
-//   node scripts/greys.mjs --sheet BEFORE.json AFTER.json OUT.html [--before-label L]   before/after swatch sheet
-// The ramp lives in src/lib/config.ts (GREY_STEPS, greyRamp, GREY_ROLES). Outside the token definitions, code may use a
 // grey only through a token class or var(--ad-*) with no alpha. A line (or the line before it) with "grey-ok" is image
-// content or an accent choice, not a UI grey; brand marks and flags (BRAND_ART) keep their own colours.
 import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { REPO as HERE, loadLib } from "./lib/load-lib.mjs";
@@ -82,16 +76,12 @@ const isNeutral = (lib, rgb) => lib.hexToOklch(toHex(rgb)).c < 0.03;
 async function check() {
   const lib = await loadLib(["config", "color"], { root: ROOT });
   const fail = [];
-  // 1. The ramp: at most 6 steps per theme, steps at least 2.5% lightness apart, every grey token on a step, for
-  //    every tone and both themes.
   if (!lib.greyRamp) fail.push("src/lib/config.ts: no greyRamp (the grey ramp is missing)");
   for (const tone of lib.greyRamp ? ["neutral", "cool", "warm"] : []) {
     for (const theme of ["light", "dark"]) {
       const ramp = lib.greyRamp(tone, theme === "dark");
       const steps = Object.values(ramp);
       if (new Set(steps).size > 6) fail.push(`${tone}/${theme}: ${new Set(steps).size} ramp steps (max 6)`);
-      // Near-duplicates: neighbours closer than 2.5% lightness. Page and surface are the one deliberate close pair (an
-      // off-white page under white cards; a near-black page under a card a step up).
       const ls = Object.entries(ramp).map(([k, h]) => [k, lib.hexToOklch(h).l]).sort((a, b) => a[1] - b[1]);
       ls.forEach(([k, l], i) => {
         if (!i) return;
@@ -112,7 +102,6 @@ async function check() {
       }
     }
   }
-  // 2. Code: no raw neutrals, no palette greys, no alpha or color-mix on a grey token outside the token definitions.
   const t = lib.tokens(lib.DEFAULTS);
   const names = greyTokens(lib, t);
   const alpha = new RegExp(`(?<![\\w-])${PREFIX}-(?:${names.join("|")})/[\\d.]+(?![\\w-])`, "g");
@@ -179,7 +168,6 @@ async function inventory() {
           const v = parseColor(map[`--ad-${name}`]);
           if (v) add(over([v[0], v[1], v[2], pct / 100], base), `color-mix(${name} ${pct}%)`, f.rel);
         }
-        // Image content and accent choices (photo stand-ins, accent swatches) are left out in every checkout, marked
         // with grey-ok or not, so before and after count the same things.
         if (BRAND_ART.has(f.rel) || exempt(lines, i) || IMAGE.test(line)) return;
         for (const m of line.matchAll(PALETTE)) {

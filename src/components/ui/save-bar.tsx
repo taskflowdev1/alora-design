@@ -21,8 +21,6 @@ export interface SaveBarProps {
 export function SaveBar({ open, onSave, onDiscard, saving, label = "Unsaved changes", inline, className }: SaveBarProps) {
   if (!open) return null;
   return (
-    // Inline, the bar is a size container: when the card is too narrow for the label and both buttons, the label goes
-    // (the region keeps it as its name) instead of pushing Save past the card's edge.
     <div className={cn(inline ? "@container flex min-w-0" : "pointer-events-none sticky bottom-4 z-30 flex justify-center", className)}>
       <div
         data-toast-avoid
@@ -39,7 +37,6 @@ export function SaveBar({ open, onSave, onDiscard, saving, label = "Unsaved chan
             Discard
           </Button>
           <Button variant="primary" onClick={onSave} disabled={saving} aria-busy={saving || undefined}>
-            {/* Both labels share one cell, so "Saving…" never changes the button's width. */}
             <span className="inline-grid [&>*]:[grid-area:1/1]">
               <span className={cn(saving && "invisible")}>Save changes</span>
               <span className={cn(!saving && "invisible")}>Saving…</span>

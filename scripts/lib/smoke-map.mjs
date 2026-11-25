@@ -1,6 +1,3 @@
-// Which source each smoke section exercises, for `scripts/verify --changed`. `entries` are the route modules the section
-// visits: a section runs when a changed file is one of them or anything they import. `always` sections run on every
-// localized check, because they cover the whole site cheaply. smoke.mjs fails if this list and its sections disagree.
 const LANDING = "src/site/landing.tsx";
 const GALLERY = "src/site/gallery.tsx";
 const COLLECTIONS = "src/site/collections.tsx";

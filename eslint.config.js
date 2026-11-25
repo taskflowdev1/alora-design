@@ -4,7 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default tseslint.config(
-  { ignores: ["dist", "output", "node_modules", ".vercel"] },
+  { ignores: ["dist", "output", "node_modules", ".vercel", "scripts/comment-check"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -19,7 +19,6 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
     },
   },
-  // Components ship into other apps: no stray logging there.
   { files: ["src/**/*.{ts,tsx}"], rules: { "no-console": ["warn", { allow: ["warn", "error"] }] } },
   { files: ["scripts/**/*.mjs"], languageOptions: { globals: { ...globals.node, ...globals.browser } }, rules: { "no-empty": ["error", { allowEmptyCatch: true }], eqeqeq: ["error", "smart"] } },
 );

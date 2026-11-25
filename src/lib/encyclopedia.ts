@@ -1,6 +1,3 @@
-// The UI encyclopedia: the rules Alora Design's components follow and our coding agents check before review.
-// Written in our own words; each rule credits the sources it draws on (SOURCES, at the bottom). Shown at /encyclopedia,
-// and turned into docs/ui-checklist.md and /ui-checklist.md by checklistMarkdown() below.
 import { SITE } from "./registry.js";
 
 /** must: blocks review. should: the default unless there's a stated reason. showcase: decoration, allowed only on showcase and demo pages. */

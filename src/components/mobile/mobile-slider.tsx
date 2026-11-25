@@ -37,7 +37,6 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
     return min + Math.min(1, Math.max(0, (x - r.left - (THUMB / 2) * (r.width / track.current!.offsetWidth)) / usable)) * (max - min);
   };
   const shown = drag ?? value;
-  // Under the finger the thumb follows 1:1; a tap, a key or the settle after a drag glides instead of jumping.
   const glide = (prop: string) => (drag == null && !prefersReducedMotion() ? `${prop} 150ms var(--ad-ease)` : `${prop} 0s`);
   const p = (shown - min) / (max - min || 1);
   return (
@@ -71,7 +70,6 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
           const r = el.getBoundingClientRect();
           const k = r.width / el.offsetWidth;
           const thumbX = r.left + (THUMB / 2 + (el.offsetWidth - THUMB) * p) * k;
-          // On the thumb (or with a mouse): grab now. Elsewhere on the track: wait to see which way the finger goes.
           if (e.pointerType === "mouse" || Math.abs(e.clientX - thumbX) <= 22 * k) {
             el.setPointerCapture(e.pointerId);
             setDrag(at(e.clientX));
@@ -90,7 +88,6 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
           } else if (Math.abs(dy) > 4) press.current = null;
         }}
         onPointerUp={(e) => {
-          // A plain tap on the track (no move): the thumb jumps there.
           if (press.current) {
             press.current = null;
             return onValueChange(snap(at(e.clientX)));
@@ -108,8 +105,6 @@ export function MobileSlider({ label, value, onValueChange, min, max, step = 1, 
         <span
           aria-hidden
           data-shape="round"
-          // A real drop under the thumb (shadow-raised): on a white card in light mode the thin halo alone left it nearly
-          // invisible. Keyboard focus grows it like a grab does.
           className={cn("absolute top-1/2 rounded-full bg-thumb shadow-raised group-focus-visible/slider:scale-110", drag != null && "scale-110")}
           style={{ width: THUMB, height: THUMB, left: `calc((100% - ${THUMB}px) * ${p})`, translate: "0 -50%", transition: `scale 150ms var(--ad-ease), ${glide("left")}` }}
         />

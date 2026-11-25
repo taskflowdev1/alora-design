@@ -28,7 +28,6 @@ export function PrimaryAction({ icon: Icon, label, onClick }: { icon: React.Comp
       {label}
     </Button>
   ) : (
-    // On the page itself, not in the app's scroll box: that box's edge fade is a mask, which clips a fixed child too.
     createPortal(<MobileFab icon={Icon} label={label} iconOnly onClick={onClick} />, document.body)
   );
 }
@@ -105,7 +104,6 @@ export function usePaneRoom(open: boolean, selector: string) {
     const el = document.querySelector<HTMLElement>(selector);
     if (!el || !open || !wide) return setRoom(0);
     const paneLeft = document.documentElement.clientWidth - 12 - 440;
-    // Measured without the current margin, so a second open (another row) gives the same answer.
     const right = el.getBoundingClientRect().right + (parseFloat(el.style.marginRight) || 0);
     setRoom(Math.max(0, Math.round(right - paneLeft + 12)));
   }, [open, wide, selector]);

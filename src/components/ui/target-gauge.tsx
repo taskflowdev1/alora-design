@@ -13,7 +13,7 @@ const SWEEP = 105;
 /** The target sits at this point on the dial, so a day can run past it. */
 const TARGET_AT = 0.8;
 const STIFFNESS = 120;
-const DAMPING = 12.5; // under-damped: the needle passes its mark by a few percent and comes back
+const DAMPING = 12.5;
 const TREMBLE_HZ = 15;
 const TREMBLE_AMP = 0.0065;
 const TREMBLE_DECAY = 0.42;
@@ -61,7 +61,6 @@ export function TargetGauge({ label = "Today’s target", value, defaultValue = 
   const saleIndex = React.useRef(0);
   const max = target / TARGET_AT;
   const reached = shown >= target;
-  // The count and percent are written per frame; React renders only their first value, or a change would flash the end.
   const [firstAmount] = React.useState(() => format(shown));
   const [firstPct] = React.useState(() => `${formatNumber(Math.round((shown / target) * 100))}%`);
 
@@ -104,7 +103,6 @@ export function TargetGauge({ label = "Today’s target", value, defaultValue = 
         const before = m.vel;
         m.vel += (STIFFNESS * (m.to - m.pos) - DAMPING * m.vel) * dt;
         m.pos += m.vel * dt;
-        // The tremble starts where the needle turns around at the top of its overshoot.
         if (m.trembleAt < 0 && before !== 0 && Math.sign(before) !== Math.sign(m.vel)) m.trembleAt = t;
       }
       m.count += (m.countTo - m.count) * (1 - Math.exp(-dt / 0.09));
@@ -124,7 +122,6 @@ export function TargetGauge({ label = "Today’s target", value, defaultValue = 
     m.raf = requestAnimationFrame(frame);
   }, [paint]);
 
-  // Every value change retargets the spring; the first one in view sweeps up from zero.
   React.useEffect(() => {
     const m = live.current;
     m.to = clamp01(shown / max);
