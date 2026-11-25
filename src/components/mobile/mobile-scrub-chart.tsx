@@ -42,7 +42,6 @@ export const ScrubHold = React.createContext(false);
 export function MobileScrubChart({ label, value, data, kind = "line", height = 120, current, labelEvery = 0, holdToScrub, className }: MobileScrubChartProps) {
   const hold = useHold(holdToScrub);
   const [box, measured] = useElementWidth<HTMLDivElement>();
-  // 320 until measured, so the first render draws a sensible chart.
   const w = measured || 320;
   const [at, setAt] = React.useState<number | null>(null);
   const heldRef = React.useRef(false);
@@ -51,7 +50,6 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
   const start = React.useRef<{ x: number; y: number } | null>(null);
   const gid = React.useId();
   React.useEffect(() => () => (window.clearTimeout(timer.current), window.clearTimeout(holdTimer.current)), []);
-  // In hold mode the page may pan sideways, so once a hold has started scrubbing, stop the pan by hand.
   React.useEffect(() => {
     const el = box.current;
     if (!el || !hold) return;
@@ -101,7 +99,6 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
         aria-valuetext={p ? `${p.label}: ${p.display ?? p.value}` : undefined}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
-          // A mouse can't be scrolling: scrub at once. A finger might be starting a scroll: wait and see.
           if (e.pointerType === "mouse") return begin(e.clientX);
           const x0 = e.clientX;
           start.current = { x: x0, y: e.clientY };
@@ -118,14 +115,12 @@ export function MobileScrubChart({ label, value, data, kind = "line", height = 1
             window.clearTimeout(holdTimer.current);
             begin(e.clientX);
           } else if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
-            // Moved before it scrubbed: a scroll or a page swipe, not ours.
             window.clearTimeout(holdTimer.current);
             start.current = null;
           }
         }}
         onPointerUp={release}
         onPointerCancel={() => {
-          // The browser took the gesture (a scroll): drop the reading at once, no lingering number.
           window.clearTimeout(holdTimer.current);
           start.current = null;
           heldRef.current = false;

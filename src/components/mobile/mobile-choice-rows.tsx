@@ -14,7 +14,6 @@ function Body({ icon: I, title, subtitle }: { icon?: Icon; title: React.ReactNod
   return (
     <>
       {I ? (
-        // The same 20 px icon box as MobileListRow's media, so switch, check and plain rows share one text edge.
         <span className="grid size-[20px] shrink-0 place-items-center text-ink">
           <I size={20} strokeWidth={1.75} />
         </span>

@@ -91,7 +91,6 @@ export function DotMatrixNumber({ label = "Orders today", value, defaultValue = 
   const W = layout.cols * PITCH;
   const H = ROWS * PITCH;
 
-  // The unlit dots never change, so they are one path; only the lit layer is touched per frame.
   const board = React.useMemo(() => {
     let d = "";
     const leds: Led[] = [];
@@ -137,7 +136,6 @@ export function DotMatrixNumber({ label = "Orders today", value, defaultValue = 
           l.from = l.to;
           l.lift = 0;
         } else {
-          // Up to the crest of the wave, then down onto what this dot should finally be.
           const crest = Math.max(l.from, l.to, l.lift);
           b = age < 0.28 ? l.from + (crest - l.from) * easeOut(age / 0.28) : crest + (l.to - crest) * easeOut((age - 0.28) / 0.72);
           moving = true;

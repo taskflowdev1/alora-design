@@ -31,9 +31,6 @@ export function ToggleGroup(props: ToggleGroupProps) {
       className={cn(
         "relative inline-flex cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-item px-bubble text-body transition-[background-color,color,box-shadow,transform,scale,filter] duration-[150ms] ease-ad active:scale-[0.97] [&_svg]:size-[16px]",
         "text-ink-muted data-[state=off]:hover:text-ink data-[state=off]:focus-visible:text-ink data-[state=on]:font-medium data-[state=on]:text-ink",
-        // Multiple: each pressed item carries its own pill. Single: one shared pill slides under the choice (SlidingPill
-        // darkens itself when the chosen item has keyboard focus). Off + focus takes the hover step on a track
-        // (fill-strong); on + focus darkens the raised pill a notch, so focus never disappears.
         single
           ? "data-[state=off]:focus-visible:bg-fill-strong"
           : "data-[state=off]:focus-visible:bg-fill-strong data-[state=on]:bg-sel data-[state=on]:shadow-sel data-[state=on]:hover:brightness-[0.94] dark:data-[state=on]:hover:brightness-[0.85] data-[state=on]:focus-visible:brightness-[0.88] dark:data-[state=on]:focus-visible:brightness-[0.78]",

@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 
-// The deployed commit, so push-to-live can be measured from outside.
 const commit = (process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7);
 
 export default defineConfig({

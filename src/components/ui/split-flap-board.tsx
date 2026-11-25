@@ -12,10 +12,6 @@ const LEAF_MS = 34;
 const CELL_STAGGER = 26;
 const ROW_STAGGER = 70;
 
-/*
- * Each cell is four halves. The two static halves hold the next character on top and the current one below; the two
- * leaves fall between them. Top and bottom are different greys, so the hinge is a change of tone rather than a line.
- */
 const CSS = `
 .ad-flap { position: relative; display: block; width: 0.82em; height: 1.26em; perspective: 3.4em; flex: none; }
 .ad-flap-half { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; backface-visibility: hidden; }
@@ -40,7 +36,6 @@ function Flap({ char, delay }: { char: string; delay: number }) {
   const leafTop = React.useRef<HTMLSpanElement>(null);
   const leafBottom = React.useRef<HTMLSpanElement>(null);
   const state = React.useRef({ cur: char, run: 0 });
-  // After the first paint the text belongs to the animation: a React update would show the end value at once.
   const [first] = React.useState(char);
 
   React.useEffect(() => {
@@ -83,7 +78,7 @@ function Flap({ char, delay }: { char: string; delay: number }) {
         lb.style.visibility = "visible";
         await lb.animate([{ transform: "rotateX(90deg)", filter: "brightness(1.12)" }, { transform: "rotateX(0deg)", filter: "brightness(1)" }], { duration: LEAF_MS, easing: "cubic-bezier(0.2, 0.7, 0.3, 1)" }).finished;
       } catch {
-        return; // cancelled by unmount
+        return;
       }
       if (runId !== s.run) return;
       settle(next);
@@ -92,7 +87,6 @@ function Flap({ char, delay }: { char: string; delay: number }) {
     timer = window.setTimeout(() => void flipTo(0), delay);
     return () => {
       window.clearTimeout(timer);
-      // A retarget carries on from whichever character is showing now.
       s.run++;
       lt?.getAnimations().forEach((a) => a.cancel());
       lb?.getAnimations().forEach((a) => a.cancel());
@@ -188,7 +182,6 @@ export function SplitFlapBoard({ rows = DEFAULT_ROWS, cells = 5, actionLabel = "
             >
               <span className="min-w-0 truncate text-title font-medium text-ink-muted">{r.label}</span>
               <span aria-hidden className="flex shrink-0 gap-[0.09em] font-semibold text-ink tabular-nums" style={{ fontSize: "min(38px, 10.5cqi)" }}>
-                {/* A cell is its position on the board: it never moves, only its character turns. */}
                 {[...text].map((c, slot) => (
                   <Flap key={slot} char={c} delay={rowIndex * ROW_STAGGER + (cells - 1 - slot) * CELL_STAGGER} />
                 ))}

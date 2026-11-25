@@ -1,12 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/ad";
 
-/*
- * The type scale as components, one family throughout (no serif, no italic accents). Headings 600; body 13 px; labels
- * grey and regular; numbers tabular in columns; the big number is bold already, so it doesn't need to be huge.
- * Sizes follow the font-size setting (--ad-text-*).
- */
-
 export function H1({ className, ...p }: React.HTMLAttributes<HTMLHeadingElement>) {
   return <h1 className={cn("text-balance text-[calc(var(--ad-text-heading)*1.35)] font-semibold leading-tight tracking-[-0.015em] text-ink", className)} {...p} />;
 }

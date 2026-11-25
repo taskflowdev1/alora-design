@@ -18,7 +18,6 @@ const X_TOP = 78;
  */
 export function Wordmark({ className, height = 16 }: { className?: string; height?: number }) {
   const xHeight = (height * (BASELINE - X_TOP)) / H;
-  // System sans ascenders sit at about 0.74 em, so this puts the d's top on alora's x-height line.
   const designSize = Math.round((xHeight / 0.74) * 2) / 2;
   return (
     <span className={cn("inline-flex items-baseline whitespace-nowrap text-ink", className)} style={{ gap: Math.round(height * 0.32) }} aria-label="Alora Design" role="img">
@@ -29,7 +28,6 @@ export function Wordmark({ className, height = 16 }: { className?: string; heigh
         aria-hidden
         className="shrink-0 self-baseline"
         shapeRendering="geometricPrecision"
-        // A replaced element sits on the baseline with its bottom edge; pull the overshoot below it.
         style={{ marginBottom: (-height * (H - BASELINE)) / H }}
       >
         <path fill="currentColor" fillRule="evenodd" d={PATH} />

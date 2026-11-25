@@ -111,7 +111,6 @@ export function InlineEdit({
   const [draft, setDraft] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [saved, setSaved] = React.useState(false);
-  // A value on its way to the server shows at once, and the old one comes back only if the save fails.
   const [pending, setPending] = React.useState<string | null>(null);
   const [roll, setRoll] = React.useState<Roll | null>(null);
   const saveId = React.useRef(0);
@@ -122,7 +121,6 @@ export function InlineEdit({
   const refocus = React.useRef(false);
   const editingNow = draft != null;
 
-  // Caret after mount (where you clicked, or the end) and after each live reformat.
   React.useLayoutEffect(() => {
     const el = input.current;
     if (!el || caret.current == null) return;
@@ -203,7 +201,6 @@ export function InlineEdit({
     const raw = parse(text);
     const shown = format(raw);
     if (shown !== text && parse(shown) === raw) {
-      // Keep the caret after the same number of value characters it was after.
       const keep = parse(text.slice(0, at)).length;
       let pos = 0;
       while (pos < shown.length && parse(shown.slice(0, pos)).length < keep) pos++;
@@ -237,8 +234,6 @@ export function InlineEdit({
       </style>
       <span className={cn("flex min-w-0 flex-1 items-baseline whitespace-nowrap", right && "justify-end")}>
         {prefix ? affix(prefix, "pre") : null}
-        {/* The hidden value sizes the slot and the input lies over it, out of flow: an input's own intrinsic width
-            (about 20 characters) would otherwise widen the slot and push its left-aligned text away from the right edge. */}
         <span className={cn("relative min-w-0", pending != null && !editingNow && "animate-ad-pulse")}>
           <span data-value className={cn("block overflow-hidden text-ink", (editingNow || roll) && "invisible")}>
             {text || "\u200b"}
@@ -272,14 +267,12 @@ export function InlineEdit({
                   if (commit(!next) && next) next.click();
                 }
               }}
-              // 4 px wider than the text so the caret at the end never scrolls the text sideways.
               className="absolute left-0 top-0 m-0 h-full w-[calc(100%+4px)] min-w-px border-0 bg-transparent p-0 text-left tabular-nums text-ink caret-ink outline-none selection:bg-[color-mix(in_oklch,var(--ad-brand)_32%,transparent)] selection:text-ink"
             />
           ) : null}
         </span>
         {suffix ? affix(suffix, "post") : null}
       </span>
-      {/* One reserved slot: pencil on hover, one small dot for a moment after a save, empty while editing. */}
       <span className="relative grid size-[14px] shrink-0 place-items-center" aria-hidden>
         <Edit2
           size={14}
@@ -304,7 +297,6 @@ export function InlineEdit({
         <span
           data-inline-edit
           data-editing=""
-          // A press on the prefix, suffix or padding keeps (or puts) the caret in the input instead of closing it.
           onMouseDown={(e) => {
             if (e.target === input.current) return;
             e.preventDefault();

@@ -15,8 +15,6 @@ export interface FieldProps {
   htmlFor?: string;
 }
 
-// Controls a <label for> can point at. Input and Textarea take the Field's id through context; anything else (a select
-// trigger, a native input, a combobox) gets it here.
 const LABELABLE = "input:not([type=hidden]), textarea, select, button";
 
 /**
@@ -36,7 +34,6 @@ export function Field({ label, error, layout = "stack", className, children, htm
     if (!el) return;
     if (!el.id) el.id = auto;
     setTarget(el.id);
-    // A control that didn't read the context: describe it with the message here.
     if (!errorId || el.getAttribute("aria-describedby")?.split(" ").includes(errorId)) return;
     const was = el.getAttribute("aria-describedby");
     el.setAttribute("aria-describedby", cn(was, errorId));

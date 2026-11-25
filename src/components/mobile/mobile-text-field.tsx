@@ -26,7 +26,6 @@ export function MobileTextField({ label, value, onValueChange, error, prefix, cl
   const auto = React.useId();
   const id = idProp ?? auto;
   const ref = React.useRef<HTMLInputElement>(null);
-  // Keep the last message while the error row closes, so it doesn't go blank mid-slide.
   const shown = React.useRef(error);
   if (error) shown.current = error;
   return (
@@ -61,7 +60,6 @@ export function MobileTextField({ label, value, onValueChange, error, prefix, cl
             onClick={() => (onValueChange(""), ref.current?.focus())}
             className="group/clear grid size-touch shrink-0 cursor-pointer place-items-center text-ink-muted outline-none ad-press active:scale-[0.92] data-pressed:scale-[0.92]"
           >
-            {/* Keyboard focus darkens the disc, as the search bar's clear does. */}
             <span className="grid size-[20px] place-items-center rounded-full bg-ink-muted text-surface transition-colors duration-[150ms] group-focus-visible/clear:bg-ink">
               <X size={12} strokeWidth={2.5} />
             </span>
@@ -71,7 +69,6 @@ export function MobileTextField({ label, value, onValueChange, error, prefix, cl
       </div>
       <div className="grid transition-[grid-template-rows] duration-[200ms] ease-ad motion-reduce:transition-none" style={{ gridTemplateRows: error ? "1fr" : "0fr" }}>
         <div className="min-h-0 overflow-hidden">
-          {/* Polite: an error that appears as you type shouldn't cut off what a screen reader is saying. */}
           <p id={`${id}-error`} aria-live="polite" className="flex items-start gap-1.5 px-1 pt-1.5 text-[13px] leading-[18px] text-danger">
             <AlertCircle size={16} strokeWidth={1.75} className="mt-px shrink-0" />
             <span>{shown.current}</span>

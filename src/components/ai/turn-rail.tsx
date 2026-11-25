@@ -67,7 +67,6 @@ export function TurnRail({ turns, scrollRef, onJump, className }: TurnRailProps)
 
   const element = React.useCallback((id: string) => scrollRef.current?.querySelector<HTMLElement>(`[data-turn="${id}"]`) ?? null, [scrollRef]);
 
-  // Which turns are on screen flips on every scroll frame, so it goes straight to the DOM.
   React.useEffect(() => {
     const list = scrollRef.current;
     if (!list) return;

@@ -28,8 +28,6 @@ export interface CitationProps {
  */
 export function Citation({ n, source, className }: CitationProps) {
   const [open, setOpen] = usePopupOpen();
-  // How the card is open: "hover" closes when the pointer leaves, "pin" (a click or tap) stays until a second click,
-  // Escape or a click outside. Clicking a card that hover opened pins it instead of closing it.
   const via = React.useRef<"hover" | "pin" | null>(null);
   const t = React.useRef<number | undefined>(undefined);
   React.useEffect(() => () => window.clearTimeout(t.current), []);
@@ -60,14 +58,12 @@ export function Citation({ n, source, className }: CitationProps) {
         data-ad-anchor=""
         onClick={(e) => {
           if (via.current !== "hover") return;
-          // Skip Radix's toggle: the click pins the card hover opened.
           e.preventDefault();
           window.clearTimeout(t.current);
           via.current = "pin";
         }}
         aria-label={`Source ${n}`}
         className={cn(
-          // Sits on the text's x-height without opening the line spacing; the hit area is bigger than it looks.
           "relative ml-0.5 inline-grid h-4 min-w-4 cursor-pointer select-none place-items-center rounded-full bg-fill px-1 align-[0.15em] text-[0.8em] font-medium leading-none tabular-nums text-ink-muted",
           "ad-press after:absolute after:-inset-1.5 hover:bg-fill-strong hover:text-ink focus-visible:bg-fill-strong active:scale-[0.97] data-[state=open]:bg-fill-strong data-[state=open]:text-ink",
           className,
@@ -80,7 +76,6 @@ export function Citation({ n, source, className }: CitationProps) {
           {...hover}
           side="bottom"
           align="start"
-          // The card's own number sits right under the one you pointed at.
           alignOffset={-12}
           sideOffset={6}
           collisionPadding={8}

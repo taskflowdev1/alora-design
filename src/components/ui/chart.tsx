@@ -2,13 +2,6 @@ import * as React from "react";
 import { cn, formatCompact } from "@/lib/ad";
 import { useElementWidth } from "@/lib/ad-hooks";
 
-/*
- * The chart system every chart shares: series colours (shades of the one accent, in a fixed order), the width hook,
- * clean ticks, short Indonesian numbers, one tooltip and one legend. Line and area charts are drawn here too
- * (`CartesianChart`); pie, radar and radial import the pieces. No dual axes, no borders around marks: a 2 px gap
- * in the surface colour separates touching marks and a 2 px surface ring sits around dots.
- */
-
 /**
  * Series colours in fixed order (series n always gets series-n, whatever else is shown): one accent hue in lightness
  * steps far enough apart to tell neighbours apart, set per theme. Five at most; fold the rest into "Other".
@@ -78,7 +71,6 @@ export function ChartLegend({ items, active, onActiveChange, className }: ChartL
           key={i}
           onPointerEnter={onActiveChange && (() => onActiveChange(i))}
           onPointerLeave={onActiveChange && (() => onActiveChange(null))}
-          // The item pointed at turns ink; the others dim their dot only, so every name and value stays readable.
           className={cn(
             "inline-flex items-center gap-1.5 transition-colors duration-[160ms] ease-ad [&>[data-dot]]:transition-opacity [&>[data-dot]]:duration-[160ms]",
             active != null && (active === i ? "text-ink" : "[&>[data-dot]]:opacity-45 [&>[data-value]]:text-ink-muted"),
@@ -186,9 +178,6 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
   };
   const h = hover != null ? data[hover] : null;
   const last = data.length - 1;
-  // The tooltip sits beside the crosshair on the side with room, and always inside the plot: never over the value axis.
-  // It moves by transform (no layout shift per pointer move) and only ever widens during a sweep, so its far edge
-  // doesn't jitter as values of different lengths go by.
   const tip = React.useRef<HTMLDivElement>(null);
   const widest = React.useRef(0);
   React.useLayoutEffect(() => {
@@ -231,9 +220,7 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             className="block touch-pan-y overflow-visible"
             onPointerMove={(e) => pick(e.clientX, e.currentTarget)}
             onPointerDown={(e) => pick(e.clientX, e.currentTarget)}
-            // A finger lifting is not leaving: on touch the tooltip stays until you tap elsewhere.
             onPointerLeave={(e) => e.pointerType === "mouse" && setHover(null)}
-            // Keyboard focus shows the crosshair at the latest point at once, so focus is visible before any arrow key.
             onFocus={(e) => hover == null && e.currentTarget.matches(":focus-visible") && setHover(last)}
             onBlur={() => setHover(null)}
             onKeyDown={(e) => {
@@ -272,7 +259,6 @@ export function CartesianChart({ data, series, kind = "line", height = 200, curv
             ))}
             {onActiveSeriesChange
               ? series.map((s, si) => (
-                  // A wide invisible stroke over each line, so pointing near a line picks its series.
                   <path key={`hit-${s.key}`} d={path(lines[si])} fill="none" stroke="transparent" strokeWidth={14} onPointerEnter={() => onActiveSeriesChange(s.key)} onPointerLeave={() => onActiveSeriesChange(null)} />
                 ))
               : null}

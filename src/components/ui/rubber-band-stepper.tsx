@@ -5,7 +5,7 @@ import { cn, formatNumber, prefersReducedMotion } from "@/lib/ad";
 /** How far the pill can stretch to one side, in px. The root reserves this room, so nothing around it moves. */
 const REACH = 56;
 const STIFFNESS = 420;
-const DAMPING = 34; // just under critical: the band lands with the faintest give, no wobble
+const DAMPING = 34;
 const DEAD_ZONE = 0.12;
 const MAX_RATE = 34;
 const NUDGE = 300;
@@ -102,7 +102,6 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
     };
     const frame = (t: number) => {
       raf = 0;
-      // Real elapsed time, so a slow device counts and springs at the same speed, only with fewer frames.
       const dt = Math.min(Math.max(t - last, 1) / 1000, 0.1);
       last = t;
       if (drag) {
@@ -117,7 +116,7 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
             acc -= 1;
             commit(live.current.current + Math.sign(pull) * live.current.step);
           }
-        } else acc = 0.72; // Crossing into the pull counts almost at once.
+        } else acc = 0.72;
         paint();
         raf = requestAnimationFrame(frame);
         return;
@@ -145,7 +144,6 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
     const down = (e: PointerEvent) => {
       if (e.button !== 0) return;
       num.setPointerCapture(e.pointerId);
-      // Caught mid-spring, the drag picks the band up where it is.
       const held = unstretch(pull);
       drag = { id: e.pointerId, x: e.clientX - held, dx: held };
       acc = 0.72;
@@ -155,7 +153,6 @@ export function RubberBandStepper({ value, defaultValue = 12, onValueChange, min
       if (drag?.id !== e.pointerId) return;
       drag.dx = e.clientX - drag.x;
       if (prefersReducedMotion()) {
-        // No stretch: the distance alone sets the count.
         const steps = Math.trunc(drag.dx / 14);
         if (steps !== 0) {
           drag.x += steps * 14;

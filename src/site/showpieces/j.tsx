@@ -1,5 +1,3 @@
-// Showpiece batch J: page demos and Components-page tiles for its new components (inside a Mark, exactly once), and
-// its landing moments. Aggregated in ./index.ts.
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,7 +33,6 @@ const noise = (i: number) => {
 /** The twelve months up to the demo's "today" (22 Nov 2026), so every cell is a day that really happened. */
 const SALES_YEAR: HeatDay[] = Array.from({ length: 365 }, (_, i) => {
   const date = addDays(new Date(2025, 10, 23), i);
-  // Closed for Nyepi and Idul Fitri; weekends and the double-date sales run higher.
   const closed = date.getFullYear() === 2026 && date.getMonth() === 2 && date.getDate() >= 19 && date.getDate() <= 21;
   const weekend = date.getDay() === 0 || date.getDay() === 6 ? 1.45 : 1;
   const season = 1 + 0.4 * Math.sin(((i - 40) / 365) * Math.PI * 2);
@@ -115,7 +112,6 @@ function UploadFlow() {
     const added = incoming.map((f) => ({ ...f, id: `up-${++count.current}`, progress: 0 }));
     setFiles((fs) => {
       const merged = [...fs, ...added];
-      // Past the limit, the oldest finished rows make way.
       while (merged.length > MAX_ROWS) {
         const old = merged.findIndex((f) => f.progress == null);
         merged.splice(old < 0 ? 0 : old, 1);
@@ -133,7 +129,6 @@ function UploadFlow() {
 
   return (
     <div className="grid w-full justify-items-center gap-3">
-      {/* A fixed card: the drop area gives up its height to the rows as they open. */}
       <Card className="grid h-[348px] w-full">
         <Dropzone
           className="flex h-full min-h-0 flex-col"
@@ -149,7 +144,6 @@ function UploadFlow() {
           }}
         />
       </Card>
-      {/* Outside the piece: a way to play it without a file at hand. */}
       <Button size="sm" variant="ghost" onClick={() => addFiles([SAMPLES[count.current % SAMPLES.length]])}>
         Add a sample photo
       </Button>

@@ -116,7 +116,6 @@ function AppSidebar({ page, notices, onRead }: { page: Page } & Notices) {
           tone="dark"
           side="top"
           trigger={
-            // The avatar is already filled, so hover and keyboard focus darken it a notch (as the sliding pill does).
             <button type="button" aria-label="Account" className="cursor-pointer rounded-full transition-[filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.78]">
               <Avatar name="Rizky Hartono" size="sm" className="bg-side-fill-strong text-side-ink" />
             </button>
@@ -179,7 +178,6 @@ export function Examples() {
       <AppFrame className="lg:h-full" sidebar={<AppSidebar page={p} {...bell} />}>
         <PhoneAppBar {...bell} />
         <div ref={app} data-app style={PAGE_HEIGHT} className="ad-fade-y min-h-0 min-w-0 flex-1 overflow-auto max-lg:pb-[calc(max(10px,env(safe-area-inset-bottom))+52px+2*var(--ad-nest)+12px+52px+16px)]">
-          {/* key: a fresh page (its own state and scroll) per switch; it swaps in one frame, no fade from blank. */}
           <div key={p} className="px-0 py-1 lg:p-pad">
             {p === "dashboard" ? (
               <Dashboard />

@@ -102,8 +102,6 @@ function ShapesCompare({ config }: { config: Config }) {
     { key: "round", label: "Round", css: "round" },
     { key: "squircle", label: "Squircle", css: config.smoothing === 2 ? "squircle" : `superellipse(${config.smoothing})` },
   ];
-  // Same visual size: the squircle gets the compensation the components use, so its
-  // corner sits where the round one's does instead of looking almost square.
   const r = Math.max(config.radius, 1) * 3;
   const comp = shapedSupported() ? squircleCompensation(config.smoothing) : 1;
   const radiusOf = (k: Config["corner"]) => (k === "square" ? 0 : k === "squircle" ? Math.min(96, Math.round(r * comp)) : r);
@@ -261,7 +259,6 @@ export const DEMOS: Record<string, Demo> = {
       const [status, setStatus] = React.useState<string[]>([]);
       return (
         <div className="grid w-full max-w-4xl gap-4">
-          {/* The whole top area: one title, one search, one Filter, the rest behind ⋯, one primary action. */}
           <PageHeader title="Orders">
             <PageSearch value={q} onValueChange={setQ} placeholder="Search orders" />
             <FilterButton count={status.length ? 1 : 0} onClear={() => setStatus([])}>
@@ -361,7 +358,6 @@ export const DEMOS: Record<string, Demo> = {
       { key: "error", type: "toggle", label: "Error", default: false },
     ],
     render: (p) => (
-      // The row layout needs room for its label column and a real-width input beside it.
       <div className={cn("grid w-full gap-4", p.layout === "row" ? "max-w-[480px]" : "max-w-sm")}>
         <Field label="Shop name" layout={p.layout as never}>
           <Input defaultValue="Rimba Kemang" />
@@ -660,7 +656,6 @@ export const DEMOS: Record<string, Demo> = {
               className="mt-2"
               selected={sel}
               onSelect={setSel}
-              // The four shops only (marketplaces are a different dimension), largest first.
               data={(
                 [
                   ["Kemang", 42],
@@ -817,7 +812,6 @@ export const DEMOS: Record<string, Demo> = {
               <Button variant="ghost">Keep order</Button>
             </DialogClose>
             <DialogClose asChild>
-              {/* A destructive confirm stays ink, like AlertDialog's action: negatives stay quiet, the accent is for "Add". */}
               <Button variant="strong" onClick={() => toast("Order cancelled")}>
                 Cancel order
               </Button>

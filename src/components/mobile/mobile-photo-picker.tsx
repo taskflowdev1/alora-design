@@ -62,8 +62,6 @@ export interface MobilePhotoGridProps {
  * the order you picked (1 is the cover); tap again to drop it and the rest renumber. At the limit the other tiles fade.
  * The first tile opens the camera or the library.
  */
-// Unpicked tiles show a hollow white circle on a soft dark scrim, as the system pickers do: image chrome over a photo,
-// not a UI grey (a solid surface disc reads as a hole on a light photo in dark mode).
 const UNPICKED = "bg-black/20 text-transparent"; // grey-ok: image chrome over photos
 
 export function MobilePhotoGrid({ photos, selected, onSelectedChange, max = 9, onAdd, className }: MobilePhotoGridProps) {
@@ -177,7 +175,6 @@ export interface MobilePhotoStripProps {
   className?: string;
 }
 
-// Upload chrome sits over the photo itself, in white on a dark scrim, in both themes.
 const SCRIM = "bg-black/40 text-white"; // grey-ok: image chrome over photos
 const BAR = "bg-white/35"; // grey-ok: image chrome over photos
 const BAR_FILL = "bg-white"; // grey-ok: image chrome over photos
@@ -189,7 +186,6 @@ const RETRY_FOCUS = "focus-visible:bg-black/25"; // grey-ok: image chrome over p
  * so nothing below the strip moves as uploads start and finish.
  */
 export function MobilePhotoStrip({ photos, onRemove, onAddClick, max = 9, cover = true, onRetry, className }: MobilePhotoStripProps) {
-  // The next photo slides into the removed one's place, so a double tap would remove two.
   const remove = useDoubleTapGuard(onRemove);
   return (
     <div className={cn("-mx-pad flex gap-gap overflow-x-auto px-pad [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>

@@ -44,7 +44,6 @@ export function CornerTile({ config, className }: { config: Config; className?: 
 export function ScrollTile({ className }: { className?: string }) {
   const box = React.useRef<HTMLDivElement>(null);
   const scroller = React.useRef<HTMLDivElement>(null);
-  // The rows are wider than a narrow tile: the cut end fades, so a row never stops mid-word on a hard edge.
   useEdgeFadeX(scroller);
   const [fit, setFit] = React.useState<{ h: number; top: number } | null>(null);
   React.useLayoutEffect(() => {

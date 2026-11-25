@@ -27,8 +27,6 @@ export interface NavigationMenuItemDef {
   columns?: 1 | 2;
 }
 
-// The current page's fill is the sliding pill behind the row, so the item itself stays transparent (hover, focus and
-// open included); the pill darkens a notch while the current item has keyboard focus.
 const trigger = cn(
   buttonClass({ variant: "ghost" }),
   "relative z-10 font-normal text-ink-muted hover:text-ink focus-visible:text-ink data-[state=open]:bg-fill data-[state=open]:text-ink",

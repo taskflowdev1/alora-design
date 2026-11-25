@@ -1,4 +1,3 @@
-// Shared parts of the Mobile example app: navigation (a native-style stack per tab), screen props and small helpers.
 import * as React from "react";
 import { Truck } from "react-feather";
 import { MONTHS, cn, dayDiff, formatCompact, formatRp } from "@/lib/ad";

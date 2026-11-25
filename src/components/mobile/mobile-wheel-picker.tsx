@@ -33,7 +33,6 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
       r.style.transform = `perspective(400px) rotateX(${-d * 16}deg) scale(${1 - Math.abs(d) * 0.04})`;
     });
   }, []);
-  // Keep the wheel on the value (first paint and outside changes) without animating.
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el || drag.current) return;
@@ -68,7 +67,6 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
           if (ref.current) ref.current.scrollTop = i * ROW;
           onValueChange(options[i].value);
         }}
-        // Mouse: drag the wheel like a finger would (touch and trackpads scroll natively).
         onPointerDown={(e) => {
           if (e.pointerType !== "mouse" || !ref.current) return;
           drag.current = { y: e.clientY, top: ref.current.scrollTop };
@@ -101,7 +99,6 @@ export function WheelColumn({ options, value, onValueChange, className, ...aria 
           </div>
         ))}
       </div>
-      {/* Keyboard focus: this wheel's slot of the centre band darkens one step. */}
       <span aria-hidden className="pointer-events-none absolute inset-x-0 rounded-control bg-fill-strong opacity-0 transition-opacity duration-[150ms] ease-ad peer-focus-visible:opacity-100" style={{ top: ROW * 2, height: ROW }} />
     </div>
   );

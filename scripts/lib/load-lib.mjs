@@ -1,9 +1,3 @@
-// Import TypeScript sources from plain Node scripts without a build step: each file and everything it imports
-// relatively (or through the `@/` alias) is transpiled into a temp folder under node_modules/.cache, so bare imports
-// (react, tailwind-merge…) resolve from this checkout's node_modules.
-//   const { DEFAULTS } = await loadLib(["config"]);                     src/lib/config.ts
-//   const [card] = await loadModules(["src/components/ui/card.tsx"]);   one namespace per path
-// `root` reads the sources from another tree (an older checkout extracted with `git archive`).
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -31,14 +25,13 @@ export async function loadModules(paths, { root = REPO } = {}) {
     if (done.has(src)) return;
     done.add(src);
     let js = ts.transpileModule(readFileSync(src, "utf8"), { compilerOptions: OPTIONS, fileName: src }).outputText;
-    // Rewrite import specifiers back to front so earlier positions stay valid.
     const specs = ts.preProcessFile(js, true, true).importedFiles.filter((f) => /^(\.{1,2}|@)\//.test(f.fileName));
     for (const f of specs.reverse()) {
       const dep = resolveSource(f.fileName, src, root);
       emit(dep);
       let rel = relative(dirname(out(src)), out(dep));
       if (!rel.startsWith(".")) rel = `./${rel}`;
-      const at = js.indexOf(f.fileName, f.pos); // pos can point at the opening quote
+      const at = js.indexOf(f.fileName, f.pos);
       js = js.slice(0, at) + rel + js.slice(at + f.fileName.length);
     }
     mkdirSync(dirname(out(src)), { recursive: true });

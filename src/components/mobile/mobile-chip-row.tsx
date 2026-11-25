@@ -25,7 +25,6 @@ export interface MobileFilterChipsProps<T extends string> {
 export function MobileFilterChips<T extends string>({ value, onValueChange, options, className, ...aria }: MobileFilterChipsProps<T>) {
   const track = React.useRef<HTMLDivElement>(null);
   useEdgeFade(track, { axis: "x", size: 24 });
-  // Scrolls the track only, never the page.
   useCenterSelected(track, '[aria-pressed="true"]', value);
   return (
     <div
@@ -46,11 +45,9 @@ export function MobileFilterChips<T extends string>({ value, onValueChange, opti
               onClick={() => onValueChange(o.value)}
               className={cn(
                 "relative flex h-touch min-w-touch shrink-0 cursor-pointer touch-manipulation select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-control px-3.5 text-[15px] ad-press active:scale-[0.97] data-pressed:scale-[0.97]",
-                // Keyboard focus: a fill on the others; the chosen one (on the grey pill) darkens its text and pill.
                 on ? "font-medium text-ink focus-visible:bg-ink-muted focus-visible:text-surface" : "text-ink-muted focus-visible:bg-fill focus-visible:text-ink",
               )}
             >
-              {/* Bold and regular take the same width, so nothing shifts when the choice moves. */}
               <HoldLabel>{o.label}</HoldLabel>
               {o.count != null ? <span className={cn("font-normal tabular-nums text-ink-muted", on && "in-focus-visible:text-surface")}>{o.count}</span> : null}
             </button>

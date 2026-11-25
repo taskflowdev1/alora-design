@@ -1,5 +1,3 @@
-// Showpiece batch H: page demos and Components-page tiles for its new components (inside a Mark, exactly once), and
-// its landing moments. Aggregated in ./index.ts.
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -80,7 +78,6 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   return (
     <div className="grid min-h-item grid-cols-[88px_minmax(0,1fr)] items-center gap-3">
       <span className="text-body text-ink-muted">{label}</span>
-      {/* The cell's box overhangs its text by this much: inset it so the fill stops at the card's padding. */}
       <div className="min-w-0 px-2">{children}</div>
     </div>
   );
@@ -155,12 +152,10 @@ const valueLabel = (field: string, value: string) => FILTER_FIELDS.find((f) => f
 function matchOrders(tokens: FilterToken[], query: string) {
   const q = query.trim().toLowerCase();
   return ORDERS.filter((o) => {
-    // Values of one field widen the match; different fields narrow it.
     const fits = FILTER_FIELDS.every((f) => {
       const wanted = tokens.filter((t) => t.field === f.key).map((t) => t.value);
       return !wanted.length || wanted.includes(o[f.key as "status" | "channel"]);
     });
-    // A half-typed filter ("status:pa") is still choosing a value, so it doesn't narrow the rows.
     const choosing = FILTER_FIELDS.some((f) => q.startsWith(`${f.key}:`));
     return fits && (!q || choosing || `${o.id} ${o.customer}`.toLowerCase().includes(q));
   });

@@ -26,7 +26,6 @@ export function OrdersActionsTile({ className }: { className?: string }) {
   const [sel, setSel] = React.useState<string[]>([rows[1].id, rows[3].id]);
   return (
     <Tile className={className}>
-      {/* The page top every list uses: one title, one search, one Filter, the rest behind ⋯, one primary action. */}
       <Mark name="toolbar" className="mx-2 mt-1">
         <Toolbar>
           <h3 className="mr-auto text-title font-semibold">Orders</h3>

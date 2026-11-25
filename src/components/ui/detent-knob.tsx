@@ -59,7 +59,6 @@ function attachKnob(hit: HTMLElement, opts: { notches: number; start: number; on
 
   const frame = (t: number) => {
     raf = 0;
-    // Real elapsed time in small steps: on a slow device the spin drops frames instead of going into slow motion.
     const dt = Math.min(Math.max(t - last, 1) / 1000, 0.25);
     last = t;
     const steps = Math.ceil(dt * 240);
@@ -107,7 +106,7 @@ function attachKnob(hit: HTMLElement, opts: { notches: number; start: number; on
   on("pointermove", (e) => {
     if (drag?.id !== e.pointerId) return;
     const { angle, far } = pointerAngle(e);
-    if (!far) return; // At the very centre the angle swings wildly for a tiny move.
+    if (!far) return;
     let delta = angle - drag.angle;
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
@@ -209,7 +208,6 @@ export function DetentKnob({
   const change = React.useRef(onValueChange);
   change.current = onValueChange;
   const [startAngle] = React.useState(() => START_ANGLE + (notch * SWEEP) / notches);
-  // The physics outlive renders: it reads the latest notch and range through this ref.
   const live = React.useRef({ min, step, notch });
   live.current = { min, step, notch };
 

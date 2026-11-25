@@ -13,12 +13,6 @@ const LAG = 60;
 /** Stands in for every digit once the wave has covered it, so the real number leaves the page. */
 const MASK = "0";
 
-/*
- * Every character is a slot of its digit's width holding two layers: the digit and a round dot. Hiding lifts and
- * blurs each digit away as its dot springs in, slot by slot from the left; showing runs from the right, the dot
- * leaving first. Separators fade, so a hidden balance reads as groups of dots. The slot keeps its width, so nothing
- * moves. The dot's layer has the digit's font and line, so the dot sits on the same baseline as the "Rp" before it.
- */
 const CSS = `
 .ad-wave-s { display: inline-block; position: relative; }
 .ad-wave-dw { position: absolute; inset: 0; text-align: center; }
@@ -76,7 +70,6 @@ function Figure({ text, masked, delay }: { text: string; masked: boolean; delay:
     <span aria-hidden>
       {[...text].map((c, i) => {
         const style = { "--d": `${delay(i)}ms` } as React.CSSProperties;
-        // The position is the identity here: a digit keeps its place while its value changes.
         if (!/\d/.test(c)) {
           return (
             <span key={i} className="ad-wave-sep" style={style}>
@@ -122,7 +115,6 @@ export function BalancePrivacyWave({
   const detailLast = longestDetail - 1;
   const waveMs = Math.max(mainLast * STEP, DETAIL_START + detailLast * DETAIL_STEP) + LAG + MS;
 
-  // The real digits leave only after the wave has covered them, and come back the moment it turns around.
   React.useEffect(() => {
     if (!isHidden) {
       setMasked(false);
@@ -137,7 +129,6 @@ export function BalancePrivacyWave({
     onHiddenChange?.(!isHidden);
   };
 
-  // Hiding runs left to right; showing runs right to left, from the other side.
   const mainDelay = (i: number) => (isHidden ? i : mainLast - i) * STEP;
   const detailDelay = (i: number) => DETAIL_START + (isHidden ? i : detailLast - i) * DETAIL_STEP;
 
@@ -153,7 +144,6 @@ export function BalancePrivacyWave({
           <EyeOff size={16} strokeWidth={1.75} aria-hidden data-on={isHidden} className="ad-wave-eye col-start-1 row-start-1" />
         </Button>
       </div>
-      {/* The hero number of the metric card: the unit small and muted on the number's baseline. */}
       <p className="whitespace-nowrap text-[length:clamp(36px,13.5cqw,60px)] font-semibold leading-none tracking-[-0.035em] text-ink tabular-nums">
         <span className="mr-[0.22em] text-[length:0.34em] font-medium tracking-normal text-ink-muted">Rp</span>
         <span className="sr-only">{isHidden ? "Hidden" : main}</span>

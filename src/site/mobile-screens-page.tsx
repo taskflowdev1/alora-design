@@ -1,4 +1,3 @@
-// /mobile/screens: every screen of the example app as a live phone; each opens that screen full screen.
 import { Maximize2 } from "react-feather";
 import { MobileApp, SCREENS } from "./mobile-app";
 import { LazyPhone } from "./lazy-phone";
@@ -26,7 +25,6 @@ export function MobileScreensPage() {
               <span className="truncate font-medium text-ink">{t.title}</span>
               <Maximize2 size={16} className="shrink-0 text-ink-muted transition-colors duration-[150ms] group-has-[a:hover]:text-ink" />
             </h2>
-            {/* The whole card is the link (stretched over it); the phone inside is a picture of the screen. */}
             <SLink to={t.href} aria-label={`${t.title}, open full screen`} className="absolute inset-0 rounded-sheet" />
           </section>
         ))}

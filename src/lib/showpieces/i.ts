@@ -1,5 +1,3 @@
-// Showpiece batch I: registry entries, spread into ITEMS in ../registry.ts. Upgrades to existing
-// components need no entry here: their landing moment links to the component's own page.
 import type { Item } from "../registry";
 
 export const ITEMS: Item[] = [

@@ -41,8 +41,6 @@ function GallerySidebar({ groups }: { groups: Group[] }) {
   const ref = React.useRef<HTMLElement>(null);
   const { pathname } = useLocation();
   useEdgeFade(ref);
-  // Keep the current page in view: deep items (Calendar month) sit far below the sidebar's first screen. Scrolls only
-  // the sidebar, never the page, and only when the item is out of view.
   React.useLayoutEffect(() => {
     const aside = ref.current;
     const a = aside?.querySelector<HTMLElement>('a[aria-current="page"]');
@@ -51,8 +49,6 @@ function GallerySidebar({ groups }: { groups: Group[] }) {
     if (top < aside.scrollTop || top + a.offsetHeight > aside.scrollTop + aside.clientHeight) aside.scrollTop = top - aside.clientHeight / 2 + a.offsetHeight / 2;
   }, [pathname]);
   return (
-    // Sticky needs room in its row: the bottom padding sits on <main> (inside the row), and the list is short enough
-    // (viewport minus header, row padding and the footer line) that at the page's end it still clears the header.
     <aside ref={ref} className="ad-fade-y sticky top-20 hidden max-h-[calc(100dvh-224px)] w-52 shrink-0 self-start overflow-auto overscroll-contain pb-4 lg:block">
       <SlidingPill selector='a[aria-current="page"]' className="rounded-control bg-fill-strong" />
       {groups.map((g) => (
@@ -127,18 +123,15 @@ function SteadyCentre({ measureKey, children }: { measureKey: string; children: 
   const ref = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
     const el = ref.current;
-    // The stage is the parent (a parent's ref isn't attached yet when a child's layout effect runs).
     const box = el?.parentElement;
     if (!el || !box) return;
     const place = () => {
       el.style.marginTop = "0px";
-      // The stage's own height: at least its min-height, or the row's when the controls beside it are taller.
       const cs = getComputedStyle(box);
       const room = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
       el.style.marginTop = `${Math.max(0, Math.round((room - el.offsetHeight) / 2))}px`;
     };
     place();
-    // Fonts and lazy parts can settle after the first frame; place once more, then leave it alone.
     const id = requestAnimationFrame(place);
     return () => cancelAnimationFrame(id);
   }, [measureKey]);
@@ -166,7 +159,6 @@ function defaults(demo?: Demo, params?: URLSearchParams): Props {
  * stays fully interactive. On touch screens the chip always shows.
  */
 function Spot({ item, className, flush, children }: { item: Item; className?: string; flush?: boolean; children: React.ReactNode }) {
-  // A table row inside a spot is not a control here: a click on it opens the page like any empty space.
   const open = useOpenOnEmptyClick(useHref(itemPath(item)), { rows: false });
   return (
     <div
@@ -174,7 +166,6 @@ function Spot({ item, className, flush, children }: { item: Item; className?: st
       onClick={open}
       className={cn(
         "group/spot relative flex min-w-0 cursor-pointer flex-col rounded-sheet",
-        // A full-bleed stage (a background behind a screen) is its own card: it sits on the content edge, the chip on top of it.
         flush ? "" : "px-4 pb-5 pt-10 transition-colors duration-[220ms] ease-ad hover:bg-surface focus-within:bg-surface sm:px-6",
         className,
       )}
@@ -215,7 +206,6 @@ export function TileSpot({ item, className, children }: { item: Item; className?
         {item.title}
       </SLink>
       <div className="flex min-w-0 flex-1 items-center justify-center-safe px-2 py-4">{children}</div>
-      {/* As tall as the name link, so the piece sits centred in the whole tile, not just under the link. */}
       <span aria-hidden="true" className="h-7 shrink-0" />
     </Card>
   );
@@ -375,7 +365,6 @@ export function GalleryItem() {
   useBodyTokens(merged, global);
 
   const mobile = !!item && sectionOf(item) === "mobile";
-  // A renamed item's old name opens its replacement; a page asked for under the wrong half moves to the right one.
   const target = item?.alias ? findItem(item.alias) : item;
   if (target && (target !== item || !pathname.startsWith(itemPath(target)))) return <Navigate to={`${itemPath(target)}${window.location.search}`} replace />;
 
@@ -393,7 +382,6 @@ export function GalleryItem() {
       <div className="mb-5 flex min-h-control flex-wrap items-center gap-3">
         <h1 className="mr-auto text-heading font-semibold">{item.title}</h1>
       </div>
-      {/* A phone stage needs ~454 px, which 1024 has beside the controls, so you can flip a control and watch the phone. */}
       <div className={cn("grid gap-4", stage === "phone" ? "lg:grid-cols-[1fr_288px]" : "xl:grid-cols-[1fr_288px]")}>
         {stage === "phone" ? (
           <TokenScope data-stage config={merged} className="flex min-h-[380px] items-center justify-center rounded-sheet bg-fill px-3 py-6 sm:p-8">

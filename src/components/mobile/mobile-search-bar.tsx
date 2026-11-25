@@ -27,7 +27,6 @@ export function MobileSearchBar({ value, onValueChange, placeholder = "Search", 
           ref={input}
           type="search"
           enterKeyHint="search"
-          // SKUs and order ids: no autocorrect, capitals or suggestions.
           autoComplete="off"
           autoCapitalize="none"
           autoCorrect="off"
@@ -54,7 +53,6 @@ export function MobileSearchBar({ value, onValueChange, placeholder = "Search", 
           </button>
         ) : null}
       </label>
-      {/* Cancel slides in; its column grows from 0 so the field shrinks in step instead of jumping. */}
       <div className="grid transition-[grid-template-columns] duration-[260ms] ease-ad motion-reduce:transition-none" style={{ gridTemplateColumns: active ? "1fr" : "0fr" }}>
         <div className="min-w-0 overflow-hidden">
           <button

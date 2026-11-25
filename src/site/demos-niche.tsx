@@ -435,7 +435,6 @@ export const NICHE_DEMOS: Record<string, Demo> = {
                 <p className="truncate text-body font-semibold">{o.customer}</p>
               </div>
             </div>
-            {/* Plain label and number, no tile around each stat (a box in a box inside the card). */}
             <div className="mt-3 grid grid-cols-3 gap-3 text-body">
               {[["Orders", "14"], ["Spent", "Rp 3,2 jt"], ["Returns", "0"]].map(([k, v]) => (
                 <div key={k} className="grid gap-0.5">

@@ -1,6 +1,3 @@
-// The AI and Backgrounds sections. Each item is one file in src/components/<dir> plus its registry entry
-// (export, params, stage); this page finds the export and builds its sliders from the params, so nothing else
-// needs adding here.
 import * as React from "react";
 import { useParams, useSearchParams } from "react-router";
 import { Search as SearchIcon } from "react-feather";
@@ -164,7 +161,6 @@ export function CollectionIndex({ section }: { section: CollectionSection }) {
   const items = itemsOf(section);
   if (section === "ai") return <AiIndex items={items} />;
   const kinds = [...new Set(items.map((i) => i.kind ?? SECTION_TITLE[section]))];
-  // A few items share one row with no subheadings; the kind headings appear once a section grows.
   const groups = items.length <= 4 ? [{ title: "", items }] : kinds.map((k) => ({ title: k, items: items.filter((i) => (i.kind ?? SECTION_TITLE[section]) === k) }));
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 sm:px-6">

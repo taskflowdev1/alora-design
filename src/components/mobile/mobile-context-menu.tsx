@@ -43,11 +43,7 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
   const hold = React.useRef<{ t: number; x: number; y: number; fired: boolean } | null>(null);
   const menu = React.useRef<HTMLDivElement>(null);
   const restoreFocus = useReturnFocus(open);
-  // Opened from a keyboard-focused button: focus the first action. Opened by touch: focus the menu itself, so no
-  // action shows a focus fill under the finger.
   const byKey = React.useRef(false);
-  // The click that ends a long press lands on whatever is under the finger after the menu opened (the dim). Ignore
-  // clicks until the finger is up, plus a short grace for the click that follows the release.
   const guard = React.useRef(0);
 
   /** A point in the layer's own (unscaled) coordinates; a docs phone frame is scaled with a transform. */
@@ -59,7 +55,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
   };
   const where = (cx: number, cy: number) => {
     const p = local(cx, cy);
-    // The item may still be dipped (scale 0.97) when the hold fires: place the lift from its centre and layout size.
     const el = target.current!;
     const r = el.getBoundingClientRect();
     const c = local(r.left + r.width / 2, r.top + r.height / 2);
@@ -69,8 +64,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     setAt(where(cx, cy));
     setOpen(true);
   };
-  // Opened from a button: grow from the item's right side. The tap that opened it may be the first of a double tap,
-  // whose second half lands on the new dim: ignore it.
   React.useEffect(() => {
     if (open && !at && target.current) {
       byKey.current = !!document.activeElement?.matches(":focus-visible");
@@ -78,7 +71,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
       const r = target.current.getBoundingClientRect();
       setAt(where(r.left + r.width * 0.7, r.top + r.height / 2));
     }
-    // Closing keeps `at` until the fade-out ends (onAnimationEnd below).
     if (!open && at) restoreFocus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -89,7 +81,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     return () => window.removeEventListener("keydown", key);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-  // The menu mounts once `at` is known, a render after `open`: focus it as it attaches.
   const attachMenu = React.useCallback((el: HTMLDivElement | null) => {
     menu.current = el;
     if (!el) return;
@@ -123,8 +114,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     window.addEventListener("pointerup", up, true);
     window.addEventListener("pointercancel", up, true);
   };
-  // Compared with the time the finger touched (the pointerdown's timeStamp), so a click a busy main thread handles late
-  // still counts as early. Keyboard clicks have no pointerdown and are never guarded.
   const downAt = React.useRef(-Infinity);
   const guarded = (t: number = performance.now()) => t < guard.current;
   const trigger = (
@@ -147,7 +136,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
       onPointerLeave={cancel}
       onContextMenu={(e) => {
         e.preventDefault();
-        // A touch long-press can also raise contextmenu while the finger is still down: treat it as the hold firing.
         if (pressing && hold.current && !hold.current.fired) {
           hold.current.fired = true;
           armGuard();
@@ -155,7 +143,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
         cancel();
         openAt(e.clientX, e.clientY);
       }}
-      // The click that ends a long press is not a tap.
       onClickCapture={(e) => {
         if (hold.current?.fired) {
           e.preventDefault();
@@ -168,8 +155,6 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     </div>
   );
 
-  // Place the menu against the item: below it unless there's no room, then above it, inside the screen. It lines up
-  // with the item's edge on the finger's side and grows out of the point nearest the finger.
   const h = actions.length * 48 + 12;
   const GAP = 8;
   let pos: React.CSSProperties = {};
@@ -184,10 +169,8 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
     pos = { left, top, width: W };
     origin = `${Math.max(0, Math.min(W, at.x - left))}px ${below ? 0 : h}px`;
   }
-  // Menu items don't scale; the fill lands at once on press and fades on release.
   const row =
     "flex h-[48px] w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-card)-var(--ad-nest))] px-3 text-left text-[16px] transition-colors duration-[100ms] focus-visible:bg-fill active:bg-fill active:duration-0 data-pressed:bg-fill data-pressed:duration-0 [@media(hover:hover)]:hover:bg-fill";
-  // Out: 150 ms fades for the dim and the lift, the menu shrinks back to 0.97; unmounted when the menu's ends.
   const fade = closing ? "ad-fade-out 150ms var(--ad-ease) forwards" : undefined;
   return (
     <>
@@ -195,9 +178,7 @@ export function MobileContextMenu({ children, actions, open: openProp, onOpenCha
       {at && typeof document !== "undefined"
         ? createPortal(
             <>
-              {/* While closing the dim still takes taps (and drops them), so a stray second tap can't hit the screen. */}
               <div aria-hidden className="fixed inset-0 z-50 bg-overlay animate-[ad-fade-in_160ms_var(--ad-ease)]" style={{ animation: fade }} onPointerDown={(e) => void (downAt.current = e.timeStamp)} onClick={() => open && !guarded(downAt.current) && setOpen(false)} />
-              {/* The pressed item, lifted above the dim: a still copy in the item's place (not interactive). */}
               <div
                 aria-hidden
                 inert

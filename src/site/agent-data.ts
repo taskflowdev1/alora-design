@@ -1,4 +1,3 @@
-// The assistant demo's content: Rimba's chats, and the scripted replies a sent message streams. Site-only.
 import type { MessageSource } from "@/components/ai/message-sources";
 import type { ProposalChange, ProposalStatus } from "@/components/ai/proposal-card";
 

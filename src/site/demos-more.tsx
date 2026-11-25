@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks -- each Demo.render is a component body that React calls as one, so its hooks run in a stable order. */
-// Detail-page demos for the shadcn-parity components: each one live with its controls, plus its usage snippet.
 import * as React from "react";
 import { Bold, Box, Copy, Database, Download, FileText, Italic, Package, Printer, RefreshCw, Save, Search as SearchIcon, ShoppingBag, Tag, Truck, Underline } from "react-feather";
 import { cn, formatRp } from "@/lib/ad";
@@ -365,7 +364,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
             ))}
           </ChipGroup>
           <ToggleGroup type="single" aria-label="View" value={view} onValueChange={setView} options={[{ value: "list", label: "List" }, { value: "grid", label: "Grid" }, { value: "board", label: "Board" }]} />
-          {/* Any one-of-N list: a positioned parent, the pill first, options marked with aria-current. */}
           <div className="relative grid w-48 gap-px">
             <SlidingPill selector='[aria-current="true"]' className="rounded-control bg-fill-strong" />
             {[["pack", "To pack"], ["ship", "To ship"], ["done", "Done"]].map(([k, l]) => (
@@ -495,7 +493,6 @@ export const MORE_DEMOS: Record<string, Demo> = {
     usage: (p) => `<AspectRatio ratio={${p.ratio}}>\n  <img src={photo} className="size-full object-cover" />\n</AspectRatio>`,
   },
   typography: {
-    // A plain type-scale specimen: each style names itself, no story copy.
     render: () => (
       <div className="grid w-full max-w-lg gap-3">
         <H1>Heading</H1>

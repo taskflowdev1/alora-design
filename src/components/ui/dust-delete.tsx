@@ -3,7 +3,7 @@ import { RotateCcw, Trash2 } from "react-feather";
 import { cn, prefersReducedMotion } from "@/lib/ad";
 import { buttonClass } from "@/components/ui/button";
 
-const PAD = 96; // how far past the card the dust may drift, in px
+const PAD = 96;
 const MAX_PARTICLES = 26000;
 const REPEL_RADIUS = 86;
 
@@ -217,11 +217,9 @@ export function DustDelete({ title = "Gelas kopi tanah liat", price = "Rp 89.000
           const u = since / d.life[i];
           if (u < 1) busy = true;
           a = 1 - smooth(0.35, 1, u);
-          // A slow curling flow with a little lift, so the dust reads as drifting and not exploding.
           const angle = Math.sin(d.x[i] * 0.006 / m.dpr + m.time * 0.9) + Math.cos(d.y[i] * 0.008 / m.dpr - m.time * 0.7) * 2.2;
           d.vx[i] += Math.cos(angle) * 150 * m.dpr * dt;
           d.vy[i] += (Math.sin(angle) * 150 - 70) * m.dpr * dt;
-          // A steady drift away from where the delete happened, plus a stronger part wherever the cursor is moving.
           const ox = d.x[i] - m.ox * m.dpr;
           const oy = d.y[i] - m.oy * m.dpr;
           const away = Math.sqrt(ox * ox + oy * oy) || 1;
@@ -278,7 +276,6 @@ export function DustDelete({ title = "Gelas kopi tanah liat", price = "Rp 89.000
       return;
     }
     if (m.mode === "back") {
-      // Every grain is home: the real card takes over on the same frame.
       m.mode = "rest";
       m.dust = null;
       ctx.clearRect(0, 0, W, H);
@@ -303,7 +300,6 @@ export function DustDelete({ title = "Gelas kopi tanah liat", price = "Rp 89.000
       if (!c) return;
       const x = e.clientX - c.left;
       const y = e.clientY - c.top;
-      // Only a moving cursor parts the dust; one resting where it clicked leaves no hole.
       if (m.px > -1e3) m.stir = Math.min(1, m.stir + Math.hypot(x - m.px, y - m.py) / 40);
       m.px = x;
       m.py = y;
@@ -342,7 +338,6 @@ export function DustDelete({ title = "Gelas kopi tanah liat", price = "Rp 89.000
     if (!m.dust) {
       const r = root.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      // The canvas reaches past the card, but never past the page's edges: that would add a sideways scroll.
       const pageW = document.documentElement.clientWidth;
       const left = Math.min(PAD, Math.max(0, r.left));
       const right = Math.min(PAD, Math.max(0, pageW - r.right));

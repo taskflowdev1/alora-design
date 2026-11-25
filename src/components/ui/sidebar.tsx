@@ -6,15 +6,9 @@ import { SlidingPill } from "@/components/ui/sliding-pill";
 /** Inside a Sidebar one highlight slides between rows; a lone SidebarItem paints its own. */
 const InSidebar = React.createContext(false);
 
-/*
- * Dark sidebar in both themes. Floats with a margin; its radius is the card
- * radius, and rows sit two nest gaps in, so the row highlight is concentric.
- * Menus and popovers opened from it pass tone="dark".
- */
 export function Sidebar({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <nav className={cn("ad-on-dark relative flex w-56 shrink-0 flex-col rounded-card bg-side p-[calc(var(--ad-nest)*2)] text-side-ink", className)}>
-      {/* The island is dark in both themes, so keyboard focus on the current row darkens its pill by the dark-theme notch. */}
       <SlidingPill selector='[aria-current="page"]' className="rounded-item bg-side-fill-strong data-[focus]:brightness-[0.78]" />
       <InSidebar.Provider value={true}>{children}</InSidebar.Provider>
     </nav>
@@ -44,8 +38,6 @@ export interface SidebarItemProps {
 export function SidebarItem({ icon: Icon, children, active, count, asChild, onClick }: SidebarItemProps) {
   const Comp = asChild ? Slot.Root : "button";
   const sliding = React.useContext(InSidebar);
-  // With asChild the child (a link) becomes the row, so its own children are the label; rendering the child again
-  // inside itself would nest a link in a link (two tab stops, read twice).
   const child = asChild ? (React.Children.only(children) as React.ReactElement<{ children?: React.ReactNode }>) : null;
   const inner = (
     <>

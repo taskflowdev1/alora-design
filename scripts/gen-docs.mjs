@@ -1,6 +1,3 @@
-// Writes the generated parts of README.md (settings table, component table), docs/components.md (every component's
-// props) and docs/ui-checklist.md (the agent checklist) from the source: src/lib/config.ts, src/lib/registry.ts,
-// src/lib/encyclopedia.ts and the component files, read with the TypeScript compiler. `--check` writes nothing and fails when the files are out of date (scripts/verify runs it).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
@@ -90,7 +87,6 @@ const dirOf = (i) => i.dir ?? "ui";
 const files = (i) => i.files.map((f) => `src/components/${dirOf(i)}/${f}`);
 const install = (i) => `npx shadcn@latest add "${SITE}/r/${i.name}.json"`;
 const anchor = (i) => i.name;
-// metric-card shares card.tsx: list each component once, under the item whose name matches it best.
 const seen = new Set();
 const parts = Object.fromEntries(
   ITEMS.filter((i) => i.files.length).map((i) => {
@@ -109,7 +105,6 @@ const sections = [
   { title: "Backgrounds", items: ITEMS.filter((i) => i.group === "Backgrounds") },
 ];
 
-// An item that installs a file an earlier item already lists (the touch-size twin of a desktop part) points there.
 const sharedWith = (i) => (parts[i.name]?.length ? undefined : ITEMS.find((o) => o !== i && parts[o.name]?.length && files(o).some((f) => files(i).includes(f))));
 
 function propSummary(i) {

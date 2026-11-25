@@ -1,4 +1,3 @@
-// Example app screens, part A: Home, Notifications, Search, Reports, Orders, Order, Proof of delivery.
 import * as React from "react";
 import {
   AlertCircle,
@@ -98,7 +97,6 @@ export function HomeScreen({ state }: ScreenProps) {
             />
           </div>
         </div>
-        {/* The four numbers an owner checks, all at once (2 × 2), instead of one per swipe. */}
         <div className="px-pad">
           <MobileStatGrid>
             <MobileStatTile label="Orders" value="86" />
@@ -119,7 +117,6 @@ export function HomeScreen({ state }: ScreenProps) {
         </div>
       </div>
     </MobileScreen>
-    {/* The cashier's most frequent action, in thumb reach (it stays in More too). */}
     <MobileFab icon={ShoppingCart} label="New sale" onClick={() => nav.push("pos")} />
     </>
   );
@@ -147,7 +144,6 @@ const NOTIF_ICON: Record<Notif["kind"], React.ComponentType> = { order: Shopping
 export function NotificationsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState(state === "empty" ? [] : NOTIFS);
-  // Undo puts back only what it cleared, in its place, so clearing two in a row and undoing loses nothing.
   const restore = (ids: string[]) => setList((l) => NOTIFS.filter((x) => ids.includes(x.id) || l.includes(x)));
   const clear = (n: Notif) => {
     setList((l) => l.filter((x) => x.id !== n.id));
@@ -163,7 +159,6 @@ export function NotificationsScreen({ back, state }: ScreenProps) {
           const I = NOTIF_ICON[n.kind];
           return (
             <SwipeRow key={n.id} trailing={[{ label: "Clear", icon: Check, onSelect: () => clear(n) }]}>
-              {/* Long press (or the menu key) offers Clear too, so it never takes a swipe. */}
               <MobileContextMenu aria-label={n.title} actions={[{ label: "Clear", icon: Check, onSelect: () => clear(n) }]}>
                 <MobileListRow media={<I />} title={n.title} subtitle={n.time} value={n.unread ? <CountBadge dot aria-label="Unread" /> : undefined} onClick={() => open(n)} />
               </MobileContextMenu>
@@ -269,7 +264,6 @@ export function ReportsScreen({ back, state }: ScreenProps) {
   const k = shop === "all" ? 1 : 0.22 + SHOP_FILTERS.findIndex((s) => s.value === shop) * 0.04;
   const data = DAILY.slice(-Math.min(30, days)).map((d) => ({ label: `${d.label} ${["Oct", "Nov"][Number(d.label) > 16 ? 0 : 1]}`, value: +(d.value * k).toFixed(1), display: `Rp ${formatNumber(d.value * k, { maximumFractionDigits: 1 })} jt` }));
   const total = data.reduce((s, d) => s + d.value, 0);
-  // Every number on the screen follows the range and the shop (r: this range against the default 14 days).
   const r = (days / 14) * k;
   const orders = Math.round(total * 6.4);
   const n = (v: number) => formatNumber(v);
@@ -329,7 +323,6 @@ export function ReportsScreen({ back, state }: ScreenProps) {
               </div>
               <div className="px-pad">
                 <div className="rounded-card bg-surface p-pad shadow-card">
-                  {/* The headline is the daily average: the total is already on the Orders tile. */}
                   <MobileScrubChart label="Orders per day" value={`${n(Math.round(orders / data.length))} a day`} data={data.map((d) => ({ label: d.label, value: Math.round(d.value * 6.4), display: `${n(Math.round(d.value * 6.4))} orders` }))} height={88} labelEvery={days > 14 ? 7 : 3} />
                 </div>
               </div>
@@ -407,7 +400,6 @@ export function OrdersScreen({ state }: ScreenProps) {
       >
         <PullToRefresh onRefresh={() => new Promise((r) => window.setTimeout(r, 1200))}>
           {loading ? (
-            // The same rows the list will have (count, thumbnail, two lines, value), so nothing moves when it lands.
             <MobileListSkeleton rows={Math.max(1, list.length)} />
           ) : list.length === 0 ? (
             <ScreenEmpty icon={q ? SearchIcon : Package} title={q ? "No orders match" : stage === "pack" ? "Nothing to pack" : stage === "ship" ? "Nothing to ship" : "Nothing shipped yet"} />
@@ -424,7 +416,6 @@ export function OrdersScreen({ state }: ScreenProps) {
   );
 }
 
-// The long-press menu says what it will do, as verbs (the swipe buttons are too narrow for that).
 const VERB: Record<string, string> = { Packed: "Mark packed", Cancel: "Cancel order", Shipped: "Mark shipped", Archive: "Archive" };
 
 /**
@@ -461,7 +452,6 @@ export function OrderScreen({ params, back }: ScreenProps) {
   const [actions, setActions] = React.useState(params.actions === "1");
   const [courierOpen, setCourierOpen] = React.useState(params.sheet === "courier");
   const [courier, setCourier] = React.useState("jne");
-  // The courier sheet edits a draft: "Use …" applies it, a swipe down or the backdrop drops it.
   const [draft, setDraft] = React.useState(courier);
   React.useEffect(() => {
     if (courierOpen) setDraft(courier);
@@ -600,9 +590,7 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
   const [roll, setRoll] = React.useState<Photo[]>(CAMERA_ROLL);
   const [receiver, setReceiver] = React.useState(order.customer.replace(/ [A-Z]\.$/, ""));
   const [signed, setSigned] = React.useState(false);
-  // The name's error waits until the field is left (or Mark delivered is pressed), then follows the typing.
   const [touched, setTouched] = React.useState(false);
-  // Uploads tick along; one of every four fails once so Retry shows.
   React.useEffect(() => {
     if (!uploads.some((u) => u.state === "uploading")) return;
     const t = window.setInterval(() => {
@@ -629,8 +617,6 @@ export function DeliveryScreen({ params, back }: ScreenProps) {
           </MobileList>
           <div className="grid gap-2">
             <SectionTitle>Photos</SectionTitle>
-            {/* Each photo is a tile from the moment it's picked, its progress and Retry drawn over it, so nothing
-                below the strip moves while uploads start and finish (the signature pad may be under a finger). */}
             <div className="px-pad">
               <MobilePhotoStrip
                 photos={uploads}

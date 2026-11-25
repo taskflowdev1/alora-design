@@ -3,14 +3,13 @@ import { ChevronLeft, ChevronRight } from "react-feather";
 import { cn, prefersReducedMotion } from "@/lib/ad";
 
 const STIFFNESS = 340;
-const DAMPING = 36; // just under critical: it arrives without a wobble
+const DAMPING = 36;
 const KEY_STEP = 0.02;
 const KEY_STEP_BIG = 0.1;
 
 /** How far a press may wander, in px, and still count as a click that sends the wipe there. */
 const CLICK_SLOP = 4;
 
-/* One number (--v, 0 to 1) moves the wipe and the knob. The two pictures stay locked together, pixel on pixel. */
 const CSS = `
 .ad-ba { --v: 0.5; container-type: inline-size; touch-action: pan-y; }
 .ad-ba-clip { clip-path: inset(0 calc((1 - var(--v)) * 100%) 0 0); }
@@ -152,12 +151,11 @@ export function BeforeAfter({
         s.startX = e.clientX;
         s.dragging = false;
         setHeld(true);
-        if (e.pointerType !== "touch") glide(at(e)); // a finger may be starting a scroll: it lands on release instead
+        if (e.pointerType !== "touch") glide(at(e));
       }}
       onPointerMove={(e) => {
         const s = sim.current;
         if (s.id !== e.pointerId) return;
-        // A hand that shifts a pixel mid-click must not cut the glide short.
         if (!s.dragging && Math.abs(e.clientX - s.startX) < CLICK_SLOP) return;
         s.dragging = true;
         jump(at(e));

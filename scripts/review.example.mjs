@@ -1,5 +1,3 @@
-// A shot list for scripts/review: copy it next to the round's output (output/<round>/shots.mjs, not tracked) and
-// edit. Each S() is one sheet: slug, title, page path, viewport, theme, action, target (selector or "viewport").
 export const prefix = "R";
 export default ({ S, stage, pop, phone, atStage, none, clickIn, center }) => [
   S("button-dark", "Buttons", "/components/button", "desk", "dark", atStage),

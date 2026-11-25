@@ -1,4 +1,3 @@
-// Demos for the installed-app (PWA) parts: the same scenes as the Mobile tab, each in its 390 × 844 phone.
 import * as React from "react";
 import { MobileStateButton, type MobileButtonState } from "@/components/mobile/mobile-state-button";
 import { MobileScreen } from "@/components/mobile/mobile-nav-bar";

@@ -16,9 +16,6 @@ import { Menu, MenuItem, MenuSub } from "@/components/ui/menu";
 import { InlineEdit, grouped } from "@/components/ui/inline-edit";
 import { Table, TBody, TD, TH, THead, TRow } from "@/components/ui/table";
 
-// Live demos for the encyclopedia: one small component per rule, keyed by rule id. Each is quiet and built from the
-// library's own components; a "without / with" pair shows the difference where words can't.
-
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 /** Keyframes the demos need beyond base.css. */

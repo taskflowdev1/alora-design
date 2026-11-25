@@ -17,7 +17,6 @@ export const ORDER_STATUSES: StatusOption[] = [
   { value: "shipped", label: "Shipped", dot: "bg-success" },
 ];
 
-// The label rolls in the direction of travel: forward through the statuses comes up from below, back comes down.
 const CSS = `
 @keyframes ad-status-in { from { transform: translateY(calc(var(--ad-status-dir) * 100%)); opacity: 0; } }
 @keyframes ad-status-out { to { transform: translateY(calc(var(--ad-status-dir) * -100%)); opacity: 0; } }

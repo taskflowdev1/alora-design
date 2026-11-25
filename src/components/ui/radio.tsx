@@ -13,9 +13,7 @@ export function Radio({ label, className, ...props }: React.ComponentProps<typeo
       <R.Item
         id={id}
         className={cn(
-          // 18 px dot, a transparent 3 px ::after pad takes its hit area to 24 px; the label is a target too.
           "relative grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-full ad-press after:absolute after:-inset-[3px] after:rounded-full active:scale-[0.97]",
-          // Hover (the dot or its label) and keyboard focus take the next ramp step, checked or not: fill-strong or ink -> ink-muted.
           "bg-fill-strong data-[state=checked]:bg-on group-hover:bg-ink-muted focus-visible:bg-ink-muted data-[state=checked]:group-hover:bg-ink-muted data-[state=checked]:focus-visible:bg-ink-muted",
         )}
         {...props}

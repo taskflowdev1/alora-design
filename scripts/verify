@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 # jobq: portable (scripts/env.sh installs deps + browser; read-only checks against local preview servers)
-# The one gate: typecheck, unit, lint, docs drift (README + docs/components.md), grey ramp, dead exports, build, headless
-# smoke on a free port. Static checks first, side by side; stops at the first failing stage. Heavy: run it as a background job (see AGENTS.md).
-#   ./scripts/verify                   full: every step and every smoke section. Required before a large release.
-#   ./scripts/verify --release         the same full run, by the name every Alora repo uses for a large release.
-#   ./scripts/verify --changed [base]  localized: every static check and the build, then only the smoke sections that
-#                                      reach files changed since base (default origin/main). Shared code or config
-#                                      widens to full; documentation alone skips the build and browser.
-#   ./scripts/verify --only <step>     one step (smoke builds first)
-# No step reads a cache, so a pass always means the check ran on this code.
-# A failure ends with one line: GATE FAIL alora-design-verify: <step> | log: <path> | rerun: <command>
 set -uo pipefail
 cd "$(dirname "$0")/.."
 steps=(typecheck unit lint docs greys knip build smoke)
@@ -38,13 +28,11 @@ if [ -n "$only" ]; then
   esac
 fi
 logs=$(mktemp -d "${TMPDIR:-/tmp}/alora-design-verify.XXXXXX")
-# The queue keeps a failed job's $TMPDIR logs on Yoga; a Mac job's output is in its job log.
 where() {
   if [ -z "${JOBQ_ID:-}" ]; then echo "$1"
   elif [ "${JOBQ_HOST:-}" = mac ]; then echo "job log $JOBQ_ID"
   else echo "${JOBQ_STATE:-$HOME/.local/state/jobq}/logs/$JOBQ_ID-$JOBQ_ATTEMPT.files/${1#"$TMPDIR"/}"; fi
 }
-# Setup runs once on its own so a failed install gets the same last line; then this shell takes its Node.
 export NEEDS_BROWSER="${NEEDS_BROWSER:-1}"
 bash -c 'set -e; . scripts/env.sh' > "$logs/setup.log" 2>&1
 setup=$?
@@ -54,7 +42,7 @@ if [ "$setup" -ne 0 ]; then
   exit 1
 fi
 NEEDS_BROWSER=0 . scripts/env.sh
-set +e # env.sh turns it on; each step's status is read below.
+set +e
 export SITE_DIST="${TMPDIR:-/tmp}/alora-design-verify-site-$$"
 trap 'rm -rf "$SITE_DIST"' EXIT
 

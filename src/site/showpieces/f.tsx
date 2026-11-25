@@ -1,5 +1,3 @@
-// Showpiece batch F: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import * as React from "react";
 import { cn } from "@/lib/ad";
 import { BeforeAfter } from "@/components/ui/before-after";

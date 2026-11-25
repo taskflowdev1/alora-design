@@ -25,8 +25,6 @@ export interface ThinkingOrbsProps {
 const F = 4;
 const TONE: Record<OrbTone, string> = { ink: "text-ink", accent: "text-brand", muted: "text-ink-muted" };
 
-// One point of the ring: it spins in its own plane while the plane tilts, yaws and rolls at unrelated speeds,
-// so the path never visibly repeats.
 function project(a: number, t: number) {
   const x = Math.cos(a);
   const y = Math.sin(a);
@@ -46,7 +44,6 @@ function project(a: number, t: number) {
 /** How far the largest, nearest orb reaches past the box, in box sizes. */
 const overflow = (orb: number, ring: number) => Math.max(0, ring * (F / (F - 1)) + orb * (F / (F - 1)) ** 1.6 - 0.5);
 
-// Flat orbs in the current text colour, no shading or outline: depth comes only from size and draw order.
 function draw(canvas: HTMLCanvasElement, box: number, t: number, count: number, orb: number, ring: number) {
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.clientWidth;

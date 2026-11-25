@@ -56,7 +56,6 @@ export interface BulkActionBarProps {
 export function BulkActionBar({ count, label = "selected", actions, onClear, done, onUndo, undoFor = 6000, onExpire, className }: BulkActionBarProps) {
   const isDone = done != null;
   const up = count > 0 || isDone;
-  // While it sinks, the bar keeps showing what it last said instead of rolling to 0.
   const [lastCount, setLastCount] = React.useState(count);
   if (count > 0 && count !== lastCount) setLastCount(count);
   const lastDone = React.useRef(done);
@@ -79,7 +78,6 @@ export function BulkActionBar({ count, label = "selected", actions, onClear, don
     return () => window.clearTimeout(t);
   }, [isDone, held, undoFor]);
 
-  // The pressed button is about to go inert: focus moves to its counterpart on the other face.
   React.useLayoutEffect(() => {
     if (!root.current?.contains(document.activeElement)) return;
     if (isDone) answer.current?.querySelector("button")?.focus();
@@ -93,7 +91,6 @@ export function BulkActionBar({ count, label = "selected", actions, onClear, don
       aria-label="Bulk actions"
       inert={!up}
       data-toast-avoid
-      // The bar is the island's fill step (never the off-black step on a card), so its buttons hover one step up.
       style={{ "--ad-fill": "var(--ad-side-fill-strong)" } as React.CSSProperties}
       onPointerEnter={(e) => e.pointerType === "mouse" && setHeld(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setHeld(false)}

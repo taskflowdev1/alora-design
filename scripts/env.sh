@@ -1,6 +1,3 @@
-# Sourced by the heavy scripts (verify, shots, review) so they also run in a fresh copy that has no node_modules:
-# Node 24 via nvm when present; npm ci when deps are missing or stale; the Playwright headless shell + ffmpeg when
-# missing (NEEDS_BROWSER=0 skips it). npm and Playwright caches live under $HOME, so repeat runs are quick.
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
   set +eu
   . "$HOME/.nvm/nvm.sh" >/dev/null

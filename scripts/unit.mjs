@@ -1,9 +1,3 @@
-// Fast checks for the pure code (well under a second): formatter outputs against goldens, the config URL round-trip,
-// the theme item's shape, and each registry item's declared deps against the imports in its files.
-//   node scripts/unit.mjs                                   run the checks (scripts/verify)
-//   node scripts/unit.mjs --write-goldens [--root DIR]      recapture scripts/unit-goldens.json from DIR's sources
-// Goldens pin exact strings ("Rp 12.400.000", "48,2 jt" with a no-break space). Recapture only when an output is
-// meant to change, and say so in the commit.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -58,7 +52,6 @@ const [ad, config, kit, registry] = await loadModules(["src/lib/ad.ts", "src/lib
 
 for (const name of Object.keys(golden)) test(`${name} matches its goldens`, () => assert.deepEqual(now[name], golden[name]));
 
-// The shared helpers in lib/ad.ts must give exactly what the component copies they replace gave.
 test("formatCompact reproduces compactNumber and formatShort", { skip: !ad.formatCompact && "lib/ad.ts has no formatCompact" }, () => {
   assert.deepEqual(Object.fromEntries(NUMBERS.map((n) => [n, ad.formatCompact(n, { space: "nbsp", digits: "auto" })])), golden.compactNumber);
   assert.deepEqual(Object.fromEntries(NUMBERS.map((n) => [n, ad.formatCompact(n, { space: " ", digits: 1 })])), golden.formatShort);
@@ -94,8 +87,6 @@ test("theme item keeps its shape", () => {
   assert.ok(item.css["@supports (corner-shape: squircle)"], "squircle radii ship");
 });
 
-// Every import in a registry item's files is declared (npm `deps` or `registryDeps`), and every declared dep is
-// imported. `companions` are installed alongside without an import (a demo partner), so they're exempt.
 test("registry deps match the imports", () => {
   const owner = {};
   for (const i of registry.ITEMS) for (const f of i.files) if (!i.alias) owner[`${i.dir ?? "ui"}/${f}`] ??= i.name;
@@ -131,8 +122,6 @@ test("registry deps match the imports", () => {
   assert.deepEqual(problems, []);
 });
 
-// The serverless functions (api/*.ts) run what they import as plain Node ESM: every runtime relative import on that
-// path needs its ".js" extension, or production /r, /api/kit and /tokens.* fail while the site itself builds fine.
 test("api imports relative files with .js, all the way down", async () => {
   const { readdirSync } = await import("node:fs");
   const { dirname, relative } = await import("node:path");

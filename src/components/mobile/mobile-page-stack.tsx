@@ -114,7 +114,6 @@ export function MobilePageStack({ pages, onBack, className }: MobilePageStackPro
           onPointerMove={(e) => {
             const d = drag.current;
             if (!d) return;
-            // The frame may be scaled on a narrow page: measure the finger in the page's own pixels.
             const scale = (root.current?.getBoundingClientRect().width ?? d.w) / d.w || 1;
             const at = Math.max(0, Math.min(d.w, (e.clientX - d.x) / scale));
             const dt = Math.max(1, e.timeStamp - d.t);

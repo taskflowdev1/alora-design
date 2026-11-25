@@ -1,4 +1,3 @@
-// The assistant's settings dialogs (data controls and WhatsApp) and the report preview. Site-only.
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -86,7 +85,6 @@ export function WhatsAppLink({ open, onOpenChange }: { open: boolean; onOpenChan
 }
 
 export function ReportPreview({ report, onClose }: { report: AgentReport | null; onClose: () => void }) {
-  // Keeps the last report drawn while the dialog fades out.
   const [shown, setShown] = React.useState(report);
   if (report && report !== shown) setShown(report);
   const money = (v: string) => {

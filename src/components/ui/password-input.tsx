@@ -3,7 +3,6 @@ import { Check, Copy, Eye, EyeOff, Key } from "react-feather";
 import { cn } from "@/lib/ad";
 import { fieldBoxClass } from "@/components/ui/input";
 
-// Roots of the passwords people pick most (with the digits and symbols stripped), including local favourites.
 const COMMON = new Set(
   "password passw0rd p@ssw0rd qwerty qwertyuiop asdfgh admin administrator welcome letmein iloveyou sunshine football monkey dragon baseball superman princess master login hello shadow changeme trustno abc abcdef abcd qazwsx zxcvbn bismillah indonesia sayang rahasia jakarta".split(
     " ",
@@ -36,7 +35,6 @@ export function suggestPassword() {
   const all = sets.join("");
   const r = crypto.getRandomValues(new Uint32Array(12));
   const out = Array.from(r, (n) => all[n % all.length]);
-  // Guarantee one of each kind.
   sets.forEach((s, i) => (out[i * 4 + (r[i] % 4)] = s[r[i] % s.length]));
   return [0, 4, 8].map((i) => out.slice(i, i + 4).join("")).join("-");
 }
@@ -77,7 +75,6 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
   const id = React.useId();
   const s = passwordStrength(value, minLength);
-  // Only once you're done with the field (left it with something in it, or submitted); then it re-checks live.
   const done = left || submitted;
   const short = `Use ${minLength} or more characters`;
   const message = error ?? (!done ? null : !value ? (submitted ? short : null) : s.common ? "This password is too common" : s.short ? short : null);
@@ -110,7 +107,6 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             className={cn("h-full w-full min-w-0 bg-transparent text-body pointer-coarse:text-[16px] text-transparent caret-ink outline-none selection:bg-brand-soft placeholder:font-sans placeholder:text-ink-muted", className)}
             {...props}
           />
-          {/* What you see: one cell per character holding its dot and its letter, crossfading in place. */}
           <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 flex items-center whitespace-pre text-body pointer-coarse:text-[16px] text-ink">
             <span ref={layer} className="flex">
               {value.split("").map((c, i) => (
@@ -171,8 +167,6 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
             <Eye size={14} className={cn(swap, shown && off)} />
             <EyeOff size={14} className={cn(swap, !shown && off)} />
           </button>
-          {/* Strength as a short row of segments that fill, all ink once strong. Hidden while empty (its width stays, so
-              nothing shifts), so an empty field never shows a mark that reads as a radio or a spinner. */}
           <span
             role="img"
             aria-label={!value ? "Password strength" : s.strong ? "Strong password" : `Password strength ${Math.round(s.score * 100)}%`}
@@ -183,7 +177,6 @@ export function PasswordInput({ value, onValueChange, minLength = 8, suggest = t
                 key={i}
                 className={cn(
                   "h-[4px] w-[6px] rounded-full transition-colors duration-[160ms] ease-ad",
-                  // Unlit slots are the surface step, so they show on the field at rest (fill) and focused (fill-strong).
                   s.strong ? "bg-ink" : i < Math.min(3, Math.max(1, Math.floor(s.score * 4))) ? "bg-ink-muted" : "bg-surface",
                 )}
               />

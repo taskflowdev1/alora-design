@@ -19,8 +19,6 @@ export interface DatePickerProps {
 
 /** Dates read "7 Nov 2026" when shown and when chosen. Never 07/11/2026. The month grid is the Calendar. */
 export function DatePicker({ value, onValueChange, placeholder = "Pick a date", smart = true, today = new Date(), className }: DatePickerProps) {
-  // The trigger keeps the date it had when the panel opened until the panel has left, so a longer label can't grow
-  // the trigger and drag the fading panel with it.
   const [held, setHeld] = React.useState<{ d: Date | null } | null>(null);
   const [open, setOpen] = usePopupOpen({ onOpenChange: (o) => o && setHeld({ d: value }) });
   const press = usePressOpen(open, setOpen);

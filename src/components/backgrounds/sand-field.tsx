@@ -48,9 +48,6 @@ function palette(css: string): number[] {
 }
 
 const VERTEX = "attribute vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }";
-// The picture lives in the texture: paint is stored per cell. One canvas pixel is one grain cell; CSS scales it up
-// without smoothing. The ground is the host's background, so the field blends into it. On dark the paint adds light;
-// on light it takes away the colours the accent lacks.
 const FRAGMENT = `precision highp float;
   uniform vec2 uRes; uniform vec3 uGround; uniform float uStrength, uGrain, uLight;
   uniform sampler2D uField;
@@ -67,8 +64,6 @@ const FRAGMENT = `precision highp float;
 
 type Point = { t: number; x: number; y: number; gap: boolean };
 
-// Sets up the field on `canvas` and paints as the pointer moves over `area`. Returns the cleanup and a refresh for
-// new settings (uniforms) or a new theme.
 function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLElement, gl: WebGLRenderingContext, opts: { current: Opts }) {
   const compile = (type: number, source: string) => {
     const shader = gl.createShader(type);
@@ -113,7 +108,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
   let wasEmpty = false;
   let frame = 0;
   let onScreen = true;
-  // Per cell: paint colour, how much paint, and when it was painted. Each patch fades on its own clock, oldest first.
   let color = new Float32Array(3);
   let cover = new Float32Array(1);
   let stamp = new Float64Array(1);
@@ -127,7 +121,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  // The ground is the host's background and the paint is the accent, read again on every theme or setting change.
   function readTheme() {
     const s = getComputedStyle(host);
     const [r, g, b] = (s.backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
@@ -139,8 +132,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     gl.uniform1f(loc.grain, opts.current.grain);
   }
 
-  // A resize clears the paint and draws the plain ground at once, so the canvas never shows black. One canvas pixel is
-  // one grain cell (about 1.3 CSS px), sized so each cell covers whole device pixels, pinned to the bottom left.
   function resize() {
     const box = host.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -164,7 +155,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     draw();
   }
 
-  // Where the brush is at time t, and whether the pointer left and came back since the last brush point.
   function brushAt(t: number, since: number) {
     let i = -1;
     while (i + 1 < history.length && history[i + 1].t <= t) i++;
@@ -178,8 +168,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, t, gap: false, jumped };
   }
 
-  // The gradient at this moment, only over the cells the brush is about to paint: soft coloured spots, brighter at
-  // their centres, never black between them.
   function sampleGradient(x0: number, x1: number, y0: number, y1: number) {
     const aspect = W / H;
     SEEDS.forEach((s, i) => {
@@ -232,7 +220,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     return age <= hold ? 1 : Math.max(0, 1 - (age - hold) / Math.max(0.01, refill));
   };
 
-  // The cell's clock moves toward now by how much of it is new paint.
   function dab(x: number, y: number, sigma: number, amount: number, now: number) {
     const scale = fw / W;
     const cx = x * scale;
@@ -262,7 +249,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
       }
   }
 
-  // Moves the brush along the pointer's path, a little behind it, and returns the strongest paint left.
   function stepPaint(now: number) {
     const { trail, size } = opts.current;
     const next = brushAt(now - trail * 1000, brush ? brush.t : -Infinity);
@@ -301,7 +287,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     return top;
   }
 
-  // Runs only while there is paint on screen or the brush has not caught up with the pointer.
   function loop(now: number) {
     frame = 0;
     clock = 20 + now / 1000;
@@ -335,7 +320,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
   };
   const onEnter = (event: PointerEvent) => record(event, true);
   const onMove = (event: PointerEvent) => record(event, false);
-  // A hidden tab or a field scrolled out of view stops the loop and clears the paint, so nothing stale shows on return.
   const onVisibility = () => {
     if (document.hidden) clearPaint();
   };
@@ -350,7 +334,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
   const theme = new MutationObserver(onTheme);
   const scheme = window.matchMedia("(prefers-color-scheme: dark)");
   const sizes = new ResizeObserver(resize);
-  // A new pixel ratio (zoom, another monitor) resizes too; the query is re-armed for the new ratio.
   let ratio: MediaQueryList | null = null;
   const watchRatio = () => {
     ratio?.removeEventListener("change", onRatio);
@@ -374,7 +357,6 @@ function startSand(host: HTMLElement, canvas: HTMLCanvasElement, area: HTMLEleme
     document.removeEventListener("visibilitychange", onVisibility);
     canvas.removeEventListener("webglcontextlost", onLost);
   };
-  // A lost context (a GPU reset) ends the effect: the plain ground shows and the pointer is no longer followed.
   function onLost() {
     detach();
     canvas.remove();

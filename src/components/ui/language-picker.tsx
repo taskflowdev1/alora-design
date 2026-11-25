@@ -1,10 +1,8 @@
 import { Select, type Option } from "@/components/ui/select";
 import { cn } from "@/lib/ad";
 
-/* Round flags, drawn inline so they look the same on every OS. */
 function Flag({ code, className }: { code: string; className?: string }) {
   const c = "size-[16px] shrink-0 overflow-hidden rounded-full";
-  // The flag's own faint inner edge (part of the image), so a white half never melts into a light trigger.
   const edge = <circle cx="8" cy="8" r="7.75" fill="none" stroke="#000" strokeOpacity=".14" strokeWidth=".5" />;
   if (code === "id")
     return (

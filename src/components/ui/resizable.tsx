@@ -69,7 +69,6 @@ export function Resizable({ children, direction = "horizontal", defaultSize = 50
         }}
         className={cn(
           "group relative z-10 grid shrink-0 touch-none place-items-center rounded-full transition-colors duration-[150ms] ease-ad hover:bg-fill focus-visible:bg-fill",
-          // 12 px wide; a transparent 6 px ::after pad on each side makes the grab area 24 px.
           h ? "w-[12px] cursor-col-resize after:absolute after:inset-y-0 after:-inset-x-[6px]" : "h-[12px] cursor-row-resize after:absolute after:inset-x-0 after:-inset-y-[6px]",
           dragging && "bg-fill",
         )}

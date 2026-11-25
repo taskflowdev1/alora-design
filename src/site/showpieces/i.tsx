@@ -1,5 +1,3 @@
-// Showpiece batch I (ERP workflow): page demos and Components-page tiles for its new components (inside a Mark, exactly
-// once), and its landing moments. Aggregated in ./index.ts.
 import * as React from "react";
 import { MoreHorizontal } from "react-feather";
 import { cn, formatRp, prefersReducedMotion } from "@/lib/ad";
@@ -127,7 +125,6 @@ function BulkOrders({ className, inset }: { className?: string; inset?: boolean 
             const on = ticked.has(o.id);
             return (
               <li key={o.id} onClick={() => toggle(o.id)} className="relative flex h-row cursor-pointer select-none items-center gap-2.5 rounded-item px-2 hover:bg-fill">
-                {/* The selection is a fill that collapses to the left when the row is done. */}
                 <span
                   aria-hidden
                   className="absolute inset-0 rounded-item bg-fill-strong transition-[clip-path] duration-[240ms] ease-ad motion-reduce:transition-none"
@@ -146,7 +143,6 @@ function BulkOrders({ className, inset }: { className?: string; inset?: boolean 
             );
           })}
         </ul>
-        {/* The list's own footer: the bar rises over it, so ticking a row moves nothing. */}
         <div className="flex h-[calc(var(--ad-item-h)+var(--ad-nest)*2)] items-center justify-between px-2 text-body text-ink-muted">
           <span>{ALL_IDS.length} orders</span>
           <span className="tabular-nums text-ink">{formatRp(LIST_TOTAL)}</span>
@@ -179,7 +175,6 @@ function StatusRows({ className }: { className?: string }) {
             <span className="block truncate text-body font-medium text-ink">{o.name}</span>
             <span className="block truncate text-small tabular-nums text-ink-muted">{formatRp(o.total)}</span>
           </span>
-          {/* As wide as the widest status, so the pill's morph never moves the name. */}
           <span className="flex w-[112px] shrink-0 justify-end">
             <StatusSelect aria-label={`Status of ${o.id}`} defaultValue={["unpaid", "paid", "packed"][i]} />
           </span>
@@ -270,7 +265,6 @@ function InboxScene({ className }: { className?: string }) {
   const cleared = !list.some((n) => n.unread);
   return (
     <div className={cn("grid w-full gap-3", className)}>
-      {/* Tall enough for the open panel, so opening it moves nothing below. */}
       <div className="h-[416px]">
         <Card className="relative flex h-[calc(var(--ad-control-h)+var(--ad-nest)*4)] items-center justify-between py-0 pl-pad pr-[calc(var(--ad-nest)*2)]">
           <span className="text-title font-semibold text-ink">Rimba Kemang</span>

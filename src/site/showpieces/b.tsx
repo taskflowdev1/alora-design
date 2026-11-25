@@ -1,5 +1,3 @@
-// Showpiece batch B: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import type * as React from "react";
 import { cn } from "@/lib/ad";
 import { DotMatrixNumber } from "@/components/ui/dot-matrix-number";

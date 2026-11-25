@@ -1,4 +1,3 @@
-// Showpiece batch B: registry entries, spread into ITEMS in ../registry.ts.
 import type { Item } from "../registry";
 
 const parts = ["button", "card", "tooltip"];

@@ -1,5 +1,3 @@
-// /mobile/app: the example app full screen. On a phone it fills the screen (real safe areas, keyboard tracking); on a
-// wider screen it sits in the phone frame with a way back.
 import * as React from "react";
 import { ChevronLeft } from "react-feather";
 import { useParams, useSearchParams } from "react-router";
@@ -28,8 +26,6 @@ export function MobileAppPage() {
   const narrow = useNarrow();
   const { screen: path } = useParams();
   const [query] = useSearchParams();
-  // /mobile/app/<screen>?state=…&id=…: the screen, a forced state, and the rest as the screen's params. The v1 links
-  // (?at=detail, ?at=actions) open an order.
   const at = query.get("at");
   const screen = path ?? (at ? "order" : "home");
   const state = query.get("state") ?? undefined;
@@ -38,9 +34,7 @@ export function MobileAppPage() {
     if (!["state", "at", "keyboard", "t", "r", "c", "k", "p", "h", "a", "g", "sh", "f"].includes(k)) params[k] = v;
   });
   if (at === "actions") params.actions = "1";
-  // Keyed on the screen only: a theme or customise change rewrites the query, and must not reset the app's stack.
   const app = <MobileApp key={screen} screen={screen} params={params} state={state} page />;
-  // Full screen on a phone: let the page run under the status bar and home indicator, then clear them with env().
   React.useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
     const before = meta?.content;
@@ -52,8 +46,6 @@ export function MobileAppPage() {
   return (
     <>
       <ConfigTokens />
-      {/* One tree for both widths (only classes and the frame's chrome change), so rotating a tablet or resizing across
-          600 px keeps the app mounted, with its stack and open sheets. */}
       <main data-mobile-app className={narrow ? "fixed inset-0 bg-page" : "grid min-h-dvh place-items-center gap-4 bg-page px-4 py-8"}>
         <div className={narrow ? "contents" : "grid w-[390px] max-w-full gap-4"}>
           {narrow ? null : (

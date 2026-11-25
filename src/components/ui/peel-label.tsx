@@ -93,9 +93,7 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
 
   let W = 1, H = 1, sw = 1, sh = 1, ox = 0, oy = 0;
   let phase: Phase = "rest";
-  // The peeled corner, as an offset from where it sits on the label.
   let px = 0, py = 0, vx = 0, vy = 0, restX = 0, restY = 0, hover = false;
-  // The free label: offset from its slot, rotation, scale.
   let fx = 0, fy = 0, fr = 0, fs = 1, vfx = 0, vfy = 0, vfs = 0, tfx = 0, tfy = 0, tfr = 0, tfs = 1;
   let autoT = 0, autoX = 0, autoY = 0;
   let stuckAt: { x: number; y: number } | null = null;
@@ -118,7 +116,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
     oy = slot.offsetTop;
     sw = root.clientWidth || 1;
     sh = root.clientHeight || 1;
-    // The corner rests a little lifted, so it reads as something to grab.
     const lift = reduced ? 0 : hover ? 0.19 : 0.095;
     restX = -W * lift;
     restY = -H * lift * 1.15;
@@ -142,7 +139,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
     flap.style.clipPath = toClip(clipPoly(rect, side, -1));
     const dot = 2 * (mx * nx + my * ny);
     flap.style.transform = `matrix(${1 - 2 * nx * nx},${-2 * nx * ny},${-2 * nx * ny},${1 - 2 * ny * ny},${dot * nx},${dot * ny})`;
-    // Where the fold falls along a CSS gradient pointing the same way as the fold's normal.
     const deg = (Math.atan2(nx, -ny) * 180) / Math.PI;
     const len = Math.abs(W * nx) + Math.abs(H * ny);
     const f = (mx - W / 2) * nx + (my - H / 2) * ny + len / 2;
@@ -172,7 +168,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
   };
 
   const detach = (carried: boolean) => {
-    // It comes free where the middle of the fold is, then swings flat as it lifts.
     fx = px * 0.28;
     fy = py * 0.28;
     fr = Math.max(-7, Math.min(7, (px / W) * 9));
@@ -193,7 +188,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
 
   const toStage = (e: PointerEvent) => {
     const r = root.getBoundingClientRect();
-    // The stage can be drawn scaled; pointer positions are read back into its own pixels.
     const k = r.width / sw || 1;
     return [(e.clientX - r.left) / k, (e.clientY - r.top) / k] as const;
   };
@@ -240,7 +234,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
       paintFree();
       moving = true;
     } else {
-      // Fly, stuck and return all settle on one spring. The press on landing dips just under 1 and comes back.
       const K = phase === "return" ? 300 : 460;
       const C = phase === "return" ? 32 : 30;
       vfx += (K * (tfx - fx) - C * vfx) * dt;
@@ -280,7 +273,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
     const [sx, sy] = toStage(e);
     let dx = sx - ox - W;
     let dy = sy - oy - H;
-    // Pulling outward peels too: the fold always runs into the label.
     dx = -Math.abs(dx);
     dy = -Math.abs(dy);
     const diag = Math.hypot(W, H);
@@ -316,7 +308,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
     (e) => {
       if (dragId !== e.pointerId || phase !== "peel") return;
       const { dx, dy, diag } = peelFrom(e);
-      // The speed at release carries into the spring back.
       const elapsed = Math.max(1, e.timeStamp - lastT) / 1000;
       vx = (dx - lastPX) / elapsed;
       vy = (dy - py) / elapsed;
@@ -355,7 +346,6 @@ function attachPeel(root: HTMLElement, reduced: boolean, on: { placed: (p: boole
     if (phase === "rest") kick();
   }, opts);
   handle.addEventListener("click", (e) => {
-    // A keyboard press arrives as a click with no pointer: peel it for them and stick it on the box.
     if (e.detail !== 0 || phase !== "rest") return;
     autoPeel();
   }, opts);

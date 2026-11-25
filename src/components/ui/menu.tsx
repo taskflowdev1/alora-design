@@ -6,16 +6,6 @@ import { ChevronRight } from "react-feather";
 import { cn } from "@/lib/ad";
 import { usePopupOpen } from "@/lib/ad-hooks";
 
-/*
- * Menu with submenus and a safe triangle (Kamens 2013, Alexoglou 2023).
- * - Leaving a submenu trigger toward its panel keeps the panel open while the
- *   pointer stays inside the triangle from the pointer to the panel's near edge.
- * - The triangle is debounced: if the pointer rests for DEBOUNCE ms it expires
- *   and the item under the pointer takes over.
- * - Leaving the triangle (back to the parent, or anywhere else) drops it at once.
- * - Every submenu also opens on click, tap, ArrowRight, Enter and Space.
- */
-
 const DEBOUNCE = 140;
 const HOVER_OPEN = 70;
 
@@ -68,7 +58,6 @@ function MenuLevel({ children, container }: { children: React.ReactNode; contain
 
   const takeOver = React.useCallback(
     (p: Pt | null, owner: string) => {
-      // The item under the pointer gets the hover, as if the triangle never existed.
       const el = p ? document.elementFromPoint(p.x, p.y)?.closest<HTMLElement>(`[data-menu-level="${id}"]`) : null;
       if (!el) return;
       el.focus();
@@ -96,7 +85,6 @@ function MenuLevel({ children, container }: { children: React.ReactNode; contain
         return endSafe();
       }
       if (inTriangle(p, s.apex, s.a, s.b)) {
-        // Still heading for the panel: shrink the triangle and restart the debounce.
         s.apex = { x: p.x + (s.a.x > p.x ? -4 : 4), y: p.y };
         root.setViz([s.apex, s.a, s.b]);
         window.clearTimeout(timer.current);
@@ -166,13 +154,10 @@ export interface MenuProps {
 }
 
 export function Menu({ trigger, children, align = "start", side = "bottom", tone = "light", showSafeArea, open: openProp, onOpenChange, className }: MenuProps) {
-  // A close that lands within 300 ms of opening is the second click of a double click: ignored, so the menu stays open
-  // instead of flashing. Picking an item and Escape close at once.
   const [open, setOpen] = usePopupOpen({ open: openProp, onOpenChange });
   const [viz, setViz] = React.useState<[Pt, Pt, Pt] | null>(null);
   const container = React.useRef<HTMLDivElement>(null);
   const viaKeyboard = React.useRef(false);
-  // Mouse: open on pointer down (the menu is there when the button comes up); touch and pen keep the click.
   const pressed = React.useRef(false);
   const root = React.useMemo<RootCtx>(() => ({ close: () => setOpen(false, true), setViz: showSafeArea ? setViz : () => {} }), [showSafeArea]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -191,7 +176,6 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
             setOpen(!open);
           }}
           onClick={(e) => {
-            // The click after a mouse press is already handled; cancel it so Radix doesn't toggle the menu back.
             if (!pressed.current) return;
             pressed.current = false;
             e.preventDefault();
@@ -245,7 +229,6 @@ export function Menu({ trigger, children, align = "start", side = "bottom", tone
 function LevelKeys({ children }: { children: React.ReactNode }) {
   const level = useLevel();
   const ref = React.useRef<HTMLDivElement>(null);
-  // When any item at this level has an icon, items without one get an empty icon slot, so every label starts on one line.
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (el) el.toggleAttribute("data-icons", !!el.querySelector(":scope > [data-icon], :scope > [data-menu-group] > [data-icon]"));

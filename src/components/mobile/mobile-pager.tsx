@@ -25,7 +25,6 @@ export interface MobileOnboardingPagerProps {
  */
 export function MobileOnboardingPager({ pages, onDone, doneLabel = "Get started", className }: MobileOnboardingPagerProps) {
   const track = React.useRef<HTMLDivElement>(null);
-  // The swipe position drives the art and the dots straight on the DOM, every frame; React only hears the page change.
   const arts = React.useRef<(HTMLDivElement | null)[]>([]);
   const dots = React.useRef<(HTMLSpanElement | null)[]>([]);
   const [at, setAt] = React.useState(0);
@@ -38,7 +37,6 @@ export function MobileOnboardingPager({ pages, onDone, doneLabel = "Get started"
     });
     dots.current.forEach((el, i) => {
       if (!el) return;
-      // Width follows the swipe position, so the dot stretches between pages instead of jumping.
       const near = Math.max(0, 1 - Math.abs(pos - i));
       el.style.width = `${7 + near * 13}px`;
       el.style.opacity = String(0.25 + near * 0.75);

@@ -29,7 +29,6 @@ const FIELD = "input:not([type=hidden]):not([disabled]), textarea:not([disabled]
 export function useReturnFocus(open: boolean) {
   const back = React.useRef<HTMLElement | null>(null);
   const was = React.useRef(false);
-  // Read while rendering the open: focus hasn't moved into the dialog yet, so this is what opened it.
   if (open && !was.current && typeof document !== "undefined") back.current = document.activeElement as HTMLElement | null;
   was.current = open;
   return React.useCallback((e: Event) => {

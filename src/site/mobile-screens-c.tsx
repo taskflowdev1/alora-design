@@ -1,5 +1,3 @@
-// Example app screens, part C: More, POS (cart, payment, receipt), Approvals, Schedule, Settings, Account, Sign in,
-// one-time code, Welcome.
 import * as React from "react";
 import {
   BarChart2,
@@ -130,7 +128,6 @@ export function PosScreen({ back }: ScreenProps) {
   const items = Object.values(c).reduce((s, n) => s + n, 0);
   const total = totalOf(c);
   const setQty = (sku: string, v: number) => cartStore.set(Object.fromEntries(Object.entries({ ...c, [sku]: v }).filter(([, n]) => n > 0)));
-  // Clearing is one tap, so it can be undone instead of asked about.
   const clear = () => {
     const before = c;
     cartStore.set({});
@@ -168,7 +165,6 @@ export function PosScreen({ back }: ScreenProps) {
         }
       >
         <MobileList>
-          {/* A tap on the row adds one; the stepper shows only once it's in the cart, so names keep their width. */}
           {list.map((p) => {
             const n = c[p.sku] ?? 0;
             const room = Math.max(p.stock, n);
@@ -176,7 +172,6 @@ export function PosScreen({ back }: ScreenProps) {
               <MobileListRow
                 key={p.sku}
                 media={<Thumb src={productPhoto(p.sku)} alt={p.name} size={40} />}
-                // Two lines, so the stepper never cuts the name of what is being sold.
                 title={<span className="line-clamp-2 whitespace-normal leading-[1.25]">{p.name}</span>}
                 subtitle={p.stock ? formatRp(p.price) : `${formatRp(p.price)} · out of stock`}
                 onClick={n ? undefined : p.stock ? () => setQty(p.sku, 1) : undefined}
@@ -199,7 +194,6 @@ export function PosScreen({ back }: ScreenProps) {
         </MobileList>
       </MobileScreen>
       <MobileActionBar>
-        {/* Off only while the cart is empty, and then the label says so. */}
         <Button variant="primary" disabled={!items} onClick={() => nav.push("pos-pay")}>
           {items ? `Charge ${formatRp(total)}` : "Add an item to charge"}
         </Button>
@@ -243,7 +237,6 @@ export function PosPayScreen({ back }: ScreenProps) {
   const [cash, setCash] = React.useState(0);
   const up = (step: number) => Math.ceil((total + 1) / step) * step;
   const can = method !== "cash" || cash >= total;
-  // Take cash stays on: pressed with too little, the Change row says how much is missing and shakes once.
   const [tried, setTried] = React.useState(false);
   const changeRow = React.useRef<HTMLParagraphElement>(null);
   const refuse = () => {
@@ -305,7 +298,6 @@ export function PosPayScreen({ back }: ScreenProps) {
           variant="primary"
           onClick={() => {
             if (!can) return refuse();
-            // Paid: the receipt keeps its own copy of the lines and the cart empties now, so nothing can charge it twice.
             const lines = Object.entries(c)
               .map(([sku, n]) => `${sku}:${n}`)
               .join(",");
@@ -341,7 +333,6 @@ export function PosReceiptScreen({ params }: ScreenProps) {
   const method = params.method === "qris" ? "QRIS" : params.method === "card" ? "Debit card" : "Cash";
   return (
     <>
-      {/* The end of the sale: no Back into a paid cart. Done goes back to where the sale started. */}
       <MobileScreen title="Receipt" large={false} leading={<MobileBarTextButton onClick={() => nav.pop(2)}>Done</MobileBarTextButton>} bottomInset="action-bar">
         <div className="grid gap-4 px-pad pt-2">
           <div className="grid justify-items-center gap-2 py-2 text-center">
@@ -368,9 +359,6 @@ export function ApprovalsScreen({ back, state }: ScreenProps) {
   const nav = useNav();
   const [list, setList] = React.useState<Approval[]>(state === "empty" ? [] : APPROVALS);
   const [filter, setFilter] = React.useState("all");
-  // A decided card folds away over 220 ms, but its slot stays (empty) and the cards ignore taps for 400 ms, a double tap's
-  // reach: the second tap would otherwise land on the next card's button, which slid up under the finger. Undo puts back
-  // only that card, in its place, so stacked decisions all undo.
   const [leaving, setLeaving] = React.useState<string[]>([]);
   const timers = React.useRef(new Map<string, number>());
   React.useEffect(() => {
@@ -658,7 +646,6 @@ export function OtpScreen({ params, back }: ScreenProps) {
   const [status, setStatus] = React.useState<InputOTPStatus>("idle");
   const [wait, setWait] = React.useState(30);
   const [banner, setBanner] = React.useState(false);
-  // The message drops in like a phone notification and goes again after a while, as one would.
   React.useEffect(() => {
     if (!banner) return;
     const t = window.setTimeout(() => setBanner(false), 8000);
@@ -678,7 +665,6 @@ export function OtpScreen({ params, back }: ScreenProps) {
     window.setTimeout(() => {
       if (v === CODE) {
         setStatus("success");
-        // The green boxes and the status line already said it: no "Signed in" snack on top.
         window.setTimeout(() => nav.cover(null), otpLanded("join") + 500);
       } else {
         setStatus("invalid");
@@ -688,7 +674,6 @@ export function OtpScreen({ params, back }: ScreenProps) {
   };
   return (
     <MobileScreen title="" large={false} back={back} bottomInset="none">
-      {/* The message as the phone would show it: tap it to fill the code (what autofill does on a real phone). */}
       <button
         type="button"
         onClick={() => {

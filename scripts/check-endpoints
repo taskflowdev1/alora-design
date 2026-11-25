@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# curl the generated endpoints on a deployment (default: production).
 set -uo pipefail
 B=${1:-https://design.alorawork.com}
 fail=0
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
-probe() { # path expected-type must-contain
+probe() {
   local body type
   type=$(curl -s -o "$tmp" -w '%{http_code} %{content_type}' "$B$1")
   if [[ "$type" == 200\ $2* ]] && grep -qF -- "$3" "$tmp"; then echo "ok   $1"; else echo "FAIL $1 ($type)"; fail=1; fi

@@ -3,13 +3,6 @@ import { X } from "react-feather";
 import { cn } from "@/lib/ad";
 import { HoldLabel, SlidingPill } from "@/components/ui/sliding-pill";
 
-/*
- * One padding scale for every bubble: pills, chips, filter bubbles, segments and tabs.
- *   --ad-bubble-x     (12 px at the default padding) for control-height bubbles
- *   --ad-bubble-x-sm  (8 px) for small pills (about 20 px tall)
- * Siblings in one row never look different.
- */
-
 export type StatusTone = "default" | "muted" | "attention";
 
 const dot: Record<StatusTone, string> = {
@@ -90,7 +83,7 @@ export function Chip({ selected, onRemove, size = "default", className, children
         "relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded-control px-bubble text-body ad-press active:scale-[0.97] [&_svg]:size-[16px]",
         height,
         selected
-          ? // Selected + keyboard focus darkens the pill a notch (in a ChipGroup the sliding pill does it).
+          ?
             cn(
               "font-medium text-ink",
               !sliding &&

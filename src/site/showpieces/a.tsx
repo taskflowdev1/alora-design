@@ -1,5 +1,3 @@
-// Showpiece batch A: each component's page demo, its tile on the Components page (inside a Mark, exactly once)
-// and its moment on the landing. Aggregated in ./index.ts.
 import type * as React from "react";
 import { Card } from "@/components/ui/card";
 import { BalancePrivacyWave } from "@/components/ui/balance-privacy-wave";
@@ -8,7 +6,6 @@ import type { Demo } from "../demos";
 import { Mark, Tile, type TileDef } from "../mark";
 import type { ShowpieceMoment } from "./types";
 
-// A click on these plays with them instead of opening the page behind the tile.
 const stay = (e: React.MouseEvent) => e.stopPropagation();
 
 export const DEMOS: Record<string, Demo> = {
@@ -71,6 +68,5 @@ export const MOMENTS: ShowpieceMoment[] = [
       </Card>
     ),
   },
-  // Sliding is a thumb gesture: on a mouse it's work, so the landing shows it on touch screens only.
   { id: "slide-to-pay", title: "Slide to pay", to: "/components/slide-to-pay", width: "max-w-[440px]", touchOnly: true, render: () => <SlideToPay /> },
 ];

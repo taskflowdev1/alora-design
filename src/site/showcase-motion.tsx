@@ -1,5 +1,3 @@
-// The motion set (number dial, password, theme switch, step form, linked highlight and the chat upgrades): the live
-// pieces the Components page, the landing bands and the detail pages share, then their bento tiles.
 import * as React from "react";
 import { BarChart2, Database, FileText, Layers, Package, TrendingDown } from "react-feather";
 import { cn, formatDate, formatNumber, formatRp } from "@/lib/ad";
@@ -141,7 +139,6 @@ export function ThemePreview({ system = true, iconOnly = false, className }: { s
   const area = React.useRef<HTMLDivElement>(null);
   return (
     <div ref={area} className={cn("grid gap-3", className)}>
-      {/* One soft box in the chosen theme's fill (the page grey read as a hole inside the card): label and number. */}
       <TokenScope config={config} className="grid gap-1 rounded-card bg-fill px-4 py-3 text-ink">
         <span className="text-body font-medium">Today</span>
         <span className="text-number font-semibold tabular-nums">{formatRp(12_480_000)}</span>
@@ -177,7 +174,6 @@ export function PurchaseOrderForm({ className }: { className?: string }) {
             return e;
           },
           content: (
-            // The step title already says Supplier; the field says what it asks for.
             <Field label="Name" error={error} htmlFor="po-supplier">
               <Input id="po-supplier" placeholder="Keramik Plered" value={supplier} invalid={!!error} onChange={(e) => (setSupplier(e.target.value), error && setError(undefined))} autoComplete="off" />
             </Field>
@@ -231,7 +227,6 @@ const WEEK_SERIES = [
 
 export function LinkedSales({ className }: { className?: string }) {
   const brush = useBrush();
-  // Read inside the component: showcase-more imports this file too, so its data isn't ready at module load.
   const WEEK = SALES_14.slice(-7);
   const jt = (n: number) => `${formatNumber(n / 1e6, { maximumFractionDigits: 1 })} jt`;
   return (
@@ -501,7 +496,6 @@ export function StockCountTile({ className }: { className?: string }) {
       <Mark name="number-dial" className="flex-1 content-center">
         <DialDemo preset="quantity" />
       </Mark>
-      {/* The form fits, so Save sits at its bottom right, like the other tiles' main actions. */}
       <Button variant="primary" className="self-end" onClick={() => toast("Count saved")}>
         Save count
       </Button>

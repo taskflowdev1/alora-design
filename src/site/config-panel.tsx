@@ -50,7 +50,6 @@ function CornerControl({ value, onChange }: ControlProps) {
         value={value.corner}
         onValueChange={(corner) => onChange({ corner })}
         options={(["square", "round", "squircle"] as const).map((c) => ({ value: c, label: withIcon(<CornerGlyph shape={c} />, c[0].toUpperCase() + c.slice(1)) }))}
-        // Three icon + label options in the 288 px controls card: the small segment padding keeps the 16 px icons inside it.
         className="w-full [&>button]:flex-1 [&>button]:px-bubble-sm"
       />
     </Labelled>
@@ -98,7 +97,6 @@ const HEX = /^#?[0-9a-f]{6}$/i;
 const normHex = (v: string) => (v.startsWith("#") ? v : `#${v}`).toLowerCase();
 
 function AccentControl({ value, onChange, large }: ControlProps & { large?: boolean }) {
-  // The field holds what you type; only a full hex reaches the config, and a half-typed one goes back on blur.
   const [hex, setHex] = React.useState(value.accent);
   const [synced, setSynced] = React.useState(value.accent);
   if (synced !== value.accent) {
@@ -117,7 +115,6 @@ function AccentControl({ value, onChange, large }: ControlProps & { large?: bool
             onClick={() => onChange({ accent: s })}
             data-shape="round"
             className={cn(
-              // A colour swatch has no grey step to move to: hover and keyboard focus darken it slightly.
               "ad-hit grid cursor-pointer place-items-center rounded-full text-thumb transition-[scale,filter] duration-[150ms] ease-ad hover:brightness-[0.9] focus-visible:brightness-[0.85] active:scale-[0.92]",
               large ? "size-7" : "size-6",
             )}

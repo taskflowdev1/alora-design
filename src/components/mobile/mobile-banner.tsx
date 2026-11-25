@@ -46,7 +46,6 @@ export function MobileBanner({ open, icon: Icon, children, action, tone = "neutr
               onClick={action.onClick}
               className="group/act -my-3 -mr-1.5 grid h-touch shrink-0 cursor-pointer place-items-center self-center px-0.5 text-[15px] font-semibold outline-none ad-press active:scale-[0.97] data-pressed:scale-[0.97]"
             >
-              {/* It looks like a button: a small pill (32 px) in a 44 px hit area. */}
               <span className="flex h-[32px] items-center rounded-control bg-surface px-3 transition-colors duration-[150ms] ease-ad group-focus-visible/act:bg-fill">{action.label}</span>
             </button>
           ) : null}

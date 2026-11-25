@@ -42,7 +42,6 @@ function Column({ label, list, selected, open, onPick, onCross, colRef }: Column
       ref={colRef}
       role="listbox"
       aria-label={label}
-      // Rows snap to whole cells, so the two columns' rows always sit on one line.
       className="grid max-h-56 snap-y snap-mandatory gap-px overflow-auto overscroll-contain"
       onKeyDown={(e) => {
         const n = list.length;
@@ -64,12 +63,10 @@ function Column({ label, list, selected, open, onPick, onCross, colRef }: Column
             type="button"
             role="option"
             aria-selected={isSel}
-            // One tab stop per column (roving): arrows move inside it, ←/→ to the other column.
             tabIndex={i === active ? 0 : -1}
             onClick={() => onPick(n)}
             className={cn(
               "flex h-item w-12 shrink-0 cursor-pointer snap-start items-center justify-center rounded-control text-body tabular-nums ad-press active:scale-[0.97]",
-              // Selected: the grey pill on a surface, not solid ink. With keyboard focus it darkens a notch.
               isSel
                 ? "bg-fill-strong font-medium text-ink focus-visible:brightness-[0.88] dark:focus-visible:brightness-[0.78]"
                 : "text-ink hover:bg-fill focus-visible:bg-fill",
@@ -87,7 +84,6 @@ function Column({ label, list, selected, open, onPick, onCross, colRef }: Column
 export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pick a time", className }: TimePickerProps) {
   const [open, setOpen] = usePopupOpen();
   const press = usePressOpen(open, setOpen);
-  // Opened from the keyboard, focus lands on the chosen hour; opened with a pointer, on the panel (no focus fill shows).
   const viaKeyboard = React.useRef(false);
   const [h, m] = (value ?? "").split(":").map(Number);
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -96,7 +92,6 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
   const minuteCol = React.useRef<HTMLDivElement>(null);
   const cols = [hourCol, minuteCol];
 
-  // On open, scroll each column by whole rows so its choice sits near the middle; both columns then share one row grid.
   React.useEffect(() => {
     if (!open) return;
     const id = requestAnimationFrame(() =>
@@ -149,7 +144,6 @@ export function TimePicker({ value, onValueChange, step = 15, placeholder = "Pic
             requestAnimationFrame(() => (viaKeyboard.current ? focusCol(0) : panel.focus()));
           }}
           onKeyDown={(e) => {
-            // Opened with a pointer, the panel holds focus: the first arrow key moves into the hours.
             if (e.target === e.currentTarget && e.key.startsWith("Arrow")) {
               e.preventDefault();
               focusCol(0);

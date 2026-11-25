@@ -1,12 +1,3 @@
-/*
- * The Components page: every component live, composed into a bento like the landing's. Each band is a job a screen
- * does (Inputs, Workflow, Documents…) on one 12-column grid; each tile is components in real use (an orders page, a
- * form, a filter, a table, an overlay opened in place). Every component sits inside a `Mark`: hover shows a soft fill
- * and a chip with its name that opens its page with the sliders; a click on its empty space does the same.
- *
- * BANDS is the page's whole layout. Bands are not registry groups: the sidebar and docs list what a component is, this
- * page shows where it's used. A new tile needs a place here, or the smoke coverage check fails.
- */
 import * as React from "react";
 import { Search as SearchIcon } from "react-feather";
 import { cn } from "@/lib/ad";
@@ -211,7 +202,6 @@ export function ComponentBento({ query }: { query: string }) {
     const t = TILES.get(key);
     return t && t.items.some(match) ? t : undefined;
   };
-  // A search on a mouse skips the touch-only tiles, so a band never shows a heading over nothing.
   const skipTouch = !!q && window.matchMedia("(pointer: fine)").matches;
   const bands = BANDS.map((b) => ({
     title: b.title,
@@ -225,10 +215,6 @@ export function ComponentBento({ query }: { query: string }) {
     <div className="grid gap-10" data-components={COMPONENT_ITEMS.filter((i) => i.showcase !== false).map((i) => i.name).join(",")}>
       {bands.length === 0 ? <EmptyState icon={SearchIcon} title="No component by that name" /> : null}
       {bands.map((b) => (
-        // Phones and tablets: off screen a band isn't rendered at all, so a frame's work never covers the whole page (the
-        // header's slide on a scroll turn re-sorted every layer of it, a visible hitch). Each band keeps
-        // the height it last showed ("auto"), so nothing above the view changes size as you scroll back. Not on desktop: the
-        // side list jumps mid-page, and Safari has no scroll anchoring to absorb bands above filling in.
         <section key={b.title} aria-label={b.title} data-group={b.title} className="grid gap-3 max-lg:[contain-intrinsic-size:auto_900px] max-lg:[content-visibility:auto]">
           <h2 className="text-title font-semibold text-ink">{b.title}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">

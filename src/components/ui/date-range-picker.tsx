@@ -88,14 +88,10 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
   const [view, setView] = React.useState(() => new Date(value.to.getFullYear(), value.to.getMonth(), 1));
   const [anchor, setAnchor] = React.useState<Date | null>(null);
   const [hover, setHover] = React.useState<Date | null>(null);
-  // Keyboard: one day is the Tab stop; arrows move it by day and week (across months), Enter or Space picks it.
   const [focus, setFocus] = React.useState<Date>(() => startOfDay(value.to));
   const grid = React.useRef<HTMLDivElement>(null);
   const moved = React.useRef(false);
-  // How fast the band follows: a preset morphs, the pointer tracks, the keyboard is instant.
   const [speed, setSpeed] = React.useState(260);
-  // The trigger keeps the range it had when the panel opened until the panel has finished leaving: a longer label
-  // would grow the trigger and drag the fading panel sideways with it.
   const [held, setHeld] = React.useState<DateRange | null>(null);
   const [open, setOpen] = usePopupOpen({
     onOpenChange: (o) => {
@@ -159,7 +155,6 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
     } else setOpen(false, true);
   };
 
-  // One band per week: it collapses toward the side the range will grow from, so it flows from row to row like text.
   const lo = startOfDay(shown.from);
   const hi = startOfDay(shown.to);
   const bands = Array.from({ length: Math.ceil(days.length / 7) }, (_, w) => {
@@ -285,7 +280,6 @@ export function DateRangePicker({ value, onValueChange, presets = DEFAULT_PRESET
                 className={cn(
                   "grid h-item cursor-pointer place-items-center rounded-control text-body tabular-nums ad-press active:scale-[0.97]",
                   inline ? "w-full" : "w-(--ad-item-h)",
-                  // The cap under an end darkens a notch on hover and focus, like the Calendar's chosen day.
                   edge ? "text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" : "hover:bg-fill-strong focus-visible:bg-fill-strong",
                   !inMonth && !edge && "text-ink-muted",
                   sameDay(d, today) && !edge && "font-semibold",

@@ -83,7 +83,6 @@ export function CodeBlock({ code, title, lineNumbers, maxHeight = 420, onCopy, c
             );
           }}
         >
-          {/* The icons cross over: the outgoing one shrinks and blurs as it fades. */}
           <span className="relative grid size-[16px] place-items-center [&>svg]:absolute [&>svg]:transition-[opacity,scale,filter] [&>svg]:duration-[160ms] [&>svg]:ease-ad">
             <Copy className={cn(copied && "opacity-0 scale-[0.8] blur-[2px]")} />
             <Check className={cn(!copied && "opacity-0 scale-[0.8] blur-[2px]")} />

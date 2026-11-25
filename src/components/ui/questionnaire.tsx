@@ -32,7 +32,6 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
   const [i, setI] = React.useState(0);
   const [answers, setAnswers] = React.useState<Answers>({});
   const [error, setError] = React.useState(false);
-  // Forward slides in from the right, Back from the left, so the flow reads as a row of steps.
   const [dir, setDir] = React.useState<1 | -1>(1);
   const go = (to: number) => (setDir(to > i ? 1 : -1), setI(to));
   const q = questions[i];
@@ -81,8 +80,6 @@ export function Questionnaire({ questions, onSubmit, skippable = true, submitLab
                 onClick={() => pick(o)}
                 className={cn(
                   "flex h-control w-full cursor-pointer items-center gap-2.5 rounded-control px-3 text-left text-body ad-press active:scale-[0.99]",
-                  // Chosen: the grey pill (fill-strong), medium, with its check; never solid ink. Keyboard focus on it darkens
-                  // it a notch. A skipped question doesn't tint the options; the message under them says what to do.
                   on(o)
                     ? "bg-fill-strong font-medium text-ink focus-visible:brightness-[0.88] dark:focus-visible:brightness-[0.78]"
                     : "bg-fill text-ink hover:bg-fill-strong focus-visible:bg-fill-strong",

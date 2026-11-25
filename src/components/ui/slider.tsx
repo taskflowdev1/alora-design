@@ -21,7 +21,6 @@ export function Slider({ value, onValueChange, min, max, step = 1, label, displa
   return (
     <div className={cn("grid gap-1.5", className)}>
       <div className="flex items-center justify-between gap-3 text-body">
-        {/* Not a native label (the thumb is a span), so a click on it focuses the thumb by hand. */}
         <label id={id} className="cursor-default text-ink-muted" onClick={() => thumb.current?.focus()}>
           {label}
         </label>
@@ -42,8 +41,6 @@ export function Slider({ value, onValueChange, min, max, step = 1, label, displa
         <S.Thumb
           ref={thumb}
           aria-label={label}
-          // 16 px thumb; a transparent 4 px ::after pad makes it a 24 px target. Hover anywhere on the slider and keyboard
-          // focus take the same step (ink-muted).
           className="relative block size-[16px] rounded-full bg-thumb shadow-thumb transition-[transform,scale,background-color] duration-[150ms] ease-ad after:absolute after:-inset-[4px] after:rounded-full group-hover:bg-ink-muted focus-visible:bg-ink-muted active:scale-[0.97]"
         />
       </S.Root>

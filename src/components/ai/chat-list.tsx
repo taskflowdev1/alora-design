@@ -176,7 +176,6 @@ function Row({ chat, selected, query, archived, props }: { chat: ChatListItem; s
                     icon={Edit2}
                     onSelect={() => {
                       setTitle(chat.title);
-                      // After the menu closes and hands focus back, so the field keeps it.
                       window.setTimeout(() => setEditing(true), 0);
                     }}
                   >

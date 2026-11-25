@@ -58,7 +58,6 @@ export function Products() {
   const [draft, setDraft] = React.useState({ name: "", price: null as number | null, stock: 10, tags: ["Handmade"] as string[] });
   const [files, setFiles] = React.useState<DropFile[]>([]);
   const phone = useMediaQuery("(max-width: 767.98px)");
-  // A phone has no inline cells: a row opens a small sheet with the same two edits.
   const [editing, setEditing] = React.useState<string | null>(null);
   const [edit, setEdit] = React.useState({ price: null as number | null, stock: 0 });
   const edited = rows.find((r) => r.sku === editing);
@@ -116,7 +115,6 @@ export function Products() {
             <THead>
               <tr>
                 <TH>Product</TH>
-                {/* SKU yields first below xl, so the sales trend never sits past the table's edge at 1024. */}
                 <TH className="max-xl:hidden">SKU</TH>
                 <TH align="right">Price</TH>
                 <TH align="right">Stock</TH>

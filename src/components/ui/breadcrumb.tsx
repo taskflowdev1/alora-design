@@ -31,7 +31,6 @@ export function Breadcrumb({ items, max = 4, className }: BreadcrumbProps) {
           return (
             <li key={i} className={cn("flex min-w-0 items-center gap-0.5", last ? "shrink" : "shrink-0")}>
               {c === "more" ? (
-                // The hidden levels open in a menu, so each one can still be reached.
                 <Menu
                   trigger={
                     <button

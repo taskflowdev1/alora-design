@@ -29,7 +29,6 @@ export function Team() {
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card inset="nest" className="grid gap-px">
           {TEAM_DETAIL.map((t) => (
-            // No hover fill: the row itself does nothing (its role select is the control).
             <div key={t.email} className="flex min-h-[calc(var(--ad-row-h)+16px)] items-center gap-3 rounded-item px-2.5 py-1.5">
               {loading ? <Skeleton className="size-8 rounded-full" /> : <Avatar name={t.name} />}
               <div className="min-w-0 flex-1">
@@ -48,7 +47,6 @@ export function Team() {
                   {t.active === "Online" ? <Status>Online</Status> : t.active === "Invited" ? <Pill tone="neutral">Invited</Pill> : <span className="text-body text-ink-muted">{t.active}</span>}
                 </Loading>
               </span>
-              {/* One width for every role, so the shop and last-active columns line up row to row. */}
               <Loading loading={loading} className="w-28">
                 <Select
                   aria-label={`${t.name} role`}
@@ -71,7 +69,6 @@ export function Team() {
             events={TEAM_ACTIVITY.map((a) => ({
               id: a.id,
               time: a.time,
-              // Two lines before it cuts, so "changed the courier for Dago to SiCepat" reads whole in the 380 px card.
               title: (
                 <span className="line-clamp-2 whitespace-normal">
                   <L>

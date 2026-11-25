@@ -25,7 +25,6 @@ export function StepPanels({ step, children, className }: StepPanelsProps) {
   const outer = React.useRef<HTMLDivElement>(null);
   const inner = React.useRef<HTMLDivElement>(null);
   const [height, setHeight] = React.useState<number | null>(null);
-  // Two divs: the outer one animates to the measured height of the inner one.
   React.useLayoutEffect(() => {
     const el = inner.current;
     if (!el) return;

@@ -1,8 +1,3 @@
-// Headless smoke test on its own port: every route renders without errors and the key interactions work.
-// Each section gets its own browser context, so sections can run side by side on a small pool of workers.
-//   node scripts/smoke.mjs                     every section (the full gate)
-//   SMOKE_SECTIONS=a,b node scripts/smoke.mjs  only those sections (scripts/verify --changed picks them)
-//   SMOKE_WORKERS=1 node scripts/smoke.mjs     one at a time, to debug an ordering problem
 import { AsyncLocalStorage } from "node:async_hooks";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
@@ -10,7 +5,6 @@ import { freemem } from "node:os";
 import { chromium } from "playwright-core";
 import { SECTIONS, routeEntry } from "./lib/smoke-map.mjs";
 
-// A free port per run: on a fixed one a second run would silently test the first run's build.
 const freePort = () =>
   new Promise((resolve, reject) => {
     const s = createServer();
@@ -22,7 +16,6 @@ const freePort = () =>
   });
 const PORT = Number(process.env.SMOKE_PORT) || (await freePort());
 const BASE = `http://127.0.0.1:${PORT}`;
-// SITE_DIST: the build folder (scripts/verify builds into TMPDIR); default is vite's own dist/.
 const outDir = process.env.SITE_DIST ? ["--outDir", process.env.SITE_DIST] : [];
 const server = spawn("node_modules/.bin/vite", ["preview", ...outDir, "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { stdio: "ignore" });
 process.on("exit", () => server.kill("SIGTERM"));
@@ -40,21 +33,15 @@ if (!serving) {
   process.exit(1);
 }
 
-// Yoga is short on memory and the job queue stops work below 3 GiB free. Each worker is a renderer process (about 0.3 GiB
-// on the heaviest pages), so use four only when the run leaves that margin.
 const freeGiB = freemem() / 1024 ** 3;
 const WORKERS = process.env.SMOKE_WORKERS ? Number(process.env.SMOKE_WORKERS) : freeGiB >= 5.5 ? 4 : freeGiB >= 4.5 ? 3 : 2;
 const ONLY = process.env.SMOKE_SECTIONS === undefined ? null : new Set(process.env.SMOKE_SECTIONS.split(",").filter(Boolean));
-// A bad setting must not turn into a pass with nothing run.
 if (!Number.isInteger(WORKERS) || WORKERS < 1 || ONLY?.size === 0) {
   console.log(`FAIL bad smoke settings (SMOKE_WORKERS=${process.env.SMOKE_WORKERS}, SMOKE_SECTIONS=${process.env.SMOKE_SECTIONS})`);
   console.log("SMOKE FAIL (1)");
   process.exit(1);
 }
 
-// The flap pushes the page with a FLIP slide; on a loaded machine it can still be moving after a fixed wait, so wait for
-// the finite animations on the page box and the panel to end. The landing's own demos keep restarting short animations,
-// so a page-wide wait would run out its timeout there every time. `selector` widens it.
 const settled = (pg, selector = "[data-page], [data-customize-panel]") =>
   pg
     .waitForFunction(
@@ -63,10 +50,8 @@ const settled = (pg, selector = "[data-page], [data-customize-panel]") =>
       { timeout: 4000 },
     )
     .catch(() => {});
-// Two painted frames: a transition started by the last state change is now visible to getAnimations().
 const frames = (pg) => pg.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 const failures = [];
-// Which section a check belongs to, so a section re-run after a host network blip can drop its first attempt's failures.
 const inSection = new AsyncLocalStorage();
 const check = (ok, msg) => (ok ? console.log(`ok   ${msg}`) : (failures.push({ msg, section: inSection.getStore() }), console.log(`FAIL ${msg}`)));
 const near = (a, b) => Math.abs(a - b) <= 0.5;
@@ -74,11 +59,8 @@ const chunks = (xs, n) => Array.from({ length: n }, (_, i) => xs.filter((_, j) =
 const browser = await chromium.launch();
 let classicBrowser;
 const classic = () => (classicBrowser ??= chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"] }));
-// Every page error from any section's main or phone page fails the run, whichever order the sections ran in.
 const allErrors = [];
 
-// Navigation waits for the app itself rather than a fixed quiet period on the network: the document loaded, React
-// mounted, fonts and eager images arrived, nearby phones and simulated loads finished, and two frames painted. Every goto on every page of this run does this.
 const probe = await browser.newContext();
 const Page = Object.getPrototypeOf(await probe.newPage());
 await probe.close();
@@ -89,15 +71,12 @@ Page.goto = async function (url, options) {
     () =>
       document.readyState === "complete" &&
       document.querySelector("#root")?.childElementCount > 0 &&
-      // A client redirect changes the URL a moment before the new page renders.
       document.querySelector("#content, [data-mobile-app]")?.childElementCount > 0 &&
       document.fonts.status === "loaded" &&
       [...document.images].every((i) => i.complete || i.loading === "lazy"),
     null,
     { timeout: 15000 },
   );
-  // A phone placeholder near the screen is about to mount (600 px margin); a pulse inside a phone is a simulated load about
-  // to finish. The phone skeleton demo pulses for good, so this wait is capped rather than required.
   await this.waitForFunction(
     () =>
       ![...document.querySelectorAll(".animate-ad-pulse")].some((el) => {
@@ -116,18 +95,12 @@ const sections = [];
 /** Register a section. A name can have several parts (a long sweep split across workers). */
 const section = (name, run) => sections.push({ name, run });
 
-// Mobile: its own header tab, every mobile page at a 390 px phone viewport (renders, no sideways scroll,
-// every touch target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh,
-// snackbar above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
 const MOBILE = ["mobile-tab-bar", "mobile-nav-bar", "mobile-action-bar", "mobile-list", "mobile-swipe-row", "mobile-pull-refresh", "mobile-list-skeleton", "mobile-empty-state", "mobile-sheet", "mobile-action-sheet", "mobile-date-picker", "mobile-segmented", "mobile-search-bar", "mobile-stepper", "mobile-snackbar"];
-// Mobile v2: the rest of the set, and every screen of the example app (with its forced states) at /mobile/app/<screen>.
 const MOBILE_2 = ["mobile-filter-chips", "mobile-top-tabs", "mobile-choice-rows", "mobile-person-row", "mobile-index-list", "mobile-picker-sheet", "mobile-multi-select", "mobile-date-range", "mobile-context-menu", "mobile-modal", "mobile-alert", "mobile-text-field", "mobile-keypad", "mobile-slider", "mobile-photo-picker", "mobile-scanner", "mobile-signature", "mobile-otp", "mobile-stat-tiles", "mobile-kpi-carousel", "mobile-scrub-chart", "mobile-timeline", "mobile-steps", "mobile-receipt", "mobile-badge", "mobile-banner", "mobile-upload-row", "mobile-onboarding", "mobile-chat"];
 MOBILE.push(...MOBILE_2);
-// Each PWA part is a scene on /mobile, not a tile in the screens overview.
 const MOBILE_PWA = ["mobile-install-prompt", "mobile-passkey", "mobile-push-ask", "mobile-app-header", "mobile-app-badge", "mobile-sync-status", "mobile-update-toast", "mobile-page-stack", "mobile-share", "mobile-camera", "mobile-wake-lock", "mobile-state-button"];
 const APP_SCREENS = ["home", "notifications", "search", "reports", "orders", "order", "delivery", "products", "product", "product-edit", "stock-count", "inbox", "chat", "assistant", "more", "customers", "customer", "pos", "pos-pay", "pos-receipt", "approvals", "schedule", "settings", "account", "login", "otp", "onboarding"];
 const APP_STATES = ["home?state=offline", "notifications?state=empty", "search?state=empty", "reports?state=error", "approvals?state=empty"];
-// Gestures, on the detail pages at desktop width (phone frame at full scale).
 const drag = async (page, from, dx, dy, steps = 12) => {
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
@@ -174,7 +147,6 @@ section("routes", async ({ page }) => {
 });
 
 section("flap", async ({ page }) => {
-  // Customize flap: hover opens the left panel and pushes the page flush right; leaving closes it.
   await page.goto(BASE + "/");
   await page.mouse.move(700, 450);
   await page.locator("[data-customize-flap]").hover();
@@ -191,7 +163,6 @@ section("flap", async ({ page }) => {
   await sleep(800);
   check((await page.locator("[data-customize-panel]").getAttribute("data-state")) === "closed", "flap closes on leave");
 
-  // The open panel scrolls on its own: wheel over it never moves the page, wheel over the page never moves it.
   await page.goto(BASE + "/");
   await page.locator("[data-customize-flap]").click();
   await sleep(500);
@@ -204,7 +175,7 @@ section("flap", async ({ page }) => {
   }
   await sleep(300);
   const s1 = await scrolls();
-  await page.mouse.move(panelBox.x + panelBox.width / 2, 30); // the panel's title row
+  await page.mouse.move(panelBox.x + panelBox.width / 2, 30);
   await page.mouse.wheel(0, 600);
   await sleep(300);
   const s2 = await scrolls();
@@ -213,7 +184,7 @@ section("flap", async ({ page }) => {
   await sleep(400);
   const s3 = await scrolls();
   check(s1.page === 0 && s1.panel > 0 && s2.page === 0 && s3.page > 0 && s3.panel === s2.panel, `panel and page scroll separately (${JSON.stringify([s1, s2, s3])})`);
-  await page.setViewportSize({ width: 1440, height: 2600 }); // the panel's list now fits: nothing to chain from
+  await page.setViewportSize({ width: 1440, height: 2600 });
   await page.evaluate(() => scrollTo(0, 0));
   await sleep(400);
   await page.mouse.move(panelBox.x + panelBox.width / 2, 600);
@@ -226,7 +197,6 @@ section("flap", async ({ page }) => {
 });
 
 section("landing", async ({ page }) => {
-  // Header: the traced Alora wordmark (not typed text) + "design", same on every page
   await page.goto(BASE + "/");
   const logo = await page.evaluate(() => {
     const a = document.querySelector("header [data-logo]");
@@ -235,8 +205,6 @@ section("landing", async ({ page }) => {
   check(logo.svg && logo.text === "design" && logo.label === "Alora Design", `header shows the Alora logo (${JSON.stringify(logo)})`);
   check((await page.getAttribute("a:has-text('erp-ui skill')", "href")) === "https://github.com/JoshD94/ai-skills/tree/main/erp-ui", "hero links the erp-ui skill");
 
-  // Landing: one component at a time. Each moment is a linked title over one component. No tables, AI or backgrounds
-  // (they live on the Components, Examples, AI and Backgrounds pages).
   await page.goto(BASE + "/");
   const landing = await page.evaluate(() => ({
     moments: [...document.querySelectorAll("main [data-moment]")].map((m) => m.dataset.moment),
@@ -249,8 +217,6 @@ section("landing", async ({ page }) => {
     `landing: one titled component per moment, metric card first, no tables (${JSON.stringify(landing)})`,
   );
   check(landing.order.join() === "moments,footer", `landing: the component moments, then the closing footer (${JSON.stringify(landing)})`);
-  // The OTP opens on 123456 (shown faintly in the boxes); the dial's number takes typing and glides there; the palette
-  // keeps its height while it filters.
   await page.locator("[data-moment=otp] input").first().click();
   await page.keyboard.type("123456");
   await sleep(1600);
@@ -272,9 +238,6 @@ section("landing", async ({ page }) => {
 
 section("ai-composer", async ({ page }) => {
   await page.goto(BASE + "/ai");
-  // AI app (on /ai): the chat list is a sidebar left of the thread (240 to 280 px), the same height. The message box is one row,
-  // attach | text | send: both buttons one size, one inset on every side, a single text line centred on the buttons, and
-  // the radius is the button radius plus that inset (concentric). Three lines grow the box upward, buttons stay at the bottom.
   const agent = await page.evaluate(async () => {
     const c = document.querySelector("[data-agent-app] [data-chats]").getBoundingClientRect();
     const t = document.querySelector("[data-agent-app] [data-thread]").getBoundingClientRect();
@@ -325,7 +288,6 @@ section("phone-widths", async ({ errors, open }) => {
   check(pw[0] <= pw[1], `landing has no horizontal scroll on phone (${pw.join(" vs ")})`);
   await phone.close();
 
-  // 360 px: no horizontal page scroll anywhere; the header stays on one line
   const small = await open({ viewport: { width: 360, height: 780 }, isMobile: true, hasTouch: true });
   small.on("pageerror", (e) => errors.push(e.message));
   for (const path of ["/", "/components", "/components/select", "/ai", "/ai/thinking-orbs", "/backgrounds", "/backgrounds/sand-field", "/examples/dashboard", "/examples/orders", "/encyclopedia", "/export"]) {
@@ -341,14 +303,12 @@ section("phone-widths", async ({ errors, open }) => {
 });
 
 section("phone-customize", async ({ open }) => {
-  // Phone customize popover (a short phone, so it overflows): a touch scroll inside it never moves the page
   const short = await open({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
   await short.goto(BASE + "/");
   await short.locator("header button[aria-label=Customize]").tap();
   await sleep(400);
   const pop = await short.locator("[data-own-scroll]").boundingBox();
   const cdp = await short.context().newCDPSession(short);
-  // Real touch events: Chromium 158's headless shell ignores synthesizeScrollGesture (nothing scrolls, the page neither).
   const touchScroll = async (x, y, dy) => {
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: Math.round(x), y: Math.round(y) }] });
     for (let i = 1; i <= 12; i++) {
@@ -359,7 +319,6 @@ section("phone-customize", async ({ open }) => {
     await sleep(400);
   };
   const phoneScroll = () => short.evaluate(() => ({ page: Math.round(scrollY), box: Math.round(document.querySelector("[data-own-scroll]")?.scrollTop ?? -1) }));
-  // Start on the panel's own padding (a swipe that starts on a slider drags the slider); the second swipe is at the end.
   await touchScroll(pop.x + 6, pop.y + pop.height * 0.8, 300);
   await touchScroll(pop.x + 6, pop.y + pop.height * 0.8, 300);
   const t1 = await phoneScroll();
@@ -369,7 +328,6 @@ section("phone-customize", async ({ open }) => {
 });
 
 section("defaults", async ({ page }) => {
-  // Dark by default, neutral (no blue tint in the page colour)
   await page.goto(BASE + "/");
   const def = await page.evaluate(() => ({
     dark: document.documentElement.classList.contains("dark"),
@@ -379,7 +337,6 @@ section("defaults", async ({ page }) => {
   const rgb = def.page.match(/[0-9a-f]{2}/gi)?.map((h) => parseInt(h, 16)) ?? [];
   check(def.dark && rgb.length === 3 && Math.max(...rgb) - Math.min(...rgb) <= 1, `dark and neutral by default (page ${def.page}, brand ${def.brand})`);
 
-  // One header: same box on every page
   const boxes = new Set();
   for (const path of ["/", "/components", "/ai", "/backgrounds", "/examples/dashboard", "/encyclopedia", "/export"]) {
     await page.goto(BASE + path);
@@ -389,9 +346,6 @@ section("defaults", async ({ page }) => {
 });
 
 section("inline-edit", async ({ page }) => {
-  // Inline edit, the spreadsheet way: the editing box is the resting box (same rect, same text right edge, no input
-  // scroll, the row keeps its height), "Rp" stays outside the input, digits regroup while typing, Esc reverts, Tab moves to
-  // the next cell, a bad value is refused with its message, Enter saves.
   await page.goto(BASE + "/examples/products");
   await sleep(800);
   const price = page.locator('button[data-inline-edit][aria-label$=" price"]').first();
@@ -409,8 +363,6 @@ section("inline-edit", async ({ page }) => {
     const input = box?.querySelector("input");
     return box && {
       box: box.getBoundingClientRect().toJSON(),
-      // Where the typed digits really end: the input's left plus the drawn text width (the hidden [data-value] copy
-      // could sit right while the visible text in a too-wide input sits left).
       text: (() => {
         const cs = getComputedStyle(input);
         const c = document.createElement("canvas").getContext("2d");
@@ -458,10 +410,6 @@ section("inline-edit", async ({ page }) => {
 });
 
 section("press-scale", async ({ page }) => {
-  // Anchored pop-up triggers keep their size while pressed: a menu is placed against its trigger, so a press-shrink nudged
-  // the open menu on the click that closes it. Every anchored trigger on Orders (Filter, ⋯, the account menu…) stays at scale
-  // none under the mouse, and the open Filter popover doesn't move when its trigger is pressed again. Dialog triggers aren't
-  // anchored, so they still press to 0.97.
   await page.goto(BASE + "/examples/orders");
   await sleep(600);
   const triggers = page.locator('#content :is([data-ad-anchor], [aria-haspopup="menu"], [aria-haspopup="listbox"], [role="combobox"]):visible');
@@ -506,7 +454,6 @@ section("press-scale", async ({ page }) => {
 });
 
 section("nav-tabs", async ({ page }) => {
-  // Nav tabs: Components first, then AI, Backgrounds, Examples, Encyclopedia, Export; the current section is highlighted
   await page.goto(BASE + "/components/button");
   const tabs = await page.evaluate(() => {
     const nav = document.querySelector("header nav[aria-label=Sections]");
@@ -516,15 +463,12 @@ section("nav-tabs", async ({ page }) => {
 });
 
 section("encyclopedia", async ({ page }) => {
-  // Encyclopedia: every rule renders as a row, search filters them (and the URL keeps it), a row opens to its why/how/check,
-  // a rule with a demo shows it, and a search with no match shows the empty state.
   await page.goto(BASE + "/encyclopedia");
   const enc = async () =>
     page.evaluate(() => ({ rows: document.querySelectorAll("[data-encyclopedia] [data-rule]").length, count: document.querySelector("[data-rule-count]")?.textContent }));
   const encAll = await enc();
   check(encAll.rows >= 200 && encAll.count === String(encAll.rows), `encyclopedia renders every rule (${JSON.stringify(encAll)})`);
   await page.getByRole("searchbox", { name: "Search rules" }).fill("tabular");
-  // The list filters at once; the URL is written once typing stops.
   await page.waitForURL(/q=tabular/, { timeout: 3000 }).catch(() => {});
   const encQ = await enc();
   check(encQ.rows > 0 && encQ.rows < encAll.rows && encQ.count === `${encQ.rows} of ${encAll.rows}` && page.url().includes("q=tabular"), `encyclopedia search filters rules (${JSON.stringify(encQ)}, ${page.url()})`);
@@ -541,7 +485,6 @@ section("encyclopedia", async ({ page }) => {
 });
 
 section("components-index", async ({ page }) => {
-  // Components page: every component live in category bento tiles (each exactly once); a component's chip opens its sliders.
   await page.goto(BASE + "/components");
   const index = await page.evaluate(() => ({
     spots: document.querySelectorAll("[data-spot]").length,
@@ -550,10 +493,7 @@ section("components-index", async ({ page }) => {
     tiles: document.querySelectorAll("[data-fit], [inert] [data-spot]").length,
   }));
   check(index.spots >= 60 && index.missing.length === 0 && index.groups[0] === "Foundations" && index.tiles === 0, `components page: every component live exactly once, in category bento tiles (${JSON.stringify(index)})`);
-  // Like a person: centre it (clear of the sticky header), hover it, then move up onto its chip and click.
   await page.locator("[data-spot=select]").evaluate((el) => el.scrollIntoView({ block: "center" }));
-  // The bands above are long and full of live pieces: wait until the spot stops moving (fonts, photos and
-  // late measurements settle on a slow machine) before aiming at it.
   let selBox = null;
   for (let i = 0; i < 20; i++) {
     await sleep(250);
@@ -582,7 +522,6 @@ section("components-index", async ({ page }) => {
 });
 
 section("footer-tablet", async ({ page, open }) => {
-  // Footer: the credit on every page (the landing's closing card carries it), body size, one footer per page
   for (const path of ["/", "/components", "/ai", "/export"]) {
     await page.goto(BASE + path);
     const f = await page.evaluate(() => {
@@ -594,7 +533,6 @@ section("footer-tablet", async ({ page, open }) => {
     check(f.count === 1 && f.text === "Curated by Joshua Dirga · 2026" && f.href === "https://joshuadirga.com" && f.size === f.body, `${path} footer credit (${JSON.stringify(f)})`);
   }
 
-  // The customize tab never covers the page at tablet width
   const tablet = await open({ viewport: { width: 768, height: 900 } });
   for (const path of ["/", "/components", "/examples/dashboard"]) {
     await tablet.goto(BASE + path);
@@ -640,7 +578,6 @@ section("select-menu", async ({ page }) => {
   await page.click("main button:has-text('Actions')");
   await page.click("[role=menuitem]:has-text('Move to')");
   check(await page.locator("[role=menuitem]:has-text('To pack')").isVisible(), "submenu opens on click");
-  // Start from a closed menu. Escape closes one level at a time, and a pointer resting on "Move to" would reopen the submenu.
   await page.mouse.move(0, 0);
   for (let i = 0; i < 4 && (await page.locator("[role=menu]").count()); i++) {
     await page.keyboard.press("Escape");
@@ -649,7 +586,6 @@ section("select-menu", async ({ page }) => {
   await page.locator("[role=menu]").first().waitFor({ state: "detached", timeout: 5000 });
   await page.focus("main button:has-text('Actions')");
   await page.keyboard.press("Enter");
-  // The menu takes focus on the frame after it opens; keys pressed before that go to the trigger.
   await page.waitForFunction(() => document.activeElement?.closest("[role=menu]"), null, { timeout: 5000 });
   for (let i = 0; i < 8 && !(await page.evaluate(() => document.activeElement?.textContent?.startsWith("Move to"))); i++) await page.keyboard.press("ArrowDown");
   await page.keyboard.press("ArrowRight");
@@ -669,7 +605,6 @@ section("orders-settings", async ({ page }) => {
 });
 
 section("page-semantics", async ({ page }) => {
-  // Keyboard path: the first Tab lands on "Skip to content"; tabbing on never opens the Customize flap.
   await page.goto(BASE + "/");
   await page.mouse.move(1000, 450);
   await page.keyboard.press("Tab");
@@ -679,7 +614,6 @@ section("page-semantics", async ({ page }) => {
   const flapAfterTabs = await page.locator("[data-customize-panel]").getAttribute("data-state");
   check(firstTab === "Skip to content" && flapAfterTabs === "closed", `Tab 1 focuses the skip link, the flap stays closed (${firstTab}, ${flapAfterTabs})`);
 
-  // No link inside a link (two tab stops, read twice): the example sidebar rows are one link each.
   await page.goto(BASE + "/examples/orders");
   check((await page.locator("a a").count()) === 0, "no nested links on /examples/orders");
 
@@ -692,7 +626,6 @@ section("page-semantics", async ({ page }) => {
 });
 
 section("scroll-through", async ({ page, errors }) => {
-  // /components: a full scroll-through mounts every tile and none throws.
   const beforeScroll = errors.length;
   await page.goto(BASE + "/components");
   for (let y = 0, h = await page.evaluate(() => document.documentElement.scrollHeight); y < h; y += 700) {
@@ -704,7 +637,6 @@ section("scroll-through", async ({ page, errors }) => {
 });
 
 section("component-pages", async ({ page, errors }) => {
-  // Detail pages only: the Components page check above covers showing each one live exactly once.
   const MORE = ["button-group", "textarea", "input-group", "input-otp", "label", "calendar", "toggle", "data-table", "item", "accordion", "collapsible", "carousel", "aspect-ratio", "typography", "chart", "line-chart", "area-chart", "pie-chart", "radar-chart", "radial-chart", "breadcrumb", "navigation-menu", "menubar", "pagination", "alert-dialog", "resizable", "scroll-area", "message", "message-scroller", "marker", "trace", "attachment", "questionnaire", "code-block", "number-dial", "password-input", "theme-switch", "step-form", "brush", "prompt-suggestions", "streaming-text", "citation", "proposed-change", "reactions"];
   const before = errors.length;
   for (const name of MORE) {
@@ -716,8 +648,6 @@ section("component-pages", async ({ page, errors }) => {
 });
 
 section("motion-set", async ({ page }) => {
-  // The motion set: the dial steps by key and by typing, the password flags a common one at once and a short one only
-  // after leaving the field, the step form shows what is missing instead of moving on, and a table row moves the chart.
   await page.goto(BASE + "/components/number-dial");
   const dial = page.locator("[data-stage] [role=slider]");
   await dial.focus();
@@ -753,7 +683,6 @@ section("motion-set", async ({ page }) => {
 });
 
 section("chart-switch-pill", async ({ page }) => {
-  // Line chart: hovering shows one tooltip with every series.
   await page.goto(BASE + "/components/line-chart");
   const svg = page.locator("[data-stage] figure svg").first();
   const sb = await svg.boundingBox();
@@ -762,9 +691,6 @@ section("chart-switch-pill", async ({ page }) => {
   const tip = await page.locator("[data-stage] [role=status]").first().innerText().catch(() => "");
   check(/This fortnight/.test(tip) && /The one before/.test(tip), `line chart crosshair tooltip lists both series (${JSON.stringify(tip)})`);
 
-  // Switch: the thumb sits centred. Its inset from the track is equal (±0.5 px) on top, bottom, left (off) and right
-  // (on), and every size and inset is a whole pixel so the paint snaps the same on each side. Both sizes, two font sizes
-  // (the root font is the body size, so rem-based sizes would land on fractions).
   for (const size of ["default", "lg"]) {
     for (const f of [13, 15]) {
       await page.goto(`${BASE}/components/switch?size=${size}&f=${f}`);
@@ -793,8 +719,6 @@ section("chart-switch-pill", async ({ page }) => {
     }
   }
 
-  // Sliding pill: picking another option slides one shared fill there (in-between positions on the way), it ends exactly
-  // on the choice, and on load it already sits on the chosen option. Segmented, chip group, single toggle group, pagination.
   await page.goto(BASE + "/components/sliding-pill");
   const pillCases = [
     ["Segmented", '[role=radiogroup][aria-label="Range"]', "Month", '[aria-checked="true"]'],
@@ -811,7 +735,6 @@ section("chart-switch-pill", async ({ page }) => {
         return { p: Math.round(p.left * 10) / 10, o: Math.round(o.left * 10) / 10, w: Math.abs(p.width - o.width) < 0.6 };
       }, sel);
     const rest = await at();
-    // Sample the pill every frame from the click on, in the page, so the samples are not slowed by the test.
     const sampling = h.evaluate(
       (el) =>
         new Promise((done) => {
@@ -830,9 +753,6 @@ section("chart-switch-pill", async ({ page }) => {
 });
 
 section("mobile-index", async ({ page }) => {
-  // Mobile: its own header tab, every mobile page at a 390 px phone viewport (renders, no sideways scroll, every touch
-  // target at least 44 × 44), and the gestures (tab pill, sheet drag-to-dismiss, swipe row, pull to refresh, snackbar
-  // above the tab bar, action bar above the keyboard). Old names redirect to their mobile replacement.
   await page.goto(BASE + "/components");
   check(!(await page.locator('[role=radiogroup][aria-label="Platform"]').count()), "/components has no Desktop | Mobile switch");
   await page.goto(BASE + "/mobile");
@@ -845,7 +765,6 @@ section("mobile-index", async ({ page }) => {
   check(mobIndex.tab === "Mobile", `/mobile: Mobile tab lit (${mobIndex.tab})`);
   const unshown = MOBILE_PWA.filter((n) => n !== "mobile-state-button" && !mobIndex.pieces.includes(n));
   check(!unshown.length, `/mobile shows every installed-app part in a phone (missing: ${unshown.join(", ") || "none"})`);
-  // mobile-upload-row has its own page but no overview screen uses it (delivery photos upload in the photo strip).
   const tiled = MOBILE.filter((n) => n !== "mobile-upload-row");
   check(mobIndex.tiles === 21 && tiled.every((n) => mobIndex.parts.includes(n)), `/mobile links every mobile component from its screens (${mobIndex.tiles} tiles; missing: ${tiled.filter((n) => !mobIndex.parts.includes(n)).join(", ") || "none"})`);
   check(await page.locator('a[data-all-screens][href^="/mobile/screens"]').count(), "/mobile links to the screens gallery");
@@ -863,7 +782,6 @@ section("mobile-index", async ({ page }) => {
 });
 
 section("mobile-pwa", async ({ page }) => {
-  // The installed-app parts do their job: the install button keeps its size, the offline queue drains once online.
   await page.goto(BASE + "/mobile/mobile-install-prompt");
   const install = page.locator("[data-phone-screen] [role=dialog] button", { hasText: "Install" }).last();
   await install.waitFor();
@@ -942,8 +860,6 @@ section("mobile-gestures", async ({ page }) => {
 });
 
 section("mobile-flows", async ({ page }) => {
-  // Mobile v2 gestures and flows (desktop width, phone frames at full scale).
-  // The example app: every tab opens its own screen; a row pushes its detail in from the right; Back slides it out.
   await page.goto(BASE + "/mobile/app");
   const topScreen = () => page.evaluate(() => [...document.querySelectorAll("[data-app-screen]:not([aria-hidden])")].filter((e) => getComputedStyle(e.parentElement).visibility !== "hidden").map((e) => e.dataset.appScreen).pop());
   const tabsOk = [];
@@ -965,7 +881,6 @@ section("mobile-flows", async ({ page }) => {
   await sleep(500);
   check((await topScreen()) === "orders" && !(await page.locator('[data-app-screen="order"]').count()), "app: Back slides the order out and the list is on top again");
 
-  // Sign in → code → tap the WhatsApp message → signed in, back on the tabs.
   await page.goto(BASE + "/mobile/app/login");
   await page.locator("[data-mobile-action-bar] button", { hasText: "Send code" }).click();
   await page.locator("[data-phone-screen] button", { hasText: "Your Rimba code is" }).click();
@@ -974,7 +889,6 @@ section("mobile-flows", async ({ page }) => {
   await settled(page, "[data-app-screen]");
   check(!(await page.locator("[data-app-cover]").count()) && (await topScreen()) === "home", "app: sign in → code from the message → signed in on Home");
 
-  // Long press: the menu grows out of the pressed point; Esc closes it.
   await page.goto(BASE + "/mobile/mobile-context-menu");
   const lp = await centre(page.locator("[data-phone-screen] [role=listitem]").nth(1));
   await page.mouse.move(lp.x - 60, lp.y);
@@ -991,7 +905,6 @@ section("mobile-flows", async ({ page }) => {
   await page.locator("[data-phone-screen] [role=menu]").waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
   check(!(await page.locator("[data-phone-screen] [role=menu]").count()), "long-press menu: Esc closes it");
 
-  // Scrub chart: dragging across it turns the number into the point under the finger.
   await page.goto(BASE + "/mobile/mobile-scrub-chart");
   const chart = await centre(page.locator("[data-phone-screen] [role=slider]").first());
   await page.mouse.move(chart.b.x + 20, chart.y);
@@ -1001,7 +914,6 @@ section("mobile-flows", async ({ page }) => {
   await page.mouse.up();
   check(/Nov|Oct/.test(scrubbed) && !/last 30 days/.test(scrubbed), `scrub chart: the readout follows the finger (${scrubbed})`);
 
-  // Date range: two taps pick a range; the button names it.
   await page.goto(BASE + "/mobile/mobile-date-range?open=1");
   await sleep(700);
   await page.getByRole("gridcell", { name: "3 November", exact: true }).click();
@@ -1009,14 +921,12 @@ section("mobile-flows", async ({ page }) => {
   const rangeBtn = await page.locator("[data-phone-screen] [role=dialog] button", { hasText: /^Show / }).textContent();
   check(/3 – 9 Nov/.test(rangeBtn), `date range: start and end taps make the range (${rangeBtn})`);
 
-  // Keypad: a quick amount, then Delete drops one digit.
   await page.goto(BASE + "/mobile/mobile-keypad");
   await page.locator("[data-phone-screen] button", { hasText: "Exact" }).click();
   await page.getByRole("button", { name: "Delete, hold to clear" }).click();
   const amount = await page.locator("[data-phone-screen] output").textContent();
   check(amount === "Rp\u00a041.200", `keypad: Exact then Delete (${amount})`);
 
-  // Full-screen modal: Save is on from the start (with nothing changed it just closes); Cancel after an edit asks first.
   await page.goto(BASE + "/mobile/mobile-modal?open=1");
   await sleep(600);
   const modalSave = page.locator("[data-phone-screen] [role=dialog] [data-mobile-action-bar] button", { hasText: "Save" });
@@ -1032,7 +942,6 @@ section("mobile-flows", async ({ page }) => {
   const asks = await page.locator("[data-phone-screen] [role=alertdialog]", { hasText: "Discard your changes?" }).count();
   check(saveOn && closedClean && asks, `modal: Save sits in the bottom bar and is on at once, an untouched Save closes, Cancel after an edit asks (${JSON.stringify({ saveOn, closedClean, asks })})`);
 
-  // A–Z index: a tap low on the strip jumps the list down.
   await page.goto(BASE + "/mobile/mobile-index-list");
   const strip = await page.locator('[data-phone-screen] [role=slider][aria-label="Jump to letter"]').boundingBox();
   await page.mouse.click(strip.x + strip.width / 2, strip.y + strip.height * 0.9);
@@ -1040,7 +949,6 @@ section("mobile-flows", async ({ page }) => {
   const jumped = await page.evaluate(() => document.querySelector("[data-phone-screen] [data-mobile-screen]").scrollTop);
   check(jumped > 600, `A–Z index: tapping a letter jumps the list (${jumped})`);
 
-  // Approvals: the button and the swipe do the same; the snackbar offers Undo.
   await page.goto(BASE + "/mobile/app/approvals");
   await page.locator("[data-phone-screen] article button", { hasText: "Approve" }).first().click();
   await sleep(500);
@@ -1048,7 +956,6 @@ section("mobile-flows", async ({ page }) => {
   check(/Approved: Bubble wrap/.test(approved) && /Undo/.test(approved), `approvals: Approve removes the request and offers Undo (${approved})`);
 });
 
-// Every mobile page at 390 px, split across workers. Each part has its own phone context.
 const MOBILE_PATHS = ["/mobile", "/mobile/app", "/mobile/screens", ...MOBILE.map((n) => `/mobile/${n}`), ...MOBILE_PWA.map((n) => `/mobile/${n}`), ...APP_SCREENS.map((s) => `/mobile/app/${s}`), ...APP_STATES.map((s) => `/mobile/app/${s}`)];
 for (const paths of chunks(MOBILE_PATHS, 4)) {
   section("mobile-sweep", async ({ open }) => {
@@ -1059,7 +966,6 @@ for (const paths of chunks(MOBILE_PATHS, 4)) {
     /** Interactive things smaller than 44 × 44 inside the phone (layout size, so the frame's scale doesn't count). */
     const smallTargets = () =>
       ph.evaluate(() => {
-        // The full-screen app owns the page, so its sheets and modals (portalled to <body>) count too.
         const root = document.querySelector("[data-phone-screen]") ?? (document.querySelector("[data-mobile-app]") ? document.body : null);
         if (!root) return ["(no phone)"];
         const seen = [];
@@ -1073,22 +979,17 @@ for (const paths of chunks(MOBILE_PATHS, 4)) {
     for (const path of paths) {
       phErrors.length = 0;
       await ph.goto(BASE + path);
-      // The app's simulated loads and timed states (the OTP banner lands at 900 ms) run on the page clock, so jumping it
-      // reaches them at once and a loaded machine can't race them. Then let any entry animation finish.
       await ph.clock.runFor(1000);
       await frames(ph);
       await settled(ph, "*");
       const r = await ph.evaluate(() => ({
         over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         phone: !!(document.querySelector("[data-phone-screen]") ?? document.querySelector("[data-mobile-app]")),
-        // The phone itself fits the page (it scales down; nothing of it is cut off on the right).
         cut: Math.max(0, ...[...document.querySelectorAll("[data-phone-screen]")].map((f) => Math.round(f.getBoundingClientRect().right - document.documentElement.clientWidth))),
       }));
       const small = await smallTargets();
-      // mobile.input-16px: no field on a phone zooms the page when focused.
       const tiny = await ph.evaluate(() =>
         [...document.querySelectorAll("[data-phone-screen] input, [data-phone-screen] textarea, [data-mobile-app] input, [data-mobile-app] textarea, body > [role=dialog] input")]
-          // Only fields that take text zoom the page; Radix adds a hidden checkbox input for a Switch inside a form.
           .filter((el) => !["file", "checkbox", "radio", "range", "hidden"].includes(el.type) && parseFloat(getComputedStyle(el).fontSize) < 16)
           .map((el) => el.getAttribute("aria-label") || el.id || el.type)
           .slice(0, 3),
@@ -1098,10 +999,6 @@ for (const paths of chunks(MOBILE_PATHS, 4)) {
   });
 }
 
-// Classic scrollbars (Linux, or macOS with "always show scroll bars"): headless hides them by default, so this browser
-// keeps them. Nothing runs under the page scrollbar or past the page gutter, flap closed and open, and the right margin
-// equals the left. Inner scroll areas: a carousel's track shows no
-// bar, and the message scroller's bar sits in its own lane, clear of every message.
 const edges = (cpage) =>
   cpage.evaluate(() => {
     const cw = document.documentElement.clientWidth;
@@ -1118,14 +1015,10 @@ const edges = (cpage) =>
       if (b.width === 0 || b.height === 0 || b.right <= right + 0.5) continue;
       const st = getComputedStyle(el);
       if (st.visibility === "hidden" || st.opacity === "0") continue;
-      // Page-wide bands (the sticky header's background, main) span the page; their content is checked on its own.
       if (b.left <= document.querySelector("[data-page]").getBoundingClientRect().left + 0.5 && b.right >= cw - 0.5) continue;
-      // A glow drawn behind its box (z-index -1) is light, not content.
       if (st.position === "absolute" && st.zIndex === "-1") continue;
-      // A transparent wrapper whose padding keeps its content inside the gutter is fine (the page sections).
       const painted = st.backgroundColor !== "rgba(0, 0, 0, 0)" || st.boxShadow !== "none" || !el.children.length;
       if (!painted && b.right - parseFloat(st.paddingRight) <= right + 0.5) continue;
-      // Clipped by a scroll area or an overflow-hidden box inside the page: whatever pokes out is not painted.
       let p = el.parentElement;
       let clipped = false;
       for (; p && !p.matches("[data-page]"); p = p.parentElement) {
@@ -1144,8 +1037,6 @@ for (const w of [1440, 1720]) {
       await cpage.mouse.move(w / 2, 450);
       await sleep(300);
       const shut = await edges(cpage);
-      // macOS headless Chromium draws overlay scrollbars (bar 0) unless the system shows them always; the gutter and
-      // margin checks still hold there.
       check((shut.bar > 0 || process.platform === "darwin") && shut.over.length === 0 && Math.abs(shut.left - shut.right) <= 1, `classic scrollbar ${w} ${path}, flap closed: nothing past the gutter, margins equal (${JSON.stringify(shut)})`);
       await cpage.locator("[data-customize-flap]").hover();
       await cpage.waitForSelector("[data-customize-panel][data-state=open]", { timeout: 5000 }).catch(() => {});
@@ -1164,7 +1055,6 @@ for (const w of [1440, 1720]) {
 }
 section("classic-scrollbars", async ({ open }) => {
   const cpage = await open({ viewport: { width: 1440, height: 900 } }, await classic());
-  // The header doesn't move between a page that scrolls and one that fits the window (the gutter is reserved).
   const logoX = new Set();
   for (const path of ["/", "/examples/dashboard", "/encyclopedia", "/examples/orders"]) {
     await cpage.goto(BASE + path);
@@ -1182,8 +1072,6 @@ section("classic-scrollbars", async ({ open }) => {
   check(inner.carouselBar === 0 && inner.lane >= 8 && inner.card >= 0, `inner scroll areas: no carousel bar, message bar in its own lane (${JSON.stringify(inner)})`);
 });
 
-// Every section must be in the map scripts/verify --changed reads, and the other way round: a section missing from it
-// would silently never run in a localized check.
 const declared = new Set(sections.map((s) => s.name));
 const mapped = new Set(Object.keys(SECTIONS));
 const drift = [...declared].filter((n) => !mapped.has(n)).concat([...mapped].filter((n) => !declared.has(n)));
@@ -1191,12 +1079,10 @@ if (drift.length) check(false, `smoke sections and scripts/lib/smoke-map.mjs dis
 const unknown = ONLY ? [...ONLY].filter((n) => !declared.has(n)) : [];
 if (unknown.length) check(false, `unknown SMOKE_SECTIONS: ${unknown.join(", ")}`);
 
-// Longest first, so a long section never starts last and holds the run open while the other workers sit idle.
 const LONG_FIRST = ["mobile-sweep", "classic-scrollbars", "mobile-flows", "component-pages"];
 const rank = (s) => (LONG_FIRST.includes(s.name) ? LONG_FIRST.indexOf(s.name) : LONG_FIRST.length);
 const queue = sections.filter((s) => !ONLY || ONLY.has(s.name)).sort((a, b) => rank(a) - rank(b));
 const timings = [];
-// A section that visits a route its map entry does not name would be wrongly skipped by verify --changed.
 const unmapped = new Set();
 /** The host's network changing under the browser (other jobs adding Docker networks), not a fault in the site. */
 const BLIP = /ERR_NETWORK_CHANGED|Failed to fetch dynamically imported module/;
@@ -1228,7 +1114,6 @@ const runSection = async ({ name, run }, attempt = 1) => {
     await Promise.all(contexts.map((c) => c.close().catch(() => {})));
     timings.push([name, Date.now() - started]);
   }
-  // A blip gets the section one clean re-run; a real failure or a second blip counts.
   if (attempt === 1 && (BLIP.test(crash ?? "") || local.some((m) => BLIP.test(m)))) {
     console.log(`retry ${name}: host network blip (${crash ?? local.find((m) => BLIP.test(m))})`);
     for (let i = failures.length - 1; i >= 0; i--) if (failures[i].section === name) failures.splice(i, 1);

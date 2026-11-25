@@ -152,7 +152,6 @@ export function SlaFuse({
       ctx.clearRect(0, -PADY, width, FUSE_H + PADY * 2);
 
       if (m.phase === "burning") {
-        // The last few px of cord glow where the fire is eating it.
         const back = cord.getPointAtLength(Math.max(0, burned - 12));
         ctx.strokeStyle = EMBER;
         ctx.lineWidth = 3;
@@ -384,7 +383,6 @@ export function SlaFuse({
       <div className="flex items-center justify-between gap-4">
         <span className="min-w-0 truncate text-body text-ink-muted">{item}</span>
         <Button variant={phase === "shipped" ? "secondary" : "primary"} onClick={phase === "shipped" ? reopen : ship}>
-          {/* Both labels hold the width, so the button doesn't change size between them. */}
           <span className="grid justify-items-center">
             <span className={cn("col-start-1 row-start-1", phase === "shipped" && "invisible")}>{actionLabel}</span>
             <span className={cn("col-start-1 row-start-1", phase !== "shipped" && "invisible")}>{reopenLabel}</span>

@@ -57,12 +57,6 @@ function Keyboard({ returnKey }: { returnKey: string }) {
   );
 }
 
-// Touch press feedback. CSS :active is unreliable under a finger: iOS Safari applies it only where a touch listener
-// exists, Chrome waits to see whether the touch becomes a scroll, and either way a quick tap ends it before a 150 ms
-// press has drawn. One document-level tracker sets `data-pressed` on the pressed control instead: shown 50 ms after
-// touch-down (so a scroll that starts on a row doesn't flash it), at once on a quick release, kept at least 120 ms, and
-// dropped as soon as the finger moves or the browser takes the gesture. Components pair each `active:` class with a
-// `data-pressed:` twin. It only sets an attribute: no click is synthesised, so nothing can fire twice.
 const PRESSABLE = "button, a[href], label, summary, [role=button], [role=tab], [role=option], [role=radio], [role=menuitem], [role=menuitemradio], [role=checkbox], [role=switch], [role=link]";
 let pressInstalled = false;
 
@@ -110,7 +104,6 @@ function installPressFeedback() {
       if (!el.hasAttribute("data-pressed")) show();
       const held = el;
       el = null;
-      // A second press on the same control before this runs keeps its own state.
       window.setTimeout(() => el !== held && held.removeAttribute("data-pressed"), Math.max(0, 120 - (performance.now() - shownAt)));
     },
     opts,

@@ -19,7 +19,6 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
     },
   },
-  // Components ship into other apps: no stray logging there.
   { files: ["src/**/*.{ts,tsx}"], rules: { "no-console": ["warn", { allow: ["warn", "error"] }] } },
   { files: ["scripts/**/*.mjs"], languageOptions: { globals: { ...globals.node, ...globals.browser } }, rules: { "no-empty": ["error", { allowEmptyCatch: true }], eqeqeq: ["error", "smart"] } },
 );

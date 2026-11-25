@@ -46,7 +46,6 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
   const [pages, setPages] = React.useState(children.length);
   const [edges, setEdges] = React.useState({ start: false, end: false });
   const pull = React.useRef({ over: 0, shown: 0, raf: 0, timer: 0, drag: null as null | { x: number; left: number; t: number; v: number; moved: boolean } });
-  // The pull is drawn by moving the slides (transform), never the scroll position, so snap stays intact.
   const show = (px: number) => {
     pull.current.shown = px;
     track.current?.style.setProperty("--ad-pull", `${px}px`);
@@ -60,7 +59,6 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
     if (!x0) return;
     if (prefersReducedMotion()) return show(0);
     const w = 22;
-    // Only outward speed carries over, capped: inward speed would swing the slides past the edge to the other side.
     const out = Math.sign(x0) * Math.min(EDGE_THROW, Math.max(0, v * Math.sign(x0)));
     const t0 = performance.now();
     const step = (now: number) => {
@@ -83,11 +81,9 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
       const step = first ? first.offsetWidth + gap : el.clientWidth;
       const shown = Math.max(1, Math.round((el.clientWidth + gap) / step));
       setPages(Math.max(1, children.length - shown + 1));
-      // The last page counts once the track is scrolled to its end (a peek can leave it short of a whole step).
       const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2;
       const pagesNow = Math.max(1, children.length - shown + 1);
       setIndex(atEnd ? pagesNow - 1 : Math.min(pagesNow - 1, Math.round(el.scrollLeft / step)));
-      // A slide straddles an edge (the peek of the next one, or any slide mid-scroll).
       const a = el.scrollLeft;
       const b = a + el.clientWidth;
       const slides = Array.from(el.children as HTMLCollectionOf<HTMLElement>, (c) => [c.offsetLeft - el.offsetLeft, c.offsetLeft - el.offsetLeft + c.offsetWidth]);
@@ -144,7 +140,6 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
           d.t = now;
           const want = d.left - dx;
           const max = el.scrollWidth - el.clientWidth;
-          // Follows the pointer 1:1 inside the range; past an end it pulls against the band.
           el.scrollLeft = Math.max(0, Math.min(max, want));
           show(want < 0 ? band(-want) : want > max ? band(max - want) : 0);
         }}
@@ -157,13 +152,11 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
           const v = performance.now() - d.t > 80 ? 0 : d.v;
           if (pull.current.shown) release(v);
           else {
-            // Snap to the slide the throw is heading to.
             const first = el.firstElementChild as HTMLElement | null;
             const stepW = first ? first.offsetWidth + gap : el.clientWidth;
             go(Math.round((el.scrollLeft - v * 0.15) / stepW));
           }
           if (d.moved) {
-            // A drag is not a click on the slide under the pointer.
             el.addEventListener("click", (c) => (c.stopPropagation(), c.preventDefault()), { capture: true, once: true });
           }
         }}
@@ -205,7 +198,6 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
       {arrows || dots ? (
         <div className="flex items-center justify-between gap-2">
           {dots ? (
-            // Each dot sits in a 24 px target (the button), so the dots themselves stay small.
             <div className="-mx-[9.5px] flex items-center">
               {Array.from({ length: pages }, (_, i) => (
                 <button
@@ -231,7 +223,6 @@ export function Carousel({ children, perView = 1, gap = 12, peek = true, arrows 
           )}
           {arrows ? (
             <div className="flex gap-1">
-              {/* The span lets a disabled arrow still show why it is disabled. */}
               <Tooltip content={index === 0 ? "Already at the start" : "Previous"}>
                 <span>
                   <Button variant="ghost" size="sm" icon aria-label="Previous" disabled={index === 0} onClick={() => go(index - 1)}>

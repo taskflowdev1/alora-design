@@ -122,7 +122,6 @@ export function SaveMorph({ label = "Save changes", doneLabel = "Saved", failLab
       <style href="ad-save-morph" precedence="default">
         {CSS}
       </style>
-      {/* The widest word sets the box, so the button is the same width in every state. */}
       {[label, doneLabel, failLabel].map((word, i) => (
         <span key={i} aria-hidden className={cn("invisible col-start-1 row-start-1 flex items-center justify-center whitespace-nowrap", pad)}>
           {word}

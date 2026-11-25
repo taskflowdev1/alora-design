@@ -29,7 +29,6 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
     s.current.at = y;
     if (body.current) {
       body.current.style.transform = y ? `translate3d(0, ${y}px, 0)` : "";
-      // A layer only while pulled: at rest a transform or will-change would trap fixed children (a FAB, an action bar).
       body.current.style.willChange = y ? "transform" : "";
     }
     setPull(y);
@@ -64,7 +63,6 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
       st.y0 = y - st.at * 2;
       st.on = true;
     };
-    // Resistance: the list moves half as far as the finger, and less the further it goes.
     const move = (y: number, e: Event) => {
       if (!st.on) return;
       const raw = y - st.y0;
@@ -73,7 +71,6 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
         return;
       }
       if (e.cancelable) e.preventDefault();
-      // A pull is not a tap: rows under the finger drop their press state and won't open on release.
       if (body.current && raw > 6) body.current.style.pointerEvents = "none";
       place(Math.min(140, raw * 0.5 * (1 - Math.min(0.5, raw / 900))));
     };
@@ -97,8 +94,6 @@ export function PullToRefresh({ onRefresh, children, className }: PullToRefreshP
     const tm = (e: TouchEvent) => move(e.touches[0].clientY, e);
     const md = (e: MouseEvent) => e.button === 0 && start(e.clientY);
     const mm = (e: MouseEvent) => move(e.clientY, e);
-    // The blocking touchmove listener (it has to cancel the browser's own pull) is attached only while the list sits
-    // at its top or a pull is under way, so an ordinary scroll through the list never waits on JavaScript.
     let armed = false;
     const arm = () => {
       const want = scroller.scrollTop <= 0 || st.on || st.at > 0;

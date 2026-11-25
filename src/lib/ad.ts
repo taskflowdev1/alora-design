@@ -1,9 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
-// Shared helpers every Alora Design component may import. No React here: the hooks live in ad-hooks.ts.
-
-// tailwind-merge that knows the Alora Design token names, so `rounded-card` overrides `rounded-control`.
 const merge = extendTailwindMerge({
   extend: {
     theme: {
@@ -14,7 +11,6 @@ const merge = extendTailwindMerge({
       ease: ["ad", "ad-page"],
       animate: ["ad-pulse"],
     },
-    // ad-press (base.css) is a transition: a later transition-* class replaces it, and it replaces an earlier one.
     classGroups: { transition: ["ad-press"] },
   },
 });
@@ -23,9 +19,6 @@ export function cn(...inputs: ClassValue[]) {
   return merge(clsx(inputs));
 }
 
-// Loading fills. In dark, fill sits too close to a surface at the pulse's low point, so it takes fill-strong. On a fill
-// (an attention row, a filled square) pass onFill: the bar is fill-strong in both themes.
-// The class names stay whole: Tailwind only generates the ones it can read in the source.
 /** A pulsing block: thumbnails, checkboxes, chart bars. */
 export const skeletonFill = (onFill?: boolean) => cn("animate-ad-pulse", onFill ? "bg-fill-strong" : "bg-fill dark:bg-fill-strong");
 /** Loading text: keeps the text's exact box and draws one bar at letter height, so stacked lines keep their gap. */

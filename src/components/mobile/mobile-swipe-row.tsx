@@ -21,7 +21,6 @@ export interface SwipeRowProps {
 
 const ACTION_W = 76;
 const W = 22;
-// One open row at a time: opening a row closes the last one.
 let closeOpen: (() => void) | null = null;
 
 const toneClass = { neutral: "bg-fill-strong text-ink", accent: "bg-brand text-brand-ink", danger: "bg-danger-soft text-danger" };
@@ -52,7 +51,6 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
   const place = (x: number) => {
     g.current.x = x;
     if (front.current) front.current.style.transform = x ? `translate3d(${x}px, 0, 0)` : "";
-    // A long swipe: the trailing actions fill the whole gap, the first one taking the extra room.
     if (trail.current) trail.current.style.width = `${Math.max(tw, -x)}px`;
     const width = front.current?.offsetWidth ?? 0;
     const arm = tw > 0 && width > 0 && -x > width * 0.6;
@@ -137,8 +135,6 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
             if (s.lock !== "x") return;
             s.moved = true;
             const raw = e.clientX - s.sx;
-            // Past the leading actions the row pulls against a rubber band; leftward it follows (a long swipe runs the
-            // first action). A side with no actions barely gives.
             const x = raw > 0 ? (lw ? (raw <= lw ? raw : lw + (raw - lw) * 0.25) : raw * 0.15) : tw ? raw : raw * 0.15;
             const now = performance.now();
             s.v = s.v * 0.4 + ((x - s.x) / Math.max(1, now - s.t)) * 1000 * 0.6;
@@ -160,10 +156,8 @@ export function SwipeRow({ children, leading = [], trailing = [], className }: S
           }}
           onPointerCancel={() => ((g.current.lock = ""), settle(g.current.rest, 0))}
           onClickCapture={(e) => {
-            // A tap on an open row only closes it.
             const s = g.current;
             if (s.moved) {
-              // The click that ends a drag: swallow it, keep the row where the drag left it.
               e.preventDefault();
               e.stopPropagation();
               s.moved = false;

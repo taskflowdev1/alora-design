@@ -1,5 +1,3 @@
-// The installed-app scenes on /mobile: each a real Rimba screen in a phone, using one PWA part in its moment. They fit
-// the 844 px screen without scrolling, so a swipe over a phone still scrolls the page.
 import * as React from "react";
 import { Bell, Book, Calendar, Camera, Clock, Cloud, Compass, CreditCard, Folder, Home, Image, Mail, Map, MessageCircle, Music, Package, Phone, Settings, Share2, ShoppingBag, Truck, WifiOff } from "react-feather";
 import { cn, formatNumber, SAFE_TOP } from "@/lib/ad";
@@ -444,7 +442,6 @@ export function WakeScene() {
   const [dim, setDim] = React.useState(false);
   const [qty, setQty] = React.useState<Record<string, number>>({ [PRODUCTS[0].sku]: 12, [PRODUCTS[1].sku]: 7, [PRODUCTS[3].sku]: 3 });
   const box = React.useRef<HTMLDivElement>(null);
-  // With the lock off the screen dims after a few idle seconds, as the phone would; any touch brings it back.
   React.useEffect(() => {
     if (on) return setDim(false);
     let t = window.setTimeout(() => setDim(true), 3500);
@@ -555,7 +552,6 @@ export function KeyboardScene({ onKeyboard }: { onKeyboard: (open: boolean) => v
         </div>
       </MobileScreen>
       <MobileActionBar>
-        {/* Keeps the field focused through the press, so the bar doesn't drop out from under the finger. */}
         <span onPointerDown={(e) => e.preventDefault()} className="grid">
           <MobileStateButton variant="primary" state={state} busyLabel="Saving" doneLabel="Saved" onClick={save}>
             Save customer

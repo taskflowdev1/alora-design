@@ -102,7 +102,6 @@ export function MobileKpiCarousel({ children, className, ...aria }: { children: 
           ))}
         </ScrubHold.Provider>
       </div>
-      {/* 44 px dots (they are targets), pulled up so the row reads as part of the cards. */}
       <div className="-mb-2 -mt-1 flex justify-center">
         {items.map((_, i) => (
           <button

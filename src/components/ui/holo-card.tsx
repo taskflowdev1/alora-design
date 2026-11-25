@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn, prefersReducedMotion } from "@/lib/ad";
 
 const STIFFNESS = 190;
-const DAMPING = 27.6; // critical for this stiffness: the card settles without a wobble
+const DAMPING = 27.6;
 const KEY_STEP = 0.25;
 /** Where the light rests, on the card's -1…1 axes: the upper left, like the page's one light source. */
 const REST_X = -0.45;
@@ -106,7 +106,6 @@ function attachTilt(el: HTMLElement) {
     const dt = Math.min(Math.max(t - last, 1) / 1000, 1 / 30);
     last = t;
     if (drag) {
-      // A drag follows the finger exactly, and remembers its speed so the release carries on from it.
       vx = (tx - x) / dt;
       vy = (ty - y) / dt;
       x = tx;
@@ -195,7 +194,6 @@ function attachTilt(el: HTMLElement) {
     if (!step && e.key !== "Home") return;
     e.preventDefault();
     keyFocus = true;
-    // From the keyboard the card moves at once (motion.no-keyboard-animation).
     x = tx = step ? clamp(tx + step[0] * KEY_STEP) : 0;
     y = ty = step ? clamp(ty + step[1] * KEY_STEP) : 0;
     vx = vy = 0;

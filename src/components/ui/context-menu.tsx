@@ -8,13 +8,11 @@ import { Shortcut } from "@/components/ui/kbd";
 /** Right click (or long press) on the child opens the menu at the pointer. */
 export function ContextMenu({ children, menu, className }: { children: React.ReactElement; menu: React.ReactNode; className?: string }) {
   return (
-    // Not modal: a second right click elsewhere reaches the page, so the menu reopens at the new spot as an OS menu does.
     <C.Root modal={false}>
       <C.Trigger asChild>{children}</C.Trigger>
       <C.Portal>
         <C.Content
           collisionPadding={8}
-          // Summoned constantly, so it appears at once (like the macOS menu) and only fades on the way out.
           className={cn(menuSurface, "origin-(--radix-context-menu-content-transform-origin) data-[state=open]:animate-none data-[state=closed]:animate-[ad-fade-out_120ms_var(--ad-ease)]", className)}
         >
           {menu}

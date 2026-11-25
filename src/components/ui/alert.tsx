@@ -12,8 +12,6 @@ export interface AlertProps {
   className?: string;
 }
 
-// On a coloured box a grey pill reads as dirt, so the action is the raised step (white in light, the darkest step in
-// dark) and darkens or lifts a notch on hover.
 const onColour = cn(
   "[&_[data-variant=secondary]]:bg-raised [&_[data-variant=secondary]]:transition-[background-color,filter,scale]",
   "[&_[data-variant=secondary]:hover]:brightness-[0.95] [&_[data-variant=secondary]:focus-visible]:brightness-[0.95]",
@@ -21,8 +19,6 @@ const onColour = cn(
 );
 
 const tones = {
-  // The box is fill, the same as a secondary button, so its action steps off it as the raised pill in a track does:
-  // sel at rest (white in light, fill-strong in dark), fill-strong on hover in light, a slight lift in dark.
   neutral: {
     box: cn(
       "bg-fill text-ink [&_[data-variant=secondary]]:bg-sel",

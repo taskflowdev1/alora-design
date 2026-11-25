@@ -62,7 +62,6 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
       <div ref={view} className={cn("ad-on-dark relative aspect-[4/3.6] overflow-hidden rounded-sheet bg-side text-side-ink transition-colors duration-[200ms] ease-ad", torch && "bg-side-raised")}>
         <style href="ad-scanner" precedence="default">{`@keyframes ad-scan { from { transform: translateY(0); } to { transform: translateY(var(--ad-scan-run)); } } @media (prefers-reduced-motion: reduce) { .ad-scan-line { animation: none !important; transform: translateY(calc(var(--ad-scan-run) / 2)) !important; } }`}</style>
         {camera ?? (
-          // The mock scene: a parcel label with a barcode, slightly out of the frame's centre.
           <div aria-hidden className="absolute inset-0 grid place-items-center">
             <div className={cn("grid w-[62%] gap-2 rounded-control bg-side-fill p-3 transition-opacity duration-[200ms]", torch ? "opacity-100" : "opacity-70")}>
               <span className="h-2 w-2/3 rounded-full bg-side-fill-strong" />
@@ -75,7 +74,6 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
             </div>
           </div>
         )}
-        {/* The frame: four rounded corners, nothing else. Tap inside it to read (the mock's camera). */}
         <button
           type="button"
           aria-label="Read the code in the frame"
@@ -122,7 +120,6 @@ export function MobileScanner({ onScan, camera, mockCode = () => "8991234500017"
             inputMode="numeric"
             enterKeyHint="done"
             placeholder="8991234500017"
-            // Mounted by the tap on "Type the code": focus it now, so the keyboard comes up without a second tap.
             autoFocus
             autoComplete="off"
             autoCapitalize="none"

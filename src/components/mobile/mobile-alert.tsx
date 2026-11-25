@@ -41,17 +41,14 @@ export function MobileAlert({ open, onOpenChange, title, message, actions, class
     danger: "bg-danger-soft text-danger",
   };
   return (
-    // The second tap of the double tap that opened it lands on the new backdrop: not a tap outside.
     <D.Root open={open} onOpenChange={(o) => (o || !early()) && onOpenChange(o)} modal={!layer}>
       <D.Portal container={layer ?? undefined}>
-        {/* While it fades out the backdrop still takes taps (and drops them), so a stray tap can't reach the screen. */}
         <D.Overlay className="fixed inset-0 z-50 bg-overlay data-[state=closed]:animate-[ad-fade-out_160ms_var(--ad-ease)_forwards] data-[state=open]:animate-[ad-fade-in_200ms_var(--ad-ease)]" />
         <D.Content
           ref={content}
           role="alertdialog"
           aria-describedby={undefined}
           onOpenAutoFocus={(e) => {
-            // The card itself, not a button: no focus fill under a finger, and Tab starts at the first action.
             e.preventDefault();
             content.current?.focus({ preventScroll: true });
           }}

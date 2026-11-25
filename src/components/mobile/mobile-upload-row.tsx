@@ -28,7 +28,6 @@ export function MobileUploadRow({ name, size, progress, state, media, onCancel, 
       {media ? <span className="shrink-0">{media}</span> : null}
       <span className="grid min-w-0 flex-1 gap-1.5">
         <span className="flex min-w-0 items-baseline justify-between gap-2">
-          {/* Long names cut in the middle, so the end that tells files apart ("…_0412.jpg") stays. */}
           <span className="flex min-w-0 text-[15px] text-ink" title={name}>
             <span className="truncate">{name.length > 12 ? name.slice(0, -8) : name}</span>
             {name.length > 12 ? <span className="shrink-0 whitespace-pre">{name.slice(-8)}</span> : null}

@@ -9,14 +9,8 @@ const PROGRESS_MS = 2800;
 const DONE_MS = 2400;
 const CHANNEL_MS = 520;
 const STIFFNESS = 340;
-const DAMPING = 29; // a touch under critical: the pill lands with the smallest give
+const DAMPING = 29;
 
-/*
- * One pill and one mark. The mark is the same element through every state: a dot at rest, the hub of the orbit while
- * syncing, the bar while counting, and the bar pulled back into one small green dot when done.
- *
- * The pill takes the house island greys, dark in both themes; in dark it sits one step up so it reads on the page and on a card.
- */
 const CSS = `
 .ad-island { container-type: inline-size; }
 .ad-island-layer {
@@ -108,7 +102,6 @@ export function StatusIsland({
   const pctRef = React.useRef<HTMLSpanElement>(null);
   const layers = React.useRef<Partial<Record<IslandStatus, HTMLSpanElement | null>>>({});
 
-  // Everything the frame loop reads, kept in one ref so a state change never restarts the spring mid-flight.
   const live = React.useRef({ status, p: controlled ? progress : 0, cur: null as Box | null, vel: [0, 0, 0, 0, 0, 0] as Box, raf: 0, last: 0, onScreen: true, reduced, tick: () => {} });
   live.current.status = status;
   live.current.reduced = reduced;
@@ -202,7 +195,6 @@ export function StatusIsland({
     live.current.tick();
   }, [status, progress, controlled, channel]);
 
-  // The self-running sequence. The count itself lives in the frame loop; these are the two timed holds.
   React.useEffect(() => {
     if (controlled || !onScreen) return;
     if (status === "syncing") {

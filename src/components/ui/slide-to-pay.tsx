@@ -3,7 +3,7 @@ import { ChevronsRight } from "react-feather";
 import { cn, formatRp, prefersReducedMotion } from "@/lib/ad";
 
 const STIFFNESS = 420;
-const DAMPING = 38; // just under critical (41): it lands without a wobble
+const DAMPING = 38;
 /** How far the thumb must be on a slow release, and on a flick, as a share of the track. */
 const COMMIT_AT = 0.88;
 const FLICK_FROM = 0.45;
@@ -14,12 +14,6 @@ const KEY_STEP = 0.1;
 const RUBBER = 0.18;
 const RUBBER_MAX = 0.03;
 
-/*
- * Everything reads one number on the root, --p (0 at the start, 1 at the end), so the thumb, the fill behind it and the
- * wipe across the amount can't drift apart, and a resize needs no JS. The thumb moves on `translate` because the press
- * shrink owns `transform` and `scale` transitions. The track's collapse animates `left` on one absolute layer: its
- * corners keep their true shape, which a scale or a clip would distort, and nothing else is laid out by it.
- */
 const CSS = `
 .ad-slide { --h: 56px; --p: 0; --reach: calc(100% - var(--h)); container-type: inline-size; touch-action: pan-y; }
 .ad-slide-track { left: 0; transition: left 280ms var(--ad-ease); }
@@ -164,7 +158,6 @@ export function SlideToPay({ amount = 1250000, onConfirm, resetAfter = 2600, dis
     paint();
     const dt = e.timeStamp - d.lastT;
     if (dt > 0) {
-      // Smoothed, so one jittery last sample doesn't decide a flick.
       d.speed = d.speed * 0.6 + (((e.clientX - d.lastX) / d.reach / dt) * 1000) * 0.4;
       d.lastX = e.clientX;
       d.lastT = e.timeStamp;
@@ -176,12 +169,10 @@ export function SlideToPay({ amount = 1250000, onConfirm, resetAfter = 2600, dis
     if (d?.id !== e.pointerId) return;
     drag.current = null;
     const m = live.current;
-    // A pause before letting go is not a flick.
     const speed = e.timeStamp - d.lastT > 90 ? 0 : d.speed;
     if (e.type === "pointerup" && d.moved && (m.pos >= COMMIT_AT || (speed > FLICK_SPEED && m.pos > FLICK_FROM))) {
       void commit(speed);
     } else if (e.type === "pointerup" && !d.moved) {
-      // A tap can't pay: the thumb nudges to show which way it goes.
       m.pos = 0.07;
       paint();
       void springTo(0, -0.4);
@@ -196,7 +187,6 @@ export function SlideToPay({ amount = 1250000, onConfirm, resetAfter = 2600, dis
     const to = { ArrowRight: m.pos + KEY_STEP, ArrowLeft: m.pos - KEY_STEP, Home: 0, End: 1, Escape: 0 }[e.key];
     if (to === undefined) return;
     e.preventDefault();
-    // From the keyboard the thumb moves at once (motion.no-keyboard-animation).
     cancelAnimationFrame(m.raf);
     m.pos = Math.max(0, Math.min(1, to));
     m.vel = 0;
@@ -232,7 +222,6 @@ export function SlideToPay({ amount = 1250000, onConfirm, resetAfter = 2600, dis
         onPointerUp={onPointerEnd}
         onPointerCancel={onPointerEnd}
         onKeyDown={onKeyDown}
-        // Only the keyboard and assistive tech click without a pointer (detail 0): a tap must never pay.
         onClick={(e) => e.detail === 0 && void commit()}
         className="ad-slide-thumb ad-press absolute grid select-none place-items-center rounded-control bg-brand text-brand-ink hover:bg-brand-hover focus-visible:bg-brand-hover active:scale-[0.97]"
       >

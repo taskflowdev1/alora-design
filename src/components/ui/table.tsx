@@ -2,13 +2,6 @@ import * as React from "react";
 import { cn } from "@/lib/ad";
 import { Pagination } from "@/components/ui/pagination";
 
-/*
- * Dense table. No row lines: rows separate by spacing and a soft hover fill.
- * The header is sticky on a solid background and never overlaps a row.
- * Columns size to their data; cells stay on one line and truncate.
- * Put it in <Card inset="nest"> so the row highlight is concentric with the card.
- */
-
 export function Table({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn("relative min-h-0 overflow-auto", className)} {...props}>

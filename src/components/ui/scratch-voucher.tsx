@@ -154,7 +154,6 @@ function attachFoil(host: HTMLElement, foil: HTMLCanvasElement, fx: HTMLCanvasEl
       const px = x0 + (x1 - x0) * t;
       const py = y0 + (y1 - y0) * t;
       mark(px, py);
-      // A ragged edge: foil tears, it isn't cut by a clean circle.
       const a = Math.random() * Math.PI * 2;
       ctx.beginPath();
       ctx.arc(px + Math.cos(a) * BRUSH * 0.98, py + Math.sin(a) * BRUSH * 0.98, rand(1, 3.4), 0, Math.PI * 2);
@@ -257,7 +256,6 @@ function attachFoil(host: HTMLElement, foil: HTMLCanvasElement, fx: HTMLCanvasEl
           if (cleared[row * COLS + col]) continue;
           const x = (col + 0.5) * cw + rand(-1.5, 1.5);
           const y = (row + 0.5) * ch + rand(-1.5, 1.5);
-          // Each piece is a torn shard a bit larger than its cell, so together they still cover the foil when it lets go.
           const pw = Math.ceil(cw * 1.8);
           const ph = Math.ceil(ch * 1.8);
           const sx = x - pw / 2;
@@ -460,7 +458,6 @@ export function ScratchVoucher({ shop = "Rimba Kemang", validity = "Until 31 Dec
     };
   }, [label]);
 
-  // After a reveal from the keyboard, focus goes to the code, since the foil it was on is gone.
   React.useEffect(() => {
     if (state !== "done" || !viaKeys.current) return;
     viaKeys.current = false;

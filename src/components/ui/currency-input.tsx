@@ -76,7 +76,6 @@ function Digits({ text, mode, className }: { text: string; mode: React.RefObject
         );
       });
     }
-    // Separators count from the right: the one that keeps its group slides with it, a new one eases in.
     newS.forEach((c, i) => {
       const was = oldS[oldS.length - newS.length + i];
       if (was) slide(c, was.x);
@@ -104,7 +103,6 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
   const caret = React.useRef<number | null>(null);
   const mode = React.useRef<Mode>("roll");
   const metaMode = React.useRef<Mode>("roll");
-  // A number longer than the field scrolls natively, so the drawn digits step aside for the input's own text.
   const [long, setLong] = React.useState(false);
   const text = value == null ? "" : group(value);
   const over = value != null && value > max;
@@ -114,7 +112,6 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
     if (!el) return;
     setLong(el.scrollWidth > el.clientWidth + 1);
     if (caret.current == null) return;
-    // Put the caret after the same number of digits it was after before formatting.
     let digits = caret.current;
     let pos = 0;
     while (pos < text.length && digits > 0) {
@@ -146,7 +143,6 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
           onChange={(e) => {
             const raw = e.target.value;
             const before = raw.slice(0, e.target.selectionStart ?? raw.length).replace(/\D/g, "").length;
-            // Keep what was typed (accept, then validate); 15 digits is as far as a JS number stays exact.
             const digits = raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 15);
             caret.current = before;
             mode.current = "type";
@@ -203,7 +199,6 @@ export function CurrencyInput({ value, onValueChange, currency = "Rp", placehold
               <span aria-hidden className={cn("flex items-center gap-[0.25em] whitespace-nowrap", past && "text-ink")}>
                 {currency} <Digits text={group(Math.abs(left))} mode={metaMode} /> {past ? "over the limit" : "left"}
               </span>
-              {/* After the words, so the amount never shifts when it appears. */}
               <span className={cn("size-1.5 shrink-0 rounded-full bg-danger transition-opacity duration-[220ms]", past ? "opacity-100" : "opacity-0")} />
             </span>
             <span className="shrink-0">of {currency} {group(limit)}</span>

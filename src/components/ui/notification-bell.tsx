@@ -68,7 +68,6 @@ export function NotificationBell({ notices, onMarkAllRead, className, listHeight
   const [sweep, setSweep] = React.useState<{ ids: string[]; passed: number } | null>(null);
   const count = sweep ? Math.max(0, unread.length - sweep.passed) : unread.length;
 
-  // The badge stays mounted at zero long enough to close.
   const [badge, setBadge] = React.useState(count > 0);
   const [pop, setPop] = React.useState(false);
   if (count > 0 && !badge) {
@@ -97,7 +96,6 @@ export function NotificationBell({ notices, onMarkAllRead, className, listHeight
     timers.current = ids.map((_, i) => window.setTimeout(() => setSweep((s) => s && { ...s, passed: i + 1 }), STEP * i));
     timers.current.push(
       window.setTimeout(() => {
-        // Its button leaves with the last unread row: keep the focus in the panel.
         if (head.current?.contains(document.activeElement)) head.current.focus();
         setSweep(null);
         commit.current?.();
@@ -120,7 +118,6 @@ export function NotificationBell({ notices, onMarkAllRead, className, listHeight
         <style>{CSS}</style>
         <Bell />
         {badge ? (
-          // Pinned to the bell's top-right corner (the 16 px glyph sits in the middle), so it covers only the corner.
           <span
             data-closed={count === 0 ? "" : undefined}
             data-pop={pop ? "" : undefined}

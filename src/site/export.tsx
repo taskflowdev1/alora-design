@@ -76,7 +76,6 @@ function LinkRow({ label, value, open }: { label: string; value: string; open?: 
             </a>
           </Button>
         ) : (
-          // The Open slot stays reserved, so every link field ends at the same right edge.
           <span aria-hidden className="w-control shrink-0" />
         )}
       </div>
@@ -110,8 +109,6 @@ export function ExportPage() {
   const [copiedAll, copyAll] = useCopy();
 
   return (
-    // The same 1280 px container as every other page, so the title and the credit sit on the shared left edge; the
-    // two columns keep their 1080 px measure, left-aligned.
     <main className="mx-auto grid w-full max-w-[1280px] gap-6 px-4 pb-24 pt-2 sm:px-6">
       <PageHeader title="Export" />
       <div className="grid max-w-[1080px] gap-4 lg:grid-cols-[320px_1fr]">

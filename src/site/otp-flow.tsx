@@ -71,7 +71,6 @@ export function OtpFlow({
     },
     [],
   );
-  // A new length is a new code.
   const first = React.useRef(true);
   React.useEffect(() => {
     if (first.current) return void (first.current = false);
@@ -90,7 +89,6 @@ export function OtpFlow({
       }
       const left = tries - 1;
       setTries(left);
-      // Red and a shake first; then the boxes clear (and, after the last try, fade until a new code).
       setPhase("wrong");
       setNotice(left ? "wrong" : "locked");
       timer.current = window.setTimeout(() => {
@@ -101,7 +99,6 @@ export function OtpFlow({
     }, 750);
   };
 
-  // The component page's State control shows each state still.
   const shown: {
     phase: Phase;
     code: string;
@@ -143,7 +140,6 @@ export function OtpFlow({
           celebrate={celebrate}
           result={
             <>
-              {/* The one green mark. */}
               <span className="size-1.5 shrink-0 rounded-full bg-success" />
               {done}
             </>
@@ -157,7 +153,6 @@ export function OtpFlow({
           onComplete={(v) => live && check(v)}
         />
       </Spot>
-      {/* One line under the boxes: the status when there is one, the quiet action otherwise. Its height is reserved. */}
       <div id={`${msgId}-msg`} aria-live="polite" className="flex h-control items-center justify-center gap-2 text-body">
         {shown.notice === "checking" ? <span className="text-ink-muted">Checking</span> : null}
         {shown.notice === "wrong" ? (
@@ -184,7 +179,6 @@ export function OtpFlow({
   return (
     <div className={cn("grid w-full justify-items-center gap-3", className)}>
       {framed ? <Card className="grid w-full">{main}</Card> : main}
-      {/* Outside the piece, and its height is kept so nothing moves when it appears. */}
       <div className="flex h-control items-center">
         {shown.phase === "open" ? (
           <Button

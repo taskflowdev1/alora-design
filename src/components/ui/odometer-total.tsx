@@ -8,14 +8,10 @@ import { Tooltip } from "@/components/ui/tooltip";
 /** A thousands separator's width, in em. */
 const SEP = 0.28;
 const STIFFNESS = 260;
-const DAMPING = 31; // just under critical: a digit lands with no visible bounce
+const DAMPING = 31;
 /** Each place starts a little after the one to its right, so a carry reads as a ripple leftward. */
 const STAGGER = 16;
 
-/*
- * The number is a fixed box; every digit and separator is absolutely placed in it by two whole numbers (--i digits and
- * --s separators from the left) and slides on transform only, so a new leading digit never reflows anything.
- */
 const CSS = `
 .ad-odo { --dw: 0.58; }
 .ad-odo-cell {
@@ -114,7 +110,6 @@ function Rolling({ value, places }: { value: number; places: number }) {
   const root = React.useRef<HTMLSpanElement>(null);
   const probe = React.useRef<HTMLSpanElement>(null);
 
-  // The digit advance is the font's own; tracked in slightly, like the hero metric.
   React.useLayoutEffect(() => {
     const r = root.current;
     const p = probe.current;
@@ -139,7 +134,6 @@ function Rolling({ value, places }: { value: number; places: number }) {
 
   return (
     <span ref={root} aria-hidden className="ad-odo relative block h-[1.12em] overflow-clip leading-[1.12]" style={{ width }}>
-      {/* In flow on purpose: it also gives the box a text baseline for the unit to sit on. */}
       <span ref={probe} className="invisible inline-block tracking-normal">
         0
       </span>

@@ -64,7 +64,6 @@ export function MessageSources({ sources, openId, onOpenChange, className }: Mes
   const open = openId === undefined ? own : openId;
   const set = (id: string | null) => (openId === undefined ? setOwn(id) : onOpenChange?.(id));
   const current = sources.find((s) => s.id === open && s.fields?.length);
-  // Keeps the last record drawn while the pane folds, so its text doesn't vanish before the height does.
   const [shown, setShown] = React.useState(current);
   if (current && current !== shown) setShown(current);
   const root = React.useRef<HTMLDivElement>(null);

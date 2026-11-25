@@ -81,7 +81,6 @@ export function YearHeatmap({ days, label = "Sales this year", unit = "Rp", clas
     return { cells, weeks: (cells.at(-1)?.week ?? 0) + 1, months, total: days.reduce((s, d) => s + d.value, 0) };
   }, [days]);
 
-  // The sweep plays once, when the map is really on screen. A phone starts at the newest days.
   React.useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -114,7 +113,6 @@ export function YearHeatmap({ days, label = "Sales this year", unit = "Rp", clas
     e.preventDefault();
     const next = Math.max(0, Math.min(cells.length - 1, to));
     setActive(next);
-    // Keep the day in view where the map scrolls sideways.
     const s = scroller.current;
     const cell = s?.querySelector<HTMLElement>(`[data-i="${next}"]`);
     if (s && cell) {
@@ -135,7 +133,6 @@ export function YearHeatmap({ days, label = "Sales this year", unit = "Rp", clas
       <style href="ad-year-heatmap" precedence="default">
         {CSS}
       </style>
-      {/* The readout: always this one place and this one height. */}
       <div className="grid min-w-0 gap-0.5">
         <span className="truncate text-body tabular-nums text-ink-muted">{day ? dateText(day.date) : label}</span>
         <span className="flex h-[34px] items-baseline text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-ink tabular-nums">

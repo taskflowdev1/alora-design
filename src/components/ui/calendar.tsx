@@ -29,7 +29,6 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
   const days = React.useMemo(() => monthGrid(view), [view]);
 
   React.useEffect(() => {
-    // Opening focus only with a mouse or trackpad: on touch it would paint a focus fill on a day nobody chose.
     if ((autoFocus && matchMedia("(pointer: fine)").matches) || moved.current) requestAnimationFrame(() => grid.current?.querySelector<HTMLElement>('[data-focus="true"]')?.focus());
   }, [autoFocus, focus]);
 
@@ -99,7 +98,6 @@ export function Calendar({ value, onValueChange, today = new Date(), min, autoFo
               }}
               className={cn(
                 "grid size-item cursor-pointer place-items-center rounded-control text-body tabular-nums ad-press active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35",
-                // The chosen day darkens a notch too, so hover and keyboard focus never vanish on the one day that matters.
                 selected ? "bg-on text-on-ink hover:bg-ink-muted focus-visible:bg-ink-muted" : "hover:bg-fill focus-visible:bg-fill",
                 !inMonth && !selected && "text-ink-muted",
                 sameDay(d, today) && !selected && "font-semibold",

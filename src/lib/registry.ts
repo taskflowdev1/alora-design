@@ -1,6 +1,3 @@
-// Every item on the site: drives the Components, AI and Backgrounds pages, the shadcn registry (/r/<name>.json),
-// /api/kit and the README tables (scripts/gen-docs.mjs). Pure data: the API imports it.
-
 import { ITEMS as SHOWPIECES_A } from "./showpieces/a.js";
 import { ITEMS as SHOWPIECES_B } from "./showpieces/b.js";
 import { ITEMS as SHOWPIECES_C } from "./showpieces/c.js";
@@ -128,7 +125,6 @@ export const ITEMS: Item[] = [
   { name: "aspect-ratio", title: "Aspect ratio", group: "Display", files: ["aspect-ratio.tsx"], deps: [RADIX] },
   { name: "typography", title: "Typography", group: "Display", files: ["typography.tsx"], showcase: false },
 
-  // Charts: one system (series colours, ticks, tooltip, legend in chart.tsx). The bar chart is in Display.
   { name: "chart", title: "Chart parts", group: "Charts", files: ["chart.tsx"] },
   { name: "line-chart", title: "Line chart", group: "Charts", files: ["line-chart.tsx"], registryDeps: ["chart"] },
   { name: "area-chart", title: "Area chart", group: "Charts", files: ["area-chart.tsx"], registryDeps: ["chart"] },
@@ -154,7 +150,6 @@ export const ITEMS: Item[] = [
   { name: "resizable", title: "Resizable panes", group: "Layout", files: ["resizable.tsx"], showcase: false },
   { name: "scroll-area", title: "Scroll area", group: "Layout", files: ["scroll-area.tsx"], deps: [RADIX], showcase: false },
 
-  // Chat: the parts of a conversation UI (the AI section holds the loaders and the composer).
   { name: "message", title: "Message and bubble", group: "Chat", files: ["message.tsx"], registryDeps: ["avatar"] },
   { name: "message-scroller", title: "Message scroller", group: "Chat", files: ["message-scroller.tsx"], registryDeps: ["button"] },
   { name: "marker", title: "Marker", group: "Chat", files: ["marker.tsx"] },
@@ -168,7 +163,6 @@ export const ITEMS: Item[] = [
   { name: "proposed-change", title: "Proposed change", group: "Chat", files: ["proposed-change.tsx"], registryDeps: ["button"] },
   { name: "reactions", title: "Reactions", group: "Chat", files: ["reactions.tsx"], registryDeps: ["number-dial"] },
 
-  // Niche ERP parts: the spotlight on the landing page.
   { name: "command-palette", title: "Command palette", group: "Niche", files: ["command-palette.tsx"], deps: [RADIX], registryDeps: ["dialog", "kbd"] },
   { name: "date-range-picker", title: "Date range picker", group: "Niche", files: ["date-range-picker.tsx"], deps: [RADIX], registryDeps: ["button", "select", "sliding-pill", "tooltip"] },
   { name: "time-picker", title: "Time picker", group: "Niche", files: ["time-picker.tsx"], deps: [RADIX], registryDeps: ["select"] },
@@ -199,8 +193,6 @@ export const ITEMS: Item[] = [
   { name: "calendar-month", title: "Calendar month", group: "Niche", files: ["calendar-month.tsx"], registryDeps: ["button", "popover", "tooltip"] },
   { name: "holo-card", title: "Holo card", group: "Niche", files: ["holo-card.tsx"] },
 
-  // Mobile: phone components. Own files in src/components/mobile (they import each other relatively, so they install
-  // next to each other); shared parts appear here with their touch size. Shown at /mobile in a 390 × 844 phone frame.
   { name: "mobile-tab-bar", title: "Tab bar", group: "Bars", dir: "mobile", files: ["mobile-tab-bar.tsx"], registryDeps: ["sliding-pill", "mobile-badge", "mobile-action-bar"] },
   { name: "mobile-nav-bar", title: "Large-title nav bar", group: "Bars", dir: "mobile", files: ["mobile-nav-bar.tsx"] },
   { name: "mobile-action-bar", title: "Action bar", group: "Bars", dir: "mobile", files: ["mobile-action-bar.tsx"], companions: ["button"] },
@@ -216,7 +208,6 @@ export const ITEMS: Item[] = [
   { name: "mobile-search-bar", title: "Search bar", group: "Touch inputs", dir: "mobile", files: ["mobile-search-bar.tsx"] },
   { name: "mobile-stepper", title: "Stepper", group: "Touch inputs", files: ["quantity-stepper.tsx"] },
   { name: "mobile-snackbar", title: "Snackbar", group: "Feedback", dir: "mobile", files: ["mobile-snackbar.tsx"], registryDeps: ["mobile-sheet"] },
-    // Inputs, data, sheets and flows the example app's screens use.
   { name: "mobile-filter-chips", title: "Filter chips", group: "Bars", dir: "mobile", files: ["mobile-chip-row.tsx"], registryDeps: ["sliding-pill"] },
   { name: "mobile-top-tabs", title: "Top tabs", group: "Bars", dir: "mobile", files: ["mobile-top-tabs.tsx"] },
   { name: "mobile-choice-rows", title: "Switch, check and radio rows", group: "Lists", dir: "mobile", files: ["mobile-choice-rows.tsx"], registryDeps: ["switch", "sliding-pill"] },
@@ -246,7 +237,6 @@ export const ITEMS: Item[] = [
   { name: "mobile-upload-row", title: "Upload progress", group: "Feedback", dir: "mobile", files: ["mobile-upload-row.tsx"] },
   { name: "mobile-onboarding", title: "Onboarding pager", group: "Flows", dir: "mobile", files: ["mobile-pager.tsx"], registryDeps: ["button"] },
   { name: "mobile-chat", title: "Chat and composer", group: "Flows", dir: "mobile", files: ["mobile-chat.tsx"] },
-  // Installed app (PWA): what a web app needs once it lives on the home screen.
   { name: "mobile-install-prompt", title: "Install prompt", group: "Installed app", dir: "mobile", files: ["mobile-install-prompt.tsx"], registryDeps: ["mobile-sheet", "mobile-state-button"] },
   { name: "mobile-passkey", title: "Passkey sign-in", group: "Installed app", dir: "mobile", files: ["mobile-passkey.tsx"], registryDeps: ["avatar", "button", "mobile-sheet", "mobile-state-button"] },
   { name: "mobile-push-ask", title: "Notification ask", group: "Installed app", dir: "mobile", files: ["mobile-push-ask.tsx"], registryDeps: ["button"] },
@@ -260,7 +250,6 @@ export const ITEMS: Item[] = [
   { name: "mobile-wake-lock", title: "Keep screen on", group: "Installed app", dir: "mobile", files: ["mobile-wake-lock.tsx"], registryDeps: ["mobile-choice-rows"] },
   { name: "mobile-state-button", title: "State button", group: "Installed app", dir: "mobile", files: ["mobile-state-button.tsx"], registryDeps: ["button"] },
 
-  // AI: loaders and agent chrome. Add one = a file in src/components/ai + an entry here (see README).
   {
     name: "thinking-orbs",
     title: "Thinking orbs",
@@ -449,7 +438,6 @@ import { Composer, ComposerGlow } from "@/components/ui/composer-glow";
 <TurnRail turns={[{ id: "t1", question: "Which orders are late?" }, { id: "t2", question: "Why?" }]} scrollRef={threadRef} />`,
   },
 
-  // Backgrounds: interactive surfaces behind agent screens. Add one = a file in src/components/backgrounds + an entry here.
   {
     name: "sand-field",
     title: "Sand field",

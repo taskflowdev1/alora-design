@@ -84,7 +84,6 @@ export interface MobileComposerProps {
 export function MobileComposer({ value, onValueChange, onSend, onAttach, placeholder = "Message", suggestions, busy }: MobileComposerProps) {
   const box = React.useRef<HTMLDivElement>(null);
   const field = React.useRef<HTMLTextAreaElement>(null);
-  // Tell the thread how tall the composer is, so its last message stays in view.
   React.useLayoutEffect(() => {
     const el = box.current;
     const host = el?.parentElement;
@@ -127,7 +126,6 @@ export function MobileComposer({ value, onValueChange, onSend, onAttach, placeho
           ))}
         </div>
       ) : null}
-      {/* The field row fills while you type, as every other phone field does on focus. */}
       <div className={cn("flex items-end gap-1 transition-colors duration-[150ms] has-[textarea:focus]:bg-fill", round)}>
         {onAttach ? (
           <button type="button" aria-label="Attach" onClick={onAttach} className={cn("grid size-touch shrink-0 cursor-pointer place-items-center text-ink ad-press focus-visible:bg-fill active:scale-[0.92] data-pressed:scale-[0.92]", round)}>

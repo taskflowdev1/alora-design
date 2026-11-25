@@ -14,9 +14,7 @@ export interface SlidingPillProps {
 
 type Box = { x: number; y: number; w: number; h: number };
 const KEYS = ["x", "y", "w", "h"] as const;
-// Attributes that mark the chosen option across our components and Radix. The pill's own style is never watched.
 const WATCH = ["aria-checked", "aria-selected", "aria-current", "aria-pressed", "data-state", "data-active", "class"];
-// Spring (mass 1): stiff enough to land in about 250 ms, damped just under critical so it settles without a wobble.
 const K = 520;
 const C = 2 * Math.sqrt(K) * 0.9;
 
@@ -57,7 +55,6 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
     const vel: Box = { x: 0, y: 0, w: 0, h: 0 };
     let raf = 0;
     let last = 0;
-    // Keyboard changes land instantly (key repeat would outrun any slide); pointer changes slide.
     let keyAt = -Infinity;
     const onKey = () => (keyAt = performance.now());
 
@@ -78,11 +75,8 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
     };
     const tick = (now: number) => {
       if (!cur || !target) return stop();
-      // At most 25 ms per frame: a long frame (the change that moved the choice also restyled the page, as a theme
-      // switch does) would otherwise jump the pill half way in one step. 60 Hz frames run in real time.
       let dt = Math.min(0.025, (now - last) / 1000);
       last = now;
-      // Small fixed steps keep the spring stable on slow frames.
       while (dt > 0) {
         const h = Math.min(dt, 1 / 240);
         for (const k of KEYS) {
@@ -115,7 +109,6 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
         cur = null;
         return paint(null);
       }
-      // Slide only when the choice changed (or is already sliding); a first paint, resize or font load just places it.
       if (!cur || prefersReducedMotion() || (!moved && !raf) || (moved && performance.now() - keyAt < 300)) {
         stop();
         cur = { ...target };
@@ -126,8 +119,6 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
         raf = requestAnimationFrame(tick);
       }
     };
-    // Keyboard focus on the chosen option darkens the pill a little (data-focus): a selected item has no further hover
-    // step, so without this a keyboard user tabbing onto it would see nothing change.
     const focus = () => {
       const el = host.querySelector<HTMLElement>(selector);
       pill.toggleAttribute("data-focus", !!el && el.matches(":focus-visible"));
@@ -157,7 +148,6 @@ export function SlidingPill({ selector, className }: SlidingPillProps) {
       fonts?.removeEventListener?.("loadingdone", measure);
     };
   }, [selector]);
-  // The focus notch lands at once (data-[focus]:duration-0) and fades out when focus leaves.
   return (
     <span
       ref={ref}

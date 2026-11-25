@@ -33,7 +33,6 @@ export function MobileActionSheet({ open, onOpenChange, title, actions, cancelLa
     onOpenChange(false);
     a.onSelect();
   };
-  // Edge-to-edge rows don't scale: the fill lands at once on press and fades on release.
   const row =
     "flex h-[56px] w-full cursor-pointer select-none items-center gap-3 rounded-[calc(var(--ad-radius-sheet)-var(--ad-nest))] px-[calc(var(--ad-pad)-var(--ad-nest))] text-[17px] transition-colors duration-[120ms] active:bg-fill active:duration-0 data-pressed:bg-fill data-pressed:duration-0 focus-visible:bg-fill disabled:pointer-events-none disabled:opacity-40 [@media(hover:hover)]:hover:bg-fill";
   return (

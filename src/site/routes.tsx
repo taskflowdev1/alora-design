@@ -50,7 +50,6 @@ function AppError() {
 }
 
 export const router = createBrowserRouter([
-  // The example phone app, full screen on a phone (no site header).
   { path: "/mobile/app", element: <MobileAppPage />, errorElement: <AppError /> },
   { path: "/mobile/app/:screen", element: <MobileAppPage />, errorElement: <AppError /> },
   {

@@ -6,11 +6,6 @@ const FLIP_FINAL_MS = 250;
 const RIFFLE_MS = 110;
 const LOOP_HOLD_MS = 1600;
 
-/*
- * A flap is four halves: the new top and old bottom stay still; the old top falls to the fold, then the new bottom
- * falls from it and lands with a little give. The fold is a sliver of real gap, not a drawn line. Shading is the page
- * grey at an element opacity, so it stays on the ramp in both themes.
- */
 const CSS = `
 .ad-flip { container-type: inline-size; --t: 0; }
 .ad-flip-row { display: flex; align-items: center; justify-content: center; gap: 1.1cqw; transform: scale(calc(1 + var(--t) * 0.035)); transition: transform 280ms var(--ad-ease); }
@@ -71,7 +66,6 @@ function Flap({ value, flipMs, index, calm }: { value: string; flipMs: number; i
     });
   }, [value]);
 
-  // A new target starts the first step; each landing starts the next (onAnimationEnd below).
   React.useEffect(() => {
     if (calm) {
       setState((s) => (s.cur === value && s.prev === value ? s : { cur: value, prev: value, n: s.n }));
@@ -147,7 +141,6 @@ export function FlipCountdown({ seconds = 24, endsAt, loop = false, onComplete, 
 
   React.useImperativeHandle(ref, () => ({ setSeconds: (s) => setLeft(Math.max(0, Math.round(s))) }), []);
 
-  // One timeout per second, only while on screen and the tab is visible.
   React.useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
